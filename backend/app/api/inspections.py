@@ -48,6 +48,8 @@ def get_ocr_service() -> PaddleOcrService:
         secondary_language_max_image_dimension=settings.ocr_secondary_language_max_image_dimension,
         secondary_language_timeout_seconds=settings.ocr_secondary_language_timeout_seconds,
         recognition_batch_size=settings.ocr_recognition_batch_size,
+        detection_model=settings.ocr_detection_model,
+        recognition_model=settings.ocr_recognition_model,
     )
 
 
@@ -248,6 +250,7 @@ def process_inspection_image_ocr(
         image_id=ocr_result.image_id,
         engine=ocr_result.engine,
         languages=ocr_result.languages,
+        skipped_languages=document.skipped_languages,
         processed_at=ocr_result.created_at,
         raw_text=ocr_result.raw_text,
         results=ocr_result.detections,

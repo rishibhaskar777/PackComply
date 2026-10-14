@@ -5,6 +5,9 @@ import hmac
 import os
 import re
 import secrets
+from collections import OrderedDict
+from threading import Lock
+from time import monotonic
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field
@@ -19,6 +22,58 @@ from backend.app.models import AuthSession, User
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 ROLES = frozenset({"OFFICIAL", "MANUFACTURER"})
+MAX_ACTIVE_SESSIONS_PER_USER = 10
+
+
+class LoginRateLimiter:
+    """In-memory failed-login limiter keyed by (username, client IP).
+
+    Entries are kept in creation order, so stale windows are evicted from the
+    front in amortized O(1). State is per-process, which suits a single
+    local/demo server; use a shared store for multi-worker deployments.
+    """
+
+    def __init__(self) -> None:
+        self._entries: "OrderedDict[tuple[str, str], list[float]]" = OrderedDict()  # key -> [count, window_start]
+        self._lock = Lock()
+
+    def _evict_stale(self, now: float, window: float) -> None:
+        while self._entries:
+            key, (_, started) = next(iter(self._entries.items()))
+            if now - started < window:
+                break
+            del self._entries[key]
+
+    def retry_after(self, key: tuple[str, str], max_attempts: int, window: float) -> int:
+        """Seconds until the key may retry, or 0 when it is not locked out."""
+        now = monotonic()
+        with self._lock:
+            self._evict_stale(now, window)
+            entry = self._entries.get(key)
+            if entry is None or entry[0] < max_attempts:
+                return 0
+            return max(1, int(window - (now - entry[1])) + 1)
+
+    def record_failure(self, key: tuple[str, str], window: float) -> None:
+        now = monotonic()
+        with self._lock:
+            self._evict_stale(now, window)
+            entry = self._entries.get(key)
+            if entry is None:
+                self._entries[key] = [1, now]
+            else:
+                entry[0] += 1
+
+    def clear(self, key: tuple[str, str]) -> None:
+        with self._lock:
+            self._entries.pop(key, None)
+
+    def reset(self) -> None:
+        with self._lock:
+            self._entries.clear()
+
+
+login_limiter = LoginRateLimiter()
 
 class LoginRequest(BaseModel):
     username: str = Field(min_length=1, max_length=100)
@@ -27,7 +82,7 @@ class RegisterRequest(BaseModel):
     username: str = Field(min_length=3, max_length=100, pattern=r"^[A-Za-z0-9_.-]+$")
     email: str = Field(min_length=3, max_length=320)
     password: str = Field(min_length=8, max_length=1024)
-    role: str = Field(default="OFFICIAL")
+    role: str = Field(default="MANUFACTURER")
     full_name: str | None = Field(default=None, max_length=200)
     company_name: str | None = Field(default=None, max_length=200)
     organization: str | None = Field(default=None, max_length=200)
@@ -44,13 +99,21 @@ def verify_password(password: str, encoded: str | None) -> bool:
         _, salt, digest = (encoded or "").split("$", 2)
         return hmac.compare_digest(hash_password(password, bytes.fromhex(salt)).split("$", 2)[2], digest)
     except (ValueError, TypeError): return False
+# Verified against when a username does not exist, so response time does not
+# reveal whether an account exists.
+_DUMMY_PASSWORD_HASH = hash_password("packcomply-timing-equalizer")
 def token_hash(token: str) -> str: return hashlib.sha256(token.encode()).hexdigest()
 def safe_user(user: User) -> UserResponse:
     return UserResponse(id=str(user.id), username=user.username or user.email, email=user.email, is_active=user.is_active, role=user.role, full_name=user.full_name, organization=user.organization)
 def establish_session(user: User, response: Response, db: Session) -> None:
     token = secrets.token_urlsafe(32); settings = get_settings()
+    now = datetime.now(timezone.utc)
+    db.execute(delete(AuthSession).where(AuthSession.user_id == user.id, AuthSession.expires_at <= now))
     db.add(AuthSession(token_hash=token_hash(token), user_id=user.id, expires_at=datetime.now(timezone.utc) + timedelta(hours=settings.session_ttl_hours))); db.commit()
     response.set_cookie(settings.session_cookie_name, token, httponly=True, secure=settings.session_secure, samesite="lax", max_age=settings.session_ttl_hours * 3600, path="/")
+    # Keep the newest sessions only (the one just created is the newest).
+    stale = db.scalars(select(AuthSession.id).where(AuthSession.user_id == user.id).order_by(AuthSession.created_at.desc(), AuthSession.expires_at.desc()).offset(MAX_ACTIVE_SESSIONS_PER_USER)).all()
+    if stale: db.execute(delete(AuthSession).where(AuthSession.id.in_(stale))); db.commit()
 
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     token = request.cookies.get(get_settings().session_cookie_name)
@@ -65,20 +128,30 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     return user
 
 @router.post("/login", response_model=UserResponse)
-def login(payload: LoginRequest, response: Response, db: Session = Depends(get_db)) -> UserResponse:
+def login(payload: LoginRequest, request: Request, response: Response, db: Session = Depends(get_db)) -> UserResponse:
+    settings = get_settings(); window = settings.login_lockout_minutes * 60
+    key = (payload.username.strip().lower(), request.client.host if request.client else "unknown")
+    wait = login_limiter.retry_after(key, settings.login_max_attempts, window)
+    if wait: raise HTTPException(status_code=429, detail="Too many failed attempts. Try again later.", headers={"Retry-After": str(wait)})
     user = db.scalar(select(User).where((User.username == payload.username) | (User.email == payload.username)))
-    if not user or not user.is_active or not verify_password(payload.password, user.password_hash):
+    # Always hash-compare, even for unknown users, to avoid timing-based enumeration.
+    password_ok = verify_password(payload.password, user.password_hash if user else _DUMMY_PASSWORD_HASH)
+    if not user or not user.is_active or not password_ok:
+        login_limiter.record_failure(key, window)
         raise HTTPException(status_code=401, detail="Invalid username or password.")
+    login_limiter.clear(key)
     establish_session(user, response, db)
     return safe_user(user)
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(payload: RegisterRequest, response: Response, db: Session = Depends(get_db)) -> UserResponse:
     if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", payload.email):
         raise HTTPException(status_code=422, detail="Enter a valid email address.")
-    if db.scalar(select(User).where((User.username == payload.username) | (User.email == payload.email))):
-        raise HTTPException(status_code=409, detail="An account with those details already exists.")
     role = payload.role.upper()
     if role not in ROLES: raise HTTPException(status_code=422, detail="Choose a valid account role.")
+    if role == "OFFICIAL" and not get_settings().allow_official_self_registration:
+        raise HTTPException(status_code=403, detail="Official accounts are created by an administrator.")
+    if db.scalar(select(User).where((User.username == payload.username) | (User.email == payload.email))):
+        raise HTTPException(status_code=409, detail="An account with those details already exists.")
     name = (payload.company_name if role == "MANUFACTURER" else payload.full_name) or payload.username
     if len(name.strip()) < 2: raise HTTPException(status_code=422, detail="Provide the required account name.")
     user = User(email=payload.email, username=payload.username, full_name=name.strip(), organization=(payload.organization or None), role=role, password_hash=hash_password(payload.password), is_active=True)

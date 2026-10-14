@@ -54,6 +54,19 @@ describe("inspection workflow UI", () => {
     fireEvent.click(screen.getByRole("button", { name: en.registerAccount }));
     expect((await screen.findByRole("alert")).textContent).toBe(en.passwordsDoNotMatch);
   });
+  it("shows the rate-limit message when login is locked out", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(response({ detail: "Not authenticated" }, false, 401)).mockResolvedValueOnce(response({ detail: "Too many failed attempts. Try again later." }, false, 429)); vi.stubGlobal("fetch", fetchMock); renderApp();
+    fireEvent.change(await screen.findByRole("textbox", { name: en.username }), { target: { value: "inspector" } }); fireEvent.change(screen.getByLabelText(en.password), { target: { value: "wrong-password" } }); fireEvent.click(screen.getByRole("button", { name: en.signIn }));
+    expect((await screen.findByRole("alert")).textContent).toBe(en.tooManyAttempts);
+  });
+  it("registers explicitly as a manufacturer and explains why", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(response({ detail: "Not authenticated" }, false, 401)).mockResolvedValueOnce(response({ username: "new-user" })).mockResolvedValueOnce(response({ username: "new-user" })); vi.stubGlobal("fetch", fetchMock); renderApp();
+    fireEvent.click(await screen.findByRole("tab", { name: en.register })); expect(screen.getByText(en.manufacturerRegistrationNote)).toBeTruthy();
+    fireEvent.change(screen.getByRole("textbox", { name: en.username }), { target: { value: "new-user" } }); fireEvent.change(screen.getByRole("textbox", { name: en.email }), { target: { value: "new@example.invalid" } }); fireEvent.change(screen.getByLabelText(en.password), { target: { value: "register-password" } }); fireEvent.change(screen.getByLabelText(en.confirmPassword), { target: { value: "register-password" } }); fireEvent.click(screen.getByRole("button", { name: en.registerAccount }));
+    await screen.findByText(en.dashboard);
+    const registerCall = fetchMock.mock.calls.find(call => String(call[0]).endsWith("/auth/register"))!;
+    expect(JSON.parse((registerCall[1] as RequestInit).body as string).role).toBe("MANUFACTURER");
+  });
   it("verifies the cookie-backed session after login before allowing protected work", async () => {
     const fetchMock = vi.fn().mockResolvedValueOnce(response({ detail: "Not authenticated" }, false, 401)).mockResolvedValueOnce(response({ username: "inspector" })).mockResolvedValueOnce(response({ username: "inspector" })); vi.stubGlobal("fetch", fetchMock); renderApp();
     fireEvent.change(await screen.findByRole("textbox", { name: en.username }), { target: { value: "inspector" } }); fireEvent.change(screen.getByLabelText(en.password), { target: { value: "correct-password" } }); fireEvent.click(screen.getByRole("button", { name: en.signIn }));

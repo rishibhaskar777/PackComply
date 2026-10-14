@@ -75,6 +75,7 @@ class OcrProcessed(BaseModel):
     image_id: UUID | None
     engine: str
     languages: list[str]
+    skipped_languages: list[str] = []
     processed_at: datetime
     raw_text: str
     results: list[OcrDetectionResponse]

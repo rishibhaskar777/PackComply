@@ -42,7 +42,7 @@ def auth_client(auth_database):
         yield client
 
 
-def create_user(sessions, username: str, password: str = "correct-horse-battery-staple") -> User:
+def create_user(sessions, username: str, password: str = "correct-horse-battery-staple", role: str = "OFFICIAL") -> User:
     with sessions() as db:
         user = User(
             email=f"{username}@example.invalid",
@@ -50,6 +50,7 @@ def create_user(sessions, username: str, password: str = "correct-horse-battery-
             full_name=username.title(),
             password_hash=hash_password(password),
             is_active=True,
+            role=role,
         )
         db.add(user)
         db.commit()
@@ -263,7 +264,27 @@ def test_registration_creates_a_hashed_user_and_authenticated_session(auth_clien
     assert auth_client.get("/api/auth/me").json()["username"] == "registered-user"
 
 
-def test_role_registration_me_and_server_side_authorization(auth_client) -> None:
+def test_default_registration_creates_a_manufacturer(auth_client) -> None:
+    response = auth_client.post("/api/auth/register", json={"username": "default-role", "email": "default-role@example.invalid", "password": "register-password"})
+    assert response.status_code == 201 and response.json()["role"] == "MANUFACTURER"
+
+
+def test_public_registration_cannot_create_an_official(auth_client, auth_database) -> None:
+    response = auth_client.post("/api/auth/register", json={"username": "sneaky", "email": "sneaky@example.invalid", "password": "register-password", "role": "OFFICIAL"})
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Official accounts are created by an administrator."}
+    with auth_database() as db:
+        assert db.scalar(select(User).where(User.username == "sneaky")) is None
+
+
+def test_official_self_registration_flag_allows_official(auth_client, monkeypatch) -> None:
+    monkeypatch.setattr(get_settings(), "allow_official_self_registration", True)
+    response = auth_client.post("/api/auth/register", json={"username": "flagged", "email": "flagged@example.invalid", "password": "register-password", "role": "OFFICIAL"})
+    assert response.status_code == 201 and response.json()["role"] == "OFFICIAL"
+
+
+def test_role_registration_me_and_server_side_authorization(auth_client, monkeypatch) -> None:
+    monkeypatch.setattr(get_settings(), "allow_official_self_registration", True)
     official = {"username": "official-role", "email": "official-role@example.invalid", "password": "register-password", "role": "OFFICIAL", "full_name": "Official User", "organization": "Label Office"}
     response = auth_client.post("/api/auth/register", json=official)
     assert response.status_code == 201 and response.json()["role"] == "OFFICIAL"
@@ -301,3 +322,61 @@ def test_newly_registered_user_can_log_in_after_logout(auth_client) -> None:
     assert auth_client.post("/api/auth/register", json=payload).status_code == 201
     assert auth_client.post("/api/auth/logout").status_code == 204
     assert auth_client.post("/api/auth/login", json={"username": payload["username"], "password": payload["password"]}).status_code == 200
+
+
+def test_login_is_locked_after_repeated_failures_and_success_resets(auth_client, test_user) -> None:
+    bad = {"username": test_user.username, "password": "wrong-password"}
+    ok = {"username": test_user.username, "password": "correct-horse-battery-staple"}
+    for _ in range(4):
+        assert auth_client.post("/api/auth/login", json=bad).status_code == 401
+    # Success clears the counter.
+    assert auth_client.post("/api/auth/login", json=ok).status_code == 200
+    for _ in range(5):
+        assert auth_client.post("/api/auth/login", json=bad).status_code == 401
+    locked = auth_client.post("/api/auth/login", json=bad)
+    assert locked.status_code == 429
+    assert locked.json() == {"detail": "Too many failed attempts. Try again later."}
+    assert int(locked.headers["Retry-After"]) > 0
+    # Even the correct password is refused while locked out.
+    assert auth_client.post("/api/auth/login", json=ok).status_code == 429
+
+
+def test_unknown_user_failures_are_also_limited_and_generic(auth_client) -> None:
+    payload = {"username": "ghost", "password": "whatever-password"}
+    for _ in range(5):
+        response = auth_client.post("/api/auth/login", json=payload)
+        assert response.status_code == 401 and response.json() == {"detail": "Invalid username or password."}
+    assert auth_client.post("/api/auth/login", json=payload).status_code == 429
+
+
+def test_unknown_user_login_still_runs_a_password_hash(auth_client, monkeypatch) -> None:
+    from backend.app.api import auth as auth_module
+    calls: list[str | None] = []
+    original = auth_module.verify_password
+    monkeypatch.setattr(auth_module, "verify_password", lambda password, encoded: calls.append(encoded) or original(password, encoded))
+    assert auth_client.post("/api/auth/login", json={"username": "ghost", "password": "whatever-password"}).status_code == 401
+    assert calls == [auth_module._DUMMY_PASSWORD_HASH]
+
+
+def test_login_removes_expired_sessions_and_caps_active_sessions(auth_client, auth_database, test_user) -> None:
+    now = datetime.now(timezone.utc)
+    with auth_database() as db:
+        db.add(AuthSession(token_hash=token_hash("old-expired"), user_id=test_user.id, expires_at=now - timedelta(hours=1)))
+        for index in range(12):
+            db.add(AuthSession(token_hash=token_hash(f"active-{index}"), user_id=test_user.id, expires_at=now + timedelta(hours=1)))
+        db.commit()
+    response = auth_client.post("/api/auth/login", json={"username": test_user.username, "password": "correct-horse-battery-staple"})
+    assert response.status_code == 200
+    with auth_database() as db:
+        sessions = db.scalars(select(AuthSession).where(AuthSession.user_id == test_user.id)).all()
+        assert len(sessions) == 10
+        assert token_hash("old-expired") not in {item.token_hash for item in sessions}
+    assert auth_client.get("/api/auth/me").status_code == 200
+
+
+def test_security_headers_are_present(auth_client) -> None:
+    response = auth_client.get("/api/health")
+    assert response.headers["X-Content-Type-Options"] == "nosniff"
+    assert response.headers["X-Frame-Options"] == "DENY"
+    assert response.headers["Referrer-Policy"] == "no-referrer"
+    assert response.headers["Permissions-Policy"] == "camera=(self), geolocation=(self), microphone=()"

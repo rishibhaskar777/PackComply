@@ -111,6 +111,24 @@ Open <http://localhost:5173> and sign in. API docs are at <http://localhost:8000
 
 The first time an image is processed, PaddleOCR downloads its models (several files per language). This can take a minute or more and needs internet access. Later runs use the cached models.
 
+### Warm up the OCR models
+
+Run this once after install and before any demo, so no model downloads happen live:
+
+```powershell
+python -m backend.scripts.warm_ocr
+```
+
+It downloads and loads the models for every language in `OCR_LANGUAGES`, prints per-language status and time, and does not touch the database.
+
+## Creating an inspector (official) account
+
+Public registration only creates manufacturer accounts. Create inspector accounts from the command line:
+
+```powershell
+python -m backend.scripts.create_user --role OFFICIAL --username inspector --email inspector@example.com --full-name "Inspector Name" --organization "Legal Metrology"
+```
+
 ## Troubleshooting
 
 **Connection refused / server not running.** PostgreSQL is not running. Start it with `pg_ctl.exe -D "<PG_DATA>" -l "<log file>" start` and confirm with `pg_ctl.exe -D "<PG_DATA>" status`.
