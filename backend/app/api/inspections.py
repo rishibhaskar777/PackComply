@@ -35,7 +35,7 @@ def require_owner(inspection: Inspection | None, user: User) -> Inspection:
 
 
 def make_inspection_number() -> str:
-    return f"LG-{datetime.now(timezone.utc):%Y%m%d}-{uuid4().hex[:8].upper()}"
+    return f"PC-{datetime.now(timezone.utc):%Y%m%d}-{uuid4().hex[:8].upper()}"
 
 
 @lru_cache

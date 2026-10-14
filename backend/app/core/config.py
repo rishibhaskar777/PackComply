@@ -21,9 +21,9 @@ SUPPORTED_PADDLE_OCR_LANGUAGES = frozenset({
 class Settings(BaseSettings):
     """Runtime configuration loaded from environment variables."""
 
-    app_name: str = "LabelGuard API"
+    app_name: str = "PackComply API"
     environment: str = "development"
-    database_url: str = "postgresql+psycopg://labelguard:labelguard@localhost:5432/labelguard"
+    database_url: str = "postgresql+psycopg://packcomply:packcomply@localhost:5432/packcomply"
     upload_dir: Path = Path("uploads")
     max_upload_bytes: int = 10 * 1024 * 1024
     # Full-resolution phone photographs can make CPU OCR take many minutes.
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     # important for dense package labels on the Windows CPU runtime.
     ocr_recognition_batch_size: int = 8
     ocr_languages: str = "en,hi,gom,mai,mr,ne,sa,ta,te,ur,ka"
-    session_cookie_name: str = "labelguard_session"
+    session_cookie_name: str = "packcomply_session"
     session_ttl_hours: int = 12
     session_secure: bool = False
     pattern_min_occurrences: int = 2

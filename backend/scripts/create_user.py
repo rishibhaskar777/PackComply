@@ -7,7 +7,7 @@ from backend.app.api.auth import hash_password
 from backend.app.core.database import SessionLocal
 from backend.app.models import User
 
-parser = argparse.ArgumentParser(description="Create a local LabelGuard user")
+parser = argparse.ArgumentParser(description="Create a local PackComply user")
 parser.add_argument("--username")
 parser.add_argument("--email")
 

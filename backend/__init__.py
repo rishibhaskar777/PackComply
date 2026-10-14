@@ -1,1 +1,1 @@
-"""LabelGuard backend package."""
+"""PackComply backend package."""
