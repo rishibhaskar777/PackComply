@@ -66,6 +66,8 @@ docker-compose.yml
 
 ## Getting started
 
+Windows users without Docker: see [docs/local-setup-windows.md](docs/local-setup-windows.md).
+
 ### Prerequisites
 
 - Python 3.11+
