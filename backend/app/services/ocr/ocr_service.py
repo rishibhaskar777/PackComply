@@ -20,6 +20,10 @@ from queue import Empty
 # Uvicorn configures this logger at INFO, unlike the process root logger.
 logger = logging.getLogger("uvicorn.error")
 
+# Library defaults, mirrored so a custom recognition engine_config keeps them.
+_DEFAULT_CPU_THREADS = 10
+_DEFAULT_MKLDNN_CACHE_CAPACITY = 10
+
 
 class OcrInitializationError(RuntimeError):
     """PaddleOCR or its model assets could not be initialized."""
@@ -27,30 +31,6 @@ class OcrInitializationError(RuntimeError):
 
 class OcrProcessingError(RuntimeError):
     """A valid image could not be preprocessed or read by the OCR engine."""
-
-
-def _scan_secondary_language(
-    language: str,
-    image_path: str,
-    max_image_dimension: int,
-    recognition_batch_size: int,
-    result_queue: Any,
-) -> None:
-    """Run a secondary PaddleOCR language in a fresh Windows process.
-
-    PaddleOCR 3.7's English and Devanagari predictors can deadlock when both
-    have executed in the same Windows Python process.  A spawned worker keeps
-    the genuine cached Paddle model while isolating its native runtime state.
-    """
-    try:
-        service = PaddleOcrService(
-            languages=(language,),
-            max_image_dimension=max_image_dimension,
-            recognition_batch_size=recognition_batch_size,
-        )
-        result_queue.put(("ok", service.scan(Path(image_path)).detections))
-    except Exception as error:
-        result_queue.put(("error", str(error)))
 
 
 @dataclass(frozen=True)
@@ -75,6 +55,131 @@ class OcrDocument:
         return [asdict(item) for item in self.detections]
 
 
+def _secondary_worker_main(language: str, options: dict[str, Any], requests: Any, responses: Any) -> None:
+    """Long-lived worker process for one secondary OCR language.
+
+    PaddleOCR 3.7's English and Devanagari predictors can deadlock when both
+    have executed in the same Windows Python process.  A dedicated process
+    keeps each language's native runtime state isolated while loading its
+    models only once.  The service is built lazily so a failed model load is
+    reported against the request that triggered it.
+    """
+    service: PaddleOcrService | None = None
+    while True:
+        request = requests.get()
+        if request is None:
+            return
+        job_id, image_path = request
+        try:
+            if service is None:
+                service = PaddleOcrService(languages=(language,), **options)
+            responses.put((job_id, "ok", service._predict(language, Path(image_path))))
+        except Exception as error:
+            responses.put((job_id, "error", str(error)))
+
+
+class _SecondaryWorker:
+    """Parent-side handle to one worker; started lazily, restarted when dead or timed out."""
+
+    def __init__(self, language: str, options: dict[str, Any]) -> None:
+        self.language = language
+        self._options = options
+        self._process: Any = None
+        self._requests: Any = None
+        self._responses: Any = None
+        self._next_job = 0
+        # Held from submit to collect so concurrent scans cannot interleave replies.
+        self.lock = RLock()
+
+    def alive(self) -> bool:
+        return self._process is not None and self._process.is_alive()
+
+    def _start(self) -> None:
+        self.stop()
+        context = multiprocessing.get_context("spawn")
+        self._requests = context.Queue()
+        self._responses = context.Queue()
+        self._process = context.Process(
+            target=_secondary_worker_main,
+            args=(self.language, self._options, self._requests, self._responses),
+            daemon=True,
+        )
+        self._process.start()
+        logger.info("OCR worker started language=%s pid=%s", self.language, self._process.pid)
+
+    def submit(self, image_path: Path) -> int:
+        if not self.alive():
+            self._start()
+        self._next_job += 1
+        self._requests.put((self._next_job, str(image_path)))
+        return self._next_job
+
+    def collect(self, job_id: int, timeout: float) -> list[OcrDetection]:
+        deadline = perf_counter() + timeout
+        while True:
+            remaining = deadline - perf_counter()
+            if remaining <= 0:
+                self.stop()
+                raise OcrProcessingError(f"PaddleOCR {self.language} processing exceeded {timeout:.0f} seconds.")
+            try:
+                received_id, state, payload = self._responses.get(timeout=min(remaining, 0.5))
+            except Empty:
+                if not self.alive():
+                    self.stop()
+                    raise OcrProcessingError(f"PaddleOCR {self.language} worker exited without a result.")
+                continue
+            if received_id != job_id:
+                continue  # stale reply from an abandoned request
+            if state != "ok":
+                raise OcrProcessingError(f"PaddleOCR {self.language} worker failed: {payload}")
+            return payload
+
+    def stop(self) -> None:
+        process, self._process = self._process, None
+        if process is not None and process.is_alive():
+            process.terminate()
+            process.join(5)
+        for queue in (self._requests, self._responses):
+            if queue is not None:
+                queue.close()
+        self._requests = self._responses = None
+
+
+class _SecondaryTicket:
+    """A submitted secondary-language request.
+
+    Holds the worker lock until `collect` or `cancel`, so one worker serves one
+    scan at a time while the primary language runs concurrently in-process.
+    """
+
+    def __init__(self, worker: _SecondaryWorker, image_path: Path, timeout: float) -> None:
+        self.language = worker.language
+        self._worker = worker
+        self._timeout = timeout
+        worker.lock.acquire()
+        self._held = True
+        self._started = perf_counter()
+        try:
+            self._job = worker.submit(image_path)
+        except Exception:
+            self.cancel()
+            raise
+
+    def collect(self) -> list[OcrDetection]:
+        try:
+            # The worker has been running while the primary language ran, so
+            # count the timeout from submission but always allow a short grace.
+            remaining = max(self._timeout - (perf_counter() - self._started), 1.0)
+            return self._worker.collect(self._job, remaining)
+        finally:
+            self.cancel()
+
+    def cancel(self) -> None:
+        if self._held:
+            self._held = False
+            self._worker.lock.release()
+
+
 class PaddleOcrService:
     """Run PaddleOCR after a small contrast/noise preprocessing step."""
 
@@ -90,6 +195,8 @@ class PaddleOcrService:
         recognition_batch_size: int = 8,
         detection_model: str = "",
         recognition_model: str = "",
+        enable_mkldnn: bool = True,
+        cpu_threads: int = 0,
     ) -> None:
         self.languages = languages
         self._engine = engine
@@ -100,9 +207,79 @@ class PaddleOcrService:
         self.recognition_batch_size = recognition_batch_size
         self.detection_model = detection_model.strip()
         self.recognition_model = recognition_model.strip()
+        self.enable_mkldnn = enable_mkldnn
+        self.cpu_threads = cpu_threads
+        # Languages whose engine currently runs recognition on oneDNN, and
+        # languages that failed with it and were rebuilt without it.
+        self._mkldnn_active: set[str] = set()
+        self._mkldnn_disabled: set[str] = set()
+        self._workers: dict[str, _SecondaryWorker] = {}
         # Paddle/PaddleX model construction and inference are not safe to run
         # concurrently against one in-memory predictor on Windows.
         self._engine_lock = RLock()
+        # Separate so locating a worker never waits behind a running inference.
+        self._worker_lock = RLock()
+
+    # ------------------------------------------------------------------ engine
+
+    def _recognition_mkldnn_config(self) -> dict[str, Any] | None:
+        """PaddleX pipeline config that enables oneDNN for text recognition only.
+
+        Measured on paddlepaddle 3.3.1 / Windows CPU: recognition models run
+        ~2.4x faster with oneDNN, while every detection model raises
+        ``NotImplementedError`` in the oneDNN executor.  The pipeline-wide flag
+        therefore stays off and only the recognition sub-module opts in.
+        """
+        try:
+            from paddlex.inference import load_pipeline_config
+
+            config = load_pipeline_config("OCR")
+            config["SubModules"]["TextRecognition"]["engine_config"] = {
+                "paddle_static": {
+                    "mkldnn_cache_capacity": _DEFAULT_MKLDNN_CACHE_CAPACITY,
+                    "cpu_threads": self.cpu_threads or _DEFAULT_CPU_THREADS,
+                    "enable_cinn": False,
+                }
+            }
+            return config
+        except Exception:
+            logger.warning("OCR oneDNN recognition config unavailable; continuing without oneDNN", exc_info=True)
+            return None
+
+    def _build_engine(self, language: str, use_mkldnn: bool) -> Any:
+        from paddleocr import PaddleOCR
+
+        # Optional explicit model names; empty keeps PaddleOCR's per-language default.
+        options: dict[str, Any] = {}
+        if self.detection_model:
+            options["text_detection_model_name"] = self.detection_model
+        if self.recognition_model:
+            options["text_recognition_model_name"] = self.recognition_model
+        if self.cpu_threads > 0:
+            options["cpu_threads"] = self.cpu_threads
+        if use_mkldnn:
+            config = self._recognition_mkldnn_config()
+            if config is not None:
+                options["paddlex_config"] = config
+            else:
+                use_mkldnn = False
+        # PaddleOCR 3 uses the unified predict interface.
+        engine = PaddleOCR(
+            lang=language,
+            **options,
+            use_doc_orientation_classify=False,
+            use_doc_unwarping=False,
+            use_textline_orientation=False,
+            text_recognition_batch_size=self.recognition_batch_size,
+            # Pipeline-wide oneDNN stays off: Paddle's oneDNN executor raises
+            # NotImplementedError for every detection model on Windows.
+            enable_mkldnn=False,
+        )
+        if use_mkldnn:
+            self._mkldnn_active.add(language)
+        else:
+            self._mkldnn_active.discard(language)
+        return engine
 
     def _get_engine(self, language: str) -> Any:
         if self._engine is not None:
@@ -113,44 +290,57 @@ class PaddleOcrService:
                 return self._engines[language]
             started = perf_counter()
             logger.info("OCR initializing engine language=%s", language)
+            # Keep model downloads and file locks inside the application
+            # workspace. The upstream default is the user's home directory.
+            os.environ.setdefault("PADDLE_PDX_CACHE_HOME", str(Path(".paddlex").resolve()))
+            # Skip the per-start network probe of model hosting sources.
+            os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
             try:
-                # Keep model downloads and file locks inside the application
-                # workspace. The upstream default is the user's home directory.
-                os.environ.setdefault("PADDLE_PDX_CACHE_HOME", str(Path(".paddlex").resolve()))
-                # Skip the per-start network probe of model hosting sources.
-                os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
-                from paddleocr import PaddleOCR
-
-                # Optional explicit model names; empty keeps PaddleOCR's per-language default.
-                model_options: dict[str, str] = {}
-                if self.detection_model:
-                    model_options["text_detection_model_name"] = self.detection_model
-                if self.recognition_model:
-                    model_options["text_recognition_model_name"] = self.recognition_model
-                # PaddleOCR 3 uses the unified predict interface.
-                self._engines[language] = PaddleOCR(
-                    lang=language,
-                    **model_options,
-                    use_doc_orientation_classify=False,
-                    use_doc_unwarping=False,
-                    use_textline_orientation=False,
-                    text_recognition_batch_size=self.recognition_batch_size,
-                    # Paddle's oneDNN CPU executor currently raises an
-                    # ``NotImplementedError`` on Windows for the bundled OCR
-                    # detection model, so use the compatible standard executor.
-                    enable_mkldnn=False,
-                )
+                use_mkldnn = self.enable_mkldnn and language not in self._mkldnn_disabled
+                try:
+                    engine = self._build_engine(language, use_mkldnn)
+                except ImportError:
+                    raise
+                except Exception:
+                    if not use_mkldnn:
+                        raise
+                    logger.warning("OCR engine creation failed with oneDNN; retrying without it language=%s", language, exc_info=True)
+                    self._mkldnn_disabled.add(language)
+                    engine = self._build_engine(language, False)
+                self._engines[language] = engine
             except ImportError as error:
                 logger.exception("OCR engine import failed language=%s", language)
                 raise OcrInitializationError("PaddleOCR is not installed on this server.") from error
             except Exception as error:
                 logger.exception("OCR engine initialization failed language=%s", language)
                 raise OcrInitializationError("PaddleOCR could not be initialized.") from error
-            logger.info("OCR engine initialized language=%s elapsed_seconds=%.3f", language, perf_counter() - started)
+            logger.info(
+                "OCR engine initialized language=%s mkldnn_recognition=%s elapsed_seconds=%.3f",
+                language, language in self._mkldnn_active, perf_counter() - started,
+            )
             return self._engines[language]
+
+    def _predict(self, language: str, image_path: Path) -> list[OcrDetection]:
+        """Run one language, rebuilding the engine without oneDNN if it fails there."""
+        with self._engine_lock:
+            engine = self._get_engine(language)
+            try:
+                return self._run_engine(engine, image_path)
+            except OcrProcessingError:
+                raise
+            except (NotImplementedError, RuntimeError) as error:
+                if self._engine is not None or language not in self._mkldnn_active:
+                    raise
+                logger.warning("OCR inference failed with oneDNN; rebuilding without it language=%s reason=%s", language, error)
+                self._mkldnn_disabled.add(language)
+                self._engines.pop(language, None)
+                return self._run_engine(self._get_engine(language), image_path)
+
+    # -------------------------------------------------------------------- scan
 
     def scan(self, image_path: Path) -> OcrDocument:
         processed_paths: list[Path] = []
+        tickets: list[_SecondaryTicket] = []
         started = perf_counter()
         logger.info("OCR request started image_path=%s languages=%s", image_path, ",".join(self.languages))
         try:
@@ -164,27 +354,53 @@ class PaddleOcrService:
             detections: list[OcrDetection] = []
             completed_languages: list[str] = []
             skipped_languages: list[str] = []
-            for index, language in enumerate(self.languages):
+
+            # Secondary languages run in their own long-lived worker processes;
+            # submit them first so they overlap with the primary language.
+            pending: list[tuple[str, Any]] = []
+            for language in self.languages[1:]:
+                if self._engine is not None:
+                    continue
                 language_image_path = processed_path
-                if index and self.secondary_language_max_image_dimension < self.max_image_dimension:
+                if self.secondary_language_max_image_dimension < self.max_image_dimension:
                     secondary_started = perf_counter()
                     language_image_path = self._preprocess(image_path, self.secondary_language_max_image_dimension)
                     processed_paths.append(language_image_path)
                     logger.info("OCR secondary preprocessing completed language=%s path=%s elapsed_seconds=%.3f", language, language_image_path, perf_counter() - secondary_started)
-                inference_started = perf_counter()
-                logger.info("OCR inference started language=%s", language)
-                if index and self._engine is None:
-                    try:
-                        language_detections = self._run_secondary_language(language, language_image_path)
-                    except OcrProcessingError as error:
-                        # A secondary language is best-effort: keep the primary result.
-                        logger.warning("OCR secondary language skipped language=%s reason=%s", language, error)
-                        skipped_languages.append(language)
-                        continue
-                else:
-                    engine = self._get_engine(language)
-                    language_detections = self._run_engine(engine, language_image_path)
-                logger.info("OCR inference completed language=%s detections=%d elapsed_seconds=%.3f", language, len(language_detections), perf_counter() - inference_started)
+                try:
+                    ticket = self._start_secondary_language(language, language_image_path)
+                except OcrProcessingError as error:
+                    logger.warning("OCR secondary language skipped language=%s reason=%s", language, error)
+                    skipped_languages.append(language)
+                    continue
+                tickets.append(ticket)
+                pending.append((language, ticket))
+
+            primary = self.languages[0]
+            inference_started = perf_counter()
+            logger.info("OCR inference started language=%s", primary)
+            primary_detections = self._predict(primary, processed_path)
+            logger.info("OCR inference completed language=%s detections=%d elapsed_seconds=%.3f", primary, len(primary_detections), perf_counter() - inference_started)
+            detections.extend(primary_detections)
+            completed_languages.append(primary)
+
+            if self._engine is not None:
+                # An injected engine serves every language in this process.
+                for language in self.languages[1:]:
+                    language_detections = self._predict(language, processed_path)
+                    detections.extend(language_detections)
+                    completed_languages.append(language)
+
+            for language, ticket in pending:
+                secondary_started = perf_counter()
+                try:
+                    language_detections = ticket.collect()
+                except OcrProcessingError as error:
+                    # A secondary language is best-effort: keep the primary result.
+                    logger.warning("OCR secondary language skipped language=%s reason=%s", language, error)
+                    skipped_languages.append(language)
+                    continue
+                logger.info("OCR inference completed language=%s detections=%d wait_seconds=%.3f", language, len(language_detections), perf_counter() - secondary_started)
                 detections.extend(language_detections)
                 completed_languages.append(language)
             parse_started = perf_counter()
@@ -202,33 +418,79 @@ class PaddleOcrService:
             logger.exception("OCR request failed image_path=%s", image_path)
             raise OcrProcessingError("PaddleOCR could not process this image.") from error
         finally:
+            for ticket in tickets:
+                ticket.cancel()
             for processed_path in processed_paths:
                 if processed_path.exists():
                     processed_path.unlink()
             logger.info("OCR request completed image_path=%s elapsed_seconds=%.3f", image_path, perf_counter() - started)
 
-    def _run_secondary_language(self, language: str, image_path: Path) -> list[OcrDetection]:
-        context = multiprocessing.get_context("spawn")
-        result_queue = context.Queue()
-        worker = context.Process(
-            target=_scan_secondary_language,
-            args=(language, str(image_path), self.secondary_language_max_image_dimension, self.recognition_batch_size, result_queue),
-        )
-        worker.start()
-        worker.join(self.secondary_language_timeout_seconds)
-        if worker.is_alive():
-            worker.terminate()
-            worker.join()
-            raise OcrProcessingError(f"PaddleOCR {language} processing exceeded {self.secondary_language_timeout_seconds} seconds.")
+    def _worker_for(self, language: str) -> _SecondaryWorker:
+        with self._worker_lock:
+            worker = self._workers.get(language)
+            if worker is None:
+                worker = _SecondaryWorker(language, {
+                    "max_image_dimension": self.secondary_language_max_image_dimension,
+                    "recognition_batch_size": self.recognition_batch_size,
+                    "detection_model": self.detection_model,
+                    # A recognition model name is script-specific, so it only
+                    # applies to the primary language.
+                    "recognition_model": "",
+                    "enable_mkldnn": self.enable_mkldnn,
+                    "cpu_threads": self.cpu_threads,
+                })
+                self._workers[language] = worker
+            return worker
+
+    def _start_secondary_language(self, language: str, image_path: Path) -> _SecondaryTicket:
         try:
-            state, payload = result_queue.get(timeout=1)
-        except Empty as error:
-            raise OcrProcessingError(f"PaddleOCR {language} worker exited without a result.") from error
+            return _SecondaryTicket(self._worker_for(language), image_path, self.secondary_language_timeout_seconds)
+        except Exception as error:
+            raise OcrProcessingError(f"PaddleOCR {language} worker could not be started: {error}") from error
+
+    def warm(self) -> None:
+        """Load every configured engine and run one small inference through each.
+
+        Called from a background thread at application startup so the first
+        user request does not pay model-load time.  Safe to call repeatedly.
+        """
+        started = perf_counter()
+        sample = self._warm_image()
+        try:
+            self._predict(self.languages[0], sample)
+            if self._engine is None:
+                tickets = []
+                for language in self.languages[1:]:
+                    try:
+                        tickets.append(self._start_secondary_language(language, sample))
+                    except OcrProcessingError as error:
+                        logger.warning("OCR warm-up skipped language=%s reason=%s", language, error)
+                for ticket in tickets:
+                    try:
+                        ticket.collect()
+                    except OcrProcessingError as error:
+                        logger.warning("OCR warm-up failed language=%s reason=%s", ticket.language, error)
+            logger.info("OCR warm-up completed languages=%s elapsed_seconds=%.3f", ",".join(self.languages), perf_counter() - started)
         finally:
-            result_queue.close()
-        if state != "ok":
-            raise OcrProcessingError(f"PaddleOCR {language} worker failed: {payload}")
-        return payload
+            sample.unlink(missing_ok=True)
+
+    @staticmethod
+    def _warm_image() -> Path:
+        import cv2
+        import numpy
+
+        canvas = numpy.full((160, 640, 3), 255, dtype=numpy.uint8)
+        cv2.putText(canvas, "MRP Rs 50.00 Net Wt 200 g", (20, 95), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 0), 2)
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temporary:
+            output = Path(temporary.name)
+        cv2.imwrite(str(output), canvas)
+        return output
+
+    def close(self) -> None:
+        """Stop secondary worker processes."""
+        for worker in self._workers.values():
+            worker.stop()
+        self._workers.clear()
 
     @staticmethod
     def _preprocess(image_path: Path, max_image_dimension: int = 640) -> Path:

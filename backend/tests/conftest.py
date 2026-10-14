@@ -1,5 +1,9 @@
 """Existing inspection tests exercise authenticated behaviour with a test principal."""
+import os
 from uuid import UUID
+
+# Tests use fakes; never load real Paddle models from the app lifespan.
+os.environ.setdefault("OCR_WARMUP_ON_STARTUP", "false")
 
 import pytest
 

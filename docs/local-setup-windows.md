@@ -121,6 +121,27 @@ python -m backend.scripts.warm_ocr
 
 It downloads and loads the models for every language in `OCR_LANGUAGES`, prints per-language status and time, and does not touch the database.
 
+The API also warms the models itself in a background thread on startup (`OCR_WARMUP_ON_STARTUP=true`); `/api/health` responds immediately while that runs. Secondary languages (Hindi, ...) each run in one long-lived worker process that loads its models once and is restarted automatically if it crashes or times out.
+
+### OCR performance (measured)
+
+Measured on an 8-core Windows 11 laptop, CPU only, paddlepaddle 3.3.1, PaddleOCR 3.7, on a real 833x720 package label (7 ground-truth strings checked). Warm inference, English only:
+
+| Configuration | Inference | Ground-truth hits |
+| --- | --- | --- |
+| Previous default (oneDNN off, v6 medium det + rec) | 46.5 s | 7/7 |
+| oneDNN on everywhere | fails: `NotImplementedError` (detection models) | - |
+| **oneDNN on recognition only (new default), same models** | **14.5 s** | **7/7** |
+| + PP-OCRv5 mobile det + en mobile rec | 9.9 s | 6/7 (drops the "MRP Rs." line) |
+| + PP-OCRv6 small det + rec | 8.1 s | 6/7 ("INCL." loses its period) |
+| + `cpu_threads` 8 vs default | no difference | - |
+| + denoise removed | 14.2 s | 7/7 (only ~0.2 s saved) |
+
+Hindi (Devanagari) pass: 36.1 s before, 12.4 s with recognition oneDNN.
+English + Hindi through `scan()`: about 140 s and Hindi timed out before; about 25.5 s warm now (English and Hindi overlap in separate processes).
+
+Because mobile/small models lose price-critical text on this label, the accurate models stay the default. To trade accuracy for speed, set `OCR_DETECTION_MODEL` / `OCR_RECOGNITION_MODEL` (for example `PP-OCRv5_mobile_det`; recognition model names apply to the first language only) and re-check your own labels.
+
 ## Creating an inspector (official) account
 
 Public registration only creates manufacturer accounts. Create inspector accounts from the command line:
@@ -139,4 +160,4 @@ python -m backend.scripts.create_user --role OFFICIAL --username inspector --ema
 
 **"PaddleOCR is not installed".** The backend is running outside the virtual environment, or `pip install -e ".[dev]"` did not complete. Activate `.venv` and reinstall. If `paddlepaddle` cannot be found, check that you are using Python 3.11 – 3.13.
 
-**OCR is slow.** Reduce `OCR_LANGUAGES` in `.env` (for example `en` or `en,hi`) and restart the backend. Lowering `OCR_MAX_IMAGE_DIMENSION` also helps at the cost of accuracy on small print.
+**OCR is slow.** Make sure `OCR_ENABLE_MKLDNN=true` (default) and check the backend log for `mkldnn_recognition=True`; a warning there means it fell back to the slower path. Reduce `OCR_LANGUAGES` in `.env` (for example `en`) and restart the backend. Lowering `OCR_MAX_IMAGE_DIMENSION` also helps at the cost of accuracy on small print.

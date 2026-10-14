@@ -46,6 +46,8 @@ def main() -> int:
                     recognition_batch_size=settings.ocr_recognition_batch_size,
                     detection_model=settings.ocr_detection_model,
                     recognition_model=settings.ocr_recognition_model,
+                    enable_mkldnn=settings.ocr_enable_mkldnn,
+                    cpu_threads=settings.ocr_cpu_threads,
                 )
                 document = service.scan(image_path)
                 print(f"[ OK ] {language}: {len(document.detections)} detections in {perf_counter() - started:.1f}s")

@@ -41,6 +41,13 @@ class Settings(BaseSettings):
     # Optional PaddleOCR model names (e.g. PP-OCRv5_mobile_det); empty keeps defaults.
     ocr_detection_model: str = ""
     ocr_recognition_model: str = ""
+    # oneDNN for the recognition models only (detection models cannot use it
+    # on Windows); ~2.4x faster. Falls back to off automatically on failure.
+    ocr_enable_mkldnn: bool = True
+    # 0 keeps the library default thread count.
+    ocr_cpu_threads: int = 0
+    # Load OCR models in a background thread when the API starts.
+    ocr_warmup_on_startup: bool = True
     session_cookie_name: str = "packcomply_session"
     session_ttl_hours: int = 12
     session_secure: bool = False

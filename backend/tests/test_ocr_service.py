@@ -3,6 +3,7 @@ from io import BytesIO
 from types import SimpleNamespace
 from uuid import UUID, uuid4
 import sys
+from queue import Empty
 
 from fastapi.testclient import TestClient
 from PIL import Image
@@ -36,7 +37,7 @@ def test_ocr_service_accepts_an_injected_engine() -> None:
     assert document[0].bbox == [[1.0, 2.0], [3.0, 2.0], [3.0, 4.0], [1.0, 4.0]]
 
 
-def test_paddle_engine_disables_onednn_for_compatible_cpu_ocr(monkeypatch) -> None:
+def test_paddle_engine_enables_onednn_for_recognition_only(monkeypatch) -> None:
     received: dict[str, object] = {}
 
     class PaddleOCR:
@@ -45,11 +46,70 @@ def test_paddle_engine_disables_onednn_for_compatible_cpu_ocr(monkeypatch) -> No
 
     monkeypatch.setitem(sys.modules, "paddleocr", SimpleNamespace(PaddleOCR=PaddleOCR))
 
-    PaddleOcrService()._get_engine("en")
+    PaddleOcrService(cpu_threads=4)._get_engine("en")
 
     assert received["lang"] == "en"
+    # Detection models cannot use oneDNN, so the pipeline-wide flag stays off...
     assert received["enable_mkldnn"] is False
     assert received["text_recognition_batch_size"] == 8
+    assert received["cpu_threads"] == 4
+    # ...while the recognition sub-module opts in through the pipeline config.
+    recognition = received["paddlex_config"]["SubModules"]["TextRecognition"]["engine_config"]["paddle_static"]
+    assert "mkldnn_cache_capacity" in recognition and recognition["cpu_threads"] == 4
+
+
+def test_onednn_can_be_disabled(monkeypatch) -> None:
+    received: dict[str, object] = {}
+
+    class PaddleOCR:
+        def __init__(self, **kwargs) -> None:
+            received.update(kwargs)
+
+    monkeypatch.setitem(sys.modules, "paddleocr", SimpleNamespace(PaddleOCR=PaddleOCR))
+    PaddleOcrService(enable_mkldnn=False)._get_engine("en")
+
+    assert received["enable_mkldnn"] is False
+    assert "paddlex_config" not in received
+    assert "cpu_threads" not in received
+
+
+def _fake_paddle_with_failing_onednn(monkeypatch, fail_at: str) -> list[bool]:
+    """Fake PaddleOCR whose oneDNN variant fails at construction or at predict."""
+    built: list[bool] = []
+
+    class PaddleOCR:
+        def __init__(self, **kwargs) -> None:
+            self.onednn = "paddlex_config" in kwargs
+            built.append(self.onednn)
+            if self.onednn and fail_at == "init":
+                raise RuntimeError("oneDNN unavailable")
+
+        def predict(self, image_path: str):
+            if self.onednn and fail_at == "predict":
+                raise NotImplementedError("onednn_instruction not supported")
+            return [{"res": {"rec_texts": ["MRP Rs 50"], "rec_scores": [0.9], "dt_polys": [[[0, 0], [1, 0], [1, 1], [0, 1]]]}}]
+
+    monkeypatch.setitem(sys.modules, "paddleocr", SimpleNamespace(PaddleOCR=PaddleOCR))
+    return built
+
+
+def test_onednn_failure_at_inference_falls_back_to_standard_executor(monkeypatch) -> None:
+    built = _fake_paddle_with_failing_onednn(monkeypatch, "predict")
+    service = PaddleOcrService()
+
+    first = service._predict("en", Path("a.png"))
+    second = service._predict("en", Path("a.png"))
+
+    assert first[0].text == second[0].text == "MRP Rs 50"
+    assert built == [True, False]  # rebuilt once without oneDNN, then reused
+
+
+def test_onednn_failure_at_engine_creation_falls_back(monkeypatch) -> None:
+    built = _fake_paddle_with_failing_onednn(monkeypatch, "init")
+    service = PaddleOcrService()
+
+    assert service._predict("en", Path("a.png"))[0].text == "MRP Rs 50"
+    assert built == [True, False]
 
 
 def test_preprocessing_downscales_large_camera_images(tmp_path) -> None:
@@ -220,6 +280,17 @@ class _PrimaryEngine:
         return [[[[[1, 2], [3, 2], [3, 4], [1, 4]], ("MRP Rs 50", 0.96)]]]
 
 
+class _Ticket:
+    def __init__(self, detections) -> None:
+        self._detections = detections
+
+    def collect(self):
+        return self._detections
+
+    def cancel(self) -> None:
+        pass
+
+
 def _scannable_service(tmp_path, monkeypatch, languages=("en", "hi")) -> tuple[PaddleOcrService, Path]:
     image = tmp_path / "label.png"
     image.write_bytes(b"not-read")
@@ -242,7 +313,7 @@ def test_failed_secondary_language_keeps_primary_result(tmp_path, monkeypatch) -
     def fail(language: str, image_path: Path):
         raise OcrProcessingError(f"PaddleOCR {language} processing exceeded 90 seconds.")
 
-    monkeypatch.setattr(service, "_run_secondary_language", fail)
+    monkeypatch.setattr(service, "_start_secondary_language", fail)
     document = service.scan(image)
 
     assert [item.text for item in document.detections] == ["MRP Rs 50"]
@@ -252,7 +323,7 @@ def test_failed_secondary_language_keeps_primary_result(tmp_path, monkeypatch) -
 
 def test_successful_secondary_language_is_reported(tmp_path, monkeypatch) -> None:
     service, image = _scannable_service(tmp_path, monkeypatch)
-    monkeypatch.setattr(service, "_run_secondary_language", lambda language, path: [OcrDetection("मूल्य", 0.9, None)])
+    monkeypatch.setattr(service, "_start_secondary_language", lambda language, path: _Ticket([OcrDetection("मूल्य", 0.9, None)]))
     document = service.scan(image)
 
     assert document.languages == ["en", "hi"]
@@ -268,7 +339,7 @@ def test_failed_primary_language_still_fails_the_scan(tmp_path, monkeypatch) -> 
             raise OcrProcessingError("primary failed")
 
     monkeypatch.setattr(service, "_get_engine", lambda language: Broken())
-    monkeypatch.setattr(service, "_run_secondary_language", lambda language, path: [])
+    monkeypatch.setattr(service, "_start_secondary_language", lambda language, path: _Ticket([]))
     with pytest.raises(OcrProcessingError):
         service.scan(image)
 
@@ -286,3 +357,162 @@ def test_optional_model_names_are_only_passed_when_configured(monkeypatch) -> No
     received.clear()
     PaddleOcrService(detection_model="PP-OCRv5_mobile_det")._get_engine("en")
     assert received["text_detection_model_name"] == "PP-OCRv5_mobile_det"
+
+
+# ---------------------------------------------------------------- workers
+
+class _FakeProcess:
+    instances: list["_FakeProcess"] = []
+
+    def __init__(self, target, args, daemon) -> None:
+        self.pid = len(_FakeProcess.instances) + 1
+        self._alive = False
+        self.starts = 0
+        _FakeProcess.instances.append(self)
+
+    def start(self) -> None:
+        self._alive = True
+        self.starts += 1
+
+    def is_alive(self) -> bool:
+        return self._alive
+
+    def terminate(self) -> None:
+        self._alive = False
+
+    def join(self, timeout=None) -> None:
+        pass
+
+
+class _FakeQueue:
+    def __init__(self) -> None:
+        self.items: list = []
+
+    def put(self, item) -> None:
+        self.items.append(item)
+
+    def get(self, timeout=None):
+        if not self.items:
+            raise Empty
+        return self.items.pop(0)
+
+    def close(self) -> None:
+        pass
+
+
+def _install_fake_multiprocessing(monkeypatch) -> None:
+    _FakeProcess.instances = []
+    context = SimpleNamespace(
+        Queue=_FakeQueue,
+        Process=lambda target, args, daemon: _FakeProcess(target, args, daemon),
+    )
+    monkeypatch.setattr("backend.app.services.ocr.ocr_service.multiprocessing.get_context", lambda name: context)
+
+
+def _answer_requests(worker, detections) -> None:
+    """Play the worker process: answer everything queued so far."""
+    while worker._requests.items:
+        job_id, _path = worker._requests.items.pop(0)
+        worker._responses.put((job_id, "ok", detections))
+
+
+def test_secondary_worker_is_reused_across_scans(monkeypatch) -> None:
+    from backend.app.services.ocr.ocr_service import _SecondaryWorker
+
+    _install_fake_multiprocessing(monkeypatch)
+    worker = _SecondaryWorker("hi", {})
+
+    first = worker.submit(Path("a.png"))
+    _answer_requests(worker, [OcrDetection("मूल्य", 0.9, None)])
+    assert worker.collect(first, 1)[0].text == "मूल्य"
+
+    second = worker.submit(Path("b.png"))
+    _answer_requests(worker, [OcrDetection("शुद्ध", 0.8, None)])
+    assert worker.collect(second, 1)[0].text == "शुद्ध"
+
+    assert len(_FakeProcess.instances) == 1  # one process served both scans
+    assert _FakeProcess.instances[0].starts == 1
+
+
+def test_secondary_worker_restarts_after_crash(monkeypatch) -> None:
+    from backend.app.services.ocr.ocr_service import _SecondaryWorker
+
+    _install_fake_multiprocessing(monkeypatch)
+    worker = _SecondaryWorker("hi", {})
+
+    job = worker.submit(Path("a.png"))
+    _FakeProcess.instances[0]._alive = False  # simulated crash before replying
+    with pytest.raises(OcrProcessingError, match="exited without a result"):
+        worker.collect(job, 5)
+
+    job = worker.submit(Path("b.png"))
+    _answer_requests(worker, [OcrDetection("मूल्य", 0.9, None)])
+    assert worker.collect(job, 1)[0].text == "मूल्य"
+    assert len(_FakeProcess.instances) == 2  # a fresh process replaced the dead one
+
+
+def test_secondary_worker_timeout_terminates_and_restarts(monkeypatch) -> None:
+    from backend.app.services.ocr.ocr_service import _SecondaryWorker
+
+    _install_fake_multiprocessing(monkeypatch)
+    worker = _SecondaryWorker("hi", {})
+
+    job = worker.submit(Path("a.png"))
+    with pytest.raises(OcrProcessingError, match="exceeded"):
+        worker.collect(job, 0.2)
+    assert not _FakeProcess.instances[0].is_alive()
+
+    worker.submit(Path("b.png"))
+    assert len(_FakeProcess.instances) == 2
+
+
+def test_service_scan_uses_the_same_worker_for_two_scans(tmp_path, monkeypatch) -> None:
+    from backend.app.services.ocr import ocr_service as module
+
+    _install_fake_multiprocessing(monkeypatch)
+    service, image = _scannable_service(tmp_path, monkeypatch)
+    original = module._SecondaryWorker.collect
+
+    def collect(self, job_id, timeout):
+        _answer_requests(self, [OcrDetection("मूल्य", 0.9, None)])
+        return original(self, job_id, timeout)
+
+    monkeypatch.setattr(module._SecondaryWorker, "collect", collect)
+
+    first = service.scan(image)
+    image.write_bytes(b"not-read")  # scan consumes nothing, but keep the file present
+    second = service.scan(image)
+
+    assert first.languages == second.languages == ["en", "hi"]
+    assert len(_FakeProcess.instances) == 1
+    assert _FakeProcess.instances[0].starts == 1
+
+
+def test_startup_warmup_does_not_block_health(monkeypatch) -> None:
+    import threading
+    import time
+
+    started = threading.Event()
+    release = threading.Event()
+
+    class SlowService:
+        def warm(self) -> None:
+            started.set()
+            release.wait(10)
+
+    monkeypatch.setenv("OCR_WARMUP_ON_STARTUP", "true")
+    get_settings.cache_clear()
+    app.dependency_overrides[get_ocr_service] = lambda: SlowService()
+    try:
+        began = time.perf_counter()
+        with TestClient(app) as client:
+            response = client.get("/api/health")
+            elapsed = time.perf_counter() - began
+            assert started.wait(5)  # warming began in the background
+            assert response.status_code == 200
+            assert elapsed < 5  # startup and health did not wait for warm-up
+            release.set()
+    finally:
+        release.set()
+        app.dependency_overrides.clear()
+        get_settings.cache_clear()
