@@ -4,7 +4,7 @@ Keeping this adapter separate means a future OCR provider can implement the
 same `scan` method without changing routes or database persistence.
 """
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 import json
 import logging
 import multiprocessing
@@ -65,6 +65,7 @@ class OcrDocument:
     engine: str
     languages: list[str]
     detections: list[OcrDetection]
+    skipped_languages: list[str] = field(default_factory=list)
 
     @property
     def raw_text(self) -> str:
@@ -87,6 +88,8 @@ class PaddleOcrService:
         secondary_language_max_image_dimension: int = 320,
         secondary_language_timeout_seconds: int = 45,
         recognition_batch_size: int = 8,
+        detection_model: str = "",
+        recognition_model: str = "",
     ) -> None:
         self.languages = languages
         self._engine = engine
@@ -95,6 +98,8 @@ class PaddleOcrService:
         self.secondary_language_max_image_dimension = secondary_language_max_image_dimension
         self.secondary_language_timeout_seconds = secondary_language_timeout_seconds
         self.recognition_batch_size = recognition_batch_size
+        self.detection_model = detection_model.strip()
+        self.recognition_model = recognition_model.strip()
         # Paddle/PaddleX model construction and inference are not safe to run
         # concurrently against one in-memory predictor on Windows.
         self._engine_lock = RLock()
@@ -112,11 +117,20 @@ class PaddleOcrService:
                 # Keep model downloads and file locks inside the application
                 # workspace. The upstream default is the user's home directory.
                 os.environ.setdefault("PADDLE_PDX_CACHE_HOME", str(Path(".paddlex").resolve()))
+                # Skip the per-start network probe of model hosting sources.
+                os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
                 from paddleocr import PaddleOCR
 
+                # Optional explicit model names; empty keeps PaddleOCR's per-language default.
+                model_options: dict[str, str] = {}
+                if self.detection_model:
+                    model_options["text_detection_model_name"] = self.detection_model
+                if self.recognition_model:
+                    model_options["text_recognition_model_name"] = self.recognition_model
                 # PaddleOCR 3 uses the unified predict interface.
                 self._engines[language] = PaddleOCR(
                     lang=language,
+                    **model_options,
                     use_doc_orientation_classify=False,
                     use_doc_unwarping=False,
                     use_textline_orientation=False,
@@ -147,7 +161,9 @@ class PaddleOcrService:
             processed_path = self._preprocess(image_path, self.max_image_dimension)
             processed_paths.append(processed_path)
             logger.info("OCR preprocessing completed path=%s elapsed_seconds=%.3f", processed_path, perf_counter() - preprocess_started)
-            detections = []
+            detections: list[OcrDetection] = []
+            completed_languages: list[str] = []
+            skipped_languages: list[str] = []
             for index, language in enumerate(self.languages):
                 language_image_path = processed_path
                 if index and self.secondary_language_max_image_dimension < self.max_image_dimension:
@@ -158,19 +174,27 @@ class PaddleOcrService:
                 inference_started = perf_counter()
                 logger.info("OCR inference started language=%s", language)
                 if index and self._engine is None:
-                    language_detections = self._run_secondary_language(language, language_image_path)
+                    try:
+                        language_detections = self._run_secondary_language(language, language_image_path)
+                    except OcrProcessingError as error:
+                        # A secondary language is best-effort: keep the primary result.
+                        logger.warning("OCR secondary language skipped language=%s reason=%s", language, error)
+                        skipped_languages.append(language)
+                        continue
                 else:
                     engine = self._get_engine(language)
                     language_detections = self._run_engine(engine, language_image_path)
                 logger.info("OCR inference completed language=%s detections=%d elapsed_seconds=%.3f", language, len(language_detections), perf_counter() - inference_started)
                 detections.extend(language_detections)
+                completed_languages.append(language)
             parse_started = perf_counter()
             deduplicated = self._deduplicate(detections)
             logger.info("OCR result conversion completed detections=%d elapsed_seconds=%.3f", len(deduplicated), perf_counter() - parse_started)
             return OcrDocument(
                 engine=self.engine_name,
-                languages=list(self.languages),
+                languages=completed_languages,
                 detections=deduplicated,
+                skipped_languages=skipped_languages,
             )
         except OcrInitializationError:
             raise

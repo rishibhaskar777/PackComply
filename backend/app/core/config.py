@@ -28,21 +28,34 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 10 * 1024 * 1024
     # Full-resolution phone photographs can make CPU OCR take many minutes.
     # This remains configurable for deployments with unusually small print.
-    ocr_max_image_dimension: int = 640
+    ocr_max_image_dimension: int = 1280
     # Secondary multilingual passes use a smaller image to avoid a very dense
     # Latin label producing hundreds of unnecessary non-primary script crops.
-    ocr_secondary_language_max_image_dimension: int = 320
-    ocr_secondary_language_timeout_seconds: int = 45
+    ocr_secondary_language_max_image_dimension: int = 960
+    ocr_secondary_language_timeout_seconds: int = 90
     # PaddleOCR 3.7 accepts this directly. Batching recognition crops is
     # important for dense package labels on the Windows CPU runtime.
     ocr_recognition_batch_size: int = 8
-    ocr_languages: str = "en,hi,gom,mai,mr,ne,sa,ta,te,ur,ka"
+    # Each extra language adds processing time; "en,hi" is the sensible default.
+    ocr_languages: str = "en,hi"
+    # Optional PaddleOCR model names (e.g. PP-OCRv5_mobile_det); empty keeps defaults.
+    ocr_detection_model: str = ""
+    ocr_recognition_model: str = ""
     session_cookie_name: str = "packcomply_session"
     session_ttl_hours: int = 12
     session_secure: bool = False
     pattern_min_occurrences: int = 2
+    allow_official_self_registration: bool = False
+    login_max_attempts: int = 5
+    login_lockout_minutes: int = 15
+    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     model_config = SettingsConfigDict(env_file=ROOT_ENV_FILE, env_file_encoding="utf-8", extra="ignore")
+
+
+def get_cors_origins(settings: "Settings | None" = None) -> list[str]:
+    configured = (settings or get_settings()).cors_origins
+    return [origin.strip() for origin in configured.split(",") if origin.strip()]
 
 
 @lru_cache

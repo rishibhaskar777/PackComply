@@ -17,7 +17,7 @@ from backend.app.core.database import get_db
 from backend.app.main import app
 from backend.app.models import Base, OcrResult
 from backend.app.services.ocr import OcrDetection, OcrDocument
-from backend.app.services.ocr import PaddleOcrService
+from backend.app.services.ocr import OcrProcessingError, PaddleOcrService
 
 
 class LegacyEngine:
@@ -213,3 +213,76 @@ def test_ocr_endpoint_rejects_a_tampered_stored_image(tmp_path, monkeypatch) -> 
         app.dependency_overrides.clear()
         get_settings.cache_clear()
         engine.dispose()
+
+
+class _PrimaryEngine:
+    def ocr(self, image_path: str, cls: bool):
+        return [[[[[1, 2], [3, 2], [3, 4], [1, 4]], ("MRP Rs 50", 0.96)]]]
+
+
+def _scannable_service(tmp_path, monkeypatch, languages=("en", "hi")) -> tuple[PaddleOcrService, Path]:
+    image = tmp_path / "label.png"
+    image.write_bytes(b"not-read")
+    counter = iter(range(100))
+
+    def fake_preprocess(path: Path, max_image_dimension: int = 640) -> Path:
+        output = path.parent / f"processed-{next(counter)}.png"
+        output.write_bytes(b"x")
+        return output
+
+    monkeypatch.setattr(PaddleOcrService, "_preprocess", staticmethod(fake_preprocess))
+    service = PaddleOcrService(languages=languages)
+    monkeypatch.setattr(service, "_get_engine", lambda language: _PrimaryEngine())
+    return service, image
+
+
+def test_failed_secondary_language_keeps_primary_result(tmp_path, monkeypatch) -> None:
+    service, image = _scannable_service(tmp_path, monkeypatch)
+
+    def fail(language: str, image_path: Path):
+        raise OcrProcessingError(f"PaddleOCR {language} processing exceeded 90 seconds.")
+
+    monkeypatch.setattr(service, "_run_secondary_language", fail)
+    document = service.scan(image)
+
+    assert [item.text for item in document.detections] == ["MRP Rs 50"]
+    assert document.languages == ["en"]
+    assert document.skipped_languages == ["hi"]
+
+
+def test_successful_secondary_language_is_reported(tmp_path, monkeypatch) -> None:
+    service, image = _scannable_service(tmp_path, monkeypatch)
+    monkeypatch.setattr(service, "_run_secondary_language", lambda language, path: [OcrDetection("मूल्य", 0.9, None)])
+    document = service.scan(image)
+
+    assert document.languages == ["en", "hi"]
+    assert document.skipped_languages == []
+    assert len(document.detections) == 2
+
+
+def test_failed_primary_language_still_fails_the_scan(tmp_path, monkeypatch) -> None:
+    service, image = _scannable_service(tmp_path, monkeypatch)
+
+    class Broken:
+        def ocr(self, image_path: str, cls: bool):
+            raise OcrProcessingError("primary failed")
+
+    monkeypatch.setattr(service, "_get_engine", lambda language: Broken())
+    monkeypatch.setattr(service, "_run_secondary_language", lambda language, path: [])
+    with pytest.raises(OcrProcessingError):
+        service.scan(image)
+
+
+def test_optional_model_names_are_only_passed_when_configured(monkeypatch) -> None:
+    received: dict[str, object] = {}
+
+    class PaddleOCR:
+        def __init__(self, **kwargs) -> None:
+            received.update(kwargs)
+
+    monkeypatch.setitem(sys.modules, "paddleocr", SimpleNamespace(PaddleOCR=PaddleOCR))
+    PaddleOcrService()._get_engine("en")
+    assert "text_detection_model_name" not in received
+    received.clear()
+    PaddleOcrService(detection_model="PP-OCRv5_mobile_det")._get_engine("en")
+    assert received["text_detection_model_name"] == "PP-OCRv5_mobile_det"
