@@ -1,4 +1,4 @@
-"""Database models for LabelGuard."""
+"""Database models for PackComply."""
 
 from backend.app.models.base import Base
 from backend.app.models.entities import (

@@ -1,4 +1,4 @@
-"""Create the LabelGuard foundation schema.
+"""Create the PackComply foundation schema.
 
 Revision ID: 20260903_0001
 Revises:

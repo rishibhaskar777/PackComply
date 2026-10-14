@@ -27,7 +27,7 @@ export const UI_LANGUAGES = [
   { code: "en", nativeName: "English", englishName: "English" }, { code: "hi", nativeName: "हिन्दी", englishName: "Hindi" }, { code: "as", nativeName: "অসমীয়া", englishName: "Assamese" }, { code: "bn", nativeName: "বাংলা", englishName: "Bengali" }, { code: "brx", nativeName: "बड़ो", englishName: "Bodo" }, { code: "doi", nativeName: "डोगरी", englishName: "Dogri" }, { code: "gu", nativeName: "ગુજરાતી", englishName: "Gujarati" }, { code: "kn", nativeName: "ಕನ್ನಡ", englishName: "Kannada" }, { code: "ks", nativeName: "کٲشُر", englishName: "Kashmiri" }, { code: "kok", nativeName: "कोंकणी", englishName: "Konkani" }, { code: "mai", nativeName: "मैथिली", englishName: "Maithili" }, { code: "ml", nativeName: "മലയാളം", englishName: "Malayalam" }, { code: "mni", nativeName: "মৈতৈলোন্", englishName: "Manipuri (Meitei)" }, { code: "mr", nativeName: "मराठी", englishName: "Marathi" }, { code: "ne", nativeName: "नेपाली", englishName: "Nepali" }, { code: "or", nativeName: "ଓଡ଼ିଆ", englishName: "Odia" }, { code: "pa", nativeName: "ਪੰਜਾਬੀ", englishName: "Punjabi" }, { code: "sa", nativeName: "संस्कृतम्", englishName: "Sanskrit" }, { code: "sat", nativeName: "ᱥᱟᱱᱛᱟᱲᱤ", englishName: "Santali" }, { code: "sd", nativeName: "سنڌي", englishName: "Sindhi" }, { code: "ta", nativeName: "தமிழ்", englishName: "Tamil" }, { code: "te", nativeName: "తెలుగు", englishName: "Telugu" }, { code: "ur", nativeName: "اردو", englishName: "Urdu" },
 ] as const;
 export type Locale = (typeof UI_LANGUAGES)[number]["code"];
-export const LANGUAGE_STORAGE_KEY = "labelguard-language";
+export const LANGUAGE_STORAGE_KEY = "packcomply-language";
 
 type TranslationKey = keyof typeof en;
 type LocaleTranslations = Record<TranslationKey, string>;

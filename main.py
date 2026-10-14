@@ -1,4 +1,4 @@
-"""Compatibility launcher for the LabelGuard FastAPI application."""
+"""Compatibility launcher for the PackComply FastAPI application."""
 
 from backend.app.main import app
 

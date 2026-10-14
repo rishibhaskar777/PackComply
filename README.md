@@ -1,18 +1,78 @@
-# LabelGuard
+# PackComply
 
-LabelGuard is an AI-assisted package-label inspection system. It supports inspection work; its results are not legally binding enforcement decisions.
+Legal Metrology compliance checks for packaged goods — from a single label photo.
 
-## Milestone 1: project foundation
+## What it does
 
-Milestones 1–3 provide the foundation, data schema, and safe package-image upload. Milestone 4 adds PaddleOCR text detection; field extraction and compliance workflows begin in later milestones.
+PackComply takes a photo of a package label and runs it through a pipeline: image → OCR (PaddleOCR) → field extraction (MRP, net quantity, manufacturer, dates, consumer care) → rule-based compliance checks aligned with the Legal Metrology (Packaged Commodities) Rules, 2011 → risk prioritisation → PDF report.
 
-## Prerequisites
+PackComply assists inspectors. Its results are not legally binding decisions.
+
+## Features
+
+- Image upload with validation (JPG/PNG only, size limit, content checked against the declared type)
+- Multilingual OCR with PaddleOCR, configured for `en, hi, gom, mai, mr, ne, sa, ta, te, ur, ka`
+- Explainable field extraction with heuristic confidence, review flags, and source evidence
+- 8 compliance rules with PASS / FAIL / REVIEW results
+- Declared-quantity verification (what the label states; no physical weighing)
+- Risk-based targeting queue for officials
+- Repeat-pattern detection across a user's completed inspections
+- Inspection history with search and filters
+- PDF inspection reports
+- Cookie-based authentication with OFFICIAL and MANUFACTURER roles
+- 23 UI languages
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript, Vite |
+| Backend | Python 3.11+, FastAPI, Pydantic |
+| Database | PostgreSQL 16, SQLAlchemy, Alembic |
+| AI / OCR | PaddleOCR, OpenCV |
+| Reports | ReportLab |
+| DevOps | Docker, Docker Compose |
+| Tests | pytest, Vitest |
+
+## How it works
+
+1. **Upload** — `backend/app/services/uploads.py` validates the image and stores it under a generated file name.
+2. **OCR** — `backend/app/services/ocr/ocr_service.py` runs one PaddleOCR recognizer per configured language and removes duplicate text boxes.
+3. **Extraction** — `backend/app/services/extraction/extraction_service.py` deterministically interprets the OCR text into label fields, each with confidence, a review flag, and evidence.
+4. **Compliance** — `backend/app/services/compliance/rule_engine.py` evaluates the extracted fields against the rules: product identity, manufacturer, packer, importer, MRP format, net-quantity format, date consistency, and consumer-care format.
+5. **Risk** — `backend/app/services/risk.py` turns persisted findings into a transparent 0–100 prioritisation score for officials.
+6. **Patterns** — `backend/app/services/patterns.py` groups issues that repeat across completed inspections.
+7. **Report** — `backend/app/services/report.py` renders the PDF report from persisted evidence.
+8. **Orchestration** — `backend/app/services/workflow.py` runs the unfinished stages in order and is safe to call again after a failure.
+
+## Project structure
+
+```text
+backend/
+  alembic/            Database migrations
+  app/
+    api/              HTTP routes (auth, inspections, patterns, risk targeting, roles, health)
+    core/             Settings and database session
+    models/           SQLAlchemy models
+    schemas/          Pydantic request/response schemas
+    services/         OCR, extraction, compliance, risk, patterns, reports, workflow
+  scripts/            Utility scripts (e.g. create_user.py)
+  tests/              pytest suite
+frontend/
+  src/                React application, i18n, and locales/
+database/             Database notes (migrations live in backend/alembic)
+docker-compose.yml
+```
+
+## Getting started
+
+### Prerequisites
 
 - Python 3.11+
 - Node.js 20+
 - Docker Desktop (recommended for PostgreSQL)
 
-## Run with Docker
+### Run with Docker
 
 1. Copy `.env.example` to `.env` and adjust values only if needed.
 2. Run `docker compose up --build`.
@@ -21,53 +81,7 @@ Milestones 1–3 provide the foundation, data schema, and safe package-image upl
 
 The backend health check is available at `GET http://localhost:8000/api/health`.
 
-To create an inspection and upload an image, use the API docs at `http://localhost:8000/docs`. The upload endpoint is `POST /api/inspections/{inspection_id}/image` with multipart field name `image`.
-
-## OCR
-
-PaddleOCR requires the `paddlepaddle`, `paddleocr`, and OpenCV packages declared in `pyproject.toml`. CPU inference is the default; consult PaddlePaddle's installation guidance if your platform needs a platform-specific wheel or GPU support.
-
-LabelGuard runs one recognizer per configured language against the same image and removes exact duplicate text-box results. It validates configuration against the documented PP-OCRv3 language codes used by this project, so an unsupported code fails clearly at startup rather than being treated as supported.
-
-After applying migrations and uploading an image, run OCR with:
-
-```powershell
-Invoke-RestMethod -Method Post `
-  -Uri "http://localhost:8000/api/inspections/<inspection-id>/images/<image-id>/ocr"
-```
-
-The response contains only OCR data, for example:
-
-```json
-{
-  "engine": "PaddleOCR",
-  "languages": ["en", "hi"],
-  "raw_text": "MRP Rs 50",
-  "results": [{"text": "MRP Rs 50", "confidence": 0.96, "bbox": [[10, 20], [110, 20], [110, 45], [10, 45]]}]
-}
-```
-
-Model downloads may occur the first time PaddleOCR processes an image. The endpoint is `POST /api/inspections/{inspection_id}/images/{image_id}/ocr`.
-
-## Information extraction (Milestone 6)
-
-After OCR, `POST /api/inspections/{inspection_id}/extract` deterministically interprets the preserved OCR text into package-label fields such as entities, addresses, MRP, net quantity, dates, and consumer-care details. Each field includes heuristic confidence, a review flag, and source evidence. These are explainable extraction heuristics rather than calibrated probabilities; missing information is never fabricated and raw OCR evidence is not changed.
-
-Extraction is inspection assistance only and does not make legal or compliance decisions. Compliance rules are intentionally deferred to Milestone 7.
-
-## Risk-Based Targeting (Milestone 13)
-
-Risk-Based Targeting is a transparent, deterministic prioritisation aid for completed inspections. It is not a machine-learning model and does not create legal rules or enforcement decisions. Officials see a queue based only on persisted compliance findings, missing extraction values that require review, and repeated evidence in their authorised completed-inspection history. Manufacturers cannot access the targeting queue or numerical risk score.
-
-Scores are capped at 100: 0–24 LOW, 25–49 MEDIUM, 50–74 HIGH, and 75–100 CRITICAL. A FAIL contributes 35/25/15/10 points for HIGH/WARNING/INFO/LOW severity; a REVIEW contributes 20/12/6/4. Each absent extracted field contributes 6 points (maximum 18). A repeated non-pass rule adds 12, a repeated missing field adds 8, and three or more distinct non-pass rules add 8. Repeat evidence is calculated only within the authenticated owner's completed inspections. `GET /api/risk-targeting` is official-only, paginated, and intentionally excludes OCR/image blobs.
-
-## Declared Quantity Verification (Milestone 14)
-
-Quantity verification reuses the existing OCR, extraction, and `NET_QUANTITY_FORMAT` compliance rule. It verifies only the **declared quantity on the label**; it does not weigh a product or claim that the actual physical contents were measured. The inspection result and PDF show the declared quantity separately from a safe normalized representation, its evidence, and the authoritative compliance result.
-
-Supported declaration formats include common mass and volume units (`mg`, `g`, `kg`, `ml`, `L`, `cm3`/`cc`) and count declarations (`N`, `nos`, `pcs`). Harmless spacing, capitalization, and common OCR character variants are normalized for validation while the declared display value is retained. Missing, unsupported, or ambiguous declarations continue through the existing compliance, risk, and repeat-pattern mechanisms using the stable quantity rule; no new legal requirement or risk weight is invented. Physical weighing can be added later only with a real measurement integration.
-
-## Run locally
+### Run locally
 
 Start PostgreSQL with `docker compose up db -d`, then in separate terminals run:
 
@@ -84,47 +98,71 @@ npm install
 npm run dev
 ```
 
-Run backend tests with `pytest backend/tests`.
-
-Apply database migrations after PostgreSQL is running:
+Apply database migrations once PostgreSQL is running:
 
 ```powershell
 alembic -c backend/alembic.ini upgrade head
 ```
 
-## Structure
+Do not commit `.env`; it may contain credentials.
 
-```text
-backend/       FastAPI application and Alembic configuration
-frontend/      React/Vite application
-database/      Database-related project files (migrations are under backend/alembic)
-docker-compose.yml
-```
-
-## UI Languages
-
-The interface offers 23 fully translated language options: English, Hindi, Assamese, Bengali, Bodo, Dogri, Gujarati, Kannada, Kashmiri, Konkani, Maithili, Malayalam, Manipuri (Meitei), Marathi, Nepali, Odia, Punjabi, Sanskrit, Santali, Sindhi, Tamil, Telugu, and Urdu. The header selector is accessible, persists under `labelguard-language`, and restores English when its stored value is invalid.
-
-Translations live in `frontend/src/locales/`. Each locale JSON file must contain every UI key with its reviewed native-language value; the app rejects incomplete locale files rather than silently rendering English.
-
-## OCR Languages
-
-The configured PP-OCRv3 languages are `en,hi,gom,mai,mr,ne,sa,ta,te,ur,ka`: English, Hindi, Konkani, Maithili, Marathi, Nepali, Sanskrit, Tamil, Telugu, Urdu, and Kannada. `ka` is PaddleOCR's Kannada model code. These recognizers are selected explicitly with `OCR_LANGUAGES`; the OCR response reports the actual configured codes used.
-
-UI language support and OCR language support are separate. The interface can support languages that are not currently enabled for OCR. In particular, Assamese, Bengali, Bodo, Dogri, Gujarati, Kashmiri, Malayalam, Manipuri (Meitei), Odia, Punjabi, Santali, and Sindhi are UI options but are not listed as supported PP-OCRv3 language codes for this configuration. Do not translate OCR text: it remains the text printed on the package.
-
-To add another OCR language later, first verify a compatible PaddleOCR model and its exact `lang` code for the installed release, then add that code to `SUPPORTED_PADDLE_OCR_LANGUAGES` and `OCR_LANGUAGES` and cover it with a unit test.
-
-Run the frontend locally:
+## Running tests
 
 ```powershell
-cd frontend
-npm install
-npm run dev
+pytest backend/tests
+cd frontend; npm test
 ```
 
-Run its tests with `npm test`.
+## OCR
 
-## Environment
+PaddleOCR requires the `paddlepaddle`, `paddleocr`, and OpenCV packages declared in `pyproject.toml`. CPU inference is the default; consult PaddlePaddle's installation guidance if your platform needs a platform-specific wheel or GPU support. Model downloads may occur the first time an image is processed.
 
-Copy `.env.example` to `.env`. Do not commit `.env`; it may contain credentials.
+PackComply runs one recognizer per configured language against the same image and removes exact duplicate text-box results. Configuration is validated against the documented PP-OCRv3 language codes used by this project, so an unsupported code fails clearly at startup.
+
+The configured languages are `en,hi,gom,mai,mr,ne,sa,ta,te,ur,ka`: English, Hindi, Konkani, Maithili, Marathi, Nepali, Sanskrit, Tamil, Telugu, Urdu, and Kannada (`ka` is PaddleOCR's Kannada model code). They are selected with `OCR_LANGUAGES`, and the OCR response reports the codes actually used.
+
+To add another OCR language, first verify a compatible PaddleOCR model and its exact `lang` code for the installed release, then add it to `SUPPORTED_PADDLE_OCR_LANGUAGES` and `OCR_LANGUAGES` and cover it with a unit test.
+
+After uploading an image, OCR can be run directly with `POST /api/inspections/{inspection_id}/images/{image_id}/ocr`; the usual route is `POST /api/inspections/{inspection_id}/process`, which runs every unfinished stage.
+
+## Information extraction
+
+`POST /api/inspections/{inspection_id}/extract` interprets the preserved OCR text into fields such as entities, addresses, MRP, net quantity, dates, and consumer-care details. Confidence values are explainable heuristics, not calibrated probabilities. Missing information is never fabricated and raw OCR evidence is never changed.
+
+## UI languages
+
+The interface offers 23 fully translated languages: English, Hindi, Assamese, Bengali, Bodo, Dogri, Gujarati, Kannada, Kashmiri, Konkani, Maithili, Malayalam, Manipuri (Meitei), Marathi, Nepali, Odia, Punjabi, Sanskrit, Santali, Sindhi, Tamil, Telugu, and Urdu. The header selector persists the choice under `packcomply-language` and falls back to English when the stored value is invalid.
+
+Translations live in `frontend/src/locales/`. Every locale file must contain every UI key; the app rejects incomplete locale files rather than silently rendering English. The brand name stays "PackComply" in every language.
+
+UI language and OCR language are separate. Assamese, Bengali, Bodo, Dogri, Gujarati, Kashmiri, Malayalam, Manipuri (Meitei), Odia, Punjabi, Santali, and Sindhi are UI options but are not enabled for OCR. OCR text is never translated; it remains as printed on the package.
+
+## Risk-based targeting
+
+Risk targeting is a transparent, deterministic prioritisation aid for completed inspections. It is not a machine-learning model and does not create legal rules or enforcement decisions. Officials see a queue based only on persisted compliance findings, missing extraction values that need review, and repeated evidence in their own completed-inspection history. Manufacturers cannot access the queue or the numerical score.
+
+Scores are capped at 100: 0–24 LOW, 25–49 MEDIUM, 50–74 HIGH, and 75–100 CRITICAL.
+
+- A FAIL contributes 35 / 25 / 15 / 10 points for HIGH / WARNING / INFO / LOW severity.
+- A REVIEW contributes 20 / 12 / 6 / 4 points.
+- Each absent extracted field contributes 6 points (maximum 18).
+- A repeated non-pass rule adds 12, and a repeated missing field adds 8.
+- Three or more distinct non-pass rules add 8.
+
+Repeat evidence is calculated only within the authenticated owner's completed inspections. `GET /api/risk-targeting` is official-only, paginated, and excludes OCR text and image data.
+
+## Declared quantity verification
+
+Quantity verification reuses the existing OCR, extraction, and `NET_QUANTITY_FORMAT` compliance rule. It verifies only the **quantity declared on the label**; it does not weigh a product or claim that the physical contents were measured. The inspection result and PDF show the declared quantity, a normalized representation, its evidence, and the authoritative compliance result.
+
+Supported formats include common mass and volume units (`mg`, `g`, `kg`, `ml`, `L`, `cm3`/`cc`) and count declarations (`N`, `nos`, `pcs`). Harmless spacing, capitalization, and common OCR character variants are normalized for validation while the declared display value is kept. Missing, unsupported, or ambiguous declarations continue through the existing compliance, risk, and repeat-pattern mechanisms.
+
+## Disclaimer
+
+PackComply is an inspection-assistance tool. It is not legal advice and its output is not an enforcement decision.
+
+## Team
+
+Team CORTEX
+
+Originally developed by VersatileSid; maintained by rishibhaskar777.
