@@ -1,0 +1,301 @@
+# Legal Metrology (Packaged Commodities) Rules, 2011 (as amended up to the 2022
+# amendment, G.S.R. 226(E) and later notifications) — mandatory label declarations.
+#
+# This file carries rule METADATA only: title, inspector-facing description,
+# legal reference, severity, applicability, enable/disable and configuration.
+# The check logic lives in backend/app/services/compliance/rule_engine.py, one
+# function per rule code.  Rule codes are stable: risk scoring and repeat
+# patterns group by them, so never rename one; add a new code instead.
+#
+# applies_when names an applicability condition implemented in rule_engine.py:
+#   always | imported | separate_packer | mrp_declared | mrp_and_net_quantity
+#   | unit_form_detectable | food_product
+# A rule whose condition is false is reported as NOT_APPLICABLE (never FAIL).
+#
+# target_fields are what a rule looks at; required_fields are the subset whose
+# absence adds missing-field risk points, and only while the rule applies and
+# does not PASS.  Optional fields (website, batch number, best before, a packer
+# when a manufacturer is declared) are never required on their own.
+# A check may also return NOT_APPLICABLE itself when applicability depends on
+# its own reading (e.g. DATE_CONSISTENCY with fewer than two comparable dates).
+#
+# Results are inspection assistance, not legal determinations.  Bump `version`
+# (and the file name) whenever a rule's meaning changes, so every stored result
+# records which ruleset it was checked against.
+#
+# v2 (2026-10-16): verdict safety.  For MANUFACTURER_INFORMATION, NET_QUANTITY_FORMAT,
+# MRP_FORMAT, MRP_TAX_INCLUSIVE, UNIT_SALE_PRICE, CONSUMER_CARE_FORMAT and
+# MANUFACTURE_DATE a declaration whose key (or a redirect such as "see below") is
+# printed but whose value could not be read is REVIEW, never FAIL; a declaration
+# that was not detected at all is FAIL only when the photo's OCR coverage meets
+# the `evidence` thresholds below, otherwise REVIEW ("photo may not show this
+# panel").  MANUFACTURE_DATE is still never FAIL.
+
+ruleset_id: LM_PC_2011
+version: 2
+label: LM(PC) 2011 ruleset v2
+title: Legal Metrology (Packaged Commodities) Rules, 2011 — mandatory declarations
+disclaimer: >-
+  Findings are inspection assistance based on one label photo. They are not legal
+  determinations; an inspector must confirm every finding on the physical package.
+
+# OCR coverage a photo needs before an undetected mandatory declaration is
+# reported as missing (FAIL) instead of possibly out of view (REVIEW).  A label
+# panel carrying the mandatory declarations has at least ~8 lines of text
+# (name, address, net quantity, MRP, dates, consumer care); below 0.80 mean
+# recogniser confidence, or with over 30% of lines read poorly (a box under
+# 0.70), the photo is too blurred, curved or glare-affected to rule text out.
+evidence:
+  min_text_lines: 8
+  min_mean_confidence: 0.80
+  max_low_confidence_line_share: 0.30
+
+rules:
+  - code: MANUFACTURER_INFORMATION
+    title: Manufacturer / packer name and address
+    description: >-
+      The label must give the name and complete address of the manufacturer (or the
+      packer or brand owner responsible for the package). For imported packages the
+      importer's name and address satisfy this requirement. A printed role key whose
+      company cannot be read, or no key on a poorly read photo, is marked for review.
+    legal_reference: LM(PC) Rules 2011, Rule 6(1)(a)
+    severity: HIGH
+    applies_when: always
+    target_fields: [manufacturer, manufacturer_address, brand_owner, brand_owner_address, packer, packer_address]
+    required_fields: [manufacturer, manufacturer_address]
+    enabled: true
+    expected: Name and complete address of the manufacturer, packer or brand owner.
+    actions:
+      FAIL: Ask the manufacturer to declare the name and complete address of the manufacturer or packer on the label.
+      REVIEW: A name was found but no address — check the physical pack for the complete address (it may be on another panel).
+
+  - code: IMPORTER_INFORMATION
+    title: Importer name and address
+    description: >-
+      Imported packages must give the name and complete address of the importer in
+      India. Applies only when the label indicates import ("Imported by", an
+      importer, or a country of origin other than India).
+    legal_reference: LM(PC) Rules 2011, Rule 6(1)(a)
+    severity: HIGH
+    applies_when: imported
+    target_fields: [importer, importer_address]
+    required_fields: [importer, importer_address]
+    enabled: true
+    expected: Name and complete address of the importer.
+    actions:
+      FAIL: Ask the importer to declare its name and complete address on the label.
+
+  - code: COUNTRY_OF_ORIGIN
+    title: Country of origin (imported goods)
+    description: >-
+      Imported packages must declare the country of origin or manufacture. Applies
+      only when the label indicates import.
+    legal_reference: LM(PC) Rules 2011, Rule 6(1)(aa)
+    severity: HIGH
+    applies_when: imported
+    target_fields: [country_of_origin]
+    required_fields: [country_of_origin]
+    enabled: true
+    expected: '"Country of origin: <country>" on the label of an imported package.'
+    actions:
+      FAIL: Ask the importer to declare the country of origin; check the physical pack first.
+
+  - code: PACKER_INFORMATION
+    title: Separate packer details
+    description: >-
+      Informational. Packer details are covered by the manufacturer rule; this check
+      only runs when the label separately names a packer, and then looks for the
+      packer's address.
+    legal_reference: LM(PC) Rules 2011, Rule 6(1)(a)
+    severity: INFO
+    applies_when: separate_packer
+    target_fields: [packer, packer_address]
+    required_fields: [packer_address]
+    enabled: true
+    expected: Where a separate packer is named, its complete address.
+    actions:
+      REVIEW: Check the physical pack for the packer's address.
+
+  - code: PRODUCT_IDENTITY
+    title: Common or generic name of the commodity
+    description: >-
+      The label must state the common or generic name of the commodity. A missing
+      name is only marked for review because the front panel may not be in the photo.
+    legal_reference: LM(PC) Rules 2011, Rule 6(1)(b)
+    severity: WARNING
+    applies_when: always
+    target_fields: [product_name]
+    required_fields: [product_name]
+    enabled: true
+    expected: The common or generic name of the commodity.
+    actions:
+      REVIEW: Photograph the front (principal display) panel or confirm the product name on the pack.
+
+  - code: NET_QUANTITY_FORMAT
+    title: Net quantity declaration
+    description: >-
+      The net quantity must be declared in a standard unit of weight or measure
+      (g, kg, ml, L) or, for goods sold by number, as a count (N, pcs). A printed key
+      whose value cannot be read, or no key on a poorly read photo, is marked for review.
+    legal_reference: LM(PC) Rules 2011, Rule 6(1)(c) and Rule 9
+    severity: HIGH
+    applies_when: always
+    target_fields: [net_quantity]
+    required_fields: [net_quantity]
+    enabled: true
+    expected: Net quantity as a positive number with a standard unit (e.g. "Net Wt. 500 g").
+    actions:
+      FAIL: Ask the manufacturer to declare the net quantity in a standard unit; check the physical pack first.
+      REVIEW: Check the net quantity on the physical pack (unreadable, stamped elsewhere or not in this photo).
+
+  - code: NET_QUANTITY_UNIT_SUITABILITY
+    title: Net quantity unit suits the commodity
+    description: >-
+      Informational and deliberately conservative. Only flags a unit that clearly
+      does not suit the commodity form, e.g. a liquid declared by count or a flour
+      declared by volume. Not applicable when the form cannot be told from the name.
+    legal_reference: LM(PC) Rules 2011, Rule 9 and Fourth Schedule
+    severity: INFO
+    applies_when: unit_form_detectable
+    target_fields: [net_quantity, product_name]
+    required_fields: []
+    enabled: true
+    expected: Liquids by volume (or weight); solids by weight (or count).
+    actions:
+      REVIEW: Check whether the declared unit is appropriate for this commodity.
+    configuration:
+      # Whole words matched in the product name; liquid words win over solid words.
+      liquid_keywords: [water, juice, drink, drinks, milk, beverage, oil, syrup, vinegar, squash, sharbat, lassi]
+      solid_keywords: [biscuit, biscuits, cookie, cookies, atta, flour, rice, dal, sugar, salt, wafer, wafers, chips, maida, besan, rava, suji]
+
+  - code: MRP_FORMAT
+    title: Retail sale price (MRP)
+    description: >-
+      The label must declare the maximum retail price in Indian currency. A printed
+      MRP key without a readable value is marked for review because the price is
+      often stamped separately.
+    legal_reference: LM(PC) Rules 2011, Rule 6(1)(e)
+    severity: HIGH
+    applies_when: always
+    target_fields: [mrp, mrp_declaration]
+    required_fields: [mrp]
+    enabled: true
+    expected: '"MRP ₹<amount>" — a positive amount in Indian rupees.'
+    actions:
+      FAIL: Ask the manufacturer to declare the MRP in Indian rupees; check the physical pack first.
+      REVIEW: The MRP key is printed but the price is not readable — verify the stamped price on the physical pack.
+
+  - code: MRP_TAX_INCLUSIVE
+    title: MRP inclusive of all taxes
+    description: >-
+      The retail sale price must be declared inclusive of all taxes ("Incl. of all
+      taxes"). Applies whenever an MRP declaration is present. A statement that is only
+      partly readable, or none on a poorly read photo, is marked for review.
+    legal_reference: LM(PC) Rules 2011, Rule 6(1)(e)
+    severity: WARNING
+    applies_when: mrp_declared
+    target_fields: [tax_inclusive, mrp_declaration]
+    required_fields: [tax_inclusive]
+    enabled: true
+    expected: '"Inclusive of all taxes" beside the MRP.'
+    actions:
+      FAIL: Ask the manufacturer to state that the MRP is inclusive of all taxes; check the physical pack first.
+      REVIEW: Check the "inclusive of all taxes" statement beside the MRP on the physical pack.
+
+  - code: UNIT_SALE_PRICE
+    title: Unit sale price
+    description: >-
+      Since the 2022 amendment the unit sale price must be declared beside the MRP:
+      per gram / millilitre for net quantity up to 1 kg / 1 L, per kilogram / litre
+      above that, and per unit for goods sold by number. Not required when it equals
+      the MRP, nor for combination, group or multi-piece packages. The base-unit
+      table and 2% tolerance are configuration — verify against the official
+      notification before relying on them. A printed unit-sale-price key whose value
+      cannot be read, or none on a poorly read photo, is marked for review.
+    legal_reference: LM(PC) Rules 2011, Rule 6(11) (as amended 2022)
+    severity: WARNING
+    applies_when: mrp_and_net_quantity
+    target_fields: [unit_sale_price, mrp, net_quantity]
+    required_fields: [unit_sale_price]
+    enabled: true
+    expected: Unit sale price in rupees per the base unit for this net quantity, consistent with MRP ÷ net quantity.
+    actions:
+      FAIL: Ask the manufacturer to declare the unit sale price beside the MRP.
+      REVIEW: Recalculate the unit sale price from the MRP and net quantity on the physical pack.
+    configuration:
+      # Relative difference above which a declared unit sale price is reviewed.
+      tolerance: 0.02
+      # Absolute slack in rupees for rounding to two decimal places.
+      rounding_tolerance: 0.005
+      # Base unit by normalised net quantity; up_to is inclusive, in g / ml / count.
+      base_units:
+        g: [{up_to: 1000, unit: g, factor: 1}, {up_to: null, unit: kg, factor: 1000}]
+        ml: [{up_to: 1000, unit: ml, factor: 1}, {up_to: null, unit: l, factor: 1000}]
+        count: [{up_to: null, unit: unit, factor: 1}]
+
+  - code: MANUFACTURE_DATE
+    title: Month and year of manufacture
+    description: >-
+      The label must declare the month and year of manufacture (or packing). Never a
+      violation from the photo alone: the date is often stamped elsewhere on the pack.
+    legal_reference: LM(PC) Rules 2011, Rule 6(1)(d)
+    severity: WARNING
+    applies_when: always
+    target_fields: [manufacturing_date, packing_date]
+    required_fields: [manufacturing_date]
+    enabled: true
+    expected: Month and year of manufacture or packing.
+    actions:
+      REVIEW: Not visible in this photo — the date is often stamped elsewhere on the pack; capture that area.
+
+  - code: DATE_CONSISTENCY
+    title: Date consistency
+    description: >-
+      Manufacture or packing date must not be after the expiry / use-by date, and
+      must not lie in the future. Not applicable with fewer than two comparable dates
+      unless a manufacture date is in the future.
+    legal_reference: LM(PC) Rules 2011, Rule 6(1)(d)
+    severity: WARNING
+    applies_when: always
+    target_fields: [manufacturing_date, packing_date, expiry_date, use_by, best_before]
+    required_fields: []
+    enabled: true
+    expected: Manufacture/packing date not later than expiry/use-by, and not in the future.
+    actions:
+      FAIL: Verify the dates on the physical pack; inconsistent dates must be corrected.
+      REVIEW: A date could not be read reliably — check it on the physical pack.
+    configuration:
+      future_tolerance_months: 1
+
+  - code: CONSUMER_CARE_FORMAT
+    title: Consumer-care contact details
+    description: >-
+      The label must give contact details for consumer complaints — telephone number
+      and e-mail address of the person or office to contact. A heading whose details
+      cannot be read, or none on a poorly read photo, is marked for review.
+    legal_reference: LM(PC) Rules 2011, Rule 6(2)
+    severity: WARNING
+    applies_when: always
+    target_fields: [consumer_care_phone, consumer_care_email, consumer_care_website, consumer_care_declaration]
+    required_fields: [consumer_care_phone, consumer_care_email]
+    enabled: true
+    expected: Consumer-care telephone number and e-mail address.
+    actions:
+      FAIL: Ask the manufacturer to declare consumer-care telephone and e-mail details; check the physical pack first.
+      REVIEW: Check the consumer-care details on the physical pack (cut off, unreadable or incomplete in this photo).
+
+  - code: FSSAI_LICENSE_PRESENT
+    title: FSSAI licence number (food cross-check)
+    description: >-
+      Informational FSSAI cross-check, not a Legal Metrology requirement. For food
+      products (ingredients / nutrition panel or FSSAI text on the label) looks for a
+      14-digit FSSAI licence number.
+    legal_reference: FSS (Labelling and Display) Regulations 2020 — cross-check, not LM(PC)
+    severity: INFO
+    applies_when: food_product
+    target_fields: [fssai_license, product_category]
+    required_fields: [fssai_license]
+    enabled: true
+    expected: A 14-digit FSSAI licence number.
+    actions:
+      REVIEW: Check the physical pack for the FSSAI logo and 14-digit licence number.

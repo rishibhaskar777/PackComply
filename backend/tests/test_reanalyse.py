@@ -125,9 +125,11 @@ def test_absent_supplementary_fields_are_not_persisted_so_risk_inputs_are_unchan
     rows = build_extracted_fields(ocr.inspection_id, ocr, ExtractionService().extract(ocr.raw_text))
     names = {row.field_name for row in rows}
     assert set(CORE_FIELD_NAMES) <= names  # core fields keep their empty rows
-    # The only supplementary fields with a value: the "absent" declarations.
-    assert names - set(CORE_FIELD_NAMES) == {"mrp_declaration", "consumer_care_declaration"}
+    # The only supplementary fields with a value: the "absent" declarations and the compliance evidence.
+    assert names - set(CORE_FIELD_NAMES) == {"mrp_declaration", "consumer_care_declaration", "declaration_status", "ocr_coverage"}
     assert not any(row.value is None and row.field_name not in CORE_FIELD_NAMES for row in rows)
+    # Evidence rows never ask for review, so they add nothing to risk scores.
+    assert all(row.review_status == "EXTRACTED" for row in rows if row.field_name in ("declaration_status", "ocr_coverage"))
 
 
 def test_iso_dates_reach_the_date_rule_in_its_comparable_form() -> None:

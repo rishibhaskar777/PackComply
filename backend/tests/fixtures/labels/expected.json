@@ -9,7 +9,8 @@
   "manufacturing_units lists the expected unit codes.",
   "consumer_care_declaration, import_declaration and product_category are evaluated only where listed.",
   "'rules' (code -> PASS/FAIL/REVIEW/NOT_APPLICABLE) and 'verdict' are evaluated by backend.scripts.eval_compliance,",
-  "not by eval_extraction; every rule of the current ruleset must be listed."
+  "not by eval_extraction; every rule of the current ruleset must be listed.",
+  "2026-10-16 (ruleset v2): a 14-digit licence number makes a label food, so FSSAI_LICENSE_PRESENT applies to the rice, atta, cookie and tea fixtures; synthetic_near_empty (2 OCR lines) is below the evidence coverage, so its undetected declarations are REVIEW, not FAIL."
  ],
  "parle_g_gluco_70g": {
   "product_name": "Parle-G Gluco Biscuits",
@@ -195,7 +196,7 @@
    "MANUFACTURE_DATE": "REVIEW",
    "DATE_CONSISTENCY": "NOT_APPLICABLE",
    "CONSUMER_CARE_FORMAT": "PASS",
-   "FSSAI_LICENSE_PRESENT": "NOT_APPLICABLE"
+   "FSSAI_LICENSE_PRESENT": "PASS"
   }
  },
  "synthetic_imported_country_of_origin": {
@@ -257,7 +258,7 @@
    "MANUFACTURE_DATE": "PASS",
    "DATE_CONSISTENCY": "PASS",
    "CONSUMER_CARE_FORMAT": "FAIL",
-   "FSSAI_LICENSE_PRESENT": "NOT_APPLICABLE"
+   "FSSAI_LICENSE_PRESENT": "PASS"
   }
  },
  "synthetic_consumer_care_block": {
@@ -288,7 +289,7 @@
    "MANUFACTURE_DATE": "PASS",
    "DATE_CONSISTENCY": "PASS",
    "CONSUMER_CARE_FORMAT": "PASS",
-   "FSSAI_LICENSE_PRESENT": "NOT_APPLICABLE"
+   "FSSAI_LICENSE_PRESENT": "PASS"
   }
  },
  "synthetic_hindi_bilingual": {
@@ -386,21 +387,21 @@
  },
  "synthetic_near_empty": {
   "product_name": "Spice Magic Garam Masala",
-  "verdict": "NON_COMPLIANT",
+  "verdict": "NEEDS_REVIEW",
   "rules": {
-   "MANUFACTURER_INFORMATION": "FAIL",
+   "MANUFACTURER_INFORMATION": "REVIEW",
    "IMPORTER_INFORMATION": "NOT_APPLICABLE",
    "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
    "PACKER_INFORMATION": "NOT_APPLICABLE",
    "PRODUCT_IDENTITY": "PASS",
-   "NET_QUANTITY_FORMAT": "FAIL",
+   "NET_QUANTITY_FORMAT": "REVIEW",
    "NET_QUANTITY_UNIT_SUITABILITY": "NOT_APPLICABLE",
-   "MRP_FORMAT": "FAIL",
+   "MRP_FORMAT": "REVIEW",
    "MRP_TAX_INCLUSIVE": "NOT_APPLICABLE",
    "UNIT_SALE_PRICE": "NOT_APPLICABLE",
    "MANUFACTURE_DATE": "REVIEW",
    "DATE_CONSISTENCY": "NOT_APPLICABLE",
-   "CONSUMER_CARE_FORMAT": "FAIL",
+   "CONSUMER_CARE_FORMAT": "REVIEW",
    "FSSAI_LICENSE_PRESENT": "NOT_APPLICABLE"
   }
  },
@@ -494,7 +495,7 @@
    "MANUFACTURE_DATE": "PASS",
    "DATE_CONSISTENCY": "NOT_APPLICABLE",
    "CONSUMER_CARE_FORMAT": "PASS",
-   "FSSAI_LICENSE_PRESENT": "NOT_APPLICABLE"
+   "FSSAI_LICENSE_PRESENT": "PASS"
   }
  }
 }

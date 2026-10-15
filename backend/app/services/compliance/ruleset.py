@@ -14,8 +14,10 @@ from typing import Any
 import yaml
 
 RULESET_DIR = Path(__file__).resolve().parent / "rulesets"
-DEFAULT_RULESET = RULESET_DIR / "lm_pc_2011_v1.yaml"
+DEFAULT_RULESET = RULESET_DIR / "lm_pc_2011_v2.yaml"
 SEVERITIES = ("HIGH", "WARNING", "INFO")
+# OCR-coverage thresholds a ruleset may set (see rule_engine._Label.coverage_adequate).
+EVIDENCE_KEYS = {"min_text_lines": int, "min_mean_confidence": float, "max_low_confidence_line_share": float}
 
 
 class RulesetError(ValueError):
@@ -53,6 +55,8 @@ class Ruleset:
     title: str
     disclaimer: str
     rules: tuple[RuleDefinition, ...]
+    # When an undetected declaration may be called absent (FAIL) rather than out of view (REVIEW).
+    evidence: dict[str, Any] = field(default_factory=dict)
 
     def get(self, code: str) -> RuleDefinition | None:
         return next((rule for rule in self.rules if rule.code == code), None)
@@ -104,6 +108,14 @@ def parse_ruleset(data: dict[str, Any], *, known_conditions: frozenset[str] | No
         ))
     ruleset_id = str(_require(data, "ruleset_id", "ruleset"))
     version = str(_require(data, "version", "ruleset"))
+    evidence = {}
+    for key, value in (data.get("evidence") or {}).items():
+        if key not in EVIDENCE_KEYS:
+            raise RulesetError(f"evidence: unknown setting '{key}'")
+        try:
+            evidence[key] = EVIDENCE_KEYS[key](value)
+        except (TypeError, ValueError) as error:
+            raise RulesetError(f"evidence: '{key}' must be a number") from error
     return Ruleset(
         ruleset_id=ruleset_id,
         version=version,
@@ -111,6 +123,7 @@ def parse_ruleset(data: dict[str, Any], *, known_conditions: frozenset[str] | No
         title=str(data.get("title") or ruleset_id),
         disclaimer=" ".join(str(data.get("disclaimer") or "").split()),
         rules=tuple(rules),
+        evidence=evidence,
     )
 
 

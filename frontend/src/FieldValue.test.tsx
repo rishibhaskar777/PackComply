@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { FieldValue } from "./App";
+import { FieldValue, labelFields } from "./App";
 import en from "./locales/en.json";
 import { I18nProvider } from "./i18n";
 
@@ -24,6 +24,10 @@ describe("extraction field values", () => {
     cleanup();
     show("tax_inclusive", "true");
     expect(screen.getByText(en.taxInclusiveYes)).toBeTruthy();
+  });
+  it("lists label fields but not the evidence the compliance rules read", () => {
+    const fields = { mrp: "₹45", declaration_status: "{\"mrp\": {\"state\": \"DECLARED_WITH_VALUE\"}}", ocr_coverage: "{\"text_lines\": 30}", net_quantity: "200 g" };
+    expect(labelFields(fields).map(([name]) => name)).toEqual(["mrp", "net_quantity"]);
   });
   it("shows plain values, malformed unit data and missing values safely", () => {
     show("fssai_license", "10013022002245");
