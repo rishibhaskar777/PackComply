@@ -1,0 +1,274 @@
+{
+ "name": "synthetic_imported_country_of_origin",
+ "synthetic": true,
+ "description": "Imported product: Imported by, Country of Origin, foreign manufacturer with address on the same line, Net Vol.",
+ "image_width": 640,
+ "image_height": 480,
+ "raw_text": "Tropical Coconut Water\n100% Natural\nNet Vol: 330 ml\nMRP ₹ 90 (inclusive of all taxes)\nImported by:\nGlobal Foods Trading LLP\nUnit 4, Andheri East, Mumbai - 400069\nFSSAI Lic. No. 10012022000789\nCountry of Origin: Thailand\nBest Before: 12 months from packing\nPacked on: 01/2026\nManufactured by: Siam Beverage Co., Ltd., Bangkok, Thailand",
+ "detections": [
+  {
+   "text": "Tropical Coconut Water",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     20
+    ],
+    [
+     423.0,
+     20
+    ],
+    [
+     423.0,
+     50
+    ],
+    [
+     60,
+     50
+    ]
+   ]
+  },
+  {
+   "text": "100% Natural",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     70
+    ],
+    [
+     165.6,
+     70
+    ],
+    [
+     165.6,
+     86
+    ],
+    [
+     60,
+     86
+    ]
+   ]
+  },
+  {
+   "text": "Net Vol: 330 ml",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     100
+    ],
+    [
+     192.0,
+     100
+    ],
+    [
+     192.0,
+     116
+    ],
+    [
+     60,
+     116
+    ]
+   ]
+  },
+  {
+   "text": "MRP ₹ 90 (inclusive of all taxes)",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     120
+    ],
+    [
+     350.4,
+     120
+    ],
+    [
+     350.4,
+     136
+    ],
+    [
+     60,
+     136
+    ]
+   ]
+  },
+  {
+   "text": "Imported by:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     150
+    ],
+    [
+     165.6,
+     150
+    ],
+    [
+     165.6,
+     166
+    ],
+    [
+     60,
+     166
+    ]
+   ]
+  },
+  {
+   "text": "Global Foods Trading LLP",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     170
+    ],
+    [
+     271.2,
+     170
+    ],
+    [
+     271.2,
+     186
+    ],
+    [
+     60,
+     186
+    ]
+   ]
+  },
+  {
+   "text": "Unit 4, Andheri East, Mumbai - 400069",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     190
+    ],
+    [
+     385.6,
+     190
+    ],
+    [
+     385.6,
+     206
+    ],
+    [
+     60,
+     206
+    ]
+   ]
+  },
+  {
+   "text": "FSSAI Lic. No. 10012022000789",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     210
+    ],
+    [
+     315.2,
+     210
+    ],
+    [
+     315.2,
+     226
+    ],
+    [
+     60,
+     226
+    ]
+   ]
+  },
+  {
+   "text": "Country of Origin: Thailand",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     240
+    ],
+    [
+     297.6,
+     240
+    ],
+    [
+     297.6,
+     256
+    ],
+    [
+     60,
+     256
+    ]
+   ]
+  },
+  {
+   "text": "Best Before: 12 months from packing",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     260
+    ],
+    [
+     368.0,
+     260
+    ],
+    [
+     368.0,
+     276
+    ],
+    [
+     60,
+     276
+    ]
+   ]
+  },
+  {
+   "text": "Packed on: 01/2026",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     280
+    ],
+    [
+     218.4,
+     280
+    ],
+    [
+     218.4,
+     296
+    ],
+    [
+     60,
+     296
+    ]
+   ]
+  },
+  {
+   "text": "Manufactured by: Siam Beverage Co., Ltd., Bangkok, Thailand",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     310
+    ],
+    [
+     579.2,
+     310
+    ],
+    [
+     579.2,
+     326
+    ],
+    [
+     60,
+     326
+    ]
+   ]
+  }
+ ]
+}

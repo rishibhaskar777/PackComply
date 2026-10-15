@@ -1,0 +1,9 @@
+{
+ "name": "synthetic_count_exp_text_only",
+ "synthetic": true,
+ "description": "Text-only OCR (no boxes): count quantity 12 N, EXP mm/yy, PKD mm/yyyy, B.No., Mfd. by.",
+ "image_width": 640,
+ "image_height": 480,
+ "raw_text": "Kidz Choco Wafer Bars\nChoco Wafers with Cocoa Cream\nNet Quantity: 12 N\nM.R.P. ₹120.00\nInclusive of all taxes\nPKD: 02/2026\nEXP 08/27\nB.No. KW2602\nMfd. by: Sweet Valley Confectionery LLP\n21 Industrial Estate, Hosur, TN - 635109",
+ "detections": null
+}

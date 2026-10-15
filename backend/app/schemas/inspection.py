@@ -69,6 +69,7 @@ class OcrDetectionResponse(BaseModel):
     text: str
     confidence: float | None
     bbox: list[list[float]] | None
+    language: str | None = None
 
 
 class OcrProcessed(BaseModel):

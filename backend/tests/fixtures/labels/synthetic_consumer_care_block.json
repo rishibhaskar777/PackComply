@@ -1,0 +1,296 @@
+{
+ "name": "synthetic_consumer_care_block",
+ "synthetic": true,
+ "description": "Consumer care block with 1800 number, email and website; distractors S.8 / LIC.No / M.R.P that are not websites.",
+ "image_width": 640,
+ "image_height": 480,
+ "raw_text": "Crunchy Oats Cookies\nNet Weight: 150 g\nM.R.P. Rs. 40/-\nTOTAL SATURATED FAT NOT MORE THAN S.8 PERCENT\nManufactured by: Healthy Bites Foods Pvt Ltd\n45 Peenya Industrial Area, Bengaluru, KA - 560058\nLIC.No.10014043000999\nCONSUMER CARE:\nCall Toll Free 1800 425 7788\nEmail: care@healthybites.co.in\nVisit: www.healthybites.co.in\nMFG: 05/2026\nEXP: 04/2027",
+ "detections": [
+  {
+   "text": "Crunchy Oats Cookies",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     20
+    ],
+    [
+     390.0,
+     20
+    ],
+    [
+     390.0,
+     50
+    ],
+    [
+     60,
+     50
+    ]
+   ]
+  },
+  {
+   "text": "Net Weight: 150 g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     70
+    ],
+    [
+     209.6,
+     70
+    ],
+    [
+     209.6,
+     86
+    ],
+    [
+     60,
+     86
+    ]
+   ]
+  },
+  {
+   "text": "M.R.P. Rs. 40/-",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     90
+    ],
+    [
+     192.0,
+     90
+    ],
+    [
+     192.0,
+     106
+    ],
+    [
+     60,
+     106
+    ]
+   ]
+  },
+  {
+   "text": "TOTAL SATURATED FAT NOT MORE THAN S.8 PERCENT",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     110
+    ],
+    [
+     456.0,
+     110
+    ],
+    [
+     456.0,
+     126
+    ],
+    [
+     60,
+     126
+    ]
+   ]
+  },
+  {
+   "text": "Manufactured by: Healthy Bites Foods Pvt Ltd",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     140
+    ],
+    [
+     447.2,
+     140
+    ],
+    [
+     447.2,
+     156
+    ],
+    [
+     60,
+     156
+    ]
+   ]
+  },
+  {
+   "text": "45 Peenya Industrial Area, Bengaluru, KA - 560058",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     160
+    ],
+    [
+     491.2,
+     160
+    ],
+    [
+     491.2,
+     176
+    ],
+    [
+     60,
+     176
+    ]
+   ]
+  },
+  {
+   "text": "LIC.No.10014043000999",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     180
+    ],
+    [
+     244.8,
+     180
+    ],
+    [
+     244.8,
+     196
+    ],
+    [
+     60,
+     196
+    ]
+   ]
+  },
+  {
+   "text": "CONSUMER CARE:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     210
+    ],
+    [
+     183.2,
+     210
+    ],
+    [
+     183.2,
+     226
+    ],
+    [
+     60,
+     226
+    ]
+   ]
+  },
+  {
+   "text": "Call Toll Free 1800 425 7788",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     230
+    ],
+    [
+     306.4,
+     230
+    ],
+    [
+     306.4,
+     246
+    ],
+    [
+     60,
+     246
+    ]
+   ]
+  },
+  {
+   "text": "Email: care@healthybites.co.in",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     250
+    ],
+    [
+     324.0,
+     250
+    ],
+    [
+     324.0,
+     266
+    ],
+    [
+     60,
+     266
+    ]
+   ]
+  },
+  {
+   "text": "Visit: www.healthybites.co.in",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     270
+    ],
+    [
+     315.2,
+     270
+    ],
+    [
+     315.2,
+     286
+    ],
+    [
+     60,
+     286
+    ]
+   ]
+  },
+  {
+   "text": "MFG: 05/2026",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     300
+    ],
+    [
+     165.6,
+     300
+    ],
+    [
+     165.6,
+     316
+    ],
+    [
+     60,
+     316
+    ]
+   ]
+  },
+  {
+   "text": "EXP: 04/2027",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     260,
+     300
+    ],
+    [
+     365.6,
+     300
+    ],
+    [
+     365.6,
+     316
+    ],
+    [
+     260,
+     316
+    ]
+   ]
+  }
+ ]
+}

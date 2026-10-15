@@ -516,3 +516,52 @@ def test_startup_warmup_does_not_block_health(monkeypatch) -> None:
         release.set()
         app.dependency_overrides.clear()
         get_settings.cache_clear()
+
+
+# Cross-language de-duplication ----------------------------------------------
+
+def _box(x0: float, y0: float, x1: float, y1: float) -> list[list[float]]:
+    return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
+
+
+def test_secondary_rereads_of_primary_text_are_dropped() -> None:
+    from backend.app.services.ocr.ocr_service import filter_secondary_detections
+
+    primary = [OcrDetection("NET WEIGHT:", 0.99, _box(599, 313, 689, 333), "en"), OcrDetection("70g", 0.99, _box(682, 308, 732, 336), "en")]
+    secondary = [
+        OcrDetection("NET WEIGHT:70", 0.98, _box(599, 311, 711, 334), "hi"),   # IoU 0.7 with a primary box
+        OcrDetection("Te", 0.6, _box(600, 315, 620, 330), "hi"),              # fragment inside a primary box
+        OcrDetection("शुद्ध वजन", 0.9, _box(599, 313, 689, 333), "hi"),       # Devanagari: new information
+        OcrDetection("Batch 7", 0.9, _box(10, 500, 80, 520), "hi"),           # no primary box there
+        OcrDetection("no box", 0.9, None, "hi"),
+    ]
+
+    kept, dropped = filter_secondary_detections(primary, secondary, "hi")
+
+    assert [item.text for item in kept] == ["शुद्ध वजन", "Batch 7", "no box"]
+    assert dropped == 2
+
+
+def test_script_check_follows_the_secondary_language() -> None:
+    from backend.app.services.ocr.ocr_service import filter_secondary_detections, has_script
+
+    assert has_script("மொத்த எடை", "ta") and not has_script("मूल्य", "ta") and not has_script("MRP", "hi")
+    primary = [OcrDetection("Net Wt", 0.9, _box(0, 0, 100, 20), "en")]
+    kept, dropped = filter_secondary_detections(primary, [OcrDetection("मूल्य", 0.9, _box(0, 0, 100, 20), "ta")], "ta")
+    assert kept == [] and dropped == 1
+
+
+def test_scan_tags_languages_and_drops_cross_language_duplicates(tmp_path, monkeypatch, caplog) -> None:
+    service, image = _scannable_service(tmp_path, monkeypatch)
+    primary_box = [[1.0, 2.0], [3.0, 2.0], [3.0, 4.0], [1.0, 4.0]]
+    monkeypatch.setattr(service, "_start_secondary_language", lambda language, path: _Ticket([
+        OcrDetection("MRP Rs 5O", 0.7, primary_box), OcrDetection("मूल्य", 0.9, primary_box), OcrDetection("Lot 9", 0.9, _box(50, 50, 60, 60)),
+    ]))
+
+    with caplog.at_level("INFO", logger="uvicorn.error"):
+        document = service.scan(image)
+
+    assert [(item.text, item.language) for item in document.detections] == [("MRP Rs 50", "en"), ("मूल्य", "hi"), ("Lot 9", "hi")]
+    assert document.secondary_duplicates_dropped == 1
+    assert document.as_database_detections()[0]["language"] == "en"
+    assert "cross-language de-duplication language=hi kept=2 dropped=1" in caplog.text

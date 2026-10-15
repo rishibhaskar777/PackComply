@@ -1,0 +1,516 @@
+{
+ "name": "synthetic_two_column_right_values",
+ "synthetic": true,
+ "description": "Two columns: nutrition table on the left, label keys on the right whose values sit in separate boxes to the right.",
+ "image_width": 800,
+ "image_height": 480,
+ "raw_text": "NUTRITIONAL INFORMATION\nAMOUNT PER 100g\nEnergy\n520 kcal\nProtein\n7.2g\nFat\n28.4g\nMasti Masala Chips\nNET WEIGHT:\n52g\nMRP\n₹ 20.00\nINCL. OF ALL TAXES\nMANUFACTURED FOR:\nMasti Snacks Pvt Ltd\n88 Sector 5, Noida, UP - 201301\nMANUFACTURED BY:\nCrisp Foods Industries\nKhasra 12, Sonipat, HR - 131001\nLIC. No.: 10813999000777\nPKD:\nMAR/26",
+ "detections": [
+  {
+   "text": "NUTRITIONAL INFORMATION",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     40,
+     100
+    ],
+    [
+     242.4,
+     100
+    ],
+    [
+     242.4,
+     116
+    ],
+    [
+     40,
+     116
+    ]
+   ]
+  },
+  {
+   "text": "AMOUNT PER 100g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     40,
+     120
+    ],
+    [
+     172.0,
+     120
+    ],
+    [
+     172.0,
+     136
+    ],
+    [
+     40,
+     136
+    ]
+   ]
+  },
+  {
+   "text": "Energy",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     40,
+     140
+    ],
+    [
+     92.8,
+     140
+    ],
+    [
+     92.8,
+     156
+    ],
+    [
+     40,
+     156
+    ]
+   ]
+  },
+  {
+   "text": "520 kcal",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     180,
+     140
+    ],
+    [
+     250.4,
+     140
+    ],
+    [
+     250.4,
+     156
+    ],
+    [
+     180,
+     156
+    ]
+   ]
+  },
+  {
+   "text": "Protein",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     40,
+     160
+    ],
+    [
+     101.6,
+     160
+    ],
+    [
+     101.6,
+     176
+    ],
+    [
+     40,
+     176
+    ]
+   ]
+  },
+  {
+   "text": "7.2g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     180,
+     160
+    ],
+    [
+     215.2,
+     160
+    ],
+    [
+     215.2,
+     176
+    ],
+    [
+     180,
+     176
+    ]
+   ]
+  },
+  {
+   "text": "Fat",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     40,
+     180
+    ],
+    [
+     66.4,
+     180
+    ],
+    [
+     66.4,
+     196
+    ],
+    [
+     40,
+     196
+    ]
+   ]
+  },
+  {
+   "text": "28.4g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     180,
+     180
+    ],
+    [
+     224.0,
+     180
+    ],
+    [
+     224.0,
+     196
+    ],
+    [
+     180,
+     196
+    ]
+   ]
+  },
+  {
+   "text": "Masti Masala Chips",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     30
+    ],
+    [
+     736.6,
+     30
+    ],
+    [
+     736.6,
+     64
+    ],
+    [
+     400,
+     64
+    ]
+   ]
+  },
+  {
+   "text": "NET WEIGHT:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     100
+    ],
+    [
+     496.8,
+     100
+    ],
+    [
+     496.8,
+     116
+    ],
+    [
+     400,
+     116
+    ]
+   ]
+  },
+  {
+   "text": "52g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     560,
+     100
+    ],
+    [
+     586.4,
+     100
+    ],
+    [
+     586.4,
+     116
+    ],
+    [
+     560,
+     116
+    ]
+   ]
+  },
+  {
+   "text": "MRP",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     120
+    ],
+    [
+     426.4,
+     120
+    ],
+    [
+     426.4,
+     136
+    ],
+    [
+     400,
+     136
+    ]
+   ]
+  },
+  {
+   "text": "₹ 20.00",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     470,
+     120
+    ],
+    [
+     531.6,
+     120
+    ],
+    [
+     531.6,
+     136
+    ],
+    [
+     470,
+     136
+    ]
+   ]
+  },
+  {
+   "text": "INCL. OF ALL TAXES",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     140
+    ],
+    [
+     558.4,
+     140
+    ],
+    [
+     558.4,
+     156
+    ],
+    [
+     400,
+     156
+    ]
+   ]
+  },
+  {
+   "text": "MANUFACTURED FOR:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     170
+    ],
+    [
+     549.6,
+     170
+    ],
+    [
+     549.6,
+     186
+    ],
+    [
+     400,
+     186
+    ]
+   ]
+  },
+  {
+   "text": "Masti Snacks Pvt Ltd",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     190
+    ],
+    [
+     576.0,
+     190
+    ],
+    [
+     576.0,
+     206
+    ],
+    [
+     400,
+     206
+    ]
+   ]
+  },
+  {
+   "text": "88 Sector 5, Noida, UP - 201301",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     210
+    ],
+    [
+     672.8,
+     210
+    ],
+    [
+     672.8,
+     226
+    ],
+    [
+     400,
+     226
+    ]
+   ]
+  },
+  {
+   "text": "MANUFACTURED BY:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     240
+    ],
+    [
+     540.8,
+     240
+    ],
+    [
+     540.8,
+     256
+    ],
+    [
+     400,
+     256
+    ]
+   ]
+  },
+  {
+   "text": "Crisp Foods Industries",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     260
+    ],
+    [
+     593.6,
+     260
+    ],
+    [
+     593.6,
+     276
+    ],
+    [
+     400,
+     276
+    ]
+   ]
+  },
+  {
+   "text": "Khasra 12, Sonipat, HR - 131001",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     280
+    ],
+    [
+     672.8,
+     280
+    ],
+    [
+     672.8,
+     296
+    ],
+    [
+     400,
+     296
+    ]
+   ]
+  },
+  {
+   "text": "LIC. No.: 10813999000777",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     300
+    ],
+    [
+     611.2,
+     300
+    ],
+    [
+     611.2,
+     316
+    ],
+    [
+     400,
+     316
+    ]
+   ]
+  },
+  {
+   "text": "PKD:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     400,
+     330
+    ],
+    [
+     435.2,
+     330
+    ],
+    [
+     435.2,
+     346
+    ],
+    [
+     400,
+     346
+    ]
+   ]
+  },
+  {
+   "text": "MAR/26",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     480,
+     330
+    ],
+    [
+     532.8,
+     330
+    ],
+    [
+     532.8,
+     346
+    ],
+    [
+     480,
+     346
+    ]
+   ]
+  }
+ ]
+}

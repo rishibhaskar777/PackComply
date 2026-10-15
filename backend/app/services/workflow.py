@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, Inspection, InspectionImage, OcrResult
@@ -30,8 +30,12 @@ def resolve_upload_path(upload_dir: Path, storage_key: str) -> Path | None:
     return path if path.is_relative_to(root) and path.is_file() else None
 
 
+# Newest first, deterministic even when two uploads share a created_at.
+LATEST_IMAGE_ORDER = (InspectionImage.created_at.desc(), InspectionImage.upload_sequence.desc(), InspectionImage.id.desc())
+
+
 def latest_image(db: Session, inspection_id: UUID) -> InspectionImage | None:
-    return db.scalar(select(InspectionImage).where(InspectionImage.inspection_id == inspection_id).order_by(InspectionImage.created_at.desc()))
+    return db.scalar(select(InspectionImage).where(InspectionImage.inspection_id == inspection_id).order_by(*LATEST_IMAGE_ORDER).limit(1))
 
 
 def latest_extracted_fields(db: Session, inspection_id: UUID) -> list[ExtractedField]:
@@ -105,34 +109,70 @@ class InspectionWorkflow:
         if not extracted:
             self._set_status(inspection, "EXTRACTION_PROCESSING")
             try:
-                values = self.extraction.extract(ocr_result.raw_text)
-                logger.info("Workflow extraction inspection_id=%s ocr_result_id=%s fields=%s", inspection.id, ocr_result.id, {name: {"raw_ocr": value.source_text, "parsed": value.value, "normalized": value.normalized_value} for name, value in values.items() if value.value})
-                self.db.add_all(build_extracted_fields(inspection.id, ocr_result, values))
-                self.db.commit()
+                extracted = self._extract(inspection, ocr_result)
             except Exception as error:
                 self.db.rollback()
                 raise self._fail(inspection, "extraction", error) from error
-            extracted = self.db.scalars(select(ExtractedField).where(ExtractedField.ocr_result_id == ocr_result.id)).all()
         self._set_status(inspection, "EXTRACTION_COMPLETED")
 
         persisted = self.db.scalars(select(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id)).all()
         if not persisted:
             self._set_status(inspection, "COMPLIANCE_PROCESSING")
             try:
-                fields = {field.field_name: field_evidence(field) for field in extracted}
-                logger.info("Workflow compliance input inspection_id=%s ocr_result_id=%s fields=%s", inspection.id, ocr_result.id, {name: {"raw": item.value, "normalized": self.compliance._normalized("NET_QUANTITY_FORMAT" if name == "net_quantity" else "MRP_FORMAT" if name == "mrp" else "", item.value)} for name, item in fields.items()})
-                rules = ensure_compliance_rules(self.db)
-                for finding in self.compliance.evaluate(fields):
-                    rule = rules.get(finding.rule_id)
-                    if rule and rule.enabled:
-                        self.db.add(ComplianceResult(inspection_id=inspection.id, rule_id=rule.id, result=finding.status, explanation=finding.message, field_name=finding.field, value=finding.value, confidence=finding.confidence, evidence=finding.evidence))
-                self.db.commit()
+                self._evaluate(inspection, ocr_result, extracted)
             except Exception as error:
                 self.db.rollback()
                 raise self._fail(inspection, "compliance", error) from error
         inspection.status, inspection.completed_at = "COMPLETED", datetime.now(timezone.utc)
         inspection.failure_stage = inspection.failure_message = None
         self.db.commit()
+        return self.summary(inspection.id)
+
+    def _extract(self, inspection: Inspection, ocr_result: OcrResult) -> list[ExtractedField]:
+        values = self.extraction.extract(ocr_result.raw_text, ocr_result.detections)
+        logger.info("Workflow extraction inspection_id=%s ocr_result_id=%s fields=%s", inspection.id, ocr_result.id, {name: {"raw_ocr": value.source_text, "parsed": value.value, "normalized": value.normalized_value} for name, value in values.items() if value.value})
+        self.db.add_all(build_extracted_fields(inspection.id, ocr_result, values))
+        self.db.commit()
+        return list(self.db.scalars(select(ExtractedField).where(ExtractedField.ocr_result_id == ocr_result.id)).all())
+
+    def _evaluate(self, inspection: Inspection, ocr_result: OcrResult, extracted: list[ExtractedField]) -> None:
+        fields = {field.field_name: field_evidence(field) for field in extracted}
+        logger.info("Workflow compliance input inspection_id=%s ocr_result_id=%s fields=%s", inspection.id, ocr_result.id, {name: {"raw": item.value, "normalized": self.compliance._normalized("NET_QUANTITY_FORMAT" if name == "net_quantity" else "MRP_FORMAT" if name == "mrp" else "", item.value)} for name, item in fields.items()})
+        rules = ensure_compliance_rules(self.db)
+        for finding in self.compliance.evaluate(fields):
+            rule = rules.get(finding.rule_id)
+            if rule and rule.enabled:
+                self.db.add(ComplianceResult(inspection_id=inspection.id, rule_id=rule.id, result=finding.status, explanation=finding.message, field_name=finding.field, value=finding.value, confidence=finding.confidence, evidence=finding.evidence))
+        self.db.commit()
+
+    def reanalyse(self, inspection_id: UUID) -> InspectionSummary:
+        """Re-run extraction and compliance on the latest stored OCR result, without new OCR.
+
+        Replaces this inspection's ExtractedField and ComplianceResult rows; the
+        OCR evidence itself is never modified.
+        """
+        inspection = self.db.get(Inspection, inspection_id)
+        if inspection is None:
+            raise KeyError("Inspection not found.")
+        ocr_result = self.db.scalar(select(OcrResult).where(OcrResult.inspection_id == inspection.id).order_by(OcrResult.created_at.desc()))
+        if ocr_result is None:
+            raise WorkflowError("OCR", "OCR must be run before the inspection can be re-analysed.", 409)
+        try:
+            self.db.execute(delete(ExtractedField).where(ExtractedField.inspection_id == inspection.id))
+            self.db.execute(delete(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id))
+            extracted = self._extract(inspection, ocr_result)
+        except Exception as error:
+            self.db.rollback()
+            raise self._fail(inspection, "extraction", error) from error
+        try:
+            self._evaluate(inspection, ocr_result, extracted)
+        except Exception as error:
+            self.db.rollback()
+            raise self._fail(inspection, "compliance", error) from error
+        inspection.status, inspection.completed_at = "COMPLETED", inspection.completed_at or datetime.now(timezone.utc)
+        inspection.failure_stage = inspection.failure_message = None
+        self.db.commit()
+        logger.info("Inspection re-analysed inspection_id=%s ocr_result_id=%s fields=%d", inspection.id, ocr_result.id, sum(field.value is not None for field in extracted))
         return self.summary(inspection.id)
 
     def _backfill_dimensions(self, image: InspectionImage) -> None:
