@@ -1,0 +1,687 @@
+{
+ "source": "batch_evaluate OCR of WhatsApp Image 2026-10-15 at 10.51.16 PM (1).jpeg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 960,
+ "image_height": 1280,
+ "ocr_seconds": 18.66,
+ "raw_text": "581-;70.23/mk\n27/05/25\nCB971\nVIM CONCETRATED GEL\nVIM DISHWASH LIQUID.\n<09111771931\nMADE IN INDIA. MKTD. BY: HINDUSTAN\nUNILEVERLTD.(HUL),MUMBAI 400099.\nUNTAINS ISOTHIAZOLINONES VIM IS A REGISTERED\nRADEMARK © HUL 2024\nFOR MFG. UNIT ADDRESS, READ CHARACTER(S)\nPOLLOWING 0 IN CODING AREA, AND REFER\nHERE AE) HINDUSTAN FOODS LTD., SY. NO. 44\n6 49. TS 509 202. C) HINDUSTAN UNILEVER\nLTD. UNIT 1. SIDCUL HARIDWAR UTTARAKHAND\n249403\nLEVERCARE-QUERY / FEEDBACK,\nTOLL FREE: 1800-10-22-221\nPO BOX 14760, MUMBAI 400 099,\nLEVER.CAREOUNILEVER.COM\n\"MAP (INCL. OF ALL TAXES), USP\nMFO &BATCH NO SEE CODING AREA\nNET VOL\nMAOE OP OF QON HECYCLED PLASTIUS\nU\nPAP\n२58/-₹0.23/mn\n",
+ "detections": [
+  {
+   "text": "581-;70.23/mk",
+   "confidence": 0.8826612234115601,
+   "bbox": [
+    [
+     399.0,
+     344.0
+    ],
+    [
+     597.0,
+     350.0
+    ],
+    [
+     596.0,
+     389.0
+    ],
+    [
+     398.0,
+     383.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "27/05/25",
+   "confidence": 0.9688565731048584,
+   "bbox": [
+    [
+     392.0,
+     391.0
+    ],
+    [
+     509.0,
+     391.0
+    ],
+    [
+     509.0,
+     427.0
+    ],
+    [
+     392.0,
+     427.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CB971",
+   "confidence": 0.9881945848464966,
+   "bbox": [
+    [
+     383.0,
+     432.0
+    ],
+    [
+     490.0,
+     432.0
+    ],
+    [
+     490.0,
+     472.0
+    ],
+    [
+     383.0,
+     472.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "VIM CONCETRATED GEL",
+   "confidence": 0.9915005564689636,
+   "bbox": [
+    [
+     299.0,
+     563.0
+    ],
+    [
+     430.0,
+     561.0
+    ],
+    [
+     430.0,
+     581.0
+    ],
+    [
+     299.0,
+     583.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "VIM DISHWASH LIQUID.",
+   "confidence": 0.9447503089904785,
+   "bbox": [
+    [
+     293.0,
+     578.0
+    ],
+    [
+     461.0,
+     576.0
+    ],
+    [
+     461.0,
+     600.0
+    ],
+    [
+     293.0,
+     602.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "<09111771931",
+   "confidence": 0.7750057578086853,
+   "bbox": [
+    [
+     664.0,
+     572.0
+    ],
+    [
+     688.0,
+     572.0
+    ],
+    [
+     686.0,
+     829.0
+    ],
+    [
+     662.0,
+     829.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MADE IN INDIA. MKTD. BY: HINDUSTAN",
+   "confidence": 0.9945134520530701,
+   "bbox": [
+    [
+     288.0,
+     597.0
+    ],
+    [
+     553.0,
+     595.0
+    ],
+    [
+     553.0,
+     618.0
+    ],
+    [
+     288.0,
+     620.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "UNILEVERLTD.(HUL),MUMBAI 400099.",
+   "confidence": 0.9773650169372559,
+   "bbox": [
+    [
+     287.0,
+     617.0
+    ],
+    [
+     551.0,
+     616.0
+    ],
+    [
+     551.0,
+     637.0
+    ],
+    [
+     287.0,
+     638.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "UNTAINS ISOTHIAZOLINONES VIM IS A REGISTERED",
+   "confidence": 0.9750818610191345,
+   "bbox": [
+    [
+     285.0,
+     636.0
+    ],
+    [
+     552.0,
+     635.0
+    ],
+    [
+     552.0,
+     653.0
+    ],
+    [
+     285.0,
+     654.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "RADEMARK © HUL 2024",
+   "confidence": 0.9277616739273071,
+   "bbox": [
+    [
+     275.0,
+     650.0
+    ],
+    [
+     407.0,
+     650.0
+    ],
+    [
+     407.0,
+     667.0
+    ],
+    [
+     275.0,
+     667.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FOR MFG. UNIT ADDRESS, READ CHARACTER(S)",
+   "confidence": 0.9676557779312134,
+   "bbox": [
+    [
+     272.0,
+     665.0
+    ],
+    [
+     552.0,
+     665.0
+    ],
+    [
+     552.0,
+     688.0
+    ],
+    [
+     272.0,
+     688.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "POLLOWING 0 IN CODING AREA, AND REFER",
+   "confidence": 0.9572339653968811,
+   "bbox": [
+    [
+     269.0,
+     687.0
+    ],
+    [
+     553.0,
+     687.0
+    ],
+    [
+     553.0,
+     710.0
+    ],
+    [
+     269.0,
+     710.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "HERE AE) HINDUSTAN FOODS LTD., SY. NO. 44",
+   "confidence": 0.9607143998146057,
+   "bbox": [
+    [
+     266.0,
+     707.0
+    ],
+    [
+     553.0,
+     708.0
+    ],
+    [
+     553.0,
+     732.0
+    ],
+    [
+     266.0,
+     731.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "6 49. TS 509 202. C) HINDUSTAN UNILEVER",
+   "confidence": 0.9628705978393555,
+   "bbox": [
+    [
+     264.0,
+     729.0
+    ],
+    [
+     554.0,
+     730.0
+    ],
+    [
+     554.0,
+     754.0
+    ],
+    [
+     264.0,
+     753.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LTD. UNIT 1. SIDCUL HARIDWAR UTTARAKHAND",
+   "confidence": 0.9321259260177612,
+   "bbox": [
+    [
+     260.0,
+     749.0
+    ],
+    [
+     555.0,
+     752.0
+    ],
+    [
+     555.0,
+     779.0
+    ],
+    [
+     260.0,
+     776.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "249403",
+   "confidence": 0.9971277117729187,
+   "bbox": [
+    [
+     261.0,
+     769.0
+    ],
+    [
+     339.0,
+     773.0
+    ],
+    [
+     338.0,
+     799.0
+    ],
+    [
+     260.0,
+     795.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LEVERCARE-QUERY / FEEDBACK,",
+   "confidence": 0.9617884159088135,
+   "bbox": [
+    [
+     263.0,
+     797.0
+    ],
+    [
+     482.0,
+     804.0
+    ],
+    [
+     481.0,
+     832.0
+    ],
+    [
+     262.0,
+     825.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "TOLL FREE: 1800-10-22-221",
+   "confidence": 0.9428781867027283,
+   "bbox": [
+    [
+     263.0,
+     819.0
+    ],
+    [
+     454.0,
+     827.0
+    ],
+    [
+     453.0,
+     854.0
+    ],
+    [
+     262.0,
+     846.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PO BOX 14760, MUMBAI 400 099,",
+   "confidence": 0.9743584990501404,
+   "bbox": [
+    [
+     261.0,
+     841.0
+    ],
+    [
+     486.0,
+     849.0
+    ],
+    [
+     485.0,
+     876.0
+    ],
+    [
+     260.0,
+     868.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LEVER.CAREOUNILEVER.COM",
+   "confidence": 0.9729391932487488,
+   "bbox": [
+    [
+     263.0,
+     863.0
+    ],
+    [
+     463.0,
+     871.0
+    ],
+    [
+     462.0,
+     896.0
+    ],
+    [
+     262.0,
+     888.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "\"MAP (INCL. OF ALL TAXES), USP",
+   "confidence": 0.8082292079925537,
+   "bbox": [
+    [
+     261.0,
+     881.0
+    ],
+    [
+     521.0,
+     888.0
+    ],
+    [
+     520.0,
+     919.0
+    ],
+    [
+     260.0,
+     912.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MFO &BATCH NO SEE CODING AREA",
+   "confidence": 0.9104241728782654,
+   "bbox": [
+    [
+     260.0,
+     900.0
+    ],
+    [
+     552.0,
+     906.0
+    ],
+    [
+     551.0,
+     940.0
+    ],
+    [
+     259.0,
+     934.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NET VOL",
+   "confidence": 0.9930545687675476,
+   "bbox": [
+    [
+     559.0,
+     926.0
+    ],
+    [
+     624.0,
+     917.0
+    ],
+    [
+     628.0,
+     946.0
+    ],
+    [
+     563.0,
+     955.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MAOE OP OF QON HECYCLED PLASTIUS",
+   "confidence": 0.7923078536987305,
+   "bbox": [
+    [
+     325.0,
+     973.0
+    ],
+    [
+     513.0,
+     974.0
+    ],
+    [
+     513.0,
+     995.0
+    ],
+    [
+     325.0,
+     994.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "U",
+   "confidence": 0.9954946041107178,
+   "bbox": [
+    [
+     371.0,
+     1001.0
+    ],
+    [
+     433.0,
+     1001.0
+    ],
+    [
+     433.0,
+     1061.0
+    ],
+    [
+     371.0,
+     1061.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PAP",
+   "confidence": 0.9999771118164062,
+   "bbox": [
+    [
+     528.0,
+     1017.0
+    ],
+    [
+     565.0,
+     1012.0
+    ],
+    [
+     568.0,
+     1033.0
+    ],
+    [
+     531.0,
+     1038.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "२58/-₹0.23/mn",
+   "confidence": 0.7390597462654114,
+   "bbox": [
+    [
+     397.33,
+     344.0
+    ],
+    [
+     598.67,
+     350.67
+    ],
+    [
+     597.33,
+     392.0
+    ],
+    [
+     396.0,
+     385.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "",
+   "confidence": 0.0,
+   "bbox": [
+    [
+     666.67,
+     849.33
+    ],
+    [
+     681.33,
+     849.33
+    ],
+    [
+     681.33,
+     861.33
+    ],
+    [
+     666.67,
+     861.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

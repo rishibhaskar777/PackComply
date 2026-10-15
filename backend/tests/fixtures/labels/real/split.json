@@ -45,6 +45,90 @@
   "real_parle_g_gluco_biscuits_70g_2": {
    "file": "Parle-G-Gluco-Biscuits-70g-2.jpeg",
    "split": "dev"
+  },
+  "real_1000088947": {
+   "file": "1000088947.jpg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_1000088948": {
+   "file": "1000088948.jpg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_1000088949": {
+   "file": "1000088949.jpg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_whatsapp_image_2026_10_15_at_10_51_14_pm_1": {
+   "file": "WhatsApp Image 2026-10-15 at 10.51.14 PM (1).jpeg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_whatsapp_image_2026_10_15_at_10_51_14_pm_2": {
+   "file": "WhatsApp Image 2026-10-15 at 10.51.14 PM (2).jpeg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_whatsapp_image_2026_10_15_at_10_51_14_pm": {
+   "file": "WhatsApp Image 2026-10-15 at 10.51.14 PM.jpeg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_whatsapp_image_2026_10_15_at_10_51_15_pm_1": {
+   "file": "WhatsApp Image 2026-10-15 at 10.51.15 PM (1).jpeg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_whatsapp_image_2026_10_15_at_10_51_15_pm_2": {
+   "file": "WhatsApp Image 2026-10-15 at 10.51.15 PM (2).jpeg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_whatsapp_image_2026_10_15_at_10_51_15_pm": {
+   "file": "WhatsApp Image 2026-10-15 at 10.51.15 PM.jpeg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_whatsapp_image_2026_10_15_at_10_51_16_pm_1": {
+   "file": "WhatsApp Image 2026-10-15 at 10.51.16 PM (1).jpeg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_whatsapp_image_2026_10_15_at_10_51_16_pm_2": {
+   "file": "WhatsApp Image 2026-10-15 at 10.51.16 PM (2).jpeg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_whatsapp_image_2026_10_15_at_10_51_16_pm_3": {
+   "file": "WhatsApp Image 2026-10-15 at 10.51.16 PM (3).jpeg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_whatsapp_image_2026_10_15_at_10_51_16_pm": {
+   "file": "WhatsApp Image 2026-10-15 at 10.51.16 PM.jpeg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
+  },
+  "real_whatsapp_image_2026_10_15_at_10_51_17_pm": {
+   "file": "WhatsApp Image 2026-10-15 at 10.51.17 PM.jpeg",
+   "split": "holdout",
+   "added_later": true,
+   "group": "phone_holdout_2026_10"
   }
  },
  "retired_holdout": {
@@ -56,5 +140,27 @@
   ],
   "reason": "its failure patterns were inspected and fixed, so it no longer measures unseen labels"
  },
- "new_photos": "holdout"
+ "new_photos": "holdout",
+ "holdout_groups": {
+  "phone_holdout_2026_10": {
+   "date": "2026-10-15",
+   "photos": [
+    "real_1000088947",
+    "real_1000088948",
+    "real_1000088949",
+    "real_whatsapp_image_2026_10_15_at_10_51_14_pm",
+    "real_whatsapp_image_2026_10_15_at_10_51_14_pm_1",
+    "real_whatsapp_image_2026_10_15_at_10_51_14_pm_2",
+    "real_whatsapp_image_2026_10_15_at_10_51_15_pm",
+    "real_whatsapp_image_2026_10_15_at_10_51_15_pm_1",
+    "real_whatsapp_image_2026_10_15_at_10_51_15_pm_2",
+    "real_whatsapp_image_2026_10_15_at_10_51_16_pm",
+    "real_whatsapp_image_2026_10_15_at_10_51_16_pm_1",
+    "real_whatsapp_image_2026_10_15_at_10_51_16_pm_2",
+    "real_whatsapp_image_2026_10_15_at_10_51_16_pm_3",
+    "real_whatsapp_image_2026_10_15_at_10_51_17_pm"
+   ],
+   "note": "14 real phone photos from PackComply-samples-phone; ground truth written before extraction output was viewed. Measurement only: do not tune on these."
+  }
+ }
 }

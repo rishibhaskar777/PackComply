@@ -1,0 +1,1575 @@
+{
+ "source": "batch_evaluate OCR of 1000088947.jpg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 3000,
+ "image_height": 4000,
+ "ocr_seconds": 27.78,
+ "raw_text": "MADE FROM\nTHIS BOX\n90%\nRECYCLED\nPAPER\n3PK09787D-€205\nslim\nEN Slim design for perfect grip / Form-fitted for device / Perfect Protection JP ス\nなグリップ感/優れた一体感/優れた保暖力 CN 流线握手设计/与机身更好贴合/稳固保护 DE\nSchlanke Passform/ Maßgeschneidertes Design/ Ausgezeichneter Schutz FR Bonne\nprise en main / Parfaitement ajusté / Protection idéale de l'appareil ES Diseño\najustado para un Perfecto Agarre / Se adapta perfectamente a la forma del Teléfono/\nProtección Perfecta IT Impugnatura sottile / Integrazione eccellente / Protezione\ndispositivo completa TR Kusursuz Kavrama / Mükemmel Uyumluluk / Mükemmel\n // R //\nEU Customer Only\nCoram Deo PL UG Frankfurter Str 92A 63500 Seligenstadt, Germany (DE)+49 174\n7812975 coramdeopl@gmail.com GPSR Responsible Person Daniel Park\n  \n\n(日本)商品\n010\nModel NO./SKU\nGeneric name\nspigen.suj\nGalS25 LqA MIIBK\nACS09000\nMRP\nRs.1799.00(loclusive of all laxes)\nType\nPhone Case\nMonth and year of MFG\nMAY.2026\nBrand Owner\nspigen\nBrand\nSpigen\nCountry of Origin\nNet Quantity\n295-296, Ecotech-1. Extn, G.Noida. G.B Nagar. UP.\n(1)Imported Marketed by Spigen India Pvt Ltd.\nKR\nCOLOR\n201310 Phone:-18002022808\nMatte Black\n(2) Brand Owner / Marketed / Customer cared by\nEmail: spigenindiacs@spigen.com\n01 N\nSize/Dimensions\nSpigen Korea Co., Ltd: 446, Bongeunsa-ro,\n(9X18.9X1.5)cm\nGangnam-gu. Seoul. South Korea, 06153 Phone\n18002022808 Email: spigenindiacs@spigen.com\nCS0 V0\nF26\not -050\nMad n rea\nX00272BWLX\nSpigen Liquid Air | Sams...Cover | TPU - Matte Black\nNew\n2.92 × 5.93 × 0.40in\n9०%\nसगव्शससयनशमयस\n/न५/\n9८07/E0 d3W",
+ "detections": [
+  {
+   "text": "MADE FROM",
+   "confidence": 0.9820568561553955,
+   "bbox": [
+    [
+     2306.25,
+     446.88
+    ],
+    [
+     2503.12,
+     459.38
+    ],
+    [
+     2500.0,
+     503.12
+    ],
+    [
+     2303.12,
+     490.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "THIS BOX",
+   "confidence": 0.9999269247055054,
+   "bbox": [
+    [
+     2328.12,
+     421.88
+    ],
+    [
+     2481.25,
+     428.12
+    ],
+    [
+     2481.25,
+     468.75
+    ],
+    [
+     2328.12,
+     462.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "90%",
+   "confidence": 0.9999229907989502,
+   "bbox": [
+    [
+     2303.12,
+     478.12
+    ],
+    [
+     2509.38,
+     484.38
+    ],
+    [
+     2506.25,
+     575.0
+    ],
+    [
+     2300.0,
+     568.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "RECYCLED",
+   "confidence": 0.9999911785125732,
+   "bbox": [
+    [
+     2303.12,
+     559.38
+    ],
+    [
+     2496.88,
+     565.62
+    ],
+    [
+     2496.88,
+     609.38
+    ],
+    [
+     2303.12,
+     603.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PAPER",
+   "confidence": 0.9999927282333374,
+   "bbox": [
+    [
+     2337.5,
+     593.75
+    ],
+    [
+     2462.5,
+     600.0
+    ],
+    [
+     2459.38,
+     646.88
+    ],
+    [
+     2334.38,
+     640.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "3PK09787D-€205",
+   "confidence": 0.9702703356742859,
+   "bbox": [
+    [
+     2250.0,
+     715.62
+    ],
+    [
+     2521.88,
+     725.0
+    ],
+    [
+     2521.88,
+     756.25
+    ],
+    [
+     2250.0,
+     746.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "slim",
+   "confidence": 0.8603664040565491,
+   "bbox": [
+    [
+     971.88,
+     968.75
+    ],
+    [
+     1062.5,
+     968.75
+    ],
+    [
+     1062.5,
+     1018.75
+    ],
+    [
+     971.88,
+     1018.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "EN Slim design for perfect grip / Form-fitted for device / Perfect Protection JP ス",
+   "confidence": 0.9890841245651245,
+   "bbox": [
+    [
+     1093.75,
+     956.25
+    ],
+    [
+     2493.75,
+     1006.25
+    ],
+    [
+     2493.75,
+     1050.0
+    ],
+    [
+     1093.75,
+     1000.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "なグリップ感/優れた一体感/優れた保暖力 CN 流线握手设计/与机身更好贴合/稳固保护 DE",
+   "confidence": 0.9810758829116821,
+   "bbox": [
+    [
+     1093.75,
+     996.88
+    ],
+    [
+     2493.75,
+     1050.0
+    ],
+    [
+     2493.75,
+     1093.75
+    ],
+    [
+     1093.75,
+     1040.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Schlanke Passform/ Maßgeschneidertes Design/ Ausgezeichneter Schutz FR Bonne",
+   "confidence": 0.9936444163322449,
+   "bbox": [
+    [
+     1093.75,
+     1040.62
+    ],
+    [
+     2490.62,
+     1093.75
+    ],
+    [
+     2490.62,
+     1137.5
+    ],
+    [
+     1093.75,
+     1084.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "prise en main / Parfaitement ajusté / Protection idéale de l'appareil ES Diseño",
+   "confidence": 0.9931078553199768,
+   "bbox": [
+    [
+     1090.62,
+     1084.38
+    ],
+    [
+     2487.5,
+     1137.5
+    ],
+    [
+     2487.5,
+     1181.25
+    ],
+    [
+     1090.62,
+     1128.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ajustado para un Perfecto Agarre / Se adapta perfectamente a la forma del Teléfono/",
+   "confidence": 0.9923226237297058,
+   "bbox": [
+    [
+     1087.5,
+     1128.12
+    ],
+    [
+     2478.12,
+     1178.12
+    ],
+    [
+     2478.12,
+     1221.88
+    ],
+    [
+     1087.5,
+     1171.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Protección Perfecta IT Impugnatura sottile / Integrazione eccellente / Protezione",
+   "confidence": 0.9907838702201843,
+   "bbox": [
+    [
+     1087.5,
+     1168.75
+    ],
+    [
+     2481.25,
+     1225.0
+    ],
+    [
+     2481.25,
+     1268.75
+    ],
+    [
+     1087.5,
+     1212.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "dispositivo completa TR Kusursuz Kavrama / Mükemmel Uyumluluk / Mükemmel",
+   "confidence": 0.9871262311935425,
+   "bbox": [
+    [
+     1087.5,
+     1212.5
+    ],
+    [
+     2481.25,
+     1265.62
+    ],
+    [
+     2481.25,
+     1309.38
+    ],
+    [
+     1087.5,
+     1256.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": " // R //",
+   "confidence": 0.7998380064964294,
+   "bbox": [
+    [
+     1081.25,
+     1250.0
+    ],
+    [
+     2353.12,
+     1300.0
+    ],
+    [
+     2353.12,
+     1350.0
+    ],
+    [
+     1081.25,
+     1300.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "EU Customer Only",
+   "confidence": 0.9999579787254333,
+   "bbox": [
+    [
+     934.38,
+     1353.12
+    ],
+    [
+     1259.38,
+     1368.75
+    ],
+    [
+     1259.38,
+     1412.5
+    ],
+    [
+     934.38,
+     1396.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Coram Deo PL UG Frankfurter Str 92A 63500 Seligenstadt, Germany (DE)+49 174",
+   "confidence": 0.9972285032272339,
+   "bbox": [
+    [
+     931.25,
+     1396.88
+    ],
+    [
+     2350.0,
+     1456.25
+    ],
+    [
+     2350.0,
+     1500.0
+    ],
+    [
+     931.25,
+     1440.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "7812975 coramdeopl@gmail.com GPSR Responsible Person Daniel Park",
+   "confidence": 0.9966061115264893,
+   "bbox": [
+    [
+     931.25,
+     1437.5
+    ],
+    [
+     2153.12,
+     1490.62
+    ],
+    [
+     2153.12,
+     1534.38
+    ],
+    [
+     931.25,
+     1481.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "  ",
+   "confidence": 0.5423099994659424,
+   "bbox": [
+    [
+     928.12,
+     1515.62
+    ],
+    [
+     1543.75,
+     1540.62
+    ],
+    [
+     1543.75,
+     1584.38
+    ],
+    [
+     928.12,
+     1559.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "",
+   "confidence": 0.0,
+   "bbox": [
+    [
+     940.62,
+     1562.5
+    ],
+    [
+     1465.62,
+     1578.12
+    ],
+    [
+     1465.62,
+     1618.75
+    ],
+    [
+     940.62,
+     1603.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(日本)商品",
+   "confidence": 0.8812747001647949,
+   "bbox": [
+    [
+     925.0,
+     1643.75
+    ],
+    [
+     1106.25,
+     1650.0
+    ],
+    [
+     1106.25,
+     1693.75
+    ],
+    [
+     925.0,
+     1687.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "010",
+   "confidence": 0.9902610182762146,
+   "bbox": [
+    [
+     2296.88,
+     1618.75
+    ],
+    [
+     2368.75,
+     1618.75
+    ],
+    [
+     2368.75,
+     1665.62
+    ],
+    [
+     2296.88,
+     1665.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Model NO./SKU",
+   "confidence": 0.9812398552894592,
+   "bbox": [
+    [
+     1165.62,
+     1650.0
+    ],
+    [
+     1396.88,
+     1650.0
+    ],
+    [
+     1396.88,
+     1684.38
+    ],
+    [
+     1165.62,
+     1684.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Generic name",
+   "confidence": 0.9999404549598694,
+   "bbox": [
+    [
+     1443.75,
+     1653.12
+    ],
+    [
+     1631.25,
+     1653.12
+    ],
+    [
+     1631.25,
+     1687.5
+    ],
+    [
+     1443.75,
+     1687.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "spigen.suj",
+   "confidence": 0.9591903686523438,
+   "bbox": [
+    [
+     925.0,
+     1684.38
+    ],
+    [
+     1103.12,
+     1693.75
+    ],
+    [
+     1100.0,
+     1737.5
+    ],
+    [
+     921.88,
+     1728.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "GalS25 LqA MIIBK",
+   "confidence": 0.9920728802680969,
+   "bbox": [
+    [
+     1865.62,
+     1659.38
+    ],
+    [
+     2068.75,
+     1659.38
+    ],
+    [
+     2068.75,
+     1690.62
+    ],
+    [
+     1865.62,
+     1690.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ACS09000",
+   "confidence": 0.9999228715896606,
+   "bbox": [
+    [
+     1206.25,
+     1690.62
+    ],
+    [
+     1356.25,
+     1690.62
+    ],
+    [
+     1356.25,
+     1725.0
+    ],
+    [
+     1206.25,
+     1725.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP",
+   "confidence": 0.9999852180480957,
+   "bbox": [
+    [
+     1496.88,
+     1693.75
+    ],
+    [
+     1575.0,
+     1693.75
+    ],
+    [
+     1575.0,
+     1731.25
+    ],
+    [
+     1496.88,
+     1731.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Rs.1799.00(loclusive of all laxes)",
+   "confidence": 0.9390453100204468,
+   "bbox": [
+    [
+     1790.62,
+     1696.88
+    ],
+    [
+     2137.5,
+     1703.12
+    ],
+    [
+     2137.5,
+     1737.5
+    ],
+    [
+     1790.62,
+     1731.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Type",
+   "confidence": 0.9999637603759766,
+   "bbox": [
+    [
+     1343.75,
+     1728.12
+    ],
+    [
+     1428.12,
+     1737.5
+    ],
+    [
+     1421.88,
+     1784.38
+    ],
+    [
+     1340.62,
+     1775.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Phone Case",
+   "confidence": 0.9999406933784485,
+   "bbox": [
+    [
+     1290.62,
+     1768.75
+    ],
+    [
+     1471.88,
+     1775.0
+    ],
+    [
+     1471.88,
+     1818.75
+    ],
+    [
+     1290.62,
+     1812.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Month and year of MFG",
+   "confidence": 0.9948652982711792,
+   "bbox": [
+    [
+     1678.12,
+     1746.88
+    ],
+    [
+     1928.12,
+     1746.88
+    ],
+    [
+     1928.12,
+     1778.12
+    ],
+    [
+     1678.12,
+     1778.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MAY.2026",
+   "confidence": 0.9992223978042603,
+   "bbox": [
+    [
+     2065.62,
+     1743.75
+    ],
+    [
+     2196.88,
+     1743.75
+    ],
+    [
+     2196.88,
+     1778.12
+    ],
+    [
+     2065.62,
+     1778.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Brand Owner",
+   "confidence": 0.9245414733886719,
+   "bbox": [
+    [
+     1725.0,
+     1800.0
+    ],
+    [
+     1871.88,
+     1806.25
+    ],
+    [
+     1871.88,
+     1840.62
+    ],
+    [
+     1725.0,
+     1834.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "spigen",
+   "confidence": 0.9993299841880798,
+   "bbox": [
+    [
+     1981.25,
+     1781.25
+    ],
+    [
+     2281.25,
+     1787.5
+    ],
+    [
+     2281.25,
+     1865.62
+    ],
+    [
+     1981.25,
+     1859.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Brand",
+   "confidence": 0.999945342540741,
+   "bbox": [
+    [
+     1234.38,
+     1850.0
+    ],
+    [
+     1328.12,
+     1856.25
+    ],
+    [
+     1325.0,
+     1903.12
+    ],
+    [
+     1231.25,
+     1896.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Spigen",
+   "confidence": 0.999661386013031,
+   "bbox": [
+    [
+     1481.25,
+     1862.5
+    ],
+    [
+     1587.5,
+     1862.5
+    ],
+    [
+     1587.5,
+     1906.25
+    ],
+    [
+     1481.25,
+     1906.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Country of Origin",
+   "confidence": 0.9924410581588745,
+   "bbox": [
+    [
+     1159.38,
+     1896.88
+    ],
+    [
+     1400.0,
+     1900.0
+    ],
+    [
+     1400.0,
+     1943.75
+    ],
+    [
+     1159.38,
+     1940.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Quantity",
+   "confidence": 0.9996750950813293,
+   "bbox": [
+    [
+     1443.75,
+     1900.0
+    ],
+    [
+     1615.62,
+     1906.25
+    ],
+    [
+     1615.62,
+     1946.88
+    ],
+    [
+     1443.75,
+     1940.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "295-296, Ecotech-1. Extn, G.Noida. G.B Nagar. UP.",
+   "confidence": 0.9897379279136658,
+   "bbox": [
+    [
+     1634.38,
+     1921.88
+    ],
+    [
+     2268.75,
+     1931.25
+    ],
+    [
+     2268.75,
+     1971.88
+    ],
+    [
+     1634.38,
+     1962.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(1)Imported Marketed by Spigen India Pvt Ltd.",
+   "confidence": 0.9633305072784424,
+   "bbox": [
+    [
+     1637.5,
+     1896.88
+    ],
+    [
+     2212.5,
+     1903.12
+    ],
+    [
+     2212.5,
+     1937.5
+    ],
+    [
+     1637.5,
+     1931.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "KR",
+   "confidence": 0.9999838471412659,
+   "bbox": [
+    [
+     1253.12,
+     1943.75
+    ],
+    [
+     1309.38,
+     1943.75
+    ],
+    [
+     1309.38,
+     1981.25
+    ],
+    [
+     1253.12,
+     1981.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "COLOR",
+   "confidence": 0.9999899864196777,
+   "bbox": [
+    [
+     1218.75,
+     1981.25
+    ],
+    [
+     1340.62,
+     1981.25
+    ],
+    [
+     1340.62,
+     2025.0
+    ],
+    [
+     1218.75,
+     2025.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "201310 Phone:-18002022808",
+   "confidence": 0.9979286789894104,
+   "bbox": [
+    [
+     1634.38,
+     1956.25
+    ],
+    [
+     2009.38,
+     1962.5
+    ],
+    [
+     2009.38,
+     1996.88
+    ],
+    [
+     1634.38,
+     1990.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Matte Black",
+   "confidence": 0.9992799162864685,
+   "bbox": [
+    [
+     1190.62,
+     2018.75
+    ],
+    [
+     1362.5,
+     2025.0
+    ],
+    [
+     1362.5,
+     2068.75
+    ],
+    [
+     1190.62,
+     2062.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(2) Brand Owner / Marketed / Customer cared by",
+   "confidence": 0.9869326949119568,
+   "bbox": [
+    [
+     1631.25,
+     2018.75
+    ],
+    [
+     2231.25,
+     2028.12
+    ],
+    [
+     2231.25,
+     2068.75
+    ],
+    [
+     1631.25,
+     2059.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Email: spigenindiacs@spigen.com",
+   "confidence": 0.9690223932266235,
+   "bbox": [
+    [
+     1634.38,
+     1990.62
+    ],
+    [
+     2056.25,
+     1996.88
+    ],
+    [
+     2056.25,
+     2031.25
+    ],
+    [
+     1634.38,
+     2025.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "01 N",
+   "confidence": 0.9922748804092407,
+   "bbox": [
+    [
+     1493.75,
+     2031.25
+    ],
+    [
+     1568.75,
+     2031.25
+    ],
+    [
+     1568.75,
+     2068.75
+    ],
+    [
+     1493.75,
+     2068.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Size/Dimensions",
+   "confidence": 0.997757077217102,
+   "bbox": [
+    [
+     1159.38,
+     2062.5
+    ],
+    [
+     1387.5,
+     2068.75
+    ],
+    [
+     1387.5,
+     2109.38
+    ],
+    [
+     1159.38,
+     2103.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Spigen Korea Co., Ltd: 446, Bongeunsa-ro,",
+   "confidence": 0.9727932810783386,
+   "bbox": [
+    [
+     1631.25,
+     2053.12
+    ],
+    [
+     2156.25,
+     2062.5
+    ],
+    [
+     2156.25,
+     2096.88
+    ],
+    [
+     1631.25,
+     2087.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(9X18.9X1.5)cm",
+   "confidence": 0.9740094542503357,
+   "bbox": [
+    [
+     1178.12,
+     2112.5
+    ],
+    [
+     1381.25,
+     2112.5
+    ],
+    [
+     1381.25,
+     2146.88
+    ],
+    [
+     1178.12,
+     2146.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Gangnam-gu. Seoul. South Korea, 06153 Phone",
+   "confidence": 0.9855541586875916,
+   "bbox": [
+    [
+     1634.38,
+     2084.38
+    ],
+    [
+     2225.0,
+     2093.75
+    ],
+    [
+     2225.0,
+     2128.12
+    ],
+    [
+     1634.38,
+     2118.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "18002022808 Email: spigenindiacs@spigen.com",
+   "confidence": 0.9944664835929871,
+   "bbox": [
+    [
+     1631.25,
+     2115.62
+    ],
+    [
+     2225.0,
+     2125.0
+    ],
+    [
+     2225.0,
+     2159.38
+    ],
+    [
+     1631.25,
+     2150.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CS0 V0",
+   "confidence": 0.7041496634483337,
+   "bbox": [
+    [
+     1962.5,
+     3068.75
+    ],
+    [
+     2056.25,
+     3075.0
+    ],
+    [
+     2031.25,
+     3606.25
+    ],
+    [
+     1934.38,
+     3603.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "F26",
+   "confidence": 0.7655801773071289,
+   "bbox": [
+    [
+     2081.25,
+     3087.5
+    ],
+    [
+     2143.75,
+     3090.62
+    ],
+    [
+     2118.75,
+     3456.25
+    ],
+    [
+     2056.25,
+     3453.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ot -050",
+   "confidence": 0.8502445220947266,
+   "bbox": [
+    [
+     2159.38,
+     3093.75
+    ],
+    [
+     2221.88,
+     3096.88
+    ],
+    [
+     2184.38,
+     3671.88
+    ],
+    [
+     2121.88,
+     3668.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mad n rea",
+   "confidence": 0.7422236204147339,
+   "bbox": [
+    [
+     2246.88,
+     3103.12
+    ],
+    [
+     2306.25,
+     3106.25
+    ],
+    [
+     2265.62,
+     3637.5
+    ],
+    [
+     2206.25,
+     3631.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "X00272BWLX",
+   "confidence": 0.9999480247497559,
+   "bbox": [
+    [
+     1240.62,
+     3437.5
+    ],
+    [
+     1590.62,
+     3446.88
+    ],
+    [
+     1590.62,
+     3503.12
+    ],
+    [
+     1240.62,
+     3493.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Spigen Liquid Air | Sams...Cover | TPU - Matte Black",
+   "confidence": 0.9889929294586182,
+   "bbox": [
+    [
+     934.38,
+     3518.75
+    ],
+    [
+     1946.88,
+     3540.62
+    ],
+    [
+     1946.88,
+     3612.5
+    ],
+    [
+     934.38,
+     3590.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "New",
+   "confidence": 0.9999914169311523,
+   "bbox": [
+    [
+     931.25,
+     3584.38
+    ],
+    [
+     1078.12,
+     3584.38
+    ],
+    [
+     1078.12,
+     3656.25
+    ],
+    [
+     931.25,
+     3656.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "2.92 × 5.93 × 0.40in",
+   "confidence": 0.9159978032112122,
+   "bbox": [
+    [
+     962.5,
+     3740.62
+    ],
+    [
+     1356.25,
+     3746.88
+    ],
+    [
+     1356.25,
+     3790.62
+    ],
+    [
+     962.5,
+     3784.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "9०%",
+   "confidence": 0.838269054889679,
+   "bbox": [
+    [
+     2304.17,
+     479.17
+    ],
+    [
+     2508.33,
+     491.67
+    ],
+    [
+     2500.0,
+     570.83
+    ],
+    [
+     2300.0,
+     558.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "सगव्शससयनशमयस",
+   "confidence": 0.37661200761795044,
+   "bbox": [
+    [
+     929.17,
+     1508.33
+    ],
+    [
+     1550.0,
+     1533.33
+    ],
+    [
+     1545.83,
+     1587.5
+    ],
+    [
+     929.17,
+     1562.5
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "/न५/",
+   "confidence": 0.5023783445358276,
+   "bbox": [
+    [
+     937.5,
+     1558.33
+    ],
+    [
+     1362.5,
+     1570.83
+    ],
+    [
+     1362.5,
+     1616.67
+    ],
+    [
+     937.5,
+     1604.17
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "9८07/E0 d3W",
+   "confidence": 0.7351793050765991,
+   "bbox": [
+    [
+     2075.0,
+     3075.0
+    ],
+    [
+     2154.17,
+     3079.17
+    ],
+    [
+     2129.17,
+     3458.33
+    ],
+    [
+     2054.17,
+     3454.17
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

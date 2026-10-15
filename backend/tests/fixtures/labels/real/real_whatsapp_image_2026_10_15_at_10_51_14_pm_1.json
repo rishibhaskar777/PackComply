@@ -1,0 +1,2007 @@
+{
+ "source": "batch_evaluate OCR of WhatsApp Image 2026-10-15 at 10.51.14 PM (1).jpeg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 960,
+ "image_height": 1280,
+ "ocr_seconds": 24.7,
+ "raw_text": "Himalava\nGentle\nBABYSHAMPOO\nSINCE 1930\nCleanses dry and flaky scalp\n• Nourishes baby's hair\nSkin microbiome-friendly\n• 95% biodegradable formula\nScan QR code\n• Suitable for cradle cap\nfor product info\nBUILDING A\n100%\negan\"\n95%\nSUSTAINABLE\nFUTURE\nFOR YOUR\nWe are plastic\nRecyclable\n100%\nBABY\npositive.**\nBottle\nVegan\nMADE WITH THE GOODNESS\nHIBISCUS helps soften and gives hair sm\nOF NATURAL INGREDIENTS\nCHICKPEA helps nourish hair.\nSAFE\nRESEARCH\nGENTLE\nSafe for Newborns\nPediatrician Eval\nDermatologically Tested\nDIRETONS:Weyour baby'shair.Applyan adequateamounofHmale\nbaby shampoo and gently massage into a lather. Rinse thoroughly.\n#Based on independent market research survey.\nee:myee\nINGREDIENTS: Aqua, Cocamidopropyl Betaine, Lauryl Glucoside, Decy\nGuside, Ce Arieum Seed Exct, Hsus Rosa-Snesis Fle\n Regd. Trademark\nCopyright subsists. Imitation and reproduof\nTrademark Owner:\nthe same would be punishable.\nHimalaya Global Holdings Ltd.\n\"Ingredients sourced from Nature retanin gre\nLicensed User:\nthan 50% of their natural state after being\nHimalaya Wellness Company.\nprocessed including water\n016\nNet Vol.: 400 ml\ne recle more pasc t wse\nFor Batch No., Mfg. Date-Use before Date,\nMRP Rs. IncL. of all taxes and USP, see below:\nFOR EXTERNAL USE ONLY, Se n\n8592600087\na cool and dry place, away from\n01/2026-12/2028\ndirect heat and sunlight. Avoid\ndirect contact with eyes and mouth\nR≤.355.00\nIn case of imitation, docontinue use\nUSP:Rs.0.89/ml\nand consult your dactor\n30\nForm locaton ades te\nfiest two dgi of Ba Noan\naddress panel\nSIMCE 1930\nmaaweless.om\nC800-208-1930 (oll-ree in inda)\nwww.himalayawellness.com\nFor sale in India andNepa\nSAIIND-5063448\ny\nAlnd\not ean hghen, Fa, \nt\nAeate Cole, CAd S e, DTASo\nस\n0",
+ "detections": [
+  {
+   "text": "Himalava",
+   "confidence": 0.9784927368164062,
+   "bbox": [
+    [
+     290.0,
+     264.0
+    ],
+    [
+     403.0,
+     258.0
+    ],
+    [
+     405.0,
+     288.0
+    ],
+    [
+     292.0,
+     294.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Gentle",
+   "confidence": 0.999992847442627,
+   "bbox": [
+    [
+     478.0,
+     256.0
+    ],
+    [
+     528.0,
+     256.0
+    ],
+    [
+     528.0,
+     274.0
+    ],
+    [
+     478.0,
+     274.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BABYSHAMPOO",
+   "confidence": 0.9999035000801086,
+   "bbox": [
+    [
+     427.0,
+     274.0
+    ],
+    [
+     576.0,
+     274.0
+    ],
+    [
+     576.0,
+     295.0
+    ],
+    [
+     427.0,
+     295.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SINCE 1930",
+   "confidence": 0.9804784655570984,
+   "bbox": [
+    [
+     294.0,
+     292.0
+    ],
+    [
+     402.0,
+     286.0
+    ],
+    [
+     403.0,
+     303.0
+    ],
+    [
+     295.0,
+     309.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Cleanses dry and flaky scalp",
+   "confidence": 0.9924665093421936,
+   "bbox": [
+    [
+     266.0,
+     322.0
+    ],
+    [
+     429.0,
+     313.0
+    ],
+    [
+     430.0,
+     333.0
+    ],
+    [
+     267.0,
+     342.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "• Nourishes baby's hair",
+   "confidence": 0.968031108379364,
+   "bbox": [
+    [
+     263.0,
+     339.0
+    ],
+    [
+     392.0,
+     331.0
+    ],
+    [
+     393.0,
+     348.0
+    ],
+    [
+     264.0,
+     356.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Skin microbiome-friendly",
+   "confidence": 0.9984130859375,
+   "bbox": [
+    [
+     262.0,
+     352.0
+    ],
+    [
+     417.0,
+     343.0
+    ],
+    [
+     418.0,
+     363.0
+    ],
+    [
+     263.0,
+     372.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "• 95% biodegradable formula",
+   "confidence": 0.966036856174469,
+   "bbox": [
+    [
+     265.0,
+     368.0
+    ],
+    [
+     433.0,
+     359.0
+    ],
+    [
+     434.0,
+     376.0
+    ],
+    [
+     266.0,
+     385.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Scan QR code",
+   "confidence": 0.9601992964744568,
+   "bbox": [
+    [
+     442.0,
+     360.0
+    ],
+    [
+     508.0,
+     358.0
+    ],
+    [
+     509.0,
+     380.0
+    ],
+    [
+     443.0,
+     382.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "• Suitable for cradle cap",
+   "confidence": 0.989443302154541,
+   "bbox": [
+    [
+     267.0,
+     383.0
+    ],
+    [
+     404.0,
+     375.0
+    ],
+    [
+     405.0,
+     392.0
+    ],
+    [
+     268.0,
+     400.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "for product info",
+   "confidence": 0.9987126588821411,
+   "bbox": [
+    [
+     443.0,
+     376.0
+    ],
+    [
+     508.0,
+     373.0
+    ],
+    [
+     509.0,
+     391.0
+    ],
+    [
+     444.0,
+     394.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BUILDING A",
+   "confidence": 0.9989776611328125,
+   "bbox": [
+    [
+     262.0,
+     420.0
+    ],
+    [
+     320.0,
+     416.0
+    ],
+    [
+     321.0,
+     431.0
+    ],
+    [
+     263.0,
+     435.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "100%",
+   "confidence": 0.8798327445983887,
+   "bbox": [
+    [
+     390.0,
+     421.0
+    ],
+    [
+     455.0,
+     413.0
+    ],
+    [
+     459.0,
+     442.0
+    ],
+    [
+     394.0,
+     450.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "egan\"",
+   "confidence": 0.9100291132926941,
+   "bbox": [
+    [
+     488.0,
+     428.0
+    ],
+    [
+     526.0,
+     424.0
+    ],
+    [
+     528.0,
+     445.0
+    ],
+    [
+     490.0,
+     449.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "95%",
+   "confidence": 0.9931685328483582,
+   "bbox": [
+    [
+     548.0,
+     420.0
+    ],
+    [
+     585.0,
+     416.0
+    ],
+    [
+     588.0,
+     446.0
+    ],
+    [
+     551.0,
+     450.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SUSTAINABLE",
+   "confidence": 0.999912440776825,
+   "bbox": [
+    [
+     262.0,
+     432.0
+    ],
+    [
+     330.0,
+     428.0
+    ],
+    [
+     331.0,
+     445.0
+    ],
+    [
+     263.0,
+     449.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FUTURE",
+   "confidence": 0.9988039135932922,
+   "bbox": [
+    [
+     264.0,
+     446.0
+    ],
+    [
+     303.0,
+     444.0
+    ],
+    [
+     304.0,
+     459.0
+    ],
+    [
+     265.0,
+     461.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FOR YOUR",
+   "confidence": 0.985420286655426,
+   "bbox": [
+    [
+     265.0,
+     458.0
+    ],
+    [
+     317.0,
+     456.0
+    ],
+    [
+     317.0,
+     471.0
+    ],
+    [
+     265.0,
+     473.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "We are plastic",
+   "confidence": 0.9892812371253967,
+   "bbox": [
+    [
+     322.0,
+     457.0
+    ],
+    [
+     404.0,
+     454.0
+    ],
+    [
+     404.0,
+     470.0
+    ],
+    [
+     322.0,
+     473.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Recyclable",
+   "confidence": 0.9990829229354858,
+   "bbox": [
+    [
+     395.0,
+     453.0
+    ],
+    [
+     451.0,
+     451.0
+    ],
+    [
+     451.0,
+     468.0
+    ],
+    [
+     395.0,
+     470.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "100%",
+   "confidence": 0.999790370464325,
+   "bbox": [
+    [
+     482.0,
+     450.0
+    ],
+    [
+     513.0,
+     450.0
+    ],
+    [
+     513.0,
+     465.0
+    ],
+    [
+     482.0,
+     465.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BABY",
+   "confidence": 0.999732494354248,
+   "bbox": [
+    [
+     266.0,
+     471.0
+    ],
+    [
+     294.0,
+     469.0
+    ],
+    [
+     295.0,
+     485.0
+    ],
+    [
+     267.0,
+     487.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "positive.**",
+   "confidence": 0.9419793486595154,
+   "bbox": [
+    [
+     334.0,
+     469.0
+    ],
+    [
+     383.0,
+     466.0
+    ],
+    [
+     384.0,
+     484.0
+    ],
+    [
+     335.0,
+     487.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Bottle",
+   "confidence": 0.9997134208679199,
+   "bbox": [
+    [
+     407.0,
+     465.0
+    ],
+    [
+     440.0,
+     463.0
+    ],
+    [
+     441.0,
+     479.0
+    ],
+    [
+     408.0,
+     481.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Vegan",
+   "confidence": 0.9997637867927551,
+   "bbox": [
+    [
+     482.0,
+     462.0
+    ],
+    [
+     515.0,
+     462.0
+    ],
+    [
+     515.0,
+     479.0
+    ],
+    [
+     482.0,
+     479.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MADE WITH THE GOODNESS",
+   "confidence": 0.999938428401947,
+   "bbox": [
+    [
+     272.0,
+     501.0
+    ],
+    [
+     397.0,
+     495.0
+    ],
+    [
+     397.0,
+     509.0
+    ],
+    [
+     272.0,
+     515.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "HIBISCUS helps soften and gives hair sm",
+   "confidence": 0.970127522945404,
+   "bbox": [
+    [
+     416.0,
+     492.0
+    ],
+    [
+     592.0,
+     483.0
+    ],
+    [
+     593.0,
+     500.0
+    ],
+    [
+     417.0,
+     509.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "OF NATURAL INGREDIENTS",
+   "confidence": 0.9992940425872803,
+   "bbox": [
+    [
+     273.0,
+     512.0
+    ],
+    [
+     391.0,
+     508.0
+    ],
+    [
+     391.0,
+     522.0
+    ],
+    [
+     273.0,
+     526.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CHICKPEA helps nourish hair.",
+   "confidence": 0.9990854859352112,
+   "bbox": [
+    [
+     419.0,
+     508.0
+    ],
+    [
+     542.0,
+     502.0
+    ],
+    [
+     542.0,
+     516.0
+    ],
+    [
+     419.0,
+     522.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SAFE",
+   "confidence": 0.9999724626541138,
+   "bbox": [
+    [
+     425.0,
+     527.0
+    ],
+    [
+     452.0,
+     527.0
+    ],
+    [
+     452.0,
+     542.0
+    ],
+    [
+     425.0,
+     542.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "RESEARCH",
+   "confidence": 0.9445679783821106,
+   "bbox": [
+    [
+     529.0,
+     523.0
+    ],
+    [
+     579.0,
+     519.0
+    ],
+    [
+     580.0,
+     533.0
+    ],
+    [
+     530.0,
+     537.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "GENTLE",
+   "confidence": 0.9999468922615051,
+   "bbox": [
+    [
+     302.0,
+     533.0
+    ],
+    [
+     337.0,
+     531.0
+    ],
+    [
+     338.0,
+     546.0
+    ],
+    [
+     303.0,
+     548.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Safe for Newborns",
+   "confidence": 0.9998722076416016,
+   "bbox": [
+    [
+     396.0,
+     549.0
+    ],
+    [
+     477.0,
+     545.0
+    ],
+    [
+     478.0,
+     560.0
+    ],
+    [
+     397.0,
+     564.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Pediatrician Eval",
+   "confidence": 0.9848182797431946,
+   "bbox": [
+    [
+     506.0,
+     543.0
+    ],
+    [
+     590.0,
+     538.0
+    ],
+    [
+     591.0,
+     552.0
+    ],
+    [
+     507.0,
+     557.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Dermatologically Tested",
+   "confidence": 0.999677836894989,
+   "bbox": [
+    [
+     272.0,
+     553.0
+    ],
+    [
+     374.0,
+     549.0
+    ],
+    [
+     374.0,
+     566.0
+    ],
+    [
+     272.0,
+     570.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DIRETONS:Weyour baby'shair.Applyan adequateamounofHmale",
+   "confidence": 0.7063034772872925,
+   "bbox": [
+    [
+     261.0,
+     579.0
+    ],
+    [
+     611.0,
+     561.0
+    ],
+    [
+     612.0,
+     582.0
+    ],
+    [
+     262.0,
+     600.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "baby shampoo and gently massage into a lather. Rinse thoroughly.",
+   "confidence": 0.902268648147583,
+   "bbox": [
+    [
+     262.0,
+     595.0
+    ],
+    [
+     553.0,
+     581.0
+    ],
+    [
+     554.0,
+     601.0
+    ],
+    [
+     263.0,
+     615.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "#Based on independent market research survey.",
+   "confidence": 0.9942072629928589,
+   "bbox": [
+    [
+     264.0,
+     612.0
+    ],
+    [
+     493.0,
+     603.0
+    ],
+    [
+     493.0,
+     621.0
+    ],
+    [
+     264.0,
+     630.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ee:myee",
+   "confidence": 0.4975132644176483,
+   "bbox": [
+    [
+     263.0,
+     626.0
+    ],
+    [
+     546.0,
+     613.0
+    ],
+    [
+     547.0,
+     634.0
+    ],
+    [
+     264.0,
+     647.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "INGREDIENTS: Aqua, Cocamidopropyl Betaine, Lauryl Glucoside, Decy",
+   "confidence": 0.8910233378410339,
+   "bbox": [
+    [
+     264.0,
+     643.0
+    ],
+    [
+     556.0,
+     630.0
+    ],
+    [
+     557.0,
+     650.0
+    ],
+    [
+     265.0,
+     663.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Guside, Ce Arieum Seed Exct, Hsus Rosa-Snesis Fle",
+   "confidence": 0.6186261177062988,
+   "bbox": [
+    [
+     265.0,
+     658.0
+    ],
+    [
+     570.0,
+     643.0
+    ],
+    [
+     571.0,
+     664.0
+    ],
+    [
+     266.0,
+     679.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": " Regd. Trademark",
+   "confidence": 0.9611880779266357,
+   "bbox": [
+    [
+     269.0,
+     719.0
+    ],
+    [
+     349.0,
+     719.0
+    ],
+    [
+     349.0,
+     736.0
+    ],
+    [
+     269.0,
+     736.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Copyright subsists. Imitation and reproduof",
+   "confidence": 0.9568494558334351,
+   "bbox": [
+    [
+     404.0,
+     716.0
+    ],
+    [
+     612.0,
+     698.0
+    ],
+    [
+     614.0,
+     719.0
+    ],
+    [
+     406.0,
+     737.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Trademark Owner:",
+   "confidence": 0.9899179935455322,
+   "bbox": [
+    [
+     269.0,
+     732.0
+    ],
+    [
+     347.0,
+     732.0
+    ],
+    [
+     347.0,
+     749.0
+    ],
+    [
+     269.0,
+     749.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "the same would be punishable.",
+   "confidence": 0.9966871738433838,
+   "bbox": [
+    [
+     406.0,
+     731.0
+    ],
+    [
+     542.0,
+     721.0
+    ],
+    [
+     543.0,
+     738.0
+    ],
+    [
+     407.0,
+     748.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Himalaya Global Holdings Ltd.",
+   "confidence": 0.9710571765899658,
+   "bbox": [
+    [
+     269.0,
+     744.0
+    ],
+    [
+     395.0,
+     744.0
+    ],
+    [
+     395.0,
+     761.0
+    ],
+    [
+     269.0,
+     761.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "\"Ingredients sourced from Nature retanin gre",
+   "confidence": 0.8811256289482117,
+   "bbox": [
+    [
+     406.0,
+     745.0
+    ],
+    [
+     620.0,
+     726.0
+    ],
+    [
+     622.0,
+     747.0
+    ],
+    [
+     408.0,
+     766.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Licensed User:",
+   "confidence": 0.9416540265083313,
+   "bbox": [
+    [
+     271.0,
+     759.0
+    ],
+    [
+     331.0,
+     759.0
+    ],
+    [
+     331.0,
+     776.0
+    ],
+    [
+     271.0,
+     776.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "than 50% of their natural state after being",
+   "confidence": 0.9655900001525879,
+   "bbox": [
+    [
+     409.0,
+     760.0
+    ],
+    [
+     589.0,
+     745.0
+    ],
+    [
+     590.0,
+     762.0
+    ],
+    [
+     410.0,
+     777.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Himalaya Wellness Company.",
+   "confidence": 0.972792387008667,
+   "bbox": [
+    [
+     271.0,
+     771.0
+    ],
+    [
+     393.0,
+     773.0
+    ],
+    [
+     393.0,
+     791.0
+    ],
+    [
+     271.0,
+     789.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "processed including water",
+   "confidence": 0.8515658378601074,
+   "bbox": [
+    [
+     409.0,
+     773.0
+    ],
+    [
+     526.0,
+     765.0
+    ],
+    [
+     527.0,
+     782.0
+    ],
+    [
+     410.0,
+     790.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "016",
+   "confidence": 0.6093010306358337,
+   "bbox": [
+    [
+     606.0,
+     770.0
+    ],
+    [
+     619.0,
+     770.0
+    ],
+    [
+     623.0,
+     885.0
+    ],
+    [
+     610.0,
+     885.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Vol.: 400 ml",
+   "confidence": 0.9900102615356445,
+   "bbox": [
+    [
+     273.0,
+     791.0
+    ],
+    [
+     385.0,
+     791.0
+    ],
+    [
+     385.0,
+     808.0
+    ],
+    [
+     273.0,
+     808.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "e recle more pasc t wse",
+   "confidence": 0.5408665537834167,
+   "bbox": [
+    [
+     411.0,
+     787.0
+    ],
+    [
+     554.0,
+     778.0
+    ],
+    [
+     555.0,
+     796.0
+    ],
+    [
+     412.0,
+     805.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "For Batch No., Mfg. Date-Use before Date,",
+   "confidence": 0.984841525554657,
+   "bbox": [
+    [
+     272.0,
+     810.0
+    ],
+    [
+     499.0,
+     805.0
+    ],
+    [
+     499.0,
+     826.0
+    ],
+    [
+     272.0,
+     831.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP Rs. IncL. of all taxes and USP, see below:",
+   "confidence": 0.9079428911209106,
+   "bbox": [
+    [
+     272.0,
+     823.0
+    ],
+    [
+     518.0,
+     817.0
+    ],
+    [
+     518.0,
+     841.0
+    ],
+    [
+     272.0,
+     847.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FOR EXTERNAL USE ONLY, Se n",
+   "confidence": 0.9206889271736145,
+   "bbox": [
+    [
+     434.0,
+     838.0
+    ],
+    [
+     556.0,
+     829.0
+    ],
+    [
+     557.0,
+     846.0
+    ],
+    [
+     435.0,
+     855.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8592600087",
+   "confidence": 0.985153079032898,
+   "bbox": [
+    [
+     287.0,
+     855.0
+    ],
+    [
+     379.0,
+     857.0
+    ],
+    [
+     379.0,
+     875.0
+    ],
+    [
+     287.0,
+     873.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "a cool and dry place, away from",
+   "confidence": 0.9139948487281799,
+   "bbox": [
+    [
+     436.0,
+     850.0
+    ],
+    [
+     555.0,
+     840.0
+    ],
+    [
+     556.0,
+     854.0
+    ],
+    [
+     437.0,
+     864.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "01/2026-12/2028",
+   "confidence": 0.9996595978736877,
+   "bbox": [
+    [
+     288.0,
+     868.0
+    ],
+    [
+     425.0,
+     871.0
+    ],
+    [
+     425.0,
+     892.0
+    ],
+    [
+     288.0,
+     889.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "direct heat and sunlight. Avoid",
+   "confidence": 0.9428228735923767,
+   "bbox": [
+    [
+     436.0,
+     860.0
+    ],
+    [
+     555.0,
+     850.0
+    ],
+    [
+     556.0,
+     863.0
+    ],
+    [
+     437.0,
+     873.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "direct contact with eyes and mouth",
+   "confidence": 0.956917941570282,
+   "bbox": [
+    [
+     437.0,
+     870.0
+    ],
+    [
+     555.0,
+     859.0
+    ],
+    [
+     556.0,
+     872.0
+    ],
+    [
+     438.0,
+     883.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "R≤.355.00",
+   "confidence": 0.9648659229278564,
+   "bbox": [
+    [
+     290.0,
+     882.0
+    ],
+    [
+     360.0,
+     884.0
+    ],
+    [
+     360.0,
+     902.0
+    ],
+    [
+     290.0,
+     900.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "In case of imitation, docontinue use",
+   "confidence": 0.7961096167564392,
+   "bbox": [
+    [
+     438.0,
+     879.0
+    ],
+    [
+     556.0,
+     869.0
+    ],
+    [
+     557.0,
+     882.0
+    ],
+    [
+     439.0,
+     892.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "USP:Rs.0.89/ml",
+   "confidence": 0.9975333213806152,
+   "bbox": [
+    [
+     291.0,
+     894.0
+    ],
+    [
+     407.0,
+     899.0
+    ],
+    [
+     406.0,
+     920.0
+    ],
+    [
+     290.0,
+     915.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "and consult your dactor",
+   "confidence": 0.9665307402610779,
+   "bbox": [
+    [
+     438.0,
+     888.0
+    ],
+    [
+     525.0,
+     881.0
+    ],
+    [
+     526.0,
+     895.0
+    ],
+    [
+     439.0,
+     902.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "30",
+   "confidence": 0.7360491752624512,
+   "bbox": [
+    [
+     613.0,
+     886.0
+    ],
+    [
+     622.0,
+     886.0
+    ],
+    [
+     622.0,
+     895.0
+    ],
+    [
+     613.0,
+     895.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Form locaton ades te",
+   "confidence": 0.5825559496879578,
+   "bbox": [
+    [
+     437.0,
+     899.0
+    ],
+    [
+     558.0,
+     887.0
+    ],
+    [
+     560.0,
+     902.0
+    ],
+    [
+     439.0,
+     914.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "fiest two dgi of Ba Noan",
+   "confidence": 0.65208899974823,
+   "bbox": [
+    [
+     439.0,
+     909.0
+    ],
+    [
+     557.0,
+     898.0
+    ],
+    [
+     558.0,
+     912.0
+    ],
+    [
+     440.0,
+     923.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "address panel",
+   "confidence": 0.7655102014541626,
+   "bbox": [
+    [
+     440.0,
+     917.0
+    ],
+    [
+     492.0,
+     913.0
+    ],
+    [
+     493.0,
+     928.0
+    ],
+    [
+     441.0,
+     932.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SIMCE 1930",
+   "confidence": 0.9197673797607422,
+   "bbox": [
+    [
+     283.0,
+     961.0
+    ],
+    [
+     342.0,
+     969.0
+    ],
+    [
+     339.0,
+     987.0
+    ],
+    [
+     280.0,
+     979.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "maaweless.om",
+   "confidence": 0.5651557445526123,
+   "bbox": [
+    [
+     286.0,
+     1030.0
+    ],
+    [
+     477.0,
+     1037.0
+    ],
+    [
+     476.0,
+     1061.0
+    ],
+    [
+     285.0,
+     1054.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "C800-208-1930 (oll-ree in inda)",
+   "confidence": 0.7049984931945801,
+   "bbox": [
+    [
+     293.0,
+     1044.0
+    ],
+    [
+     481.0,
+     1049.0
+    ],
+    [
+     481.0,
+     1073.0
+    ],
+    [
+     293.0,
+     1068.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "www.himalayawellness.com",
+   "confidence": 0.915913999080658,
+   "bbox": [
+    [
+     314.0,
+     1061.0
+    ],
+    [
+     453.0,
+     1065.0
+    ],
+    [
+     453.0,
+     1085.0
+    ],
+    [
+     314.0,
+     1081.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "For sale in India andNepa",
+   "confidence": 0.8165338635444641,
+   "bbox": [
+    [
+     452.0,
+     1062.0
+    ],
+    [
+     605.0,
+     1040.0
+    ],
+    [
+     608.0,
+     1064.0
+    ],
+    [
+     455.0,
+     1086.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SAIIND-5063448",
+   "confidence": 0.9175434112548828,
+   "bbox": [
+    [
+     427.0,
+     1095.0
+    ],
+    [
+     497.0,
+     1092.0
+    ],
+    [
+     498.0,
+     1110.0
+    ],
+    [
+     428.0,
+     1113.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "y",
+   "confidence": 0.5526289343833923,
+   "bbox": [
+    [
+     592.0,
+     654.67
+    ],
+    [
+     616.0,
+     650.67
+    ],
+    [
+     618.67,
+     668.0
+    ],
+    [
+     596.0,
+     672.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "Alnd",
+   "confidence": 0.7704007029533386,
+   "bbox": [
+    [
+     593.33,
+     668.0
+    ],
+    [
+     617.33,
+     664.0
+    ],
+    [
+     620.0,
+     681.33
+    ],
+    [
+     597.33,
+     685.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "ot ean hghen, Fa, ",
+   "confidence": 0.5434598326683044,
+   "bbox": [
+    [
+     262.67,
+     684.0
+    ],
+    [
+     582.67,
+     668.0
+    ],
+    [
+     584.0,
+     694.67
+    ],
+    [
+     264.0,
+     710.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "t",
+   "confidence": 0.623624324798584,
+   "bbox": [
+    [
+     598.67,
+     685.33
+    ],
+    [
+     614.67,
+     685.33
+    ],
+    [
+     614.67,
+     697.33
+    ],
+    [
+     598.67,
+     697.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "Aeate Cole, CAd S e, DTASo",
+   "confidence": 0.5754400491714478,
+   "bbox": [
+    [
+     262.67,
+     698.67
+    ],
+    [
+     582.67,
+     682.67
+    ],
+    [
+     584.0,
+     709.33
+    ],
+    [
+     264.0,
+     725.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "स",
+   "confidence": 0.08466683328151703,
+   "bbox": [
+    [
+     440.0,
+     917.33
+    ],
+    [
+     490.67,
+     913.33
+    ],
+    [
+     493.33,
+     928.0
+    ],
+    [
+     441.33,
+     932.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "0",
+   "confidence": 0.13481995463371277,
+   "bbox": [
+    [
+     606.67,
+     1009.33
+    ],
+    [
+     632.0,
+     1009.33
+    ],
+    [
+     632.0,
+     1045.33
+    ],
+    [
+     606.67,
+     1045.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}
