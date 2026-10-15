@@ -1,0 +1,189 @@
+import { ReactNode, useEffect, useId, useRef, useState } from "react";
+import { BookOpen, ChevronsUpDown, ClipboardList, Cpu, FileText, LayoutDashboard, LogOut, LucideIcon, PanelLeft, Plus, Repeat2, ShieldAlert, X } from "lucide-react";
+import { LanguageSelector } from "../components/LanguageSelector";
+import { Button, SearchInput } from "../components/ui";
+import { TranslationKey, useI18n } from "../i18n";
+import { User } from "../types";
+import { BrandMark } from "./BrandMark";
+import { Route, RouteName } from "./router";
+
+type NavItem = { name: RouteName; label: TranslationKey; icon: LucideIcon; officialOnly?: boolean };
+const INSPECTION_NAV: NavItem[] = [
+  { name: "overview", label: "overview", icon: LayoutDashboard },
+  { name: "inspections", label: "inspections", icon: ClipboardList },
+  { name: "risk", label: "riskQueue", icon: ShieldAlert, officialOnly: true },
+  { name: "patterns", label: "repeatIssues", icon: Repeat2 },
+];
+const RESOURCE_NAV: NavItem[] = [
+  { name: "rulesets", label: "rulesets", icon: BookOpen },
+  { name: "reports", label: "reports", icon: FileText },
+];
+
+/** Section and page names for the breadcrumb and document title. */
+export function routeTitles(route: Route): { section: TranslationKey; sectionHref?: string; page: TranslationKey } {
+  switch (route.name) {
+    case "inspection": return { section: "inspections", sectionHref: "#/inspections", page: "inspectionDetails" };
+    case "new": return { section: "inspections", sectionHref: "#/inspections", page: "newInspection" };
+    case "rulesets": case "reports": return { section: "resources", page: route.name };
+    case "risk": return { section: "inspection", page: "riskQueue" };
+    case "patterns": return { section: "inspection", page: "repeatIssues" };
+    default: return { section: "inspection", page: route.name };
+  }
+}
+
+function activeNav(route: Route): RouteName {
+  return route.name === "inspection" || route.name === "new" ? "inspections" : route.name;
+}
+
+export function initials(username: string) {
+  const parts = username.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+  return (parts.length > 1 ? parts[0][0] + parts[1][0] : username.slice(0, 2)).toUpperCase();
+}
+
+const DRAWER_QUERY = "(max-width: 1023px)";
+const COLLAPSE_KEY = "packcomply-sidebar-collapsed";
+const isDrawerViewport = () => typeof window.matchMedia === "function" && window.matchMedia(DRAWER_QUERY).matches;
+
+function readCollapsed() { try { return localStorage.getItem(COLLAPSE_KEY) === "1"; } catch { return false; } }
+
+type AppShellProps = {
+  route: Route; user: User; riskCount: number | null; search: string;
+  onSearchChange: (value: string) => void; onNewInspection: () => void; onLogout: () => void; children: ReactNode;
+};
+
+export function AppShell({ route, user, riskCount, search, onSearchChange, onNewInspection, onLogout, children }: AppShellProps) {
+  const { t } = useI18n();
+  const official = user.role === "OFFICIAL";
+  const [collapsed, setCollapsed] = useState(readCollapsed);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const titles = routeTitles(route);
+  const active = activeNav(route);
+
+  useEffect(() => { setDrawerOpen(false); }, [route]);
+  useEffect(() => { try { localStorage.setItem(COLLAPSE_KEY, collapsed ? "1" : "0"); } catch { /* storage unavailable */ } }, [collapsed]);
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") { event.preventDefault(); searchRef.current?.focus(); }
+      if (event.key === "Escape") setDrawerOpen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  function toggleSidebar() { if (isDrawerViewport()) setDrawerOpen(open => !open); else setCollapsed(value => !value); }
+  function onSearch(value: string) {
+    onSearchChange(value);
+    if (route.name !== "inspections") window.location.hash = "/inspections";
+  }
+
+  const navList = (items: NavItem[]) => (
+    <ul className="nav-list">
+      {items.filter(item => !item.officialOnly || official).map(({ name, label, icon: Icon }) => {
+        const current = active === name;
+        return (
+          <li key={name}>
+            <a href={`#/${name}`} className={current ? "nav-item is-active" : "nav-item"} aria-current={current ? "page" : undefined} title={collapsed ? t(label) : undefined}>
+              <Icon size={16} aria-hidden="true" />
+              <span className="nav-item__label">{t(label)}</span>
+              {name === "risk" && riskCount ? <span className="nav-item__count mono" aria-label={`${riskCount} ${t("highRiskLabels")}`}>{riskCount}</span> : null}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
+  return (
+    <div className={`shell ${collapsed ? "is-collapsed" : ""} ${drawerOpen ? "is-drawer-open" : ""}`.trim()}>
+      <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); document.getElementById("main-content")?.focus(); }}>{t("skipToContent")}</a>
+      <aside className="sidebar" id="app-sidebar" aria-label={t("sidebar")}>
+        <div className="sidebar__brand">
+          <BrandMark />
+          <div className="sidebar__brand-text">
+            <span className="sidebar__product">{t("appName")}</span>
+            <span className="sidebar__caption">{t("legalMetrology")}</span>
+          </div>
+          <Button variant="ghost" size="icon" className="sidebar__close" aria-label={t("closeMenu")} onClick={() => setDrawerOpen(false)} icon={<X size={16} aria-hidden="true" />} />
+        </div>
+        <nav className="sidebar__nav" aria-label={t("primaryNavigation")}>
+          <p className="sidebar__group">{t("inspection")}</p>
+          {navList(INSPECTION_NAV)}
+          <p className="sidebar__group">{t("resources")}</p>
+          {navList(RESOURCE_NAV)}
+        </nav>
+        <div className="sidebar__footer">
+          <div className="offline-card">
+            <Cpu size={16} aria-hidden="true" className="offline-card__icon" />
+            <p><strong>{t("runsOffline")}</strong> — {t("runsOfflineDetail")}</p>
+          </div>
+          <UserMenu user={user} onLogout={onLogout} />
+        </div>
+      </aside>
+      {drawerOpen && <button type="button" className="shell__backdrop" aria-label={t("closeMenu")} onClick={() => setDrawerOpen(false)} />}
+
+      <div className="shell__main">
+        <header className="topbar">
+          <Button variant="ghost" size="icon" onClick={toggleSidebar} aria-controls="app-sidebar" aria-expanded={drawerOpen || !collapsed}
+            aria-label={t("toggleSidebar")} icon={<PanelLeft size={16} aria-hidden="true" />} />
+          <nav className="breadcrumb" aria-label={t("breadcrumb")}>
+            <ol>
+              <li className="breadcrumb__section">{titles.sectionHref ? <a href={titles.sectionHref}>{t(titles.section)}</a> : t(titles.section)}</li>
+              <li aria-current="page">{t(titles.page)}</li>
+            </ol>
+          </nav>
+          <div className="topbar__spacer" />
+          <SearchInput ref={searchRef} className="topbar__search" aria-label={t("searchInspections")} placeholder={t("searchPlaceholder")} hint="Ctrl K" value={search} onChange={event => onSearch(event.target.value)} />
+          <Button className="topbar__new" icon={<Plus size={16} aria-hidden="true" />} onClick={onNewInspection}>{t("newInspection")}</Button>
+        </header>
+        <main id="main-content" className="shell__content" tabIndex={-1}>{children}</main>
+      </div>
+
+      <nav className="tabbar" aria-label={t("mobileNavigation")}>
+        <a href="#/overview" className={active === "overview" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "overview" ? "page" : undefined}><LayoutDashboard size={16} aria-hidden="true" /><span>{t("overview")}</span></a>
+        <a href="#/inspections" className={active === "inspections" && route.name !== "new" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "inspections" && route.name !== "new" ? "page" : undefined}><ClipboardList size={16} aria-hidden="true" /><span>{t("inspections")}</span></a>
+        <button type="button" className="tabbar__fab" onClick={onNewInspection} aria-label={t("newInspection")}><Plus size={20} aria-hidden="true" /></button>
+        {official
+          ? <a href="#/risk" className={active === "risk" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "risk" ? "page" : undefined}><ShieldAlert size={16} aria-hidden="true" /><span>{t("riskQueueShort")}</span></a>
+          : <a href="#/patterns" className={active === "patterns" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "patterns" ? "page" : undefined}><Repeat2 size={16} aria-hidden="true" /><span>{t("repeatIssues")}</span></a>}
+      </nav>
+    </div>
+  );
+}
+
+function UserMenu({ user, onLogout }: { user: User; onLogout: () => void }) {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const menuId = useId();
+  const container = useRef<HTMLDivElement>(null);
+  const role = user.role === "OFFICIAL" ? t("roleInspector") : user.role === "MANUFACTURER" ? t("roleManufacturer") : null;
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointer(event: PointerEvent) { if (!container.current?.contains(event.target as Node)) setOpen(false); }
+    function onKey(event: KeyboardEvent) { if (event.key === "Escape") setOpen(false); }
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("pointerdown", onPointer); document.removeEventListener("keydown", onKey); };
+  }, [open]);
+
+  return (
+    <div className="user-menu" ref={container}>
+      {open && (
+        <div className="user-menu__panel" id={menuId}>
+          <LanguageSelector />
+          <hr className="user-menu__separator" />
+          <Button variant="ghost" className="user-menu__logout" icon={<LogOut size={16} aria-hidden="true" />} onClick={onLogout}>{t("logout")}</Button>
+        </div>
+      )}
+      <button type="button" className="user-menu__button" aria-expanded={open} aria-controls={menuId} aria-label={`${t("accountMenu")}: ${user.username}`} onClick={() => setOpen(value => !value)}>
+        <span className="avatar" aria-hidden="true">{initials(user.username)}</span>
+        <span className="user-menu__text">
+          <span className="user-menu__name">{user.username}</span>
+          {role && <span className="user-menu__role">{role}</span>}
+        </span>
+        <ChevronsUpDown size={16} aria-hidden="true" className="user-menu__chevron" />
+      </button>
+    </div>
+  );
+}

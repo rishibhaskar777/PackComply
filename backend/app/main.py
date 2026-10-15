@@ -14,6 +14,7 @@ from backend.app.api.patterns import router as patterns_router
 from backend.app.api.roles import router as roles_router
 from backend.app.api.risk_targeting import router as risk_targeting_router
 from backend.app.api.compliance import router as compliance_router
+from backend.app.api.dashboard import router as dashboard_router
 from backend.app.core.config import get_cors_origins, get_settings
 from backend.app.core.database import SessionLocal
 from backend.app.services.compliance.registry import sync_compliance_rules
@@ -101,3 +102,4 @@ app.include_router(patterns_router, prefix="/api")
 app.include_router(roles_router, prefix="/api")
 app.include_router(risk_targeting_router, prefix="/api")
 app.include_router(compliance_router, prefix="/api")
+app.include_router(dashboard_router, prefix="/api")

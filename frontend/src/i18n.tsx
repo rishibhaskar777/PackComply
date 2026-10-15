@@ -29,7 +29,7 @@ export const UI_LANGUAGES = [
 export type Locale = (typeof UI_LANGUAGES)[number]["code"];
 export const LANGUAGE_STORAGE_KEY = "packcomply-language";
 
-type TranslationKey = keyof typeof en;
+export type TranslationKey = keyof typeof en;
 type LocaleTranslations = Record<TranslationKey, string>;
 
 
@@ -89,4 +89,9 @@ export function useI18n(): I18nValue {
   const context = useContext(I18nContext);
   if (!context) throw new Error("useI18n must be used inside I18nProvider.");
   return context;
+}
+
+/** Replace {name} placeholders in a translated template. */
+export function fill(template: string, values: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (match, name: string) => (name in values ? String(values[name]) : match));
 }

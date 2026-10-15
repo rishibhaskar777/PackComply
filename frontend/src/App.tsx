@@ -1,121 +1,123 @@
-import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
-import { UI_LANGUAGES, useI18n } from "./i18n";
+import { useEffect, useRef, useState } from "react";
+import { api, getJson, isExpired, isUnavailable, ApiError } from "./api/client";
+import { AppShell, routeTitles } from "./app/AppShell";
+import { navigate, Route, useHashRoute } from "./app/router";
+import { useI18n } from "./i18n";
+import { AuthPage, Registration } from "./pages/AuthPage";
+import { InspectionPage } from "./pages/InspectionPage";
+import { InspectionsPage } from "./pages/InspectionsPage";
+import { OverviewPage } from "./pages/OverviewPage";
+import { PatternsPage } from "./pages/PatternsPage";
+import { ReportsPage } from "./pages/ReportsPage";
+import { RiskQueuePage } from "./pages/RiskQueuePage";
+import { RulesetsPage } from "./pages/RulesetsPage";
+import { RiskPageData, User } from "./types";
 
-type Field = { value: string | null; confidence: number; needs_review: boolean };
-type Finding = { rule_id: string; rule_name: string; status: "PASS" | "FAIL" | "REVIEW" | "NOT_APPLICABLE"; severity: string; message: string; field: string | null; value: string | null; legal_reference?: string | null };
-type Compliance = { overall_status: string; verdict?: string | null; ruleset_label?: string | null; summary: { passed: number; failed: number; review: number; not_applicable?: number }; findings: Finding[] };
-type QuantityVerification = { declared_quantity: string | null; normalized_quantity: string | null; unit: string | null; status: "PASS" | "FAIL" | "REVIEW"; reason: string; rule_code: string; severity: string; evidence: string | null; requirement: string | null };
-type Summary = { id: string; inspection_number: string; status: string; failure_message?: string | null; image?: { id: string; original_filename: string }; ocr?: { raw_text: string; languages: string[]; results: Array<{ text: string; confidence: number | null }> }; extraction?: { fields: Record<string, Field> }; compliance?: Compliance; quantity_verification?: QuantityVerification | null; risk?: { risk_score: number; risk_level: string; reasons: Array<{ type: string; points: number; description: string; rule_code?: string | null; severity?: string | null; field?: string | null }> } };
-type ApiError = Error & { detail?: string; status?: number; unreachable?: boolean };
-type HistoryItem = { id: string; inspection_number: string; status: string; created_at: string; updated_at: string; product_name: string | null; compliance_status: string | null; verdict?: string | null; image_filename: string | null };
-type HistoryResponse = { items: HistoryItem[]; page: number; page_size: number; total: number; total_pages: number };
-type Pattern = { pattern_key: string; pattern_type: "COMPLIANCE_VIOLATION" | "COMPLIANCE_WARNING" | "MISSING_FIELD"; title: string; description: string; occurrence_count: number; first_seen: string; last_seen: string; severity: string; inspection_ids: string[]; affected_field?: string | null; rule_code?: string | null };
-type RiskItem = { inspection_id: string; product_name: string | null; risk_score: number; risk_level: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW"; compliance_status: string; primary_reason: string; completed_at: string; priority: number };
-type RiskPageData = { items: RiskItem[]; total: number; page: number; page_size: number; total_pages: number; summary: Record<RiskItem["risk_level"], number> };
-// SameSite=Lax development cookies must remain same-site.  Deriving the
-// fallback host from the page prevents a localhost UI from calling 127.0.0.1.
-const API_URL = (import.meta.env.VITE_API_URL ?? `${window.location.protocol}//${window.location.hostname}:8000/api`).replace(/\/$/, "");
-const labels: Record<string, string> = { product_name: "extractionProductName", manufacturer: "extractionManufacturer", manufacturer_address: "extractionManufacturerAddress", packer: "extractionPacker", packer_address: "extractionPackerAddress", importer: "extractionImporter", importer_address: "extractionImporterAddress", mrp: "extractionMrp", net_quantity: "extractionNetQuantity", manufacturing_date: "extractionManufacturingDate", packing_date: "extractionPackingDate", best_before: "extractionBestBefore", use_by: "extractionUseBy", expiry_date: "extractionExpiryDate", consumer_care_phone: "extractionConsumerCarePhone", consumer_care_email: "extractionConsumerCareEmail", consumer_care_website: "extractionConsumerCareWebsite", brand_owner: "extractionBrandOwner", brand_owner_address: "extractionBrandOwnerAddress", manufacturing_units: "extractionManufacturingUnits", mrp_declaration: "extractionMrpDeclaration", tax_inclusive: "extractionTaxInclusive", fssai_license: "extractionFssaiLicense", country_of_origin: "extractionCountryOfOrigin", unit_sale_price: "extractionUnitSalePrice", batch_number: "extractionBatchNumber", consumer_care_declaration: "extractionConsumerCareDeclaration", import_declaration: "extractionImportDeclaration", product_category: "extractionProductCategory" };
-const fieldValueLabels: Record<string, string> = { "mrp_declaration:present_with_value": "mrpDeclarationPresentWithValue", "mrp_declaration:present_without_value": "mrpDeclarationPresentWithoutValue", "mrp_declaration:absent": "mrpDeclarationAbsent", "tax_inclusive:true": "taxInclusiveYes", "consumer_care_declaration:present_with_details": "consumerCareDeclarationPresentWithDetails", "consumer_care_declaration:present_without_details": "consumerCareDeclarationPresentWithoutDetails", "consumer_care_declaration:absent": "consumerCareDeclarationAbsent", "import_declaration:present": "importDeclarationPresent", "product_category:food": "productCategoryFood" };
-// Evidence the compliance rules read (declaration states, OCR coverage), not label text: never listed as fields.
-const evidenceFields = new Set(["declaration_status", "ocr_coverage"]);
-export function labelFields<T>(fields: Record<string, T>): [string, T][] {
-  return Object.entries(fields).filter(([name]) => !evidenceFields.has(name));
-}
-type ManufacturingUnit = { code: string; name: string; address: string | null; licence: string | null };
-export function FieldValue({ name, value }: { name: string; value: string | null }) {
-  const { t } = useI18n();
-  if (value === null) return <span>{t("notDetected")}</span>;
-  const label = fieldValueLabels[`${name}:${value}`];
-  if (label) return <span>{t(label as Parameters<typeof t>[0])}</span>;
-  if (name === "manufacturing_units") {
-    let units: ManufacturingUnit[] = [];
-    try { units = JSON.parse(value); } catch { return <span>{value}</span>; }
-    return <ul className="unit-list">{units.map(unit => <li key={unit.code}><strong>({unit.code})</strong> {unit.name}{unit.address ? `, ${unit.address}` : ""}{unit.licence ? ` · ${t("extractionFssaiLicense")}: ${unit.licence}` : ""}</li>)}</ul>;
-  }
-  return <span>{value}</span>;
-}
-
-// Verdict and per-finding legal reference; NOT_APPLICABLE findings are shown neutrally, never as issues.
-export function ComplianceResults({ compliance }: { compliance: Compliance }) {
-  const { t } = useI18n();
-  return <section className="card results-card"><div className="card-heading"><h2>{t("compliance")}: {compliance.verdict ? <StatusBadge value={compliance.verdict} /> : compliance.overall_status}</h2><span className="language-pill">{t("success")}: {compliance.summary.passed} · {t("error")}: {compliance.summary.failed} · {t("needsReview")}: {compliance.summary.review}{compliance.summary.not_applicable ? ` · ${t("notApplicable")}: ${compliance.summary.not_applicable}` : ""}</span></div>{compliance.ruleset_label && <p className="ruleset-label">{t("checkedAgainst")}: {compliance.ruleset_label}</p>}<div className="detection-list">{compliance.findings.map(f => <div className={`detection finding-${f.status.toLowerCase().replace("_", "-")}`} key={f.rule_id}><strong>{f.rule_name} — <StatusBadge value={f.status} /> ({f.severity})</strong><span>{f.message}</span>{f.legal_reference && <span className="legal-reference">{t("legalReference")}: {f.legal_reference}</span>}<span>{f.field}: {f.value ?? t("notDetected")}</span></div>)}</div></section>;
-}
-
-async function api(path: string, operation: string, options: RequestInit = {}, timeout = 30_000): Promise<Response> {
-  const controller = new AbortController(); const timer = window.setTimeout(() => controller.abort(), timeout);
-  try { const response = await fetch(`${API_URL}${path}`, { ...options, credentials: "include", signal: controller.signal }); if (!response.ok) { const body = await response.json().catch(() => ({})); const error = new Error(operation) as ApiError; error.detail = `${response.status}${body.detail ? `: ${body.detail}` : ""}`; error.status = response.status; throw error; } return response; }
-  catch (error) { if (controller.signal.aborted) { const timeoutError = new Error(operation) as ApiError; timeoutError.detail = "The inspection took too long. You can safely retry."; timeoutError.unreachable = true; throw timeoutError; } if ((error as ApiError).status === undefined) (error as ApiError).unreachable = true; throw error; }
-  finally { window.clearTimeout(timer); }
-}
-// 503 (database down), a network failure or a timeout all mean the server cannot answer.
-function isUnavailable(error: unknown) { const e = error as ApiError; return e?.status === 503 || e?.unreachable === true; }
-function LanguageSelector() { const { locale, setLocale, t } = useI18n(); return <label className="language-selector"><span>{t("language")}</span><select aria-label={t("language")} value={locale} onChange={e => setLocale(e.target.value as typeof locale)}>{UI_LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.nativeName} — {l.englishName}</option>)}</select></label>; }
-
-function StatusBadge({ value }: { value: string | null }) { const { t } = useI18n(); const key = ({ CREATED: "created", IMAGE_UPLOADED: "imageUploadedStatus", OCR_PROCESSING: "ocrProcessing", OCR_COMPLETED: "ocrCompleted", EXTRACTION_PROCESSING: "extractionProcessing", EXTRACTION_COMPLETED: "extractionCompleted", COMPLIANCE_PROCESSING: "complianceProcessing", COMPLETED: "completed", FAILED: "failed", PASS: "pass", FAIL: "fail", REVIEW: "warning", WARNING: "warning", NOT_APPLICABLE: "notApplicable", NON_COMPLIANT: "verdictNonCompliant", NEEDS_REVIEW: "verdictNeedsReview", COMPLIANT: "verdictCompliant" } as Record<string, string>)[value ?? ""] ?? "unknown"; return <span className={`history-badge ${key}`}>{t(key as Parameters<typeof t>[0])}</span>; }
-
-function HistoryPage({ onView, onNew, onExpired }: { onView: (id: string) => void; onNew: () => void; onExpired: () => void }) {
-  const { t } = useI18n(); const [data, setData] = useState<HistoryResponse | null>(null); const [loading, setLoading] = useState(true); const [failed, setFailed] = useState(false); const [page, setPage] = useState(1); const [search, setSearch] = useState(""); const [status, setStatus] = useState(""); const [compliance, setCompliance] = useState("");
-  async function load() { setLoading(true); setFailed(false); try { const query = new URLSearchParams({ page: String(page), page_size: "20" }); if (search.trim()) query.set("search", search.trim()); if (status) query.set("status", status); if (compliance) query.set("compliance_status", compliance); setData(await (await api(`/inspections?${query}`, "history")).json()); } catch (error) { if ((error as ApiError).detail?.startsWith("401")) onExpired(); else setFailed(true); } finally { setLoading(false); } }
-  useEffect(() => { load(); }, [page, status, compliance]); function submitSearch(event: FormEvent) { event.preventDefault(); setPage(1); load(); }
-  const statusOptions: Record<string, Parameters<typeof t>[0]> = { CREATED: "created", IMAGE_UPLOADED: "imageUploadedStatus", OCR_PROCESSING: "ocrProcessing", OCR_COMPLETED: "ocrCompleted", EXTRACTION_PROCESSING: "extractionProcessing", EXTRACTION_COMPLETED: "extractionCompleted", COMPLIANCE_PROCESSING: "complianceProcessing", COMPLETED: "completed", FAILED: "failed" };
-  return <main className="history-page"><section className="history-heading"><div><p className="eyebrow">{t("inspectionHistory")}</p><h1>{t("inspectionHistoryTitle")}</h1></div><button className="primary-button compact-button" onClick={onNew}>+ {t("newInspection")}</button></section><form className="history-filters" onSubmit={submitSearch}><input aria-label={t("searchInspections")} placeholder={t("searchInspections")} value={search} onChange={e => setSearch(e.target.value)} /><select aria-label={t("filterStatus")} value={status} onChange={e => { setPage(1); setStatus(e.target.value); }}><option value="">{t("allStatuses")}</option>{Object.entries(statusOptions).map(([value, key]) => <option key={value} value={value}>{t(key)}</option>)}</select><select aria-label={t("filterCompliance")} value={compliance} onChange={e => { setPage(1); setCompliance(e.target.value); }}><option value="">{t("allComplianceStatuses")}</option><option value="PASS">{t("pass")}</option><option value="FAIL">{t("fail")}</option><option value="WARNING">{t("warning")}</option></select><button className="secondary-button">{t("searchInspections")}</button></form>{loading ? <div className="card loading-history" role="status">{t("loadingHistory")}</div> : failed ? <div className="card history-message" role="alert"><p>{t("historyLoadError")}</p><button className="primary-button compact-button" onClick={load}>{t("tryAgain")}</button></div> : !data?.items.length ? <div className="card history-message"><h2>{t("noInspections")}</h2><p>{t("startFirstInspection")}</p><button className="primary-button compact-button" onClick={onNew}>{t("startNewInspection")}</button></div> : <><div className="history-table card"><div className="history-row history-table-head"><span>{t("productName")}</span><span>{t("inspectionId")}</span><span>{t("date")}</span><span>{t("status")}</span><span>{t("complianceResult")}</span><span /></div>{data.items.map(item => <div className="history-row" key={item.id}><span data-label={t("productName")}>{item.product_name ?? t("unknown")}{item.image_filename && <small>{item.image_filename}</small>}</span><span data-label={t("inspectionId")}>{item.inspection_number}</span><span data-label={t("date")}>{new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.created_at))}</span><span data-label={t("status")}><StatusBadge value={item.status} /></span><span data-label={t("complianceResult")}><StatusBadge value={item.verdict ?? item.compliance_status} /></span><button className="secondary-button" onClick={() => onView(item.id)}>{t("viewInspection")}</button></div>)}</div><div className="pagination"><button className="secondary-button" disabled={data.page === 1} onClick={() => setPage(page - 1)}>{t("previous")}</button><span>{t("page")} {data.page} {t("of")} {data.total_pages}</span><button className="secondary-button" disabled={data.page >= data.total_pages} onClick={() => setPage(page + 1)}>{t("next")}</button></div></>}</main>;
-}
-
-function PatternsPage({ onView, onExpired }: { onView: (id: string) => void; onExpired: () => void }) {
-  const { t } = useI18n(); const [patterns, setPatterns] = useState<Pattern[] | null>(null); const [failed, setFailed] = useState(false);
-  async function load() { setFailed(false); try { setPatterns(await (await api("/patterns", "patterns")).json()); } catch (error) { if ((error as ApiError).detail?.startsWith("401")) onExpired(); else setFailed(true); } }
-  useEffect(() => { load(); }, []);
-  const typeLabel = (type: Pattern["pattern_type"]) => t(type === "COMPLIANCE_VIOLATION" ? "complianceViolation" : type === "COMPLIANCE_WARNING" ? "complianceWarning" : "missingField");
-  const date = (value: string) => new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(value));
-  const items = patterns ?? []; const high = items.filter(item => item.severity === "HIGH").length;
-  return <main className="history-page patterns-page"><section className="history-heading"><div><p className="eyebrow">{t("patterns")}</p><h1>{t("repeatedIssues")}</h1></div></section>{patterns === null && !failed ? <div className="card loading-history" role="status">{t("loading")}</div> : failed ? <div className="card history-message" role="alert"><p>{t("patternsLoadError")}</p><button className="primary-button compact-button" onClick={load}>{t("tryAgain")}</button></div> : <><section className="pattern-summary"><article><strong>{items.length}</strong><span>{t("detectedPatterns")}</span></article><article><strong>{items.reduce((total, item) => total + item.occurrence_count, 0)}</strong><span>{t("occurrences")}</span></article><article><strong>{high}</strong><span>{t("high")}</span></article></section>{!items.length ? <div className="card history-message"><h2>{t("noRepeatedPatterns")}</h2><p>{t("patternsEmptyDescription")}</p></div> : <section className="pattern-grid">{items.map(pattern => <article className="card pattern-card" key={pattern.pattern_key}><div className="card-heading"><div><p className="eyebrow">{typeLabel(pattern.pattern_type)}</p><h2>{pattern.title}</h2></div><StatusBadge value={pattern.severity === "HIGH" ? "FAIL" : "WARNING"} /></div><p>{pattern.description}</p><dl><div><dt>{t("occurrences")}</dt><dd>{pattern.occurrence_count}</dd></div><div><dt>{t("firstSeen")}</dt><dd>{date(pattern.first_seen)}</dd></div><div><dt>{t("lastSeen")}</dt><dd>{date(pattern.last_seen)}</dd></div><div><dt>{t("severity")}</dt><dd>{pattern.severity}</dd></div></dl><div className="affected"><strong>{t("affectedInspections")}</strong>{pattern.inspection_ids.map(id => <button key={id} className="secondary-button" onClick={() => onView(id)}>{id.slice(0, 8)}</button>)}</div></article>)}</section>}</>}</main>;
-}
-
-function RiskTargetingPage({ onView, onExpired }: { onView: (id: string) => void; onExpired: () => void }) {
-  const { t } = useI18n(); const [data, setData] = useState<RiskPageData | null>(null); const [failed, setFailed] = useState(false); const [page, setPage] = useState(1); const [level, setLevel] = useState(""); const [compliance, setCompliance] = useState("");
-  async function load() { setFailed(false); try { const query = new URLSearchParams({ page: String(page), page_size: "20" }); if (level) query.set("risk_level", level); if (compliance) query.set("compliance_status", compliance); setData(await (await api(`/risk-targeting?${query}`, "risk targeting")).json()); } catch (error) { if ((error as ApiError).detail?.startsWith("401")) onExpired(); else setFailed(true); } }
-  useEffect(() => { load(); }, [page, level, compliance]);
-  return <main className="history-page risk-page"><section className="history-heading"><div><p className="eyebrow">{t("riskTargeting")}</p><h1>{t("riskTargetingTitle")}</h1><p>{t("riskTargetingDescription")}</p></div></section><form className="history-filters" onSubmit={e => { e.preventDefault(); setPage(1); load(); }}><select aria-label={t("riskLevel")} value={level} onChange={e => { setPage(1); setLevel(e.target.value); }}><option value="">{t("allRiskLevels")}</option>{["CRITICAL", "HIGH", "MEDIUM", "LOW"].map(value => <option key={value} value={value}>{t(value.toLowerCase() as Parameters<typeof t>[0])}</option>)}</select><select aria-label={t("filterCompliance")} value={compliance} onChange={e => { setPage(1); setCompliance(e.target.value); }}><option value="">{t("allComplianceStatuses")}</option><option value="PASS">{t("pass")}</option><option value="WARNING">{t("warning")}</option><option value="FAIL">{t("fail")}</option></select></form>{data === null && !failed ? <div className="card loading-history" role="status">{t("riskTargetingLoading")}</div> : failed ? <div className="card history-message" role="alert"><p>{t("riskTargetingError")}</p><button className="primary-button compact-button" onClick={load}>{t("tryAgain")}</button></div> : <>{<section className="risk-summary">{["CRITICAL", "HIGH", "MEDIUM", "LOW"].map(value => <article className={`risk-card ${value.toLowerCase()}`} key={value}><strong>{data?.summary[value as RiskItem["risk_level"]] ?? 0}</strong><span>{t(value.toLowerCase() as Parameters<typeof t>[0])}</span></article>)}<article className="risk-card"><strong>{data?.total ?? 0}</strong><span>{t("totalCompletedInspections")}</span></article></section>}{!data?.items.length ? <div className="card history-message"><h2>{t("riskTargetingNoResults")}</h2></div> : <><div className="history-table card risk-table"><div className="history-row history-table-head"><span>{t("priority")}</span><span>{t("productName")}</span><span>{t("riskLevel")}</span><span>{t("riskScore")}</span><span>{t("primaryReason")}</span><span>{t("date")}</span></div>{data.items.map(item => <button className="history-row risk-row" key={item.inspection_id} onClick={() => onView(item.inspection_id)}><span>{item.priority}</span><span>{item.product_name ?? t("unknown")}</span><span><span className={`risk-badge ${item.risk_level.toLowerCase()}`}>{t(item.risk_level.toLowerCase() as Parameters<typeof t>[0])}</span></span><span>{item.risk_score}/100</span><span>{item.primary_reason}</span><span>{new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(item.completed_at))}</span></button>)}</div><div className="pagination"><button className="secondary-button" disabled={data.page === 1} onClick={() => setPage(page - 1)}>{t("previous")}</button><span>{t("page")} {data.page} {t("of")} {data.total_pages}</span><button className="secondary-button" disabled={data.page >= data.total_pages} onClick={() => setPage(page + 1)}>{t("next")}</button></div></>}</>}</main>;
-}
-
-function AuthPage({ loading, error, onLogin, onRegister }: { loading: boolean; error: string; onLogin: (username: string, password: string) => void; onRegister: (data: { username: string; email: string; password: string; confirmPassword: string }) => void }) {
-  const { t } = useI18n(); const [mode, setMode] = useState<"login" | "register">("login"); const [showPassword, setShowPassword] = useState(false); const [loginData, setLoginData] = useState({ username: "", password: "" }); const [registration, setRegistration] = useState({ username: "", email: "", password: "", confirmPassword: "" }); const [validation, setValidation] = useState("");
-  function submit(event: FormEvent) { event.preventDefault(); setValidation(""); if (mode === "login") return onLogin(loginData.username, loginData.password); if (registration.password !== registration.confirmPassword) return setValidation(t("passwordsDoNotMatch")); if (!registration.email.includes("@") || registration.username.length < 3 || registration.password.length < 8) return setValidation(t("invalidRegistration")); onRegister(registration); }
-  const passwordType = showPassword ? "text" : "password";
-  return <main className="auth-page"><section className="auth-showcase"><a className="auth-brand" href="#"><span className="brand-mark">PC</span>{t("appName")}</a><div className="auth-pitch"><p className="eyebrow">{t("appName")}</p><h1>{t("authHeadline")}</h1><p>{t("authDescription")}</p><ul><li>✦ {t("authFeatureAi")}</li><li>⌁ {t("authFeatureOcr")}</li><li>✓ {t("authFeatureCompliance")}</li></ul></div></section><section className="auth-panel"><div className="auth-language"><LanguageSelector /></div><div className="auth-card"><div className="auth-tabs" role="tablist"><button type="button" role="tab" aria-selected={mode === "login"} className={mode === "login" ? "active" : ""} onClick={() => setMode("login")}>{t("login")}</button><button type="button" role="tab" aria-selected={mode === "register"} className={mode === "register" ? "active" : ""} onClick={() => setMode("register")}>{t("register")}</button></div><div className="auth-form-wrap"><h2>{mode === "login" ? t("login") : t("createAccount")}</h2>{mode === "register" && <p className="auth-note">{t("manufacturerRegistrationNote")}</p>}<form onSubmit={submit}><label>{t("username")}<input aria-label={t("username")} required minLength={mode === "register" ? 3 : 1} value={mode === "login" ? loginData.username : registration.username} onChange={e => mode === "login" ? setLoginData({ ...loginData, username: e.target.value }) : setRegistration({ ...registration, username: e.target.value })}/></label>{mode === "register" && <label>{t("email")}<input aria-label={t("email")} type="email" required value={registration.email} onChange={e => setRegistration({ ...registration, email: e.target.value })}/></label>}<label>{t("password")}<span className="password-input"><input aria-label={t("password")} type={passwordType} required minLength={mode === "register" ? 8 : 1} value={mode === "login" ? loginData.password : registration.password} onChange={e => mode === "login" ? setLoginData({ ...loginData, password: e.target.value }) : setRegistration({ ...registration, password: e.target.value })}/><button type="button" aria-label={showPassword ? t("hidePassword") : t("showPassword")} onClick={() => setShowPassword(!showPassword)}>{showPassword ? "◉" : "○"}</button></span></label>{mode === "register" && <label>{t("confirmPassword")}<input aria-label={t("confirmPassword")} type={passwordType} required minLength={8} value={registration.confirmPassword} onChange={e => setRegistration({ ...registration, confirmPassword: e.target.value })}/></label>}{(error || validation) && <p role="alert" className="message error">{validation || error}</p>}<button className="primary-button auth-submit" disabled={loading}>{loading ? mode === "login" ? t("signingIn") : t("registering") : mode === "login" ? t("signIn") : t("registerAccount")}</button></form></div></div></section></main>;
-}
+export { ComplianceResults, FieldValue, labelFields } from "./pages/InspectionPage";
 
 export default function App() {
-  const { t } = useI18n(); const [summary, setSummary] = useState<Summary | null>(null); const [preview, setPreview] = useState<string | null>(null); const [stage, setStage] = useState("CREATED"); const [busy, setBusy] = useState(false); const [reportBusy, setReportBusy] = useState(false); const [error, setError] = useState<string | null>(null);
-  const [view, setView] = useState<"inspection" | "history" | "patterns" | "risk">("inspection");
-  const [user, setUser] = useState<{ username: string; role: string } | null>(null); const [authLoading, setAuthLoading] = useState(true); const [authBusy, setAuthBusy] = useState(false); const [authError, setAuthError] = useState(""); const authRequest = useRef(0);
-  function stageText(status: string) { if (status === "COMPLETED") return "Inspection complete"; const key = ({ CREATED: "created", IMAGE_UPLOADED: "imageUploadedStatus", OCR_PROCESSING: "ocrProcessing", OCR_COMPLETED: "ocrCompleted", EXTRACTION_PROCESSING: "extractionProcessing", EXTRACTION_COMPLETED: "extractionCompleted", COMPLIANCE_PROCESSING: "complianceProcessing", FAILED: "failed" } as Record<string, string>)[status]; return key ? t(key as Parameters<typeof t>[0]) : status; }
-  async function loadUser() { const request = ++authRequest.current; try { const authenticatedUser = await (await api("/auth/me", "authentication")).json(); if (request === authRequest.current) setUser(authenticatedUser); } catch (e) { if (request === authRequest.current) { setUser(null); if ((e as ApiError).detail?.startsWith("401")) setAuthError(t("sessionExpired")); else if (isUnavailable(e)) setAuthError(t("serverUnavailable")); } } finally { if (request === authRequest.current) setAuthLoading(false); } }
+  const { t } = useI18n();
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const authRequest = useRef(0);
+
+  async function loadUser() {
+    const request = ++authRequest.current;
+    try {
+      const authenticatedUser = await getJson<User>("/auth/me", "authentication");
+      if (request === authRequest.current) { setUser(authenticatedUser); setAuthError(""); }
+    } catch (e) {
+      if (request === authRequest.current) {
+        setUser(null);
+        if (isExpired(e)) setAuthError(t("sessionExpired"));
+        else if (isUnavailable(e)) setAuthError(t("serverUnavailable"));
+      }
+    } finally {
+      if (request === authRequest.current) setAuthLoading(false);
+    }
+  }
   useEffect(() => { loadUser(); }, []);
-  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
-  async function process(id: string) { setStage("OCR_PROCESSING"); const response = await api(`/inspections/${id}/process`, "process", { method: "POST" }, 300_000); const result: Summary = await response.json(); setSummary(result); setStage(result.status); }
-  async function selectImage(event: ChangeEvent<HTMLInputElement>) { const file = event.target.files?.[0]; if (!file) return; if (preview) URL.revokeObjectURL(preview); setPreview(URL.createObjectURL(file)); setBusy(true); setError(null); setSummary(null); try { const inspection = await (await api("/inspections", "inspection", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })).json(); setStage("IMAGE_UPLOADED"); const form = new FormData(); form.append("image", file); const image = await (await api(`/inspections/${inspection.id}/image`, "upload", { method: "POST", body: form })).json(); setSummary({ ...inspection, status: "IMAGE_UPLOADED", image }); await process(inspection.id); } catch (e) { setStage("FAILED"); setError((e as ApiError).detail ?? "Unable to complete the inspection."); } finally { setBusy(false); } }
-  async function retry() { if (!summary) return; setBusy(true); setError(null); try { await process(summary.id); } catch (e) { setStage("FAILED"); setError((e as ApiError).detail ?? "Unable to complete the inspection."); } finally { setBusy(false); } }
-  async function downloadReport() { if (!summary || reportBusy) return; setReportBusy(true); setError(null); try { const response = await api(`/inspections/${summary.id}/report`, "report"); const blob = await response.blob(); const link = document.createElement("a"); const objectUrl = URL.createObjectURL(blob); link.href = objectUrl; link.download = `inspection_${summary.inspection_number}.pdf`; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(objectUrl); } catch (e) { if ((e as ApiError).detail?.startsWith("401")) { setUser(null); setAuthError(t("sessionExpired")); } else setError(t("reportGenerationError")); } finally { setReportBusy(false); } }
-  function startNew() { setSummary(null); setStage("CREATED"); setError(null); setView("inspection"); if (preview) URL.revokeObjectURL(preview); setPreview(null); }
-  async function viewInspection(id: string) { setBusy(true); setError(null); try { const result: Summary = await (await api(`/inspections/${id}`, "inspection")).json(); setSummary(result); setStage(result.status); setView("inspection"); } catch (e) { setError((e as ApiError).detail ?? t("historyLoadError")); setView("inspection"); } finally { setBusy(false); } }
-  async function login(username: string, password: string) { setAuthBusy(true); setAuthError(""); try { await api("/auth/login", "login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) }); await loadUser(); } catch (e) { const status = (e as ApiError).status; setAuthError(status === 401 || status === 422 ? t("invalidCredentials") : status === 429 ? t("tooManyAttempts") : isUnavailable(e) ? t("serverUnavailable") : t("authenticationError")); } finally { setAuthBusy(false); } }
-  async function register(data: { username: string; email: string; password: string }) { setAuthBusy(true); setAuthError(""); try { await api("/auth/register", "register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: data.username, email: data.email, password: data.password, role: "MANUFACTURER" }) }); await loadUser(); } catch (e) { const status = (e as ApiError).status; setAuthError(status === 409 ? t("invalidRegistration") : status === 429 ? t("tooManyAttempts") : isUnavailable(e) ? t("serverUnavailable") : t("registrationError")); } finally { setAuthBusy(false); } }
-  async function logout() { await api("/auth/logout", "logout", { method: "POST" }).catch(() => undefined); setUser(null); startNew(); }
-  if (authLoading) return <main className="app-shell"><p className="empty-state">{t("authenticationLoading")}</p></main>;
+
+  async function login(username: string, password: string) {
+    setAuthBusy(true); setAuthError("");
+    try {
+      await api("/auth/login", "login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
+      await loadUser();
+    } catch (e) {
+      const status = (e as ApiError).status;
+      setAuthError(status === 401 || status === 422 ? t("invalidCredentials") : status === 429 ? t("tooManyAttempts") : isUnavailable(e) ? t("serverUnavailable") : t("authenticationError"));
+    } finally { setAuthBusy(false); }
+  }
+  async function register(data: Registration) {
+    setAuthBusy(true); setAuthError("");
+    try {
+      await api("/auth/register", "register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: data.username, email: data.email, password: data.password, role: "MANUFACTURER" }) });
+      await loadUser();
+    } catch (e) {
+      const status = (e as ApiError).status;
+      setAuthError(status === 409 ? t("invalidRegistration") : status === 429 ? t("tooManyAttempts") : isUnavailable(e) ? t("serverUnavailable") : t("registrationError"));
+    } finally { setAuthBusy(false); }
+  }
+  async function logout() {
+    await api("/auth/logout", "logout", { method: "POST" }).catch(() => undefined);
+    setUser(null);
+    navigate("/overview", { replace: true });
+  }
+  function expired() { setUser(null); setAuthError(t("sessionExpired")); }
+
+  if (authLoading) return <div className="boot-screen" role="status">{t("authenticationLoading")}</div>;
   if (!user) return <AuthPage loading={authBusy} error={authError} onLogin={login} onRegister={register} />;
-  const ocr = summary?.ocr, extraction = summary?.extraction, compliance = summary?.compliance, quantity = summary?.quantity_verification;
-  return <div className="app-shell"><header className="topbar"><a className="brand" href="#dashboard" onClick={() => setView("inspection")}><span className="brand-mark">PC</span><span>{t("appName")}</span></a><nav aria-label={t("primaryNavigation")}><button className={`nav-link ${view === "inspection" ? "active" : ""}`} onClick={() => setView("inspection")}>{t("dashboard")}</button><button className="nav-link" onClick={startNew}>{t("newInspection")}</button><button className={`nav-link ${view === "history" ? "active" : ""}`} onClick={() => setView("history")}>{t("inspectionHistory")}</button>{user.role === "OFFICIAL" && <button className={`nav-link ${view === "risk" ? "active" : ""}`} onClick={() => setView("risk")}>{t("riskTargeting")}</button>}<button className={`nav-link ${view === "patterns" ? "active" : ""}`} onClick={() => setView("patterns")}>{t("patterns")}</button></nav><span className="user-chip"><span className="user-avatar" aria-hidden="true">{user.username.slice(0, 1).toUpperCase()}</span>{t("welcome")}, {user.username}</span><button className="logout-button" onClick={logout}>{t("logout")}</button><LanguageSelector /></header>{view === "history" ? <HistoryPage onView={viewInspection} onNew={startNew} onExpired={() => { setUser(null); startNew(); setAuthError(t("sessionExpired")); }} /> : view === "patterns" ? <PatternsPage onView={viewInspection} onExpired={() => { setUser(null); startNew(); setAuthError(t("sessionExpired")); }} /> : view === "risk" ? <RiskTargetingPage onView={viewInspection} onExpired={() => { setUser(null); startNew(); setAuthError(t("sessionExpired")); }} /> : <main id="dashboard">
-    <section className="hero"><div><p className="eyebrow">{t("supportedLanguages")}</p><h1>{t("tagline")}</h1><p>{t("legalNotice")}</p></div><div className={`status-card status-${stage.toLowerCase()}`}><span className="status-dot" />{stageText(stage)}{summary && <small>{t("inspectionId")}: {summary.inspection_number}</small>}</div></section>
-    {error && <div role="alert" className="message error">{t("error")}: {error} {summary && <button className="primary-button" onClick={retry} disabled={busy}>{t("tryAgain")}</button>}</div>}
-    <section id="upload" className="workspace-grid"><article className="card upload-card"><div className="card-heading"><div><p className="eyebrow">01</p><h2>{t("uploadImage")}</h2></div></div><p>{t("imageHelp")}</p><label className="upload-control"><input type="file" accept="image/png,image/jpeg" onChange={selectImage} disabled={busy}/><span>{busy ? stageText(stage) : t("selectImage")}</span></label>{summary?.image && <p className="message success">✓ {t("imageUploaded")}: {summary.image.original_filename}</p>}</article><article className="card preview-card"><h2>{t("imagePreview")}</h2>{preview ? <img src={preview} alt={t("imagePreview")}/> : <p className="empty-state">{t("noImage")}</p>}</article></section>
-    <section id="results" className="card results-card"><div className="card-heading"><div><p className="eyebrow">02</p><h2>{t("ocrResults")}</h2></div>{ocr && <span className="language-pill">{t("processingLanguages")}: {ocr.languages.join(", ")}</span>}</div>{ocr ? <><pre className="raw-text">{ocr.raw_text}</pre><div className="detection-list">{ocr.results.map((v, i) => <div className="detection" key={`${v.text}-${i}`}><strong>{v.text}</strong><span>{t("confidence")}: {v.confidence === null ? "—" : `${Math.round(v.confidence * 100)}%`}</span></div>)}</div></> : <p className="empty-state">{busy ? stageText(stage) : t("noResults")}</p>}</section>
-    {extraction && <section className="card results-card"><h2>{t("extractionResults")}</h2><div className="detection-list">{labelFields(extraction.fields).map(([name, field]) => <div className="detection" key={name}><strong>{t((labels[name] ?? "productInformation") as Parameters<typeof t>[0])}</strong><FieldValue name={name} value={field.value} /><span>{t("extractionConfidence")}: {Math.round(field.confidence * 100)}% {field.needs_review ? `(${t("needsReview")})` : ""}</span></div>)}</div></section>}
-    {quantity && <section className="card results-card quantity-verification"><div className="card-heading"><div><p className="eyebrow">{t("compliance")}</p><h2>{t("netQuantity")}</h2></div><StatusBadge value={quantity.status} /></div><div className={`detection quantity-${quantity.status.toLowerCase()}`}><strong>{t("netQuantity")}</strong><span>{quantity.declared_quantity ?? t("notDetected")}</span><strong>{t("detectedText")}</strong><span>{quantity.normalized_quantity ?? t("notDetected")}</span><strong>{t("status")}</strong><span>{quantity.reason}</span><strong>{t("warnings")}</strong><span>{quantity.rule_code} · {quantity.severity}</span>{quantity.evidence && <><strong>{t("ocrResults")}</strong><span>{quantity.evidence}</span></>}</div></section>}
-    {compliance && <ComplianceResults compliance={compliance} />}
-    {summary?.risk && <section className="card results-card risk-detail"><div className="card-heading"><div><p className="eyebrow">{t("riskTargeting")}</p><h2>{t("riskScore")}: {summary.risk.risk_score}/100</h2></div><span className={`risk-badge ${summary.risk.risk_level.toLowerCase()}`}>{t(summary.risk.risk_level.toLowerCase() as Parameters<typeof t>[0])}</span></div><h3>{t("riskReasons")}</h3><div className="detection-list">{summary.risk.reasons.map((reason, index) => <div className="detection" key={`${reason.type}-${index}`}><strong>+{reason.points} — {reason.rule_code ?? reason.field ?? reason.type}</strong><span>{reason.description}</span></div>)}</div></section>}
-    {summary && <button className="secondary-button report-button" onClick={downloadReport} disabled={reportBusy}>{reportBusy ? t("generatingPdf") : t("downloadPdfReport")}</button>}
-    {(summary?.status === "COMPLETED" || stage === "FAILED") && <button className="primary-button" onClick={startNew} disabled={busy}>{t("startNewInspection")}</button>}
-  </main>}</div>;
+  return <Workspace user={user} onLogout={logout} onExpired={expired} />;
+}
+
+function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => void; onExpired: () => void }) {
+  const { t } = useI18n();
+  const route = useHashRoute();
+  const official = user.role === "OFFICIAL";
+  const [search, setSearch] = useState("");
+  // Bumped by "New inspection" so the inspection page always starts clean.
+  const [newKey, setNewKey] = useState(0);
+  const [riskCount, setRiskCount] = useState<number | null>(null);
+  const firstRoute = useRef(true);
+
+  async function loadRiskCount() {
+    if (!official) return;
+    try {
+      const data = await getJson<RiskPageData>("/risk-targeting?page=1&page_size=1", "risk count");
+      setRiskCount(data.summary.CRITICAL + data.summary.HIGH);
+    } catch { setRiskCount(null); }
+  }
+  useEffect(() => { loadRiskCount(); }, [official]);
+  // The risk queue is an official view; manufacturers land on the overview instead.
+  useEffect(() => { if (route.name === "risk" && !official) navigate("/overview", { replace: true }); }, [route, official]);
+  useEffect(() => {
+    const titles = routeTitles(route);
+    document.title = `${t(titles.page)} · ${t("appName")}`;
+    // Move focus to the new page for keyboard and screen-reader users (not on first load).
+    if (firstRoute.current) firstRoute.current = false;
+    else document.getElementById("main-content")?.focus({ preventScroll: true });
+  }, [route, t]);
+
+  function newInspection() { setNewKey(key => key + 1); navigate("/new"); }
+
+  return (
+    <AppShell route={route} user={user} riskCount={riskCount} search={search} onSearchChange={setSearch} onNewInspection={newInspection} onLogout={onLogout}>
+      {renderPage(route)}
+    </AppShell>
+  );
+
+  function renderPage(current: Route) {
+    switch (current.name) {
+      case "overview": return <OverviewPage official={official} onExpired={onExpired} />;
+      case "inspections": return <InspectionsPage search={search} onSearchChange={setSearch} onExpired={onExpired} />;
+      case "new": case "inspection":
+        return <InspectionPage key={newKey} inspectionId={current.name === "inspection" ? current.id : undefined} onExpired={onExpired} onCompleted={loadRiskCount} />;
+      case "risk": return official ? <RiskQueuePage onExpired={onExpired} /> : null;
+      case "patterns": return <PatternsPage onExpired={onExpired} />;
+      case "rulesets": return <RulesetsPage onExpired={onExpired} />;
+      case "reports": return <ReportsPage onExpired={onExpired} />;
+    }
+  }
 }

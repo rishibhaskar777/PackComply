@@ -1,0 +1,125 @@
+/* PackComply design tokens. Components read these variables only; no raw colours elsewhere. */
+/* Geist and Geist Mono are bundled from @fontsource-variable (imported in main.tsx); no network fonts. */
+
+:root {
+  /* Type */
+  --font-sans: "Geist Variable", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+  --text-2xl: 30px;
+
+  /* Neutrals (zinc) */
+  --background: #FFFFFF;
+  --muted-bg: #FAFAFA;
+  --muted: #F4F4F5;
+  --border: #E4E4E7;
+  --input: #E4E4E7;
+  --foreground: #09090B;
+  --muted-foreground: #71717A;
+  --subtle-foreground: #A1A1AA;
+  --secondary-foreground: #3F3F46;
+
+  /* Brand */
+  --primary: #4F46E5;
+  --primary-foreground: #FFFFFF;
+  --primary-strong: #4338CA;
+  --primary-soft: #EEF2FF;
+  --primary-border: #C7D2FE;
+  --brand-gradient: linear-gradient(135deg, #6366F1, #8B5CF6);
+  --brand-soft-gradient: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+  --ring: rgba(79, 70, 229, 0.35);
+
+  /* Status: colour is used for status only */
+  --violation-bg: #FEF2F2;
+  --violation-text: #B91C1C;
+  --violation-dot: #DC2626;
+  --violation-border: #FECACA;
+  --review-bg: #FFFBEB;
+  --review-text: #B45309;
+  --review-dot: #F59E0B;
+  --review-border: #FDE68A;
+  --pass-bg: #ECFDF5;
+  --pass-text: #047857;
+  --pass-dot: #10B981;
+  --pass-border: #A7F3D0;
+  --na-bg: var(--muted);
+  --na-text: var(--muted-foreground);
+  --na-dot: var(--subtle-foreground);
+  --na-border: var(--border);
+
+  /* Shape */
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(9, 9, 11, 0.12);
+  --overlay: rgba(9, 9, 11, 0.4);
+
+  /* Spacing (4px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Layout */
+  --sidebar-width: 256px;
+  --topbar-height: 56px;
+  --tabbar-height: 64px;
+  --duration: 150ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, p, dl, dd, ul, ol, figure { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+img { max-width: 100%; display: block; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+a { color: var(--primary-strong); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.mono, code, kbd { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -11,17 +11,20 @@
     "verify:auth-locales": "node scripts/verify-auth-locales.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
     "@vitejs/plugin-react": "^5.0.4",
-    "vite": "^7.1.7",
-    "typescript": "^5.9.2",
+    "lucide-react": "^1.57.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.7"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^22.0.0",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
-    "@types/node": "^22.0.0",
-    "@testing-library/react": "^16.3.0",
     "jsdom": "^26.1.0",
     "vitest": "^3.2.4"
   }
