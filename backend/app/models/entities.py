@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import Boolean, CheckConstraint, Date, DateTime, ForeignKey, Index, Integer, JSON, Numeric, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, CheckConstraint, Date, DateTime, ForeignKey, Index, Integer, JSON, Numeric, String, Text, UniqueConstraint, func, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.models.base import Base, IdTimestampMixin
@@ -63,10 +63,23 @@ class Inspection(IdTimestampMixin, Base):
     failure_message: Mapped[str | None] = mapped_column(Text)
 
 
+def _next_upload_sequence(context) -> int:
+    """1, 2, 3… per inspection, assigned in the same INSERT transaction."""
+    inspection_id = context.get_current_parameters()["inspection_id"]
+    current = context.connection.execute(
+        select(func.max(InspectionImage.upload_sequence)).where(InspectionImage.inspection_id == inspection_id)
+    ).scalar()
+    return (current or 0) + 1
+
+
 class InspectionImage(IdTimestampMixin, Base):
     __tablename__ = "inspection_images"
+    __table_args__ = (UniqueConstraint("inspection_id", "upload_sequence", name="inspection_image_upload_sequence"),)
 
     inspection_id: Mapped[UUID] = mapped_column(ForeignKey("inspections.id", ondelete="CASCADE"), index=True, nullable=False)
+    # Upload order within the inspection. created_at can tie for back-to-back
+    # uploads (coarse clocks) and ids are random, so this breaks ties.
+    upload_sequence: Mapped[int] = mapped_column(Integer, default=_next_upload_sequence, nullable=False)
     storage_key: Mapped[str] = mapped_column(String(500), unique=True, nullable=False)
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     content_type: Mapped[str] = mapped_column(String(100), nullable=False)

@@ -1,0 +1,362 @@
+{
+ "name": "synthetic_marketed_manufactured_packed",
+ "synthetic": true,
+ "description": "Marketed by vs Manufactured by vs Packed by, each with a company on the next line and an address; MRP with thousands separator.",
+ "image_width": 640,
+ "image_height": 480,
+ "raw_text": "Royal Basmati Rice\nExtra Long Grain\nNet Wt. 5 kg\nMRP: ₹ 1,250.00\n(Incl. of all taxes)\nMarketed by:\nRoyal Grains Pvt Ltd\n12 MG Road, Karnal, Haryana - 132001\nManufactured by:\nKarnal Agro Industries\nVillage Taraori, Karnal, HR - 132116\nPacked by:\nHaryana Packers & Co.\nSector 3, HSIIDC, Karnal - 132001\nLic. No. 10817005000222\nCustomer Care: 0184-2261234",
+ "detections": [
+  {
+   "text": "Royal Basmati Rice",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     20
+    ],
+    [
+     357.0,
+     20
+    ],
+    [
+     357.0,
+     50
+    ],
+    [
+     60,
+     50
+    ]
+   ]
+  },
+  {
+   "text": "Extra Long Grain",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     60
+    ],
+    [
+     200.8,
+     60
+    ],
+    [
+     200.8,
+     76
+    ],
+    [
+     60,
+     76
+    ]
+   ]
+  },
+  {
+   "text": "Net Wt. 5 kg",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     100
+    ],
+    [
+     165.6,
+     100
+    ],
+    [
+     165.6,
+     116
+    ],
+    [
+     60,
+     116
+    ]
+   ]
+  },
+  {
+   "text": "MRP: ₹ 1,250.00",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     330,
+     100
+    ],
+    [
+     462.0,
+     100
+    ],
+    [
+     462.0,
+     116
+    ],
+    [
+     330,
+     116
+    ]
+   ]
+  },
+  {
+   "text": "(Incl. of all taxes)",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     330,
+     120
+    ],
+    [
+     506.0,
+     120
+    ],
+    [
+     506.0,
+     136
+    ],
+    [
+     330,
+     136
+    ]
+   ]
+  },
+  {
+   "text": "Marketed by:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     150
+    ],
+    [
+     165.6,
+     150
+    ],
+    [
+     165.6,
+     166
+    ],
+    [
+     60,
+     166
+    ]
+   ]
+  },
+  {
+   "text": "Royal Grains Pvt Ltd",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     170
+    ],
+    [
+     236.0,
+     170
+    ],
+    [
+     236.0,
+     186
+    ],
+    [
+     60,
+     186
+    ]
+   ]
+  },
+  {
+   "text": "12 MG Road, Karnal, Haryana - 132001",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     190
+    ],
+    [
+     376.8,
+     190
+    ],
+    [
+     376.8,
+     206
+    ],
+    [
+     60,
+     206
+    ]
+   ]
+  },
+  {
+   "text": "Manufactured by:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     220
+    ],
+    [
+     200.8,
+     220
+    ],
+    [
+     200.8,
+     236
+    ],
+    [
+     60,
+     236
+    ]
+   ]
+  },
+  {
+   "text": "Karnal Agro Industries",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     240
+    ],
+    [
+     253.6,
+     240
+    ],
+    [
+     253.6,
+     256
+    ],
+    [
+     60,
+     256
+    ]
+   ]
+  },
+  {
+   "text": "Village Taraori, Karnal, HR - 132116",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     260
+    ],
+    [
+     376.8,
+     260
+    ],
+    [
+     376.8,
+     276
+    ],
+    [
+     60,
+     276
+    ]
+   ]
+  },
+  {
+   "text": "Packed by:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     290
+    ],
+    [
+     148.0,
+     290
+    ],
+    [
+     148.0,
+     306
+    ],
+    [
+     60,
+     306
+    ]
+   ]
+  },
+  {
+   "text": "Haryana Packers & Co.",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     310
+    ],
+    [
+     244.8,
+     310
+    ],
+    [
+     244.8,
+     326
+    ],
+    [
+     60,
+     326
+    ]
+   ]
+  },
+  {
+   "text": "Sector 3, HSIIDC, Karnal - 132001",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     330
+    ],
+    [
+     350.4,
+     330
+    ],
+    [
+     350.4,
+     346
+    ],
+    [
+     60,
+     346
+    ]
+   ]
+  },
+  {
+   "text": "Lic. No. 10817005000222",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     360
+    ],
+    [
+     262.4,
+     360
+    ],
+    [
+     262.4,
+     376
+    ],
+    [
+     60,
+     376
+    ]
+   ]
+  },
+  {
+   "text": "Customer Care: 0184-2261234",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     390
+    ],
+    [
+     297.6,
+     390
+    ],
+    [
+     297.6,
+     406
+    ],
+    [
+     60,
+     406
+    ]
+   ]
+  }
+ ]
+}

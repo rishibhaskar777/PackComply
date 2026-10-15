@@ -1,0 +1,252 @@
+{
+ "name": "synthetic_unit_sale_price",
+ "synthetic": true,
+ "description": "Unit sale price per g beside MRP; Mfg. by; Date of Manufacture and Use by.",
+ "image_width": 640,
+ "image_height": 480,
+ "raw_text": "Golden Harvest Atta\nWhole Wheat Flour\nNet Wt. 1 kg\nMRP ₹ 250.00\nUnit Sale Price: ₹0.25 per g\nIncl. of all taxes\nMfg. by: Golden Harvest Mills Pvt Ltd\nPlot 9, RIICO Area, Jaipur, RJ - 302013\nLic No. 10017013000555\nDate of Manufacture: 03/2026\nUse by: 08/2026",
+ "detections": [
+  {
+   "text": "Golden Harvest Atta",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     20
+    ],
+    [
+     373.5,
+     20
+    ],
+    [
+     373.5,
+     50
+    ],
+    [
+     60,
+     50
+    ]
+   ]
+  },
+  {
+   "text": "Whole Wheat Flour",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     70
+    ],
+    [
+     209.6,
+     70
+    ],
+    [
+     209.6,
+     86
+    ],
+    [
+     60,
+     86
+    ]
+   ]
+  },
+  {
+   "text": "Net Wt. 1 kg",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     100
+    ],
+    [
+     165.6,
+     100
+    ],
+    [
+     165.6,
+     116
+    ],
+    [
+     60,
+     116
+    ]
+   ]
+  },
+  {
+   "text": "MRP ₹ 250.00",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     120
+    ],
+    [
+     165.6,
+     120
+    ],
+    [
+     165.6,
+     136
+    ],
+    [
+     60,
+     136
+    ]
+   ]
+  },
+  {
+   "text": "Unit Sale Price: ₹0.25 per g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     140
+    ],
+    [
+     306.4,
+     140
+    ],
+    [
+     306.4,
+     156
+    ],
+    [
+     60,
+     156
+    ]
+   ]
+  },
+  {
+   "text": "Incl. of all taxes",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     160
+    ],
+    [
+     218.4,
+     160
+    ],
+    [
+     218.4,
+     176
+    ],
+    [
+     60,
+     176
+    ]
+   ]
+  },
+  {
+   "text": "Mfg. by: Golden Harvest Mills Pvt Ltd",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     190
+    ],
+    [
+     385.6,
+     190
+    ],
+    [
+     385.6,
+     206
+    ],
+    [
+     60,
+     206
+    ]
+   ]
+  },
+  {
+   "text": "Plot 9, RIICO Area, Jaipur, RJ - 302013",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     210
+    ],
+    [
+     403.2,
+     210
+    ],
+    [
+     403.2,
+     226
+    ],
+    [
+     60,
+     226
+    ]
+   ]
+  },
+  {
+   "text": "Lic No. 10017013000555",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     230
+    ],
+    [
+     253.6,
+     230
+    ],
+    [
+     253.6,
+     246
+    ],
+    [
+     60,
+     246
+    ]
+   ]
+  },
+  {
+   "text": "Date of Manufacture: 03/2026",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     260
+    ],
+    [
+     306.4,
+     260
+    ],
+    [
+     306.4,
+     276
+    ],
+    [
+     60,
+     276
+    ]
+   ]
+  },
+  {
+   "text": "Use by: 08/2026",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     280
+    ],
+    [
+     192.0,
+     280
+    ],
+    [
+     192.0,
+     296
+    ],
+    [
+     60,
+     296
+    ]
+   ]
+  }
+ ]
+}

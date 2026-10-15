@@ -62,6 +62,9 @@ class ComplianceEngine:
         item = fields.get("product_name", FieldEvidence()); return self._finding("PRODUCT_IDENTITY", "Product identity", "PASS" if item.value and self.clean(item.value) else "REVIEW", "WARNING", "A product identity was extracted." if item.value and self.clean(item.value) else "No product identity was extracted; manual review is required.", "product_name", item)
     def _role(self, fields, field):
         item = fields.get(field, FieldEvidence()); name = field.capitalize() + " information"
+        # Labels made by contract units often name only the brand owner ("Manufactured for" / "Marketed by").
+        owner = fields.get("brand_owner", FieldEvidence())
+        if field == "manufacturer" and not item.value and owner.value and self.clean(owner.value): return self._finding("MANUFACTURER_INFORMATION", name, "PASS", "INFO", "No manufacturer was extracted; the brand owner / marketer named on the label was used.", "brand_owner", owner)
         if not item.value: return self._finding(field.upper()+"_INFORMATION", name, "REVIEW", "INFO", f"No {field} value was extracted; applicability is not configured and requires review.", field, item)
         return self._finding(field.upper()+"_INFORMATION", name, "PASS" if self.clean(item.value) else "FAIL", "INFO", f"A non-empty {field} value was extracted." if self.clean(item.value) else f"The extracted {field} value is empty.", field, item)
     def _mrp(self, fields):

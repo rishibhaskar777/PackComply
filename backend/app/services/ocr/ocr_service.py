@@ -10,6 +10,7 @@ import logging
 import multiprocessing
 import os
 from pathlib import Path
+import re
 import tempfile
 from threading import RLock
 from time import perf_counter
@@ -40,6 +41,79 @@ class OcrDetection:
     text: str
     confidence: float | None
     bbox: list[list[float]] | None
+    # Recognition language that produced this text; None for legacy/injected results.
+    language: str | None = None
+
+
+# Unicode block of each configured language's native script.  A secondary
+# recogniser also re-reads Latin text, so only output in its own script is new.
+_DEVANAGARI = "ऀ-ॿ"
+LANGUAGE_SCRIPTS = {
+    "hi": _DEVANAGARI, "mr": _DEVANAGARI, "ne": _DEVANAGARI, "sa": _DEVANAGARI, "mai": _DEVANAGARI, "gom": _DEVANAGARI,
+    "ta": "஀-௿", "te": "ఀ-౿", "ka": "ಀ-೿", "ur": "؀-ۿݐ-ݿ",
+}
+# A secondary box overlapping a primary box at least this much is a re-read.
+SECONDARY_IOU_THRESHOLD = 0.3
+# ...as is a secondary fragment lying mostly inside one primary box.
+SECONDARY_CONTAINMENT_THRESHOLD = 0.6
+
+
+def bbox_extent(bbox: list[list[float]] | None) -> tuple[float, float, float, float] | None:
+    """Axis-aligned (x0, y0, x1, y1) of a polygon box."""
+    if not bbox:
+        return None
+    xs = [point[0] for point in bbox]
+    ys = [point[1] for point in bbox]
+    return min(xs), min(ys), max(xs), max(ys)
+
+
+def _area(extent: tuple[float, float, float, float]) -> float:
+    return max(extent[2] - extent[0], 0.0) * max(extent[3] - extent[1], 0.0)
+
+
+def _intersection(first: tuple[float, float, float, float], second: tuple[float, float, float, float]) -> float:
+    return max(min(first[2], second[2]) - max(first[0], second[0]), 0.0) * max(min(first[3], second[3]) - max(first[1], second[1]), 0.0)
+
+
+def bbox_iou(first: list[list[float]] | None, second: list[list[float]] | None) -> float:
+    a, b = bbox_extent(first), bbox_extent(second)
+    if a is None or b is None:
+        return 0.0
+    shared = _intersection(a, b)
+    union = _area(a) + _area(b) - shared
+    return shared / union if union > 0 else 0.0
+
+
+def bbox_containment(inner: list[list[float]] | None, outer: list[list[float]] | None) -> float:
+    """Share of ``inner``'s area that lies inside ``outer``."""
+    a, b = bbox_extent(inner), bbox_extent(outer)
+    if a is None or b is None or _area(a) <= 0:
+        return 0.0
+    return _intersection(a, b) / _area(a)
+
+
+def has_script(text: str, language: str | None) -> bool:
+    script = LANGUAGE_SCRIPTS.get(language or "")
+    return bool(script and re.search(f"[{script}]", text))
+
+
+def overlaps_any(detection: OcrDetection, others: list[OcrDetection]) -> bool:
+    return any(
+        bbox_iou(detection.bbox, other.bbox) >= SECONDARY_IOU_THRESHOLD
+        or bbox_containment(detection.bbox, other.bbox) >= SECONDARY_CONTAINMENT_THRESHOLD
+        for other in others
+    )
+
+
+def filter_secondary_detections(primary: list[OcrDetection], secondary: list[OcrDetection], language: str) -> tuple[list[OcrDetection], int]:
+    """Drop a secondary language's re-reads of text the primary language already read.
+
+    A secondary detection is kept when it contains characters of that
+    language's own script, or when its box does not overlap any primary box.
+    Returns the kept detections and how many were dropped.
+    """
+    kept = [item for item in secondary if has_script(item.text, language) or not item.bbox or not overlaps_any(item, primary)]
+    return kept, len(secondary) - len(kept)
 
 
 @dataclass(frozen=True)
@@ -48,6 +122,7 @@ class OcrDocument:
     languages: list[str]
     detections: list[OcrDetection]
     skipped_languages: list[str] = field(default_factory=list)
+    secondary_duplicates_dropped: int = 0
 
     @property
     def raw_text(self) -> str:
@@ -388,14 +463,23 @@ class PaddleOcrService:
             logger.info("OCR inference started language=%s", primary)
             primary_detections = self._predict(primary, processed_path)
             logger.info("OCR inference completed language=%s detections=%d elapsed_seconds=%.3f", primary, len(primary_detections), perf_counter() - inference_started)
-            detections.extend(self._to_original_pixels(primary_detections, original_size, self.max_image_dimension))
+            primary_detections = self._tag(self._to_original_pixels(primary_detections, original_size, self.max_image_dimension), primary)
+            detections.extend(primary_detections)
             completed_languages.append(primary)
+            dropped_total = 0
+
+            def add_secondary(language: str, language_detections: list[OcrDetection]) -> None:
+                nonlocal dropped_total
+                kept, dropped = filter_secondary_detections(primary_detections, self._tag(language_detections, language), language)
+                dropped_total += dropped
+                logger.info("OCR cross-language de-duplication language=%s kept=%d dropped=%d", language, len(kept), dropped)
+                detections.extend(kept)
 
             if self._engine is not None:
                 # An injected engine serves every language in this process.
                 for language in self.languages[1:]:
                     language_detections = self._predict(language, processed_path)
-                    detections.extend(self._to_original_pixels(language_detections, original_size, self.max_image_dimension))
+                    add_secondary(language, self._to_original_pixels(language_detections, original_size, self.max_image_dimension))
                     completed_languages.append(language)
 
             for language, ticket, language_dimension in pending:
@@ -408,7 +492,7 @@ class PaddleOcrService:
                     skipped_languages.append(language)
                     continue
                 logger.info("OCR inference completed language=%s detections=%d wait_seconds=%.3f", language, len(language_detections), perf_counter() - secondary_started)
-                detections.extend(self._to_original_pixels(language_detections, original_size, language_dimension))
+                add_secondary(language, self._to_original_pixels(language_detections, original_size, language_dimension))
                 completed_languages.append(language)
             parse_started = perf_counter()
             deduplicated = self._deduplicate(detections)
@@ -418,6 +502,7 @@ class PaddleOcrService:
                 languages=completed_languages,
                 detections=deduplicated,
                 skipped_languages=skipped_languages,
+                secondary_duplicates_dropped=dropped_total,
             )
         except OcrInitializationError:
             raise
@@ -577,6 +662,10 @@ class PaddleOcrService:
         if value is None:
             return None
         return [[float(coordinate) for coordinate in point] for point in value]
+
+    @staticmethod
+    def _tag(detections: list[OcrDetection], language: str) -> list[OcrDetection]:
+        return [replace(item, language=language) for item in detections]
 
     @staticmethod
     def _to_original_pixels(detections: list[OcrDetection], original_size: tuple[int, int] | None, max_image_dimension: int) -> list[OcrDetection]:

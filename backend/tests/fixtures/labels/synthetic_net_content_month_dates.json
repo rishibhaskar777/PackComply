@@ -1,0 +1,296 @@
+{
+ "name": "synthetic_net_content_month_dates",
+ "synthetic": true,
+ "description": "NET CONTENT 500ml, month-name MFD, relative best-before, packer with address, AMOUNT PER 100ml nutrition header.",
+ "image_width": 640,
+ "image_height": 480,
+ "raw_text": "FreshSip Mango Drink\nNUTRITION FACTS AMOUNT PER 100ml\nEnergy 60 kcal\nCarbohydrate 15g\nTotal Sugars 14g\nNET CONTENT 500ml\nMFD: MAR 2026\nBest Before: 9 months from manufacture\nPacked by: Coastal Beverages Pvt Ltd\nPlot 7, Phase II, Verna Industrial Estate,\nGoa - 403722\nFSSAI Lic No. 10019066000321\nMRP ₹ 30",
+ "detections": [
+  {
+   "text": "FreshSip Mango Drink",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     20
+    ],
+    [
+     390.0,
+     20
+    ],
+    [
+     390.0,
+     50
+    ],
+    [
+     60,
+     50
+    ]
+   ]
+  },
+  {
+   "text": "NUTRITION FACTS AMOUNT PER 100ml",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     70
+    ],
+    [
+     341.6,
+     70
+    ],
+    [
+     341.6,
+     86
+    ],
+    [
+     60,
+     86
+    ]
+   ]
+  },
+  {
+   "text": "Energy 60 kcal",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     90
+    ],
+    [
+     183.2,
+     90
+    ],
+    [
+     183.2,
+     106
+    ],
+    [
+     60,
+     106
+    ]
+   ]
+  },
+  {
+   "text": "Carbohydrate 15g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     110
+    ],
+    [
+     200.8,
+     110
+    ],
+    [
+     200.8,
+     126
+    ],
+    [
+     60,
+     126
+    ]
+   ]
+  },
+  {
+   "text": "Total Sugars 14g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     130
+    ],
+    [
+     200.8,
+     130
+    ],
+    [
+     200.8,
+     146
+    ],
+    [
+     60,
+     146
+    ]
+   ]
+  },
+  {
+   "text": "NET CONTENT 500ml",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     160
+    ],
+    [
+     209.6,
+     160
+    ],
+    [
+     209.6,
+     176
+    ],
+    [
+     60,
+     176
+    ]
+   ]
+  },
+  {
+   "text": "MFD: MAR 2026",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     180
+    ],
+    [
+     174.4,
+     180
+    ],
+    [
+     174.4,
+     196
+    ],
+    [
+     60,
+     196
+    ]
+   ]
+  },
+  {
+   "text": "Best Before: 9 months from manufacture",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     200
+    ],
+    [
+     394.4,
+     200
+    ],
+    [
+     394.4,
+     216
+    ],
+    [
+     60,
+     216
+    ]
+   ]
+  },
+  {
+   "text": "Packed by: Coastal Beverages Pvt Ltd",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     230
+    ],
+    [
+     376.8,
+     230
+    ],
+    [
+     376.8,
+     246
+    ],
+    [
+     60,
+     246
+    ]
+   ]
+  },
+  {
+   "text": "Plot 7, Phase II, Verna Industrial Estate,",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     250
+    ],
+    [
+     429.6,
+     250
+    ],
+    [
+     429.6,
+     266
+    ],
+    [
+     60,
+     266
+    ]
+   ]
+  },
+  {
+   "text": "Goa - 403722",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     270
+    ],
+    [
+     165.6,
+     270
+    ],
+    [
+     165.6,
+     286
+    ],
+    [
+     60,
+     286
+    ]
+   ]
+  },
+  {
+   "text": "FSSAI Lic No. 10019066000321",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     290
+    ],
+    [
+     306.4,
+     290
+    ],
+    [
+     306.4,
+     306
+    ],
+    [
+     60,
+     306
+    ]
+   ]
+  },
+  {
+   "text": "MRP ₹ 30",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     320
+    ],
+    [
+     130.4,
+     320
+    ],
+    [
+     130.4,
+     336
+    ],
+    [
+     60,
+     336
+    ]
+   ]
+  }
+ ]
+}

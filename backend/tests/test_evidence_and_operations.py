@@ -25,6 +25,7 @@ from backend.app.services.extraction.evidence import field_evidence, source_bbox
 from backend.app.services.ocr import OcrDetection, PaddleOcrService
 from backend.app.services.report import InspectionReportService
 from backend.app.services.uploads import image_dimensions
+from backend.app.services.workflow import latest_image
 from backend.scripts import wait_for_db
 
 QUANTITY_BOX = [[10.0, 40.0], [200.0, 40.0], [200.0, 60.0], [10.0, 60.0]]
@@ -99,7 +100,7 @@ def test_extract_and_compliance_endpoints_store_and_use_source_text(api) -> None
     manufacturer = extraction["fields"]["manufacturer"]
     assert manufacturer["value"] == "ABC Foods" and manufacturer["source_text"] == "Manufactured by: ABC Foods" and manufacturer["source_bboxes"] == [DETECTIONS[1]["bbox"]]
     with sessions() as session:
-        assert session.scalar(select(ExtractedField.matched_pattern).where(ExtractedField.field_name == "manufacturer")) == "explicit_role_label"
+        assert session.scalar(select(ExtractedField.matched_pattern).where(ExtractedField.field_name == "manufacturer")) == "manufacturer:same_line"
     compliance = client.post(f"/api/inspections/{inspection['id']}/compliance").json()
     assert next(item for item in compliance["findings"] if item["field"] == "manufacturer")["evidence"] == "Manufactured by: ABC Foods"
 
@@ -156,6 +157,22 @@ def test_owner_can_fetch_the_latest_image_with_private_headers(api) -> None:
     assert response.status_code == 200 and response.content == latest
     assert response.headers["content-type"] == "image/png"
     assert response.headers["cache-control"] == "private, max-age=300" and response.headers["x-content-type-options"] == "nosniff"
+
+
+def test_latest_image_is_the_last_upload_even_when_timestamps_tie(api) -> None:
+    client, sessions, _ = api
+    inspection = client.post("/api/inspections", json={}).json()
+    inspection_id = UUID(inspection["id"])
+    same_instant = datetime(2026, 10, 15, 12, 0, tzinfo=timezone.utc)
+    with sessions() as session:
+        # Random UUIDs: on a created_at tie the id alone would pick either row.
+        for name in ("first.png", "second.png", "third.png"):
+            session.add(InspectionImage(inspection_id=inspection_id, storage_key=name, original_filename=name, content_type="image/png", byte_size=1, created_at=same_instant))
+            session.commit()
+        assert [image.upload_sequence for image in session.scalars(select(InspectionImage).where(InspectionImage.inspection_id == inspection_id).order_by(InspectionImage.upload_sequence))] == [1, 2, 3]
+        assert latest_image(session, inspection_id).original_filename == "third.png"
+    history = client.get("/api/inspections").json()["items"]
+    assert next(item for item in history if item["id"] == inspection["id"])["image_filename"] == "third.png"
 
 
 def test_image_is_hidden_from_other_users_and_missing_images(api) -> None:

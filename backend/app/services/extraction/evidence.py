@@ -7,7 +7,7 @@ from uuid import UUID
 
 from backend.app.models import ExtractedField, OcrResult
 from backend.app.services.compliance.rule_engine import FieldEvidence
-from backend.app.services.extraction.extraction_service import ExtractedValue
+from backend.app.services.extraction.extraction_service import SUPPLEMENTARY_FIELD_NAMES, ExtractedValue
 
 # Single characters ("g", "1") occur in nearly every line and would mark
 # unrelated regions of the photo, so they never count as a match.
@@ -42,16 +42,30 @@ def build_extracted_fields(inspection_id: UUID, ocr_result: OcrResult, values: d
             source_text=value.source_text,
             matched_pattern=value.matched_pattern[:100] if value.matched_pattern else None,
             normalized_value=value.normalized_value,
-            source_bboxes=source_bboxes(value.source_text, ocr_result.detections) if value.value else None,
+            # Layout-aware extraction knows its exact boxes; text-only results are matched back.
+            source_bboxes=(value.source_bboxes or source_bboxes(value.source_text, ocr_result.detections)) if value.value else None,
         )
         for name, value in values.items()
+        if value.value is not None or name not in SUPPLEMENTARY_FIELD_NAMES
     ]
+
+
+_DATE_FIELDS = frozenset({"manufacturing_date", "packing_date", "best_before", "use_by", "expiry_date"})
+
+
+def _compliance_value(field: ExtractedField) -> str | None:
+    """Dates reach the rule engine in the numeric form it compares ("MAR 2026" -> "03/2026")."""
+    normalized = field.normalized_value or ""
+    if field.field_name in _DATE_FIELDS and (match := re.fullmatch(r"(\d{4})-(\d{2})(?:-(\d{2}))?", normalized)):
+        year, month, day = match.groups()
+        return f"{day}/{month}/{year}" if day else f"{month}/{year}"
+    return field.value
 
 
 def field_evidence(field: ExtractedField) -> FieldEvidence:
     """Compliance input; evidence is the OCR line, falling back to the value for legacy rows."""
     return FieldEvidence(
-        value=field.value,
+        value=_compliance_value(field),
         confidence=float(field.confidence) if field.confidence is not None else None,
         needs_review=field.review_status == "REVIEW",
         evidence=field.source_text if field.source_text is not None else field.value,

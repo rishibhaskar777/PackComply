@@ -18,7 +18,7 @@ from backend.app.services.extraction import ExtractionService
 from backend.app.services.extraction.evidence import build_extracted_fields, field_evidence
 from backend.app.services.ocr import OcrInitializationError, OcrProcessingError, PaddleOcrService
 from backend.app.services.uploads import UploadValidationError, store_image, validate_image
-from backend.app.services.workflow import InspectionWorkflow, WorkflowError, compliance_response, extraction_field_response, latest_extracted_fields, latest_image, resolve_upload_path
+from backend.app.services.workflow import LATEST_IMAGE_ORDER, InspectionWorkflow, WorkflowError, compliance_response, extraction_field_response, latest_extracted_fields, latest_image, resolve_upload_path
 from backend.app.services.report import InspectionReportService
 from backend.app.api.auth import get_current_user
 from backend.app.models import User
@@ -107,7 +107,7 @@ def list_inspections(
     user: User = Depends(get_current_user),
 ) -> InspectionHistoryPage:
     """Return a compact, newest-first history owned exclusively by ``user``."""
-    latest_filename = select(InspectionImage.original_filename).where(InspectionImage.inspection_id == Inspection.id).order_by(InspectionImage.created_at.desc()).limit(1).scalar_subquery()
+    latest_filename = select(InspectionImage.original_filename).where(InspectionImage.inspection_id == Inspection.id).order_by(*LATEST_IMAGE_ORDER).limit(1).scalar_subquery()
     overall_compliance = _overall_compliance_status()
     query = select(Inspection, Product.name, latest_filename, overall_compliance).outerjoin(Product, Product.id == Inspection.product_id).where(Inspection.user_id == user.id)
     count_query = select(func.count()).select_from(Inspection).outerjoin(Product, Product.id == Inspection.product_id).where(Inspection.user_id == user.id)
@@ -187,6 +187,17 @@ def process_inspection(inspection_id: UUID, workflow: InspectionWorkflow = Depen
     """Run any unfinished stage once; safe to call again after success or failure."""
     try:
         require_owner(workflow.db.get(Inspection, inspection_id), user); return workflow.process(inspection_id)
+    except KeyError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
+    except WorkflowError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message) from error
+
+
+@router.post("/{inspection_id}/reanalyse", response_model=InspectionSummary)
+def reanalyse_inspection(inspection_id: UUID, workflow: InspectionWorkflow = Depends(get_workflow), user: User = Depends(get_current_user)) -> InspectionSummary:
+    """Re-run extraction and compliance on the stored OCR result; OCR is not repeated."""
+    try:
+        require_owner(workflow.db.get(Inspection, inspection_id), user); return workflow.reanalyse(inspection_id)
     except KeyError as error:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
     except WorkflowError as error:
@@ -278,7 +289,7 @@ def extract_inspection_information(
     if ocr_result is None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="OCR must be run before information extraction.")
 
-    fields = extraction_service.extract(ocr_result.raw_text)
+    fields = extraction_service.extract(ocr_result.raw_text, ocr_result.detections)
     # Re-running extraction replaces only this interpretation layer, never OCR evidence.
     db.execute(delete(ExtractedField).where(ExtractedField.ocr_result_id == ocr_result.id))
     # Findings are derived from extraction. Keeping them after a new parse made

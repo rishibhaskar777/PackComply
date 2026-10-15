@@ -1,0 +1,362 @@
+{
+ "name": "synthetic_split_key_value",
+ "synthetic": true,
+ "description": "Keys and values printed on separate lines; M.R.P. with ₹ and /-; value to the right of a date key.",
+ "image_width": 640,
+ "image_height": 480,
+ "raw_text": "Sunrise\nSunrise Masala Peanuts\nINGREDIENTS: PEANUTS (70%), GRAM FLOUR, EDIBLE\nVEGETABLE OIL, SALT, SPICES & CONDIMENTS\nNET WT.\n200 g\nM.R.P. ₹ 50/-\n(Inclusive of all taxes)\nMARKETED BY:\nSunrise Snacks Pvt Ltd\nPlot 12, MIDC Industrial Area,\nBhosari, Pune, MH - 411026\nFSSAI Lic. No. 11521999000123\nMFG. DATE:\n04/2026\nBEST BEFORE: 6 MONTHS FROM MANUFACTURE",
+ "detections": [
+  {
+   "text": "Sunrise",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     200,
+     30
+    ],
+    [
+     354.0,
+     30
+    ],
+    [
+     354.0,
+     70
+    ],
+    [
+     200,
+     70
+    ]
+   ]
+  },
+  {
+   "text": "Sunrise Masala Peanuts",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     90
+    ],
+    [
+     350.4,
+     90
+    ],
+    [
+     350.4,
+     114
+    ],
+    [
+     60,
+     114
+    ]
+   ]
+  },
+  {
+   "text": "INGREDIENTS: PEANUTS (70%), GRAM FLOUR, EDIBLE",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     150
+    ],
+    [
+     464.8,
+     150
+    ],
+    [
+     464.8,
+     166
+    ],
+    [
+     60,
+     166
+    ]
+   ]
+  },
+  {
+   "text": "VEGETABLE OIL, SALT, SPICES & CONDIMENTS",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     170
+    ],
+    [
+     412.0,
+     170
+    ],
+    [
+     412.0,
+     186
+    ],
+    [
+     60,
+     186
+    ]
+   ]
+  },
+  {
+   "text": "NET WT.",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     200
+    ],
+    [
+     121.6,
+     200
+    ],
+    [
+     121.6,
+     216
+    ],
+    [
+     60,
+     216
+    ]
+   ]
+  },
+  {
+   "text": "200 g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     220
+    ],
+    [
+     104.0,
+     220
+    ],
+    [
+     104.0,
+     236
+    ],
+    [
+     60,
+     236
+    ]
+   ]
+  },
+  {
+   "text": "M.R.P. ₹ 50/-",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     330,
+     200
+    ],
+    [
+     444.4,
+     200
+    ],
+    [
+     444.4,
+     216
+    ],
+    [
+     330,
+     216
+    ]
+   ]
+  },
+  {
+   "text": "(Inclusive of all taxes)",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     330,
+     220
+    ],
+    [
+     541.2,
+     220
+    ],
+    [
+     541.2,
+     236
+    ],
+    [
+     330,
+     236
+    ]
+   ]
+  },
+  {
+   "text": "MARKETED BY:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     260
+    ],
+    [
+     165.6,
+     260
+    ],
+    [
+     165.6,
+     276
+    ],
+    [
+     60,
+     276
+    ]
+   ]
+  },
+  {
+   "text": "Sunrise Snacks Pvt Ltd",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     280
+    ],
+    [
+     253.6,
+     280
+    ],
+    [
+     253.6,
+     296
+    ],
+    [
+     60,
+     296
+    ]
+   ]
+  },
+  {
+   "text": "Plot 12, MIDC Industrial Area,",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     300
+    ],
+    [
+     324.0,
+     300
+    ],
+    [
+     324.0,
+     316
+    ],
+    [
+     60,
+     316
+    ]
+   ]
+  },
+  {
+   "text": "Bhosari, Pune, MH - 411026",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     320
+    ],
+    [
+     288.8,
+     320
+    ],
+    [
+     288.8,
+     336
+    ],
+    [
+     60,
+     336
+    ]
+   ]
+  },
+  {
+   "text": "FSSAI Lic. No. 11521999000123",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     340
+    ],
+    [
+     315.2,
+     340
+    ],
+    [
+     315.2,
+     356
+    ],
+    [
+     60,
+     356
+    ]
+   ]
+  },
+  {
+   "text": "MFG. DATE:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     370
+    ],
+    [
+     148.0,
+     370
+    ],
+    [
+     148.0,
+     386
+    ],
+    [
+     60,
+     386
+    ]
+   ]
+  },
+  {
+   "text": "04/2026",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     200,
+     370
+    ],
+    [
+     261.6,
+     370
+    ],
+    [
+     261.6,
+     386
+    ],
+    [
+     200,
+     386
+    ]
+   ]
+  },
+  {
+   "text": "BEST BEFORE: 6 MONTHS FROM MANUFACTURE",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     390
+    ],
+    [
+     394.4,
+     390
+    ],
+    [
+     394.4,
+     406
+    ],
+    [
+     60,
+     406
+    ]
+   ]
+  }
+ ]
+}
