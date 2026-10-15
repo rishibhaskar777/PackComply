@@ -95,7 +95,7 @@ def test_compliance_api_persists_and_replaces_deterministically() -> None:
         assert response.status_code == 200
         assert response.json()["overall_status"] == "PASS" and response.json()["verdict"] == "COMPLIANT"
         assert response.json()["summary"]["failed"] == 0
-        assert response.json()["ruleset_label"] == "LM(PC) 2011 ruleset v1"
+        assert response.json()["ruleset_label"] == "LM(PC) 2011 ruleset v2"
         rerun = client.post(f"/api/inspections/{inspection['id']}/compliance")
         assert rerun.status_code == 200 and rerun.json() == response.json()
         assert client.get(f"/api/inspections/{inspection['id']}/compliance").json() == response.json()

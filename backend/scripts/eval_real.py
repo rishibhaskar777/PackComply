@@ -10,14 +10,23 @@ re-runs extraction and compliance (no OCR) and prints:
 - per-photo field correctness, OCR time and verdicts;
 - rule-outcome agreement: the rules evaluated on the extracted fields against
   the same rules evaluated on the ground truth (a named party is assumed to be
-  printed with its address, as it is on every labelled photo).
+  printed with its address, as it is on every labelled photo);
+- verdict safety: false NON_COMPLIANT verdicts (the truth is not
+  NON_COMPLIANT) and false PASS findings (a rule PASSes that the truth does
+  not, or PASSes on a wrongly extracted value).
+
+The ground-truth rules see the same photo as extraction: its OCR coverage is
+taken from the extraction, and a declaration the person did not list is "not
+detected" unless they recorded its key without a value (``mrp_declaration`` /
+``consumer_care_declaration``).
 
 ``--failures`` lists the failing DEV rows only; HOLD-OUT failures stay hidden
 unless ``--show-holdout`` is given, so nobody tunes on them by accident.
 Scoring follows backend.scripts.eval_extraction, with three real-label
 conventions: best_before / use_by / expiry_date are one field
 (``best_before_or_expiry``), websites compare by host name, and
-``product_category`` is "food" or absent.
+``product_category`` is scored as food or not food (drug, personal care,
+household and other all count as "not food").
 """
 from __future__ import annotations
 
@@ -70,6 +79,8 @@ def canonical(field: str, value: str | None, normalized: str | None = None) -> s
         return _host(value)
     if field == "best_before_or_expiry":
         return _canonical("best_before", value, normalized)
+    if field == "product_category":
+        return "food" if value.strip().casefold() == "food" else None
     return _canonical(field, value, normalized)
 
 
@@ -102,8 +113,37 @@ def _first(value: Any) -> str | None:
     return value[0] if isinstance(value, list) else value
 
 
-def truth_rules(truth: dict[str, Any]) -> dict[str, str]:
-    """Rule outcomes the current ruleset gives when extraction is perfect."""
+def _compliance_date(value: str) -> str:
+    """Ground-truth ISO dates in the form extraction hands the rules ("2026-05" -> "05/2026"), as evidence.field_evidence does."""
+    if match := re.fullmatch(r"(\d{4})-(\d{2})(?:-(\d{2}))?", value):
+        year, month, day = match.groups()
+        return f"{day}/{month}/{year}" if day else f"{month}/{year}"
+    return value
+
+
+def _truth_declarations(truth: dict[str, Any]) -> str:
+    """declaration_status as perfect extraction would record it from the ground truth."""
+    has = lambda *fields: any(truth.get(field) for field in fields)
+    unread = {"mrp": truth.get("mrp_declaration") == "present_without_value", "consumer_care": truth.get("consumer_care_declaration") == "present_without_details"}
+    declared = {
+        "manufacturer": has("manufacturer", "brand_owner", "packer", "importer"),
+        "net_quantity": has("net_quantity"),
+        "mrp": has("mrp"),
+        "manufacturing_date": has("manufacturing_date", "packing_date"),
+        "unit_sale_price": has("unit_sale_price"),
+        "tax_inclusive": truth.get("tax_inclusive") == "true",
+        "consumer_care": has("consumer_care_phone", "consumer_care_email", "consumer_care_website"),
+    }
+    state = lambda group: "DECLARED_WITH_VALUE" if declared[group] else "KEY_FOUND_VALUE_UNREAD" if unread.get(group) else "NOT_DETECTED"
+    return json.dumps({group: {"state": state(group), "evidence": None} for group in declared})
+
+
+def truth_rules(truth: dict[str, Any], ocr_coverage: str | None = None) -> dict[str, str]:
+    """Rule outcomes the current ruleset gives when extraction is perfect.
+
+    ``ocr_coverage`` is the extraction's reading of the same photo, so an
+    undetected declaration is judged against the same coverage on both sides.
+    """
     fields: dict[str, FieldEvidence] = {}
     for field in (*FIELDS, *OPTIONAL_FIELDS):
         value = _first(truth.get(field))
@@ -112,13 +152,16 @@ def truth_rules(truth: dict[str, Any]) -> dict[str, str]:
         if field == "best_before_or_expiry":
             # A relative shelf life is stored the way extraction stores it.
             months = re.fullmatch(r"P(\d+)M", value)
-            fields["best_before"] = FieldEvidence(f"{months.group(1)} months from manufacture" if months else value)
+            fields["best_before"] = FieldEvidence(f"{months.group(1)} months from manufacture" if months else _compliance_date(value))
             continue
-        fields[field] = FieldEvidence(value)
+        fields[field] = FieldEvidence(_compliance_date(value) if field in ("manufacturing_date", "packing_date") else value)
         if field in ("manufacturer", "brand_owner", "packer", "importer"):
             fields[f"{field}_address"] = FieldEvidence("address printed on the label")
     if truth.get("importer"):
         fields["import_declaration"] = FieldEvidence("present")
+    fields["declaration_status"] = FieldEvidence(_truth_declarations(truth))
+    if ocr_coverage:
+        fields["ocr_coverage"] = FieldEvidence(ocr_coverage)
     findings = ComplianceEngine().evaluate(fields)
     return {finding.rule_id: finding.status for finding in findings}
 
@@ -144,15 +187,17 @@ def evaluate(fixture_dir: Path = REAL_FIXTURE_DIR, results: dict[str, dict[str, 
         fixture = json.loads(path.read_text(encoding="utf-8"))
         analysis = (results or {}).get(name) or analyse(fixture)
         got_rules = {finding["rule_id"]: finding["status"] for finding in analysis["findings"]}
-        want_rules = truth_rules(truth)
+        want_rules = truth_rules(truth, (analysis["fields"].get("ocr_coverage") or {}).get("value"))
         records.append({
             "fixture": name,
             "file": split.get(name, {}).get("file", name),
             "split": split.get(name, {}).get("split", "unsplit"),
             "real_photo": bool(truth.get("_meta", {}).get("real_photo")),
+            "group": truth.get("_meta", {}).get("group"),
             "difficulty": truth.get("_meta", {}).get("difficulty"),
             "rows": score(name, analysis["fields"], truth),
             "rules": {rule: (want_rules.get(rule), status) for rule, status in got_rules.items()},
+            "rule_fields": {finding["rule_id"]: finding.get("field") for finding in analysis["findings"]},
             "verdict": (verdict(list(want_rules.values())), analysis["verdict"]),
             "ocr_seconds": fixture.get("ocr_seconds"),
         })
@@ -163,9 +208,37 @@ def evaluate(fixture_dir: Path = REAL_FIXTURE_DIR, results: dict[str, dict[str, 
 
 def _groups(records: list[dict[str, Any]]) -> list[tuple[str, list[dict[str, Any]]]]:
     groups = [(label.upper().replace("HOLDOUT", "HOLD-OUT"), [record for record in records if record["split"] == label]) for label in SPLITS]
+    # A batch of photos added together (e.g. a retired hold-out) stays comparable after its split changes.
+    for group in dict.fromkeys(record["group"] for record in records if record["group"]):
+        groups.append((group.upper(), [record for record in records if record["group"] == group]))
     groups.append(("REAL PHOTOS", [record for record in records if record["real_photo"]]))
     groups.append(("ALL", records))
     return [(label, members) for label, members in groups if members]
+
+
+# The mandatory declarations whose verdict safety is tracked.
+MANDATORY_RULES = ("MANUFACTURER_INFORMATION", "NET_QUANTITY_FORMAT", "MRP_FORMAT", "MRP_TAX_INCLUSIVE", "UNIT_SALE_PRICE", "MANUFACTURE_DATE", "CONSUMER_CARE_FORMAT")
+_ROW_FIELD = {"best_before": "best_before_or_expiry", "use_by": "best_before_or_expiry", "expiry_date": "best_before_or_expiry"}
+
+
+def false_non_compliant(record: dict[str, Any]) -> bool:
+    want, got = record["verdict"]
+    return got == "NON_COMPLIANT" and want != "NON_COMPLIANT"
+
+
+def false_passes(record: dict[str, Any]) -> list[str]:
+    """Mandatory rules that PASS although the truth does not, or that PASS on a wrongly extracted value."""
+    rows = {row.field: row for row in record["rows"]}
+    found = []
+    for rule in MANDATORY_RULES:
+        want, got = record["rules"].get(rule, (None, None))
+        if got != "PASS":
+            continue
+        field = record["rule_fields"].get(rule)
+        row = rows.get(_ROW_FIELD.get(field, field))
+        if want not in ("PASS", None) or (row is not None and row.outcome in ("WRONG", "FP")):
+            found.append(rule)
+    return found
 
 
 def summary(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
@@ -179,6 +252,8 @@ def summary(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
             "photos": len(members),
             "rule_agreement": sum(want == got for want, got in rules) / len(rules) if rules else 1.0,
             "verdicts": sum(want == got for want, got in (record["verdict"] for record in members)),
+            "false_non_compliant": sum(false_non_compliant(record) for record in members),
+            "false_pass_mandatory": sum(len(false_passes(record)) for record in members),
         }
     return out
 
@@ -209,7 +284,14 @@ def print_report(records: list[dict[str, Any]], failures: bool = False, show_hol
     print("\nOVERALL")
     for label, result in summary(records).items():
         print(f"{label:12} photos={result['photos']} fields={result['fields']} correct={result['correct']} TP={result['tp']} FP={result['fp']} FN={result['fn']} "
-              f"precision={result['precision']:.3f} recall={result['recall']:.3f} rule_agreement={result['rule_agreement']:.3f} verdicts={result['verdicts']}/{result['photos']}")
+              f"precision={result['precision']:.3f} recall={result['recall']:.3f} rule_agreement={result['rule_agreement']:.3f} verdicts={result['verdicts']}/{result['photos']} "
+              f"false_NON_COMPLIANT={result['false_non_compliant']} false_PASS_mandatory={result['false_pass_mandatory']}")
+    print("\nVERDICT SAFETY")
+    for record in records:
+        if false_non_compliant(record) or false_passes(record):
+            failing = [rule for rule, (want, got) in record["rules"].items() if got == "FAIL" and want != "FAIL"]
+            print(f"  {record['file'][:44]:44} false NON_COMPLIANT={'yes' if false_non_compliant(record) else 'no '} "
+                  f"FAIL not in truth={','.join(failing) or '-'} false PASS={','.join(false_passes(record)) or '-'}")
     times = [record["ocr_seconds"] for record in records if record["ocr_seconds"]]
     if times:
         print(f"OCR seconds per photo: median={median(times):.1f} max={max(times):.1f} (the first photo of a run includes model loading)")

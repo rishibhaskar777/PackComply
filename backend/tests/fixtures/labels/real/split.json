@@ -1,5 +1,5 @@
 {
- "_comment": "Fixed DEV / HOLD-OUT split of the real label photos. Created once by batch_evaluate before any extraction change; never edit to improve scores. On 2026-10-15 the original hold-out was retired: every photo listed here is DEV; photos added later all go to a fresh HOLD-OUT (new_photos).",
+ "_comment": "Fixed DEV / HOLD-OUT split of the real label photos. Created once by batch_evaluate before any extraction change; never edit to improve scores. Hold-outs retired so far: the original 3 on 2026-10-15 and the 14 phone photos of phone_holdout_2026_10 on 2026-10-16 - every photo listed here is now DEV; photos added later all go to a fresh HOLD-OUT (new_photos).",
  "seed": "packcomply-real-labels-v1",
  "holdout_share": 0.3,
  "method": "sort photo file names by sha256(seed:name); the first round(n * holdout_share) not pinned to DEV are HOLD-OUT",
@@ -48,97 +48,102 @@
   },
   "real_1000088947": {
    "file": "1000088947.jpg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_1000088948": {
    "file": "1000088948.jpg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_1000088949": {
    "file": "1000088949.jpg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_whatsapp_image_2026_10_15_at_10_51_14_pm_1": {
    "file": "WhatsApp Image 2026-10-15 at 10.51.14 PM (1).jpeg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_whatsapp_image_2026_10_15_at_10_51_14_pm_2": {
    "file": "WhatsApp Image 2026-10-15 at 10.51.14 PM (2).jpeg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_whatsapp_image_2026_10_15_at_10_51_14_pm": {
    "file": "WhatsApp Image 2026-10-15 at 10.51.14 PM.jpeg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_whatsapp_image_2026_10_15_at_10_51_15_pm_1": {
    "file": "WhatsApp Image 2026-10-15 at 10.51.15 PM (1).jpeg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_whatsapp_image_2026_10_15_at_10_51_15_pm_2": {
    "file": "WhatsApp Image 2026-10-15 at 10.51.15 PM (2).jpeg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_whatsapp_image_2026_10_15_at_10_51_15_pm": {
    "file": "WhatsApp Image 2026-10-15 at 10.51.15 PM.jpeg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_whatsapp_image_2026_10_15_at_10_51_16_pm_1": {
    "file": "WhatsApp Image 2026-10-15 at 10.51.16 PM (1).jpeg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_whatsapp_image_2026_10_15_at_10_51_16_pm_2": {
    "file": "WhatsApp Image 2026-10-15 at 10.51.16 PM (2).jpeg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_whatsapp_image_2026_10_15_at_10_51_16_pm_3": {
    "file": "WhatsApp Image 2026-10-15 at 10.51.16 PM (3).jpeg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_whatsapp_image_2026_10_15_at_10_51_16_pm": {
    "file": "WhatsApp Image 2026-10-15 at 10.51.16 PM.jpeg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   },
   "real_whatsapp_image_2026_10_15_at_10_51_17_pm": {
    "file": "WhatsApp Image 2026-10-15 at 10.51.17 PM.jpeg",
-   "split": "holdout",
+   "split": "dev",
    "added_later": true,
-   "group": "phone_holdout_2026_10"
+   "group": "phone_holdout_2026_10",
+   "note": "retired hold-out 2026-10-16"
   }
- },
- "retired_holdout": {
-  "date": "2026-10-15",
-  "photos": [
-   "real_61i8hxso69l_sl1000",
-   "real_713thnhuqpl_sl1500",
-   "real_71t28cnhd2l_sl1000"
-  ],
-  "reason": "its failure patterns were inspected and fixed, so it no longer measures unseen labels"
  },
  "new_photos": "holdout",
  "holdout_groups": {
@@ -160,7 +165,39 @@
     "real_whatsapp_image_2026_10_15_at_10_51_16_pm_3",
     "real_whatsapp_image_2026_10_15_at_10_51_17_pm"
    ],
-   "note": "14 real phone photos from PackComply-samples-phone; ground truth written before extraction output was viewed. Measurement only: do not tune on these."
+   "note": "14 real phone photos from PackComply-samples-phone; ground truth written before extraction output was viewed. Measurement only: do not tune on these. Retired to DEV on 2026-10-16: its failures were inspected to change the extraction approach (value-first linking, fuzzy keys, verdict safety), so it no longer measures unseen labels.",
+   "retired": "2026-10-16"
   }
- }
+ },
+ "retired_holdouts": [
+  {
+   "date": "2026-10-15",
+   "photos": [
+    "real_61i8hxso69l_sl1000",
+    "real_713thnhuqpl_sl1500",
+    "real_71t28cnhd2l_sl1000"
+   ],
+   "reason": "its failure patterns were inspected and fixed, so it no longer measures unseen labels"
+  },
+  {
+   "date": "2026-10-16",
+   "photos": [
+    "real_1000088947",
+    "real_1000088948",
+    "real_1000088949",
+    "real_whatsapp_image_2026_10_15_at_10_51_14_pm",
+    "real_whatsapp_image_2026_10_15_at_10_51_14_pm_1",
+    "real_whatsapp_image_2026_10_15_at_10_51_14_pm_2",
+    "real_whatsapp_image_2026_10_15_at_10_51_15_pm",
+    "real_whatsapp_image_2026_10_15_at_10_51_15_pm_1",
+    "real_whatsapp_image_2026_10_15_at_10_51_15_pm_2",
+    "real_whatsapp_image_2026_10_15_at_10_51_16_pm",
+    "real_whatsapp_image_2026_10_15_at_10_51_16_pm_1",
+    "real_whatsapp_image_2026_10_15_at_10_51_16_pm_2",
+    "real_whatsapp_image_2026_10_15_at_10_51_16_pm_3",
+    "real_whatsapp_image_2026_10_15_at_10_51_17_pm"
+   ],
+   "reason": "retired hold-out 2026-10-16: all 14 phone photos inspected while changing the extraction approach"
+  }
+ ]
 }

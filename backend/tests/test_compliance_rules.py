@@ -44,7 +44,8 @@ def test_ruleset_keeps_legacy_codes_and_every_rule_has_a_check_and_reference() -
     ruleset = default_ruleset()
     codes = {rule.code for rule in ruleset.rules}
     assert LEGACY_CODES <= codes and codes == set(CHECKS)
-    assert (ruleset.ruleset_id, ruleset.version, ruleset.label) == ("LM_PC_2011", "1", "LM(PC) 2011 ruleset v1")
+    assert (ruleset.ruleset_id, ruleset.version, ruleset.label) == ("LM_PC_2011", "2", "LM(PC) 2011 ruleset v2")
+    assert ruleset.evidence == {"min_text_lines": 8, "min_mean_confidence": 0.8, "max_low_confidence_line_share": 0.3}
     for rule in ruleset.rules:
         assert rule.legal_reference and rule.title and rule.description and rule.applies_when in CONDITIONS
         assert rule.severity in {"HIGH", "WARNING", "INFO"} and "." not in rule.title
@@ -294,7 +295,7 @@ def test_sync_updates_metadata_and_never_deletes_rules(database) -> None:
         rules = sync_compliance_rules(db); db.commit()
         assert rules["MRP_FORMAT"].id == stale.id and rules["MRP_FORMAT"].severity == "HIGH"
         assert rules["MRP_FORMAT"].configuration["legal_reference"] == "LM(PC) Rules 2011, Rule 6(1)(e)"
-        assert rules["MRP_FORMAT"].configuration["ruleset_version"] == "1"
+        assert rules["MRP_FORMAT"].configuration["ruleset_version"] == "2"
         assert db.scalar(select(ComplianceRule).where(ComplianceRule.rule_code == "RETIRED_RULE")) is not None
         assert len(rules) == len(default_ruleset().rules) + 1
 
@@ -306,7 +307,7 @@ def test_rules_endpoint_lists_active_rules_with_legal_reference(database) -> Non
     app.dependency_overrides[get_db] = override
     client = TestClient(app)
     body = client.get("/api/compliance/rules").json()
-    assert body["label"] == "LM(PC) 2011 ruleset v1" and body["version"] == "1"
+    assert body["label"] == "LM(PC) 2011 ruleset v2" and body["version"] == "2"
     rules = {rule["code"]: rule for rule in body["rules"]}
     assert set(rules) == {rule.code for rule in default_ruleset().enabled_rules}
     assert rules["COUNTRY_OF_ORIGIN"] == {**rules["COUNTRY_OF_ORIGIN"], "legal_reference": "LM(PC) Rules 2011, Rule 6(1)(aa)", "severity": "HIGH", "title": "Country of origin (imported goods)"}
@@ -320,7 +321,7 @@ def _completed_inspection(db, user_id: UUID, statuses: dict[str, str], missing: 
     db.add(inspection); db.flush()
     if checksum:
         db.add(InspectionImage(inspection_id=inspection.id, upload_sequence=1, storage_key=f"{uuid4().hex}.png", original_filename="label.png", content_type="image/png", byte_size=10, checksum=checksum))
-    db.add_all(ComplianceResult(inspection_id=inspection.id, rule_id=rules[code].id, result=status, explanation=f"{code} {status}", ruleset_id="LM_PC_2011", ruleset_version="1") for code, status in statuses.items())
+    db.add_all(ComplianceResult(inspection_id=inspection.id, rule_id=rules[code].id, result=status, explanation=f"{code} {status}", ruleset_id="LM_PC_2011", ruleset_version=default_ruleset().version) for code, status in statuses.items())
     db.add_all(ExtractedField(inspection_id=inspection.id, field_name=name, value=None, review_status="REVIEW") for name in missing)
     db.commit()
     return inspection
@@ -359,7 +360,7 @@ def test_parle_g_style_review_score_is_explained_and_review_repeats_add_nothing(
     assert (assessment.risk_score, assessment.risk_level) == (44, "MEDIUM")
 
 
-@pytest.mark.parametrize(("fixture", "score", "level"), [("synthetic_fully_compliant", 0, "LOW"), ("parle_g_gluco_70g", 44, "MEDIUM"), ("synthetic_near_empty", 100, "CRITICAL")])
+@pytest.mark.parametrize(("fixture", "score", "level"), [("synthetic_fully_compliant", 0, "LOW"), ("parle_g_gluco_70g", 44, "MEDIUM"), ("synthetic_near_empty", 84, "CRITICAL")])
 def test_fixture_labels_score_through_the_real_pipeline(database, fixture, score, level) -> None:
     import json
     from backend.app.models import OcrResult
@@ -413,7 +414,7 @@ def test_compliance_response_reports_verdict_ruleset_and_not_applicable(database
         inspection = _completed_inspection(db, user.id, {"MRP_FORMAT": "REVIEW", "IMPORTER_INFORMATION": "NOT_APPLICABLE", "PRODUCT_IDENTITY": "PASS"})
         results = db.scalars(select(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id)).all()
         response = compliance_response(inspection.id, list(results), [])
-    assert (response.overall_status, response.verdict, response.ruleset_label) == ("REVIEW", "NEEDS_REVIEW", "LM(PC) 2011 ruleset v1")
+    assert (response.overall_status, response.verdict, response.ruleset_label) == ("REVIEW", "NEEDS_REVIEW", "LM(PC) 2011 ruleset v2")
     assert (response.summary.passed, response.summary.review, response.summary.failed, response.summary.not_applicable) == (1, 1, 0, 1)
     mrp = next(item for item in response.findings if item.rule_id == "MRP_FORMAT")
     assert mrp.legal_reference == "LM(PC) Rules 2011, Rule 6(1)(e)" and "physical pack" in mrp.recommended_action and mrp.rule_name == "Retail sale price (MRP)"
@@ -432,7 +433,7 @@ def test_report_groups_findings_and_states_verdict_and_ruleset(database, monkeyp
     for heading in ("Violations", "Needs review - cannot be confirmed from this photo", "Passed", "Not applicable"):
         assert heading in headings
     cells = " ".join(cell.getPlainText() for flowable in story if hasattr(flowable, "_cellvalues") for row in flowable._cellvalues for cell in row if hasattr(cell, "getPlainText"))
-    assert "NON-COMPLIANT" in cells and "LM(PC) 2011 ruleset v1" in cells
+    assert "NON-COMPLIANT" in cells and "LM(PC) 2011 ruleset v2" in cells
     cards = [flowable for flowable in story if flowable.__class__.__name__ == "KeepTogether"]
     rows = {row[0].getPlainText(): row[1].getPlainText() for row in cards[0]._content[0]._cellvalues}
     assert rows["Legal reference"] == "LM(PC) Rules 2011, Rule 6(1)(aa)" and rows["Expected requirement"].startswith('"Country of origin')

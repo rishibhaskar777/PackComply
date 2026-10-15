@@ -5,15 +5,23 @@ comes from the versioned ruleset YAML; this module holds the check logic, one
 function per rule code in ``CHECKS``, and the applicability conditions in
 ``CONDITIONS``.  Every finding is PASS, FAIL (a violation visible on the label),
 REVIEW (cannot be confirmed from this photo) or NOT_APPLICABLE.
+
+A missing value is not by itself a violation.  Extraction records for each
+mandatory declaration (``declaration_status``) whether it was read with its
+value, only its key (or a redirect such as "see below") was found, or nothing
+was detected.  A key without a readable value is REVIEW; a declaration that was
+not detected is FAIL only when the photo's OCR coverage (``ocr_coverage``) is
+adequate by the ruleset's ``evidence`` thresholds, otherwise REVIEW.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
+import json
 import logging
 import re
-from typing import Callable
+from typing import Any, Callable
 
 from backend.app.services.compliance.ruleset import RuleDefinition, Ruleset, default_ruleset
 
@@ -21,6 +29,10 @@ logger = logging.getLogger(__name__)
 
 PASS, FAIL, REVIEW, NOT_APPLICABLE = "PASS", "FAIL", "REVIEW", "NOT_APPLICABLE"
 STATUSES = (PASS, FAIL, REVIEW, NOT_APPLICABLE)
+# Declaration states from extraction's declaration_status field.
+DECLARED_WITH_VALUE, KEY_FOUND_VALUE_UNREAD, NOT_DETECTED = "DECLARED_WITH_VALUE", "KEY_FOUND_VALUE_UNREAD", "NOT_DETECTED"
+UNREAD_MESSAGE = "Declaration present; value could not be read — verify on the pack"
+NOT_IN_VIEW_MESSAGE = "Not detected — photo may not show this panel"
 # Only these count as issues for verdicts, risk scoring and repeat patterns.
 ISSUE_STATUSES = (FAIL, REVIEW)
 NON_COMPLIANT, NEEDS_REVIEW, COMPLIANT = "NON_COMPLIANT", "NEEDS_REVIEW", "COMPLIANT"
@@ -104,7 +116,7 @@ class ComplianceEngine:
 
     def evaluate(self, fields: dict[str, FieldEvidence], today: date | None = None) -> list[ComplianceFinding]:
         """One finding per enabled rule, in ruleset order."""
-        label = _Label(fields, today or date.today())
+        label = _Label(fields, today or date.today(), self.ruleset.evidence)
         findings = []
         for rule in self.ruleset.enabled_rules:
             reason = CONDITIONS[rule.applies_when](label, rule)
@@ -118,7 +130,8 @@ class ComplianceEngine:
 
 # ------------------------------------------------------------------ helpers
 
-_DOMESTIC = re.compile(r"(?i)\bindia\b|भारत")
+# "Bharat" is India's official alternative name, printed in Latin script as well as Devanagari.
+_DOMESTIC = re.compile(r"(?i)\bindia\b|\bbharat\b|भारत")
 _IMPORTED_VALUES = {"present"}
 _USP = re.compile(r"(?i)(?:₹|rs\.?|inr)?\s*(\d+(?:[.,]\d+)?)\s*(?:per|/)\s*(\d+(?:\.\d+)?)?\s*([a-z]+)")
 _USP_UNITS = {"g": ("g", 1), "gm": ("g", 1), "gram": ("g", 1), "kg": ("g", 1000), "ml": ("ml", 1), "l": ("ml", 1000), "ltr": ("ml", 1000), "litre": ("ml", 1000),
@@ -166,11 +179,52 @@ def _quote(text: str | None) -> str:
 class _Label:
     """Read-only view of the extracted fields shared by all checks."""
 
-    def __init__(self, fields: dict[str, FieldEvidence], today: date):
-        self.fields, self.today = fields, today
+    def __init__(self, fields: dict[str, FieldEvidence], today: date, evidence: dict[str, Any] | None = None):
+        self.fields, self.today, self.evidence = fields, today, evidence or {}
 
     def item(self, name: str) -> FieldEvidence:
         return self.fields.get(name) or FieldEvidence()
+
+    def _json(self, name: str) -> dict[str, Any] | None:
+        raw = self.item(name).value
+        try:
+            data = json.loads(raw) if raw else None
+        except ValueError:
+            return None
+        return data if isinstance(data, dict) else None
+
+    def declaration(self, group: str) -> tuple[str, str | None]:
+        """(state, evidence) of a mandatory declaration.
+
+        Results stored before declaration_status existed fall back to the
+        MRP and consumer-care headings, the only "key without value" states
+        recorded then.
+        """
+        if (status := self._json("declaration_status")) is not None:
+            entry = status.get(group) or {}
+            return entry.get("state") or NOT_DETECTED, entry.get("evidence")
+        if group == "mrp" and self.text("mrp_declaration") == "present_without_value":
+            return KEY_FOUND_VALUE_UNREAD, self.item("mrp_declaration").evidence
+        if group == "consumer_care" and self.text("consumer_care_declaration") == "present_without_details":
+            return KEY_FOUND_VALUE_UNREAD, self.item("consumer_care_declaration").evidence
+        return NOT_DETECTED, None
+
+    def coverage_adequate(self) -> bool:
+        """Did OCR read enough of this photo that an undetected declaration is really absent?
+
+        Thresholds come from the ruleset's ``evidence`` section.  Without
+        ocr_coverage (results stored before it existed) the photo is assumed
+        adequately read, as it always was.
+        """
+        coverage = self._json("ocr_coverage")
+        if coverage is None:
+            return True
+        lines = coverage.get("text_lines") or 0
+        mean = coverage.get("mean_confidence")
+        low = coverage.get("low_confidence_line_share")
+        return (lines >= self.evidence.get("min_text_lines", 0)
+                and (mean is None or mean >= self.evidence.get("min_mean_confidence", 0.0))
+                and (low is None or low <= self.evidence.get("max_low_confidence_line_share", 1.0)))
 
     def text(self, name: str) -> str | None:
         value = self.item(name).value
@@ -256,6 +310,20 @@ CONDITIONS: dict[str, Callable[[_Label, RuleDefinition], str | None]] = {
 
 # ------------------------------------------------------------------- checks
 
+def _undeclared(label: _Label, group: str, field: str, missing: str) -> Outcome:
+    """Outcome for a mandatory declaration whose value was not read.
+
+    A printed key (or "see below") without a readable value is REVIEW; nothing
+    detected is FAIL only when the photo was read well enough to be sure.
+    """
+    state, evidence = label.declaration(group)
+    if state != NOT_DETECTED:
+        return Outcome(REVIEW, f"{UNREAD_MESSAGE}{_quote(evidence)}.", field)
+    if label.coverage_adequate():
+        return Outcome(FAIL, missing, field)
+    return Outcome(REVIEW, f"{NOT_IN_VIEW_MESSAGE}: {missing[0].lower()}{missing[1:]}", field)
+
+
 _PARTIES = (("manufacturer", "manufacturer_address", "Manufacturer"), ("brand_owner", "brand_owner_address", "Brand owner / marketer"), ("packer", "packer_address", "Packer"))
 
 
@@ -266,7 +334,7 @@ def _manufacturer(label: _Label, rule: RuleDefinition) -> Outcome:
         parties.append(("importer", "importer_address", "Importer"))
     named = [(field, address, role) for field, address, role in parties if label.text(field)]
     if not named:
-        return Outcome(FAIL, "No manufacturer, packer or brand-owner name was found on the label.", "manufacturer")
+        return _undeclared(label, "manufacturer", "manufacturer", "No manufacturer, packer or brand-owner name was found on the label.")
     for field, address, role in named:
         if label.text(address):
             return Outcome(PASS, f"{role} \"{label.text(field)}\" is declared with address \"{label.text(address)}\".", field)
@@ -307,7 +375,7 @@ def _product_identity(label: _Label, rule: RuleDefinition) -> Outcome:
 def _net_quantity(label: _Label, rule: RuleDefinition) -> Outcome:
     declared = label.text("net_quantity")
     if not declared:
-        return Outcome(FAIL, "No net-quantity declaration was found on the label.", "net_quantity")
+        return _undeclared(label, "net_quantity", "net_quantity", "No net-quantity declaration was found on the label.")
     normalized = ComplianceEngine.normalize_quantity(declared)
     if not normalized:
         return Outcome(FAIL, f"The net quantity \"{declared}\" is not a positive value with a recognised standard unit.", "net_quantity")
@@ -329,15 +397,14 @@ def _mrp(label: _Label, rule: RuleDefinition) -> Outcome:
         if ComplianceEngine.normalize_mrp(value):
             return Outcome(PASS, f"MRP {value} is a positive amount in Indian rupees.", "mrp")
         return Outcome(FAIL, f"The MRP \"{value}\" is not a positive amount in Indian rupees.", "mrp")
-    if label.text("mrp_declaration") == "present_without_value":
-        return Outcome(REVIEW, f"An MRP declaration is printed{_quote(label.item('mrp_declaration').evidence)} but no price is readable; it may be stamped separately — verify the price on the physical pack.", "mrp_declaration")
-    return Outcome(FAIL, "No MRP / retail sale price declaration was found on the label.", "mrp")
+    # A price stamped separately (or in a coding area out of view) leaves the key without a readable value.
+    return _undeclared(label, "mrp", "mrp_declaration" if label.text("mrp_declaration") else "mrp", "No MRP / retail sale price declaration was found on the label.")
 
 
 def _tax_inclusive(label: _Label, rule: RuleDefinition) -> Outcome:
     if label.text("tax_inclusive") == "true":
         return Outcome(PASS, "The MRP is stated to be inclusive of all taxes.", "tax_inclusive")
-    return Outcome(FAIL, "An MRP is declared but no \"inclusive of all taxes\" statement was found.", "mrp_declaration" if label.text("mrp_declaration") else "mrp")
+    return _undeclared(label, "tax_inclusive", "mrp_declaration" if label.text("mrp_declaration") else "mrp", "An MRP is declared but no \"inclusive of all taxes\" statement was found.")
 
 
 def _base_unit(rule: RuleDefinition, dimension: str, amount: Decimal) -> tuple[str, Decimal]:
@@ -359,7 +426,7 @@ def _unit_sale_price(label: _Label, rule: RuleDefinition) -> Outcome:
     basis = f"MRP {_money(mrp)} ÷ {format(units.normalize(), 'f')} {base_name}{'s' if base == 'unit' else ''}"  # type: ignore[arg-type]
     declared = label.text("unit_sale_price")
     if not declared:
-        return Outcome(FAIL, f"No unit sale price was found; about {_money(expected)} per {base_name} is expected ({basis}).", "unit_sale_price")
+        return _undeclared(label, "unit_sale_price", "unit_sale_price", f"No unit sale price was found; about {_money(expected)} per {base_name} is expected ({basis}).")
     match = _USP.search(declared)
     unit = _USP_UNITS.get(match.group(3).lower()) if match else None
     if not match or not unit:
@@ -382,6 +449,10 @@ def _manufacture_date(label: _Label, rule: RuleDefinition) -> Outcome:
     for field, name in (("manufacturing_date", "Manufacture"), ("packing_date", "Packing")):
         if value := label.text(field):
             return Outcome(PASS, f"{name} date found: {value}.", field)
+    # Never FAIL from a photo: the date is often stamped elsewhere on the pack.
+    state, evidence = label.declaration("manufacturing_date")
+    if state != NOT_DETECTED:
+        return Outcome(REVIEW, f"{UNREAD_MESSAGE}{_quote(evidence)}.", "manufacturing_date")
     return Outcome(REVIEW, "No manufacture or packing date is visible in this photo — the date is often stamped elsewhere on the pack; capture that area.", "manufacturing_date")
 
 
@@ -435,9 +506,8 @@ def _consumer_care(label: _Label, rule: RuleDefinition) -> Outcome:
         return Outcome(PASS, f"Consumer-care contact found: {details}.", next(iter(found)))
     if "consumer_care_website" in found:
         return Outcome(REVIEW, f"Only a website ({found['consumer_care_website']}) was found; a consumer-care telephone number and e-mail address are expected.", "consumer_care_website")
-    if label.text("consumer_care_declaration") == "present_without_details":
-        return Outcome(REVIEW, f"A consumer-care heading is printed{_quote(label.item('consumer_care_declaration').evidence)} but no phone number or e-mail could be read; the details may be cut off in this photo.", "consumer_care_declaration")
-    return Outcome(FAIL, "No consumer-care contact details (phone, e-mail or website) and no consumer-care heading were found.", "consumer_care_phone")
+    field = "consumer_care_declaration" if label.text("consumer_care_declaration") == "present_without_details" else "consumer_care_phone"
+    return _undeclared(label, "consumer_care", field, "No consumer-care contact details (phone, e-mail or website) and no consumer-care heading were found.")
 
 
 def _fssai(label: _Label, rule: RuleDefinition) -> Outcome:

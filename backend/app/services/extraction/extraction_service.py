@@ -2,8 +2,15 @@
 
 Values are only taken from text attached to an explicit label key ("Net Wt.",
 "M.R.P.", "Marketed by", "LIC. No."), found on the key's own line or — with
-OCR boxes — in the box to its right or the block directly below it.  Nothing is
-inferred: a key without a readable value yields no value.  Confidence is a
+OCR boxes — in the box to its right or the block directly below it.  A second,
+value-first pass (``values.py``) then links values the key-first pass could not:
+values on a tilted next row, in a key/value table, behind a letter code, or in
+a coding area a key points to.  Keys are matched fuzzily (``fuzzy.py``).
+
+Nothing is inferred: a key without a readable value yields no value, and
+``declaration_status`` records per mandatory declaration whether it was read
+with its value, only its key was found, or nothing was detected, so compliance
+never treats an unread value as a missing declaration.  Confidence is a
 heuristic for *how* the value was found, never a probability.
 """
 
@@ -13,9 +20,12 @@ from dataclasses import dataclass, field
 import json
 import logging
 import re
+from statistics import mean, median
 from typing import Any, Callable, Iterator
 
 from backend.app.services.compliance.rule_engine import ComplianceEngine
+from backend.app.services.extraction import fuzzy, values as value_first
+from backend.app.services.extraction.fuzzy import phrases
 from backend.app.services.extraction.layout import Layout, LayoutLine, is_substantial
 
 logger = logging.getLogger(__name__)
@@ -33,6 +43,8 @@ SUPPLEMENTARY_FIELD_NAMES = (
     "brand_owner", "brand_owner_address", "manufacturing_units", "mrp_declaration", "tax_inclusive",
     "fssai_license", "country_of_origin", "unit_sale_price", "batch_number",
     "consumer_care_declaration", "import_declaration", "product_category",
+    # Evidence for compliance, not label text: JSON per mandatory declaration and for the photo.
+    "declaration_status", "ocr_coverage",
 )
 FIELD_NAMES = CORE_FIELD_NAMES + SUPPLEMENTARY_FIELD_NAMES
 
@@ -41,6 +53,12 @@ FIELD_NAMES = CORE_FIELD_NAMES + SUPPLEMENTARY_FIELD_NAMES
 CONFIDENCE = {"same_line": 0.95, "right_of_key": 0.9, "below_key": 0.88, "next_line": 0.82}
 AMBIGUITY_PENALTY = 0.25
 PRODUCT_NAME_MAX_CONFIDENCE = 0.8
+# Value-first matches scoring below this are flagged for review (nearest-in-region, redirects, coding areas).
+VALUE_FIRST_REVIEW_BELOW = 0.8
+# Declaration states recorded in declaration_status (see rule_engine).
+DECLARED_WITH_VALUE, KEY_FOUND_VALUE_UNREAD, NOT_DETECTED = "DECLARED_WITH_VALUE", "KEY_FOUND_VALUE_UNREAD", "NOT_DETECTED"
+# A detection below this confidence counts as poorly read for ocr_coverage.
+LOW_CONFIDENCE = 0.7
 
 
 @dataclass(frozen=True)
@@ -105,7 +123,6 @@ _COUNTRY_KEY = r"country\s*of\s*origin|made\s*in|मूल\s*देश|उत्
 _USP_KEY = r"unit\s*sale\s*price|u\.\s*s\.\s*p\.?|usp"
 _USP_UNIT = r"(kg|g|gm|ml|l|ltr|units?|pcs?|pieces?|nos?|n)(?![A-Za-z])"
 
-_MONTHS = {name: index for index, name in enumerate(("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"), 1)}
 _DATE_VALUE = (
     r"(\d{1,2}\s*[/.\-]\s*\d{1,2}\s*[/.\-]\s*(?:\d{4}|\d{2})(?!\d)"
     r"|\d{1,2}\s*[/.\-]\s*(?:\d{4}|\d{2})(?!\d)"
@@ -134,7 +151,29 @@ _ROLE_WORDS = {
     r"marketed|mktd\.?|mkt\.?|distributed": "brand_owner", r"imported": "importer",
 }
 _ROLE_WORD = "|".join(_ROLE_WORDS)
-_COMBINED_ROLE = re.compile(rf"(?i)^[\s*•\-–'\"]*((?:{_ROLE_WORD})(?:\s*(?:,|&|/|and)\s*(?:{_ROLE_WORD}))+)\s*(by|for)(?![A-Za-z])\s*[:\-.]?\s*")
+# Role words joined by ",", "&", "/", "and" or just a space ("Imported Marketed by").
+_COMBINED_ROLE = re.compile(rf"(?i)^[\s*•\-–'\"]*((?:{_ROLE_WORD})(?:(?:\s*(?:,|&|/|and)\s*|\s+)(?:{_ROLE_WORD}))+)\s*(by|for)(?![A-Za-z])\s*[:\-.]?\s*")
+# "(1) Imported by", "2. Marketed by": numbering before a role key.
+_ROLE_NUMBERING = re.compile(r"^\s*(?:\(\s*[0-9]{1,2}\s*\)|[0-9]{1,2}[.)])\s*")
+# Role keys as OCR misreads them ("Manutactured by:", "Markelad by"), matched fuzzily at a line start.
+# Single-word role nouns ("Manufacturer") are left to the exact patterns: one edit
+# turns "MANUFACTURED IN A FACILITY ..." into "Manufacturer".  A licensed user of
+# a trademark is the party that makes the goods under it.
+_ROLE_PHRASES = (
+    *phrases("manufacturer", "manufactured by", "mfd by", "mfg by", "licensed user"),
+    *phrases("brand_owner", "marketed by", "mktd by", "distributed by", "marketed and distributed by", "brand owner", "manufactured for"),
+    *phrases("packer", "packed by", "pkd by"),
+    *phrases("importer", "imported by", "imported in india by"),
+)
+# "For mfg. unit address read the code ...", "For manufacturer details ...": the manufacturer is declared through codes.
+_MAKER_REFERENCE = re.compile(r"(?i)(?<![a-z])for\s+(?:mfg|manufacturing|manufacturer'?s?)\.?\s*(?:unit\s*)?(?:address|details)")
+# Tax-inclusive statements, matched fuzzily ("(loclusive of all laxes)", "incl. of al taxes)").
+_TAX_PHRASES = phrases("tax", "inclusive of all taxes", "incl of all taxes", "including all taxes", "inclusive of taxes", "of all taxes", "सभी करों सहित")
+# The opening of the statement, cut off by the photo ("(Inct. of af"): present but unread.
+_TAX_OPENING = re.compile(r"(?i)\(\s*in[a-z]{1,3}\.?\s*of\b")
+# "02165/ml": a per-unit price that could not be parsed still shows the unit sale price is printed.
+_PER_UNIT_SHAPE = re.compile(r"(?i)[0-9]\s*/\s*(?:ml|g|kg|l)(?![a-z])")
+_CARE_PHRASES = phrases("care", "consumer care", "customer care", "consumer complaints", "consumer feedback", "consumer relations", "contact", "toll free", "helpline")
 # "Tide Lemon & Mint Mfg by Procter & Gamble ...": a "<role> by/for" key after other text.
 _INLINE_ROLE = re.compile(rf"(?i)(?<![A-Za-z])({_ROLE_WORD})\s*(by|for)(?![A-Za-z])\s*[:\-.]?\s*")
 _UNIT_CODE = re.compile(r"^\(\s*([A-Z0-9]{1,3})\s*\)(?:[A-Za-z](?=\s))?\s*[-–:]?\s*")
@@ -152,15 +191,25 @@ _PARAGRAPH_UNIT = re.compile(r"(?:(?<=[\s.,;])|^)\(?([A-Z0-9]{1,3})\)\s*[-–]?\
 _TRAILING_SUFFIX = re.compile(r"(?i)^\s*,?\s*(\([^()]{1,20}\)\s*)?((?:pvt\.?\s*)?ltd|private\s+limited|limited|inc)\.?(?=\s*(?:[,;]|$))")
 _PIN = re.compile(r"(?<!\d)\d{3}\s?\d{3}(?!\d)")
 _ADDRESS_HINT = re.compile(r"(?i)\d|road|street|nagar|area|estate|sector|village|plot|dist|marg|lane|colony|phase|india|भारत|नगर")
-# Food labels: an ingredients list, a nutrition panel or FSSAI text (not the generic "Lic. No.").
-_FOOD_HINT = re.compile(r"(?i)(?<![A-Za-z])(?:ingredients?|nutrition(?:al)?|fssai)(?![A-Za-z])|सामग्री|पोषण")
-# Cosmetics and household products also print an ingredients list, but never
-# a nutrition panel or FSSAI text: there, an ingredients list alone is not food.
-_STRONG_FOOD_HINT = re.compile(r"(?i)(?<![A-Za-z])(?:nutrition(?:al)?|fssai)(?![A-Za-z])|पोषण")
-_NON_FOOD_HINT = re.compile(
-    r"(?i)(?<![A-Za-z])(?:soaps?|shampoos?|detergents?|toothpaste|deodorants?|cosmetics?|tfm|for\s*external\s*use(?:\s*only)?|"
-    r"dish\s*wash|cleaner|disinfectant|surfactants?)(?![A-Za-z])"
+# Product category, strongest evidence first (see _product_category).
+# Food for certain: a nutrition panel or FSSAI text (a 14-digit licence is checked separately).
+_STRONG_FOOD_HINT = re.compile(r"(?i)(?<![A-Za-z])(?:nutrition(?:al)?|[fj]ssa[ilíì]?)(?![A-Za-z])|पोषण")
+_DRUG_HINT = re.compile(
+    r"(?i)(?<![A-Za-z])(?:tablets?|capsules?|syrups?|schedule\s*h1?|rx|antiseptic|ointment|for\s*dental\s*use|drug|medicine|m\.?\s*l\.?\s*no)(?![A-Za-z])"
 )
+# A manufacturing licence for cosmetics ("M.L. No. HIM/COS/06/94") is not a drug licence.
+_COSMETIC_LICENCE = re.compile(r"(?i)/\s*cos\s*/")
+_PERSONAL_CARE_HINT = re.compile(
+    r"(?i)(?<![A-Za-z])(?:lotion|serum|sunscreen|shampoos?|moisturi[sz]er|soaps?|face\s*wash|hand\s*wash|body\s*wash|conditioner|toothpaste|"
+    r"deodorants?|cosmetics?|tfm|for\s*external\s*use(?:\s*only)?|dermatologically)(?![A-Za-z])"
+)
+_HOUSEHOLD_HINT = re.compile(
+    r"(?i)(?<![A-Za-z])(?:insecticides?|vapori[sz]er|mosquito(?:es)?|dish\s*wash|detergents?|cleaners?|disinfectants?|surfactants?|laundry)(?![A-Za-z])"
+)
+# Weak food evidence: a best-before date with an ingredients list of food words.
+_INGREDIENTS = re.compile(r"(?i)(?<![A-Za-z])ingredients?(?![A-Za-z])|सामग्री")
+_FOOD_WORDS = re.compile(r"(?i)(?<![A-Za-z])(?:wheat|flour|sugar|salt|milk|edible|spices?|rice|cocoa|maida|atta|starch|vegetable\s*oil|palm\s*oil)(?![A-Za-z])")
+_ELECTRONICS_HINT = re.compile(r"(?i)(?<![A-Za-z])(?:phone|charger|cable|usb|earphones?|headphones?|adapter|tpu|device)(?![A-Za-z])")
 _CARE_KEY = re.compile(
     r"(?i)consumer\s*(?:care|complaints?|services?|relations?|comments?|affairs|cell|helpline)|customer\s*(?:care|services?|support|relations?|feedback)|"
     r"complaints?|help\s*line|contact|toll\s*free|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा"
@@ -178,6 +227,28 @@ _STOP_LINE = re.compile(
     rf"(?i)(?<![A-Za-z])(?:{_MRP_KEY}|{_NET_KEY}|{_LICENCE_KEY}|best\s*before|use\s*b(?:y|efore)|expiry|batch|consumer\s*care|customer\s*care|"
     rf"country\s*of\s*origin|e-?mail|www\.|ingredients|nutrition)(?![A-Za-z])|@"
 )
+# Headings and instructions that are never a product name, matched fuzzily ("Ingredlents").
+_HEADING_PHRASES = phrases(
+    "heading", "ingredients", "directions", "direction", "caution", "warning", "how to use", "promise", "made in", "storage",
+    "nutrition", "contains", "price", "address", "composition", "information", "benefits", "dosage", "instructions", "usage",
+    "recommendations", "precautions", "for sale", "refer", "registered", "registration", "trademark", "licence", "license", "copyright",
+    "customer", "consumer", "feedback", "complaints", "manufactured", "marketed", "imported", "packed", "keep out",
+)
+# Generic commodity names: a line naming one is likely the product name ("Baby Shampoo", "Dishwash Liquid").
+_GENERIC_NOUN = re.compile(
+    r"(?i)(?:shampoo|soap|biscuits?|cookies?|lotion|serum|liquid|powder|noodles|oil|cream|cand(?:y|ies)|case|cover|refill|detergent|gel|"
+    r"hand\s*wash|face\s*wash|body\s*wash|moisturi[sz]er|sunscreen|toothpaste|deodorant|vapori[sz]er|insecticide|mouthwash|cleaner|spray|"
+    r"conditioner|balm|ointment|tablets?|capsules?|syrup|juice|tea|coffee|salt|sugar|atta|flour|rice|masala|sauce|ketchup|jam|chips|"
+    r"namkeen|chocolates?|wafers?|bars?|drink|milk|curd|paneer|butter|cheese|bread|ghee|honey|pickle|paste|charger|cable)(?![a-z])|"
+    r"शैम्पू|साबुन|बिस्कुट|कैंडी|तेल|नूडल्स|दूध"
+)
+# Marketing copy in another language (multilingual export packs): diacritics or function words.
+_FOREIGN_TEXT = re.compile(r"[ßäöüñçøåışğ]|(?<![A-Za-z])(?:EN|FR|DE|ES|IT|JP|TR|PT|NL)(?![A-Za-z])")
+_FOREIGN_WORDS = re.compile(r"(?i)(?<![a-z])(?:und|für|der|die|das|le|la|les|pour|avec|para|con|el|del|una|un|et|ou|y)(?![a-z])")
+_NAME_MIN_CONFIDENCE = 0.7
+_NAME_PROMINENT = 1.5
+# Below this score margin over the runner-up the product name is left empty (and flagged) rather than guessed.
+_NAME_MIN_MARGIN = 1.0
 _BOILERPLATE = re.compile(
     r"(?i)warning|caution|ingredient|nutrition|contains|allergen|store|storage|manufactur|market|packed|packer|(?<![a-z])lic(?![a-z])|licen[cs]e|"
     r"fssai|m\.?\s*r\.?\s*p|(?<![a-z])net(?![a-z])|best\s*before|batch|consumer|customer|use\s*by|expir|(?<![a-z])exp(?![a-z])|mfg|mfd|pkd|"
@@ -222,10 +293,134 @@ class ExtractionService:
         results["unit_sale_price"] = self._unit_sale_price(layout)
         results["batch_number"] = self._batch(layout)
         results["import_declaration"] = self._first_line(layout, _key(_ROLE_KEYS["importer"]), "present", "import_declaration:key")
-        results["product_category"] = self._product_category(layout)
+        matching = value_first.match(layout, self._claimed(layout, results))
+        self._fill_from_values(results, matching)
+        results["tax_inclusive"], tax_state = self._tax_inclusive(layout, results, matching)
+        results["mrp_declaration"] = self._mrp_declaration(results, matching)
+        results["product_category"] = self._product_category(layout, results["fssai_license"])
         results["product_name"] = self._product_name(layout, results)
+        results["declaration_status"] = self._declaration_status(layout, results, matching, tax_state)
+        results["ocr_coverage"] = self._ocr_coverage(layout, detections)
         logger.debug("Extraction layout geometric=%s lines=%d fields=%s", layout.geometric, len(layout.lines), {name: value.value for name, value in results.items() if value.value})
         return results
+
+    # -------------------------------------------------------- value-first
+
+    @staticmethod
+    def _claimed(layout: Layout, results: dict[str, ExtractedValue]) -> set[tuple[int, str]]:
+        """(line, normalized value) pairs the key-first pass already used, so no second field takes them."""
+        by_text: dict[str, list[int]] = {}
+        for line in layout.lines:
+            by_text.setdefault(line.text, []).append(line.index)
+        claimed = set()
+        for name in value_first.KINDS:
+            item = results.get(name)
+            if item and item.value and item.source_text and item.normalized_value:
+                claimed |= {(index, item.normalized_value) for text in item.source_text.split(" | ") for index in by_text.get(text, [])}
+        return claimed
+
+    @staticmethod
+    def _fill_from_values(results: dict[str, ExtractedValue], matching: value_first.Matching) -> None:
+        """Fields the key-first pass left empty take their value-first assignment."""
+        for name, assignment in matching.assignments.items():
+            if name not in results or results[name].value:
+                continue
+            lines = [assignment.key.span.line, assignment.value.span.line] if assignment.key else [assignment.value.span.line]
+            confidence = round(min(0.95, 0.5 + 0.45 * assignment.score), 2)
+            results[name] = ExtractedValue(assignment.value.value, confidence, assignment.score < VALUE_FIRST_REVIEW_BELOW, _source(lines),
+                                           assignment.pattern, assignment.value.normalized, _boxes(lines))
+        if not results["mrp"].value:
+            price = value_first.consistent_price(matching.values, results["unit_sale_price"].normalized_value, results["net_quantity"].normalized_value)
+            if price is not None:
+                lines = [price.span.line]
+                results["mrp"] = ExtractedValue(price.value, 0.7, True, _source(lines), "mrp:usp_consistency", price.normalized, _boxes(lines))
+
+    @staticmethod
+    def _tax_inclusive(layout: Layout, results: dict[str, ExtractedValue], matching: value_first.Matching) -> tuple[ExtractedValue, tuple[str, str | None]]:
+        """The "inclusive of all taxes" statement and its declaration state.
+
+        Partly read counts as present but unread: the statement's opening cut
+        off by the photo ("(Incl. of al"), or a low-confidence fragment right
+        beside the MRP key where the statement is printed.
+        """
+        if results["tax_inclusive"].value:
+            return results["tax_inclusive"], (DECLARED_WITH_VALUE, results["tax_inclusive"].source_text)
+        for line in layout.lines:
+            if hit := fuzzy.contains(line.text, _TAX_PHRASES):
+                return ExtractedValue("true", 0.85 if hit.edits == 0 else 0.75, hit.edits > 0, line.text, "tax_inclusive:fuzzy_statement", "true", _boxes([line])), (DECLARED_WITH_VALUE, line.text)
+        for line in layout.lines:
+            if _TAX_OPENING.search(line.text):
+                return ExtractedValue(), (KEY_FOUND_VALUE_UNREAD, line.text)
+        for key in matching.keys.get("mrp", []):
+            beside = [layout.right_of(key.span.line), *layout.below(key.span.line, gap_factor=1.6)[:1]]
+            for line in filter(None, beside):
+                lowest = min((box.confidence for box in line.boxes if box.confidence is not None), default=1.0)
+                if lowest < 0.8 and len(line.text.split()) <= 3 and not re.search(r"[0-9]", line.text):
+                    return ExtractedValue(), (KEY_FOUND_VALUE_UNREAD, f"{key.span.line.text} | {line.text}")
+        if results["mrp"].matched_pattern == "mrp:usp_consistency":
+            # The MRP was read without its key: the statement beside the key is in an unread area.
+            return ExtractedValue(), (KEY_FOUND_VALUE_UNREAD, results["mrp"].source_text)
+        return ExtractedValue(), (NOT_DETECTED, None)
+
+    @staticmethod
+    def _mrp_declaration(results: dict[str, ExtractedValue], matching: value_first.Matching) -> ExtractedValue:
+        mrp, current = results["mrp"], results["mrp_declaration"]
+        if mrp.value:
+            return ExtractedValue("present_with_value", mrp.confidence, False, mrp.source_text, "mrp_declaration:key_with_value", "present_with_value", mrp.source_bboxes)
+        if current.value != "present_without_value" and (keys := matching.keys.get("mrp")):
+            line = keys[0].span.line
+            return ExtractedValue("present_without_value", 0.8, True, line.text, "mrp_declaration:fuzzy_key_without_value", "present_without_value", _boxes([line]))
+        return current
+
+    def _declaration_status(self, layout: Layout, results: dict[str, ExtractedValue], matching: value_first.Matching, tax: tuple[str, str | None]) -> ExtractedValue:
+        """Per mandatory declaration: DECLARED_WITH_VALUE, KEY_FOUND_VALUE_UNREAD (a key or a redirect
+        such as "see below" is printed but no value was linked) or NOT_DETECTED (no key at all)."""
+        other = matching.other_details.line.text if matching.other_details else None
+
+        def entry(declared: ExtractedValue | None, keys: list[str | None], redirectable: bool = True) -> dict[str, str | None]:
+            if declared is not None and declared.value:
+                return {"state": DECLARED_WITH_VALUE, "evidence": declared.source_text}
+            evidence = next((key for key in keys if key), None) or (other if redirectable else None)
+            return {"state": KEY_FOUND_VALUE_UNREAD, "evidence": evidence} if evidence else {"state": NOT_DETECTED, "evidence": None}
+
+        key_text = lambda field: [key.span.line.text for key in matching.keys.get(field, [])]
+        party = next((results[role] for role in ("manufacturer", "brand_owner", "packer", "importer") if results[role].value), None)
+        role_keys = [line.text for line in layout.lines if _ANY_ROLE.search(line.text) or _COMBINED_ROLE.match(line.text) or _MAKER_REFERENCE.search(line.text)
+                     or any(not re.search(r"[A-Za-z0-9]", line.text[:hit.start]) for hit in fuzzy.find(line.text, _ROLE_PHRASES))]
+        dates = results["manufacturing_date"] if results["manufacturing_date"].value else results["packing_date"]
+        # A printed price without its MRP key, or a per-unit price that could not be parsed, shows the declaration is there.
+        prices = [value.span.line.text for value in matching.values if value.kind == "price" and not value.offer]
+        usp_shaped = [line.text for line in layout.lines if _PER_UNIT_SHAPE.search(line.text)]
+        care = next((results[name] for name in ("consumer_care_phone", "consumer_care_email", "consumer_care_website") if results[name].value), None)
+        care_key = results["consumer_care_declaration"].source_text if results["consumer_care_declaration"].value == "present_without_details" else None
+        status = {
+            "manufacturer": entry(party, role_keys, redirectable=False),
+            "net_quantity": entry(results["net_quantity"], key_text("net_quantity")),
+            "mrp": entry(results["mrp"], key_text("mrp") + prices),
+            "manufacturing_date": entry(dates, key_text("manufacturing_date") + key_text("packing_date")),
+            "unit_sale_price": entry(results["unit_sale_price"], key_text("unit_sale_price") + usp_shaped),
+            "tax_inclusive": {"state": tax[0], "evidence": tax[1]},
+            "consumer_care": entry(care, [care_key], redirectable=False),
+        }
+        serialized = json.dumps(status, ensure_ascii=False, sort_keys=True)
+        return ExtractedValue(serialized, 0.9, False, None, "declaration_status:computed", serialized)
+
+    @staticmethod
+    def _ocr_coverage(layout: Layout, detections: list[Any] | None) -> ExtractedValue:
+        """How much of the photo OCR read, so compliance can tell "not printed" from "not in view"."""
+        confidences = [
+            float(confidence) for item in detections or []
+            if (confidence := (item.get("confidence") if isinstance(item, dict) else getattr(item, "confidence", None))) is not None
+        ]
+        lines = [line for line in layout.lines if is_substantial(line.text)]
+        low = [line for line in lines if min((box.confidence for box in line.boxes if box.confidence is not None), default=1.0) < LOW_CONFIDENCE]
+        coverage = {
+            "text_lines": len(lines),
+            "mean_confidence": round(mean(confidences), 3) if confidences else None,
+            "low_confidence_line_share": round(len(low) / len(lines), 3) if lines and layout.geometric else None,
+        }
+        serialized = json.dumps(coverage, sort_keys=True)
+        return ExtractedValue(serialized, 0.9, False, None, "ocr_coverage:computed", serialized)
 
     # ------------------------------------------------------------ generic
 
@@ -335,27 +530,7 @@ class ExtractionService:
     @staticmethod
     def normalize_date(value: str) -> str | None:
         """YYYY-MM-DD, YYYY-MM, or an ISO-8601 duration (P9M) for "N months from ..."."""
-        text = re.sub(r"\s+", " ", value.strip().lower())
-        year = lambda digits: int(digits) + (2000 if len(digits) == 2 else 0)
-        try:
-            if months := re.fullmatch(r"(\d{1,2}) ?months?.*", text):
-                return f"P{int(months.group(1))}M"
-            if full := re.fullmatch(r"(\d{1,2}) ?[/.\-] ?(\d{1,2}) ?[/.\-] ?(\d{4}|\d{2})", text):
-                day, month = int(full.group(1)), int(full.group(2))
-                if 1 <= month <= 12 and 1 <= day <= 31:
-                    return f"{year(full.group(3)):04d}-{month:02d}-{day:02d}"
-                return None
-            if month_year := re.fullmatch(r"(\d{1,2}) ?[/.\-] ?(\d{4}|\d{2})", text):
-                month = int(month_year.group(1))
-                return f"{year(month_year.group(2)):04d}-{month:02d}" if 1 <= month <= 12 else None
-            if named := re.fullmatch(r"(?:(\d{1,2}) ?[\-/ ] ?)?([a-z]{3})[a-z]*\.? ?[\-/' ]? ?(\d{4}|\d{2})", text):
-                if named.group(2) not in _MONTHS:
-                    return None
-                prefix = f"{year(named.group(3)):04d}-{_MONTHS[named.group(2)]:02d}"
-                return f"{prefix}-{int(named.group(1)):02d}" if named.group(1) else prefix
-        except ValueError:
-            return None
-        return None
+        return value_first.normalize_date(value)
 
     def _dates(self, layout: Layout) -> dict[str, ExtractedValue]:
         def build(match: re.Match[str]) -> tuple[str, str | None] | None:
@@ -372,13 +547,35 @@ class ExtractionService:
         return results
 
     @classmethod
-    def _product_category(cls, layout: Layout) -> ExtractedValue:
-        """Food when a nutrition panel or FSSAI text is printed, or an ingredients
-        list on a label that does not name itself a cosmetic or household product."""
-        strong = cls._first_line(layout, _STRONG_FOOD_HINT, "food", "product_category:food_keywords", 0.8)
-        if strong.value or any(_NON_FOOD_HINT.search(line.text) for line in layout.lines):
-            return strong
-        return cls._first_line(layout, _FOOD_HINT, "food", "product_category:food_keywords", 0.8)
+    def _product_category(cls, layout: Layout, licence: ExtractedValue) -> ExtractedValue:
+        """food / drug / personal_care / household / other, strongest evidence first.
+
+        Food is certain with a nutrition panel, FSSAI text or a 14-digit licence;
+        then medicine words (tablet, syrup, Schedule H, a drug manufacturing
+        licence); then personal-care and household words, which override the weak
+        food guess of an ingredients list with food words beside a best-before
+        date; electronics accessories are "other".  No evidence: no category.
+        """
+        if licence.value and len(licence.value) == 14:
+            return ExtractedValue("food", 0.85, False, licence.source_text, "product_category:fssai_licence", "food", licence.source_bboxes)
+        checks = (
+            (_STRONG_FOOD_HINT, "food", "food_keywords"),
+            (_DRUG_HINT, "drug", "drug_keywords"),
+            (_PERSONAL_CARE_HINT, "personal_care", "personal_care_keywords"),
+            (_HOUSEHOLD_HINT, "household", "household_keywords"),
+        )
+        for pattern, category, how in checks:
+            line = next((line for line in layout.lines if pattern.search(line.text)), None)
+            if line is None or (category == "drug" and _COSMETIC_LICENCE.search(line.text)):
+                continue
+            return ExtractedValue(category, 0.8, False, line.text, f"product_category:{how}", category, _boxes([line]))
+        text = " ".join(line.text for line in layout.lines)
+        ingredients = next((line for line in layout.lines if _INGREDIENTS.search(line.text)), None)
+        if ingredients and _FOOD_WORDS.search(text) and re.search(r"(?i)best\s*before|use\s*by|expiry", text):
+            return ExtractedValue("food", 0.7, True, ingredients.text, "product_category:ingredients_with_food_words", "food", _boxes([ingredients]))
+        if line := next((line for line in layout.lines if _ELECTRONICS_HINT.search(line.text)), None):
+            return ExtractedValue("other", 0.7, False, line.text, "product_category:electronics_keywords", "other", _boxes([line]))
+        return ExtractedValue()
 
     # ------------------------------------------------- identifiers & origin
 
@@ -429,9 +626,20 @@ class ExtractionService:
         return (match.group(1), text[match.end():]) if match else (None, text)
 
     @staticmethod
+    def _company_text(text: str) -> str:
+        """A company line as printed, minus what OCR and footnotes add.
+
+        Drops footnote marks and an "M/s" prefix ("#Godrej ...", "M/S. Acme
+        Ltd") and splits a legal suffix glued to the name ("UNILEVERLTD").
+        """
+        text = re.sub(r"^[\s#*^@$¥§]+", "", _clean_value(text))
+        text = re.sub(r"(?i)^m\s*/\s*s\.?\s*", "", text)
+        return re.sub(r"(?<=[A-Z]{3})(LTD|LIMITED)(?=[\s.,(]|$)", r" \1", text)
+
+    @staticmethod
     def _split_company(text: str) -> tuple[str, str]:
         """Company name and the address text that follows it on the same line."""
-        text = _clean_value(text)
+        text = ExtractionService._company_text(text)
         match = _COMPANY_NAME.match(text)
         if match:
             name, rest = match.group(1), text[match.end():]
@@ -448,9 +656,11 @@ class ExtractionService:
         return name, _clean_value(rest.lstrip(". "))
 
     def _is_company(self, text: str) -> bool:
-        _, text = self._strip_unit_code(_clean_value(text))
-        if not text or _ANY_ROLE.match(text) or _STOP_LINE.search(text) or _LICENCE.search(text):
+        _, text = self._strip_unit_code(self._company_text(text))
+        if not text or _ANY_ROLE.match(text) or _COMBINED_ROLE.match(text) or _STOP_LINE.search(text) or _LICENCE.search(text) or self._key_continuation(text):
             return False
+        if re.search(r"[A-Za-z]{16,}", text) and not _COMPANY_NAME.match(text):
+            return False  # words glued together by OCR
         has_suffix = bool(_COMPANY_NAME.match(text))
         if not has_suffix and (address := _ADDRESS_START.search(text)) and address.start() > 0:
             text = text[:address.start()]  # "Gram Udyog 12/40 KM Stone, ..., 125001": judge the name part
@@ -458,6 +668,15 @@ class ExtractionService:
             return False  # an address line, not a company
         words = [word for word in re.findall(r"[A-Za-zऀ-ॿ]{2,}", text) if word.lower() not in {"for", "by", "ltd", "limited", "pvt", "the", "and", "of"}]
         return len(words) >= 2 or (bool(words) and has_suffix)
+
+    @staticmethod
+    def _key_continuation(text: str) -> bool:
+        """The rest of a multi-line key ("Registered Address / Consumer Feedback:"), not a company."""
+        if _COMPANY_NAME.match(text):
+            return False
+        # Headings and contact-person descriptors ("Manager (Consumer Relations)") continue a key.
+        return text.rstrip().endswith(":") or bool(fuzzy.find(text, _CARE_PHRASES)) or bool(re.search(
+            r"(?i)(?<![a-z])(?:registered|address|feedback|manager|officer|executive|department|desk|relations)(?![a-z])", text))
 
     def _is_stop(self, text: str) -> bool:
         return bool(_ANY_ROLE.match(text) or _STOP_LINE.search(text) or _LICENCE.search(text) or _UNIT_CODE.match(text))
@@ -525,12 +744,17 @@ class ExtractionService:
         first = units[0]
         return _Party(first["name"], "same_line", lines, first["address"], lines, units)
 
-    def _party(self, layout: Layout, key_line: LayoutLine, rest: str, inline: bool = False) -> _Party | None:
-        """The party named after a role key; ``inline`` keys (after other text) need a company suffix."""
+    def _party(self, layout: Layout, key_line: LayoutLine, rest: str, inline: bool = False, require_suffix: bool = False) -> _Party | None:
+        """The party named after a role key; ``inline`` keys (after other text) and ``require_suffix`` need a company suffix."""
         rest = _clean_value(rest)
         if rest and not inline and not _UNIT_CODE.match(rest) and (paragraph := self._paragraph_units(layout, key_line, rest)):
             return paragraph
-        if rest and self._is_company(rest):
+        following = layout.next_in_column(key_line)
+        wrapped_start = self._wrapped_name(rest, following, max_words=5) if rest and not self._has_suffix(rest) else None
+        if wrapped_start:
+            # "MKTD. BY: HINDUSTAN" / "UNILEVER LTD., MUMBAI": the name starts on the key line.
+            value_line, text, method = following, wrapped_start, "same_line"
+        elif rest and self._is_company(rest):
             value_line, text, method = key_line, rest, "same_line"
         else:
             for value_line, method in self._neighbours(layout, key_line):
@@ -538,7 +762,9 @@ class ExtractionService:
                     text = value_line.text
                     break
             else:
-                return None
+                if (found := self._company_below_key_lines(layout, key_line)) is None:
+                    return None
+                value_line, text, method = *found, "below_key"
         evidence = [key_line] if value_line is key_line else [key_line, value_line]
         units = self._units(layout, value_line, text) if _UNIT_CODE.match(text) else []
         if len(units) > 1:
@@ -548,35 +774,91 @@ class ExtractionService:
         name, remainder = self._split_company(text)
         address_start, address_lines = value_line, [value_line] if remainder else []
         if not remainder and not _COMPANY_NAME.match(name) and (following := layout.next_in_column(value_line)) is not None:
-            # A long name wrapped onto the next line: "... Home Products Pvt" / "Ltd, Plot No. 1, ...".
-            wrapped = _COMPANY_NAME.match(_clean_value(following.text))
-            if wrapped and len(wrapped.group(1).split()) <= 5 and not re.search(r"\d", wrapped.group(1)):
-                name, remainder = self._split_company(f"{name} {following.text}")
+            # A long name wrapped onto the next line: "... Home Products Pvt" / "Ltd, Plot No. 1, ..."
+            # or "Acme Consumer Products" / "Limited, Plot 4, ...".
+            if joined := self._wrapped_name(name, following):
+                name, remainder = self._split_company(joined)
                 evidence, address_start, address_lines = evidence + [following], following, [following] if remainder else []
-        if inline and not _COMPANY_NAME.match(name):
+        if (inline or require_suffix) and not _COMPANY_NAME.match(name):
+            return None
+        # An unreadable line ("aksarRoadHnrar-4dnatarakhand") is not a name unless it has a legal suffix.
+        if not _COMPANY_NAME.match(name) and min((box.confidence for box in value_line.boxes if box.confidence is not None), default=1.0) < LOW_CONFIDENCE:
             return None
         address, more_lines = self._address(layout, address_start, remainder)
         return _Party(name, method, evidence, address, address_lines + more_lines)
+
+    def _has_suffix(self, text: str) -> bool:
+        return bool(_COMPANY_NAME.match(self._company_text(text)))
+
+    def _wrapped_name(self, start: str, following: LayoutLine | None, max_words: int = 8) -> str | None:
+        """``start`` plus the next line when that line completes a company name ("... Ltd., address")."""
+        start = self._company_text(start)
+        if following is None or not start or len(start.split()) > max_words or re.search(r"\d", start) or self._key_continuation(start) or self._is_stop(start):
+            return None
+        text = self._company_text(following.text)
+        if suffix := re.match(r"(?i)^((?:pvt\.?\s*|private\s+)?(?:ltd|limited)\.?)(?![A-Za-z])", text):
+            return f"{start} {suffix.group(1)}, {text[suffix.end():].lstrip(' ,')}".rstrip(", ")
+        wrapped = _COMPANY_NAME.match(text)
+        if wrapped and len(wrapped.group(1).split()) <= 5 and not re.search(r"\d", wrapped.group(1)):
+            return f"{start} {text}"
+        return None
+
+    def _company_below_key_lines(self, layout: Layout, key_line: LayoutLine) -> tuple[LayoutLine, str] | None:
+        """A company under a multi-line key ("Marketed by / Registered Address / Consumer Feedback:" / "Acme Ltd").
+
+        Only lines that continue the key are skipped, and the company must carry a
+        legal suffix (on its line or wrapped onto the next one).
+        """
+        current: LayoutLine | None = key_line
+        for _ in range(4):
+            current = layout.next_in_column(current) if current else None
+            if current is None or self._is_stop(current.text):
+                return None
+            if self._key_continuation(current.text):
+                continue
+            if self._has_suffix(current.text) and self._is_company(current.text):
+                return current, current.text
+            following = layout.next_in_column(current)
+            if joined := self._wrapped_name(current.text, following):
+                return following, joined
+            return None
+        return None
 
     def _role_mentions(self, layout: Layout) -> dict[str, list[tuple[int, _Party]]]:
         """Every (line index, party) per role: single-role keys, combined keys and inline keys."""
         mentions: dict[str, list[tuple[int, _Party]]] = {role: [] for role in _ROLE_LINE}
         for line in layout.lines:
-            if combined := _COMBINED_ROLE.match(line.text):
-                words = re.split(r"(?i)\s*(?:,|&|/|\band\b)\s*", combined.group(1))
+            body = line.text
+            if (numbering := _ROLE_NUMBERING.match(body)) and (_COMBINED_ROLE.match(body[numbering.end():]) or _ANY_ROLE.match(body[numbering.end():])
+                                                             or fuzzy.find(body[numbering.end():numbering.end() + 40], _ROLE_PHRASES)):
+                body = body[numbering.end():]
+            if combined := _COMBINED_ROLE.match(body):
+                words = re.split(r"(?i)\s*(?:,|&|/|\band\b)\s*|\s+", combined.group(1))
                 roles = {"brand_owner"} if combined.group(2).lower() == "for" else {
                     role for word in words for pattern, role in _ROLE_WORDS.items() if re.fullmatch(rf"(?i){pattern}", word.strip())
                 }
-                if party := self._party(layout, line, line.text[combined.end():]):
+                if party := self._party(layout, line, body[combined.end():]):
                     for role in roles:
                         mentions[role].append((line.index, party))
                 continue
             matched = False
             for role, key_re in _ROLE_LINE.items():
-                if (match := key_re.match(line.text)) and (party := self._party(layout, line, line.text[match.end():])):
+                if (match := key_re.match(body)) and (party := self._party(layout, line, body[match.end():])):
                     mentions[role].append((line.index, party))
                     matched = True
-            if matched or _ANY_ROLE.match(line.text):
+            if matched or _ANY_ROLE.match(body):
+                continue
+            # A role key misread by OCR ("Manutactured by:", "Markelad by") at the start of the line.
+            # Its value must carry a legal suffix: a misread key sits in a poorly read area.
+            hit = next((hit for hit in fuzzy.find(body, _ROLE_PHRASES) if not re.search(r"[A-Za-z0-9]", body[:hit.start])), None)
+            if hit is not None:
+                if party := self._party(layout, line, body[hit.end:], require_suffix=hit.edits > 0):
+                    mentions[hit.name].append((line.index, party))
+                continue
+            # "For mfg. unit address read the code ...": coded units, or a named company with a legal suffix.
+            if reference := _MAKER_REFERENCE.search(body):
+                if party := self._party(layout, line, body[reference.end():], require_suffix=True):
+                    mentions["manufacturer"].append((line.index, party))
                 continue
             inline = _INLINE_ROLE.search(line.text)
             if inline and inline.start() > 0 and (party := self._party(layout, line, line.text[inline.end():], inline=True)):
@@ -609,11 +891,47 @@ class ExtractionService:
     # ----------------------------------------------------- consumer care
 
     @staticmethod
-    def _website(text: str) -> str | None:
+    def _repaired_email(token: str) -> str | None:
+        """An e-mail whose "@" OCR read as "ld", "O", "0" or "Q" ("care0example.com"), when exactly one reading is plausible.
+
+        The result needs a local part of 2+ characters and a domain whose first
+        label has 3+ letters and that ends in a known top-level domain.
+        """
+        token = token.strip(".,;:()[]")
+        if "@" in token or token.lower().startswith(("www.", "http")) or not re.fullmatch(r"[\w.+-]+\.[A-Za-z]{2,}", token):
+            return None
+        readings = set()
+        for misread in ("ld", "O", "0", "Q"):
+            for match in re.finditer(re.escape(misread), token):
+                local, domain = token[:match.start()], token[match.end():]
+                labels = domain.lower().split(".")
+                if len(local) >= 2 and len(labels) >= 2 and re.fullmatch(r"[a-z][a-z0-9-]{2,}", labels[0]) and any(domain.lower().endswith("." + tld) for tld in _TLDS):
+                    readings.add(f"{local}@{domain}")
+        return readings.pop() if len(readings) == 1 else None
+
+    @classmethod
+    def _email(cls, text: str, context: bool) -> str | None:
+        """An e-mail on the line; a misread "@" is restored only in a contact context (care block or e-mail key)."""
+        if match := _EMAIL.search(text):
+            return match.group(0)
+        if context or re.search(r"(?i)e-?\s*mail|(?<![A-Za-z])e\s*:", text):
+            for token in text.split():
+                if repaired := cls._repaired_email(token):
+                    return repaired
+        return None
+
+    @staticmethod
+    def _phone_text(text: str) -> str:
+        """Phone-shaped OCR repairs: "(022)62487999" -> "022 62487999"; "C800"/"I800" -> "1800"."""
+        text = re.sub(r"\((0[0-9]{2,4})\)\s*", r"\1 ", text)
+        return re.sub(r"(?<![0-9A-Za-z])[CIl|](?=8[0O]{2}[\s\-]?[0-9])", "1", text)
+
+    @classmethod
+    def _website(cls, text: str) -> str | None:
         for match in _WEB_TOKEN.finditer(text):
             token = match.group(0).rstrip(".")
-            if text[match.end():match.end() + 1] == "@":
-                continue
+            if text[match.end():match.end() + 1] == "@" or cls._repaired_email(token):
+                continue  # never report a misread e-mail as a website
             host = re.sub(r"(?i)^https?://", "", token).split("/")[0].lower()
             labels = host.split(".")
             explicit = token.lower().startswith(("www.", "http://", "https://"))
@@ -627,7 +945,7 @@ class ExtractionService:
         result = {name: ExtractedValue() for name in ("consumer_care_phone", "consumer_care_email", "consumer_care_website")}
         blocks: list[list[LayoutLine]] = []
         for line in layout.lines:
-            if _CARE_KEY.search(line.text):
+            if _CARE_KEY.search(line.text) or fuzzy.find(line.text, _CARE_PHRASES):
                 block = [line]
                 if (right := layout.right_of(line)) is not None:
                     block.append(right)
@@ -650,27 +968,35 @@ class ExtractionService:
             return False
 
         def phone(text: str) -> str | None:
+            text = self._phone_text(text)
             for pattern in _PHONE:
                 if match := pattern.search(text):
                     return re.sub(r"\s+", " ", match.group(0)).strip()
             return None
 
-        email = lambda text: match.group(0) if (match := _EMAIL.search(text)) else None
         if not in_block("consumer_care_phone", phone, lambda value: re.sub(r"[^\d+]", "", value)):
             # A toll-free 1800 / 1860 number is a consumer-care line wherever it
             # is printed, unless its line belongs to another key ("Batch 1800 ...").
             for line in layout.lines:
-                if not self._is_stop(line.text) and (match := _PHONE[0].search(line.text)):
+                if not self._is_stop(line.text) and (match := _PHONE[0].search(self._phone_text(line.text))):
                     value = re.sub(r"\s+", " ", match.group(0)).strip()
                     result["consumer_care_phone"] = ExtractedValue(value, 0.8, False, line.text, "consumer_care_phone:toll_free_anywhere", re.sub(r"[^\d+]", "", value), _boxes([line]))
                     break
-        for name, find, normalize in (("consumer_care_email", email, str.lower), ("consumer_care_website", self._website, str.lower)):
+        for name, find, normalize in (("consumer_care_email", lambda text: self._email(text, True), str.lower), ("consumer_care_website", self._website, str.lower)):
             if in_block(name, find, normalize):
                 continue
             # Outside a care block only the unambiguous structure counts.
             for line in layout.lines:
-                if value := find(line.text):
+                if value := (self._email(line.text, False) if name == "consumer_care_email" else find(line.text)):
                     result[name] = ExtractedValue(value, 0.8, False, line.text, f"{name}:anywhere", normalize(value), _boxes([line]))
+                    break
+        if not result["consumer_care_phone"].value:
+            # A contact cluster without a heading: a phone number printed with (or next to) the e-mail or website.
+            contact = {line.index for line in layout.lines if self._email(line.text, False) or self._website(line.text)}
+            for line in layout.lines:
+                near = line.index in contact or (line.index - 1) in contact or (line.index + 1) in contact
+                if near and not self._is_stop(line.text) and not _LICENCE.search(line.text) and (value := phone(line.text)):
+                    result["consumer_care_phone"] = ExtractedValue(value, 0.75, True, line.text, "consumer_care_phone:contact_cluster", re.sub(r"[^\d+]", "", value), _boxes([line]))
                     break
         # Like mrp_declaration: a printed heading whose details are unreadable
         # (cut off in the photo) is different from no consumer-care block at all.
@@ -690,8 +1016,9 @@ class ExtractionService:
         """(text, how) a line can offer as the product name.
 
         Besides the whole line: the words before an inline maker key ("Tide
-        Lemon & Mint Mfg by ...") and a first sentence followed by boilerplate
-        ("Powder Laundry Detergent. CAUTION: ...").
+        Lemon & Mint Mfg by ..."), a first sentence followed by boilerplate
+        ("Powder Laundry Detergent. CAUTION: ...") and the first segment of a
+        catalogue title ("Brand Name | Model | Colour").
         """
         inline = _INLINE_ROLE.search(line.text)
         if inline and inline.start() > 0 and not _ANY_ROLE.match(line.text):
@@ -700,52 +1027,132 @@ class ExtractionService:
                 yield prefix, "before_maker_key"
             return
         first, separator, after = line.text.partition(". ")
-        if separator and len(first.split()) >= 2 and _BOILERPLATE.search(after):
+        if separator and len(first.split()) >= 2 and (_BOILERPLATE.search(after) or fuzzy.find(after, _HEADING_PHRASES) or _GENERIC_NOUN.search(first)):
             yield _clean_value(first), "first_sentence"
+            return
+        segment, bar, _ = line.text.partition(" | ")
+        if bar and len(segment.split()) >= 2:
+            yield _clean_value(segment), "title_segment"
             return
         yield line.text, "prominent_line"
 
+    @staticmethod
+    def _title_stacks(layout: Layout) -> Iterator[tuple[list[LayoutLine], str]]:
+        """A title printed large over two or three lines ("HAND" / "WASH").
+
+        Lines of similar large type stacked directly under each other join,
+        unless an upper line already names a commodity on its own ("VIM GEL" /
+        "VIM DISHWASH LIQUID" are two names, not one).
+        """
+        if not layout.geometric:
+            return
+        large = 1.15 * layout.median_height
+        for line in layout.lines:
+            stack = [line]
+            while len(stack) < 3:
+                current = stack[-1]
+                if current.box_height < large or _GENERIC_NOUN.search(current.text):
+                    break
+                below = next((other for other in layout.below(current, gap_factor=0.6) if not other.vertical), None)
+                if below is None or not 0.75 <= below.box_height / current.box_height <= 1.33:
+                    break
+                narrow = min(current.extent[2] - current.extent[0], below.extent[2] - below.extent[0])
+                if min(current.extent[2], below.extent[2]) - max(current.extent[0], below.extent[0]) < 0.5 * narrow:
+                    break
+                stack.append(below)
+            text = _clean_value(" ".join(item.text for item in stack))
+            if len(stack) > 1 and len(text.split()) <= 8:
+                yield stack, text
+
+    @staticmethod
+    def _not_a_name(text: str, line: LayoutLine) -> bool:
+        """Headings, instructions, codes, addresses, company names, foreign-language copy, unreadable text."""
+        alnum = re.findall(r"[0-9A-Za-zऀ-ॿ]", text)
+        letters = re.findall(r"[A-Za-zऀ-ॿ]+", text)
+        if len(alnum) < 3 or len(text) > 80 or not any(len(word) >= 3 for word in letters) or (len(text.split()) == 1 and len(letters[0]) < 4):
+            return True
+        if sum(char.isdigit() for char in alnum) / len(alnum) > 0.4 or any(len(word) >= 16 for word in letters):
+            return True  # numbers, or words glued together by OCR
+        if min((box.confidence for box in line.boxes if box.confidence is not None), default=1.0) < _NAME_MIN_CONFIDENCE:
+            return True
+        if _BOILERPLATE.search(text) or fuzzy.find(text, _HEADING_PHRASES) or fuzzy.find(text, value_first.REDIRECT_PHRASES):
+            return True
+        if _FSSAI_LOGO.search(text) or _UNIT_CODE.match(text) or _PIN.search(text) or _COMPANY_NAME.match(text):
+            return True
+        if re.search(r"(?i)(?<![a-z])[0-9]*\s*packs?(?![a-z])|(?<![a-z])(?:free|offer|combo)(?![a-z])", text) and not _GENERIC_NOUN.search(text):
+            return True  # "5PACKS", "BUY 2 GET 1 FREE": a pack badge, not a name
+        if re.match(r"(?i)\W*(?:vs|and|or|of|with|for|to|in|on|the|a|an|is|are)\b|\W*[0-9]+\s*(?:g|ml|kg|l)(?:\b|nett?)", text) or re.match(r"\W*[a-z]", text):
+            return True  # the middle of a sentence ("vs. soap bar ...", "ne Smooth ..." cut off) or a quantity ("550mlnet")
+        if text.count(",") >= 2 or fuzzy.find(text, value_first.KEY_PHRASES):
+            return True  # a list (ingredients, an address) or a declaration key ("Exp. Date ...")
+        if text.count("(") != text.count(")") or text.count("[") != text.count("]"):
+            return True  # a fragment of longer text ("BUTTER) FLAVOURING SUBSTANCES, ...")
+        return bool(_FOREIGN_TEXT.search(text) or len(_FOREIGN_WORDS.findall(text)) >= 2)
+
     def _product_name(self, layout: Layout, results: dict[str, ExtractedValue]) -> ExtractedValue:
-        used = {value.source_text for value in results.values() if value.value and value.source_text}
+        """The most prominent name-like text; empty (flagged for review) when no candidate clearly stands out.
+
+        Precision matters more than recall here: a wrong name is reported as a
+        fact, an empty one only asks the inspector to look.
+        """
+        # Lines holding other fields' values are not the name; the category's keyword line may well be.
+        used = {value.source_text for name, value in results.items() if value.value and value.source_text and name != "product_category"}
         used_lines = {text for source in used for text in source.split(" | ")}
-        page_height, typical = layout.page_height, layout.median_height
-        scored: list[tuple[float, LayoutLine, str, str]] = []
+        horizontal = [line.box_height for line in layout.lines if not line.vertical and line.extent]
+        page_height = layout.page_height
+        typical = median(horizontal) if horizontal else layout.median_height
+        tallest = max(horizontal, default=0.0)
+        candidates: list[tuple[list[LayoutLine], str, str]] = []
         for line in layout.lines:
             if line.vertical:
                 continue  # rotated side text ("scan QR code") is never the product name
             for text, how in self._name_candidates(line):
-                alnum = re.findall(r"[0-9A-Za-zऀ-ॿ]", text)
-                if (how == "prominent_line" and text in used_lines) or not re.search(r"[A-Za-zऀ-ॿ]{2,}", text) or len(text) > 80 or len(alnum) < 3:
-                    continue
-                if _BOILERPLATE.search(text) or _FSSAI_LOGO.search(text) or _UNIT_CODE.match(text) or _PIN.search(text) or sum(c.isdigit() for c in alnum) / len(alnum) > 0.4:
-                    continue
-                if layout.geometric:
-                    prominence = 2.0 * min(line.box_height / typical, 4.0)
-                    position = 1.0 - min(line.center_y / page_height, 1.0)
-                else:
-                    prominence = 2.0
-                    position = 3.0 * (1.0 - line.index / max(len(layout.lines), 1))
-                words = len(text.split())
-                title = (0.5 if words <= 6 else 0.0 if words <= 10 else -1.0) + (0.3 if sum(c.isalpha() for c in text) / len(text) >= 0.7 else 0.0)
-                title -= (1.0 if ":" in text else 0.0) + (0.5 if "," in text else 0.0) + (0.3 if "(" in text else 0.0) + (0.3 if text.endswith(".") else 0.0)
-                # The label itself says this names the product made by the maker.
-                title += 1.0 if how == "before_maker_key" else 0.0
-                scored.append((prominence + position + title, line, text, how))
+                if not (how == "prominent_line" and text in used_lines) and not self._not_a_name(text, line):
+                    candidates.append(([line], text, how))
+        for stack, text in self._title_stacks(layout):
+            if not any(item.text in used_lines for item in stack) and not any(self._not_a_name(item.text, item) for item in stack):
+                candidates.append((stack, text, "stacked_title"))
+        scored: list[tuple[float, list[LayoutLine], str, str]] = []
+        smaller: list[tuple[float, list[LayoutLine], str, str]] = []  # still a brand mark's fuller name
+        for lines, text, how in candidates:
+            height = max(line.box_height for line in lines)
+            # Without a commodity word only large type ("BRAND", the label's tallest text) or the maker's own phrasing counts as a name.
+            if layout.geometric and not _GENERIC_NOUN.search(text) and how != "before_maker_key" and height < min(_NAME_PROMINENT * typical, tallest):
+                smaller.append((0.0, lines, text, how))
+                continue
+            if layout.geometric:
+                prominence = 2.0 * min(height / typical, 12.0)
+                position = 1.0 - min(lines[0].center_y / page_height, 1.0)
+            else:
+                prominence = 2.0
+                position = 3.0 * (1.0 - lines[0].index / max(len(layout.lines), 1))
+            words = len(text.split())
+            title = (0.5 if words <= 6 else 0.0 if words <= 10 else -1.0) + (0.3 if sum(c.isalpha() for c in text) / len(text) >= 0.7 else 0.0)
+            title -= (1.0 if ":" in text else 0.0) + (0.5 if "," in text else 0.0) + (0.3 if "(" in text else 0.0) + (0.3 if text.endswith(".") else 0.0)
+            # The label itself says this names the product made by the maker.
+            title += 1.0 if how == "before_maker_key" else 0.0
+            title += 1.5 if _GENERIC_NOUN.search(text) else 0.0
+            scored.append((prominence + position + title, lines, text, how))
         if not scored:
             return ExtractedValue()
         scored.sort(key=lambda item: -item[0])
         best_score, best, best_text, how = scored[0]
-        rest = scored[1:]
+        plain = lambda text: re.sub(r"[^0-9a-zऀ-ॿ]", "", text.casefold())
         pattern = f"product_name:{how}"
         # A short brand mark ("Parle-G") printed large usually has a fuller
         # product line beginning with it ("Parle-G Gluco Biscuits"): prefer that.
         if len(best_text.split()) <= 3:
-            brand = re.sub(r"[^0-9a-zऀ-ॿ]", "", best_text.casefold())
-            extensions = [item for item in rest if (key := re.sub(r"[^0-9a-zऀ-ॿ]", "", item[2].casefold())).startswith(brand) and len(key) > len(brand)]
+            brand = plain(best_text)
+            extensions = [item for item in scored[1:] + smaller if (key := plain(item[2])).startswith(brand) and len(key) > len(brand)]
             if brand and extensions:
                 _, best, best_text, _ = extensions[0]
-                rest = [item for item in rest if item[1] is not best]
                 pattern = "product_name:brand_extension"
+        # Competitors are other text: not a part of the winner (a stack and its own lines), nor the same name again.
+        rest = [item for item in scored if item[1] is not best and not set(map(id, item[1])) & set(map(id, best))
+                and plain(item[2]) not in plain(best_text) and plain(best_text) not in plain(item[2])]
         margin = best_score - rest[0][0] if rest else 2.0
+        # Text-only OCR has no type sizes, so its margin reflects line order alone: keep the guess, flagged.
+        if margin < _NAME_MIN_MARGIN and pattern != "product_name:brand_extension" and layout.geometric:
+            return ExtractedValue(None, 0.0, True, _source(best), "product_name:ambiguous", None, None)
         confidence = min(PRODUCT_NAME_MAX_CONFIDENCE, 0.5 + 0.15 * margin)
-        return ExtractedValue(best_text, round(confidence, 2), margin < 1.0 or not layout.geometric, best.text, pattern, best_text, _boxes([best]))
+        return ExtractedValue(best_text, round(confidence, 2), margin < _NAME_MIN_MARGIN or not layout.geometric, _source(best), pattern, best_text, _boxes(best))

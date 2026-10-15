@@ -100,11 +100,13 @@ def test_website_with_a_contact_page_path_is_valid() -> None:
 
 def test_ingredients_on_a_soap_are_not_food(service: ExtractionService) -> None:
     fields = service.extract("INGREDIENTS: Sodium Palmate, Aqua, Glycerin, Perfume\nTOILET SOAP Gr. 1 TFM 76%")
-    assert fields["product_category"].value is None
+    assert fields["product_category"].value == "personal_care"
 
 
-def test_ingredients_alone_still_mean_food(service: ExtractionService) -> None:
-    assert service.extract("INGREDIENTS: Rice flour, Salt, Spices")["product_category"].value == "food"
+def test_ingredients_alone_are_not_enough_for_food(service: ExtractionService) -> None:
+    # Cosmetics print ingredients too: food needs a nutrition panel, FSSAI text or licence, or a best-before date with food words.
+    assert service.extract("INGREDIENTS: Rice flour, Salt, Spices")["product_category"].value is None
+    assert service.extract("INGREDIENTS: Rice flour, Salt, Spices\nBest before 6 months from packing")["product_category"].value == "food"
 
 
 def test_nutrition_panel_means_food_even_with_cleaner_words(service: ExtractionService) -> None:

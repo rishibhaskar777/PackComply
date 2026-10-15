@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 import re
 from statistics import median
-from typing import Any, Iterable
+from typing import Any, Iterable, Iterator
 
 from backend.app.services.ocr.ocr_service import LANGUAGE_SCRIPTS, OcrDetection, bbox_containment, bbox_extent, bbox_iou
 
@@ -21,11 +21,17 @@ JOIN_GAP_FACTOR = 2.0
 ROW_OVERLAP = 0.6
 # A value below a key is at most this many key-line heights further down.
 BELOW_GAP_FACTOR = 2.5
+# A line counts as below another once its centre is this many line heights lower.
+BELOW_MIN_OFFSET = 0.35
 # A value to the right of a key is at most this many key-line heights away.
 RIGHT_GAP_FACTOR = 8.0
 # A box of at least three characters this many times taller than wide is
 # rotated side text (e.g. "scan QR code" printed up a panel edge).
 VERTICAL_ASPECT = 1.5
+# A photo with at least this many such boxes, making up this share of its text
+# boxes, was read sideways even when OCR recorded no rotation.
+VERTICAL_MIN_BOXES = 5
+VERTICAL_SHARE = 0.6
 _DUPLICATE_IOU = 0.3
 _DUPLICATE_CONTAINMENT = 0.6
 _SCRIPTS = {name: re.compile(f"[{block}]") for name, block in {**LANGUAGE_SCRIPTS, "latin": "A-Za-z"}.items()}
@@ -93,6 +99,27 @@ class LayoutLine:
     def vertical(self) -> bool:
         return bool(self.boxes) and all(box.vertical for box in self.boxes)
 
+    def box_spans(self) -> Iterator[tuple[int, int, LayoutBox]]:
+        """(start, end) of each box's text within ``text``: boxes are joined by single spaces."""
+        position = 0
+        for box in self.boxes:
+            yield position, position + len(box.text), box
+            position += len(box.text) + 1
+
+    def span_extent(self, start: int, end: int) -> tuple[float, float, float, float] | None:
+        """Estimated extent of ``text[start:end]``: the boxes it falls in, cut by character share."""
+        if self.extent is None:
+            return None
+        parts = []
+        for box_start, box_end, box in self.box_spans():
+            low, high = max(start, box_start), min(end, box_end)
+            if low >= high or not box.bbox:
+                continue
+            x0, y0, x1, y1 = box.extent
+            width = max(box_end - box_start, 1)
+            parts.append((x0 + (x1 - x0) * (low - box_start) / width, y0, x0 + (x1 - x0) * (high - box_start) / width, y1))
+        return _union(parts) if parts else self.extent
+
 
 def _vertical_overlap(a: tuple[float, float, float, float], b: tuple[float, float, float, float]) -> float:
     return max(min(a[3], b[3]) - max(a[1], b[1]), 0.0)
@@ -141,6 +168,28 @@ def upright(boxes: list[LayoutBox]) -> list[LayoutBox]:
     left = min(frame[0] for frame in frames if frame)
     top = min(frame[1] for frame in frames if frame)
     return [replace(box, frame=(frame[0] - left, frame[1] - top, frame[2] - left, frame[3] - top) if frame else None) for box, frame in zip(boxes, frames)]
+
+
+def infer_rotation(boxes: list[LayoutBox]) -> list[LayoutBox]:
+    """Give a sideways photo read without a recorded rotation its reading direction.
+
+    When most text boxes are tall and narrow the recogniser still read each
+    one (it turns tall crops), but the lines run up or down the photo.  Labels
+    are overwhelmingly left-aligned, so the end of the boxes that lines up is
+    where the text starts: aligned tops mean it runs top-to-bottom (read with
+    the photo turned 270 degrees), aligned bottoms mean bottom-to-top (90).
+    """
+    if any(box.rotation for box in boxes):
+        return boxes
+    texts = [box for box in boxes if box.bbox and len(box.text.replace(" ", "")) >= 3]
+    tall = [box for box in texts if box.vertical]
+    if len(tall) < VERTICAL_MIN_BOXES or len(tall) < VERTICAL_SHARE * len(texts):
+        return boxes
+    tops = [box.extent[1] for box in tall]
+    bottoms = [box.extent[3] for box in tall]
+    spread = lambda values: median(abs(value - median(values)) for value in values)
+    rotation = 270 if spread(tops) <= spread(bottoms) else 90
+    return [replace(box, rotation=rotation) for box in boxes]
 
 
 def suppress_duplicates(boxes: list[LayoutBox]) -> list[LayoutBox]:
@@ -212,7 +261,7 @@ class Layout:
         boxes = [box for box in boxes if box.bbox]
         if not boxes:
             return cls.from_text(text)
-        groups = merge_lines(upright(suppress_duplicates(boxes)))
+        groups = merge_lines(upright(infer_rotation(suppress_duplicates(boxes))))
         extents = [_union(box.extent for box in group) for group in groups]
         order = sorted(range(len(groups)), key=lambda i: (extents[i][1], extents[i][0]))
         lines = [LayoutLine(position, tuple(groups[i]), clean_text(" ".join(box.text for box in groups[i])), extents[i]) for position, i in enumerate(order)]
@@ -250,7 +299,8 @@ class Layout:
             if other is line or other.extent is None:
                 continue
             gap = other.extent[1] - line.extent[3]
-            if other.center_y > line.center_y + 0.5 * line.box_height and _horizontal_overlap(line.extent, other.extent) > 0 and gap <= gap_factor * line.box_height:
+            # Stacked lines on a curved pack may overlap; a third of a line height lower is already the next line.
+            if other.center_y > line.center_y + BELOW_MIN_OFFSET * line.box_height and _horizontal_overlap(line.extent, other.extent) > 0 and gap <= gap_factor * line.box_height:
                 candidates.append(other)
         return sorted(candidates, key=lambda other: (other.extent[1], abs(other.extent[0] - line.extent[0])))
 

@@ -196,9 +196,11 @@ def test_product_name_prefers_prominent_line_and_brand_extension(service: Extrac
     assert name.confidence <= 0.8
 
 
-def test_product_name_with_a_small_margin_needs_review(service: ExtractionService) -> None:
+def test_product_name_with_a_small_margin_is_left_for_review(service: ExtractionService) -> None:
+    # Two equally prominent candidates: no guess (a wrong name would be reported as a fact), flagged for review.
     fields = extract_rows(service, row("Golden Crunch", 40, 10), row("Classic Salted", 40, 30))
-    assert fields["product_name"].value == "Golden Crunch" and fields["product_name"].needs_review
+    assert fields["product_name"].value is None and fields["product_name"].needs_review
+    assert fields["product_name"].matched_pattern == "product_name:ambiguous"
 
 
 @pytest.mark.parametrize(("text", "field", "value", "normalized"), [
