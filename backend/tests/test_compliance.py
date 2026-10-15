@@ -58,7 +58,8 @@ def test_invalid_values_dates_and_uncertainty_are_explainable() -> None:
     assert by_rule["NET_QUANTITY_FORMAT"].status == "FAIL"
     assert by_rule["DATE_CONSISTENCY"].status == "FAIL"
     assert by_rule["CONSUMER_CARE_FORMAT"].status == "REVIEW"
-    assert by_rule["LOW_CONFIDENCE_PRODUCT_NAME"].status == "REVIEW"
+    # Low confidence is reported per extracted field (needs_review), never as an unregistered rule.
+    assert not any(rule.startswith("LOW_CONFIDENCE_") for rule in by_rule)
 
 
 def test_ambiguous_date_requires_review() -> None:

@@ -26,7 +26,28 @@ Start, check and stop the server:
 & "<PG_HOME>\bin\pg_ctl.exe" -D "<PG_DATA>" stop
 ```
 
-Because it is not a Windows service, you must start PostgreSQL again after every reboot.
+Started this way it is not a Windows service, so you must start PostgreSQL again after every reboot — unless you register it as a service (next section).
+
+### Start PostgreSQL automatically
+
+Register the server as a Windows service that starts at boot. Run these from an **Administrator** PowerShell, after stopping any instance you started manually with `pg_ctl ... stop`:
+
+```powershell
+& "<PG_HOME>\bin\pg_ctl.exe" register -N PackComplyPostgres -D "<PG_DATA>" -S auto
+# The service runs as NETWORK SERVICE, which needs full access to the data directory.
+icacls "<PG_DATA>" /grant "NT AUTHORITY\NetworkService:(OI)(CI)F" /T
+Start-Service PackComplyPostgres
+Get-Service PackComplyPostgres
+```
+
+From then on use `Start-Service` / `Stop-Service PackComplyPostgres` instead of `pg_ctl start` / `stop`. Server messages go to the Windows Event Log (Application, source `PostgreSQL`) rather than the `-l` log file.
+
+To remove the service (again as Administrator):
+
+```powershell
+Stop-Service PackComplyPostgres
+& "<PG_HOME>\bin\pg_ctl.exe" unregister -N PackComplyPostgres
+```
 
 ## 1. Create `.env`
 
@@ -105,7 +126,14 @@ cd frontend
 npm run dev
 ```
 
-Open <http://localhost:5173> and sign in. API docs are at <http://localhost:8000/docs> and the health check at <http://localhost:8000/api/health>.
+Open <http://localhost:5173> and sign in. API docs are at <http://localhost:8000/docs>.
+
+Two health endpoints are available:
+
+- <http://localhost:8000/api/health> — liveness: the API process is up. It never touches the database.
+- <http://localhost:8000/api/health/ready> — readiness: runs `SELECT 1` against PostgreSQL. Returns `200 {"status":"ready","database":"ok"}`, or `503 {"status":"unavailable","database":"unreachable"}` when the database is down.
+
+If PostgreSQL stops while the app is running, API requests fail within about 5 seconds with `503 Database unavailable. Please try again shortly.` and the sign-in page says *Server or database unavailable*, instead of hanging or reporting invalid credentials.
 
 ## First OCR run
 
@@ -152,7 +180,7 @@ python -m backend.scripts.create_user --role OFFICIAL --username inspector --ema
 
 ## Troubleshooting
 
-**Connection refused / server not running.** PostgreSQL is not running. Start it with `pg_ctl.exe -D "<PG_DATA>" -l "<log file>" start` and confirm with `pg_ctl.exe -D "<PG_DATA>" status`.
+**Connection refused / server not running.** PostgreSQL is not running. Start it with `pg_ctl.exe -D "<PG_DATA>" -l "<log file>" start` (or `Start-Service PackComplyPostgres` if you registered the service) and confirm with `pg_ctl.exe -D "<PG_DATA>" status`. `http://localhost:8000/api/health/ready` returns 503 until the database answers.
 
 **Port 5432 already in use.** Another PostgreSQL instance is running. Stop it, or start this one on a different port (`port` in `<PG_DATA>\postgresql.conf`) and update `POSTGRES_PORT` and `DATABASE_URL` in `.env`.
 
