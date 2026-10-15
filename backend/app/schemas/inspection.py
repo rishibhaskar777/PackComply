@@ -223,3 +223,31 @@ class RiskTargetingPage(BaseModel):
     page_size: int
     total_pages: int
     summary: dict[str, int]
+
+
+class DashboardRiskItem(BaseModel):
+    id: UUID
+    inspection_number: str
+    product_name: str | None = None
+    maker: str | None = None
+    verdict: str
+    # Numerical risk is an official view; manufacturers receive null here.
+    risk_score: int | None = Field(default=None, ge=0, le=100)
+    risk_level: str | None = None
+
+
+class DashboardRepeatIssue(BaseModel):
+    rule_id: str
+    title: str
+    legal_reference: str | None = None
+    label_count: int
+
+
+class DashboardSummary(BaseModel):
+    period: str
+    total_inspections: int
+    verdict_counts: dict[str, int]
+    top_risk: list[DashboardRiskItem]
+    repeat_issues: list[DashboardRepeatIssue]
+    median_processing_seconds: float | None = None
+    ruleset_version: str

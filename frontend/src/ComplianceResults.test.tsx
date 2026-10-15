@@ -25,10 +25,10 @@ describe("compliance results", () => {
   });
   it("styles not-applicable findings neutrally, never as issues", () => {
     const { container } = render(<I18nProvider><ComplianceResults compliance={compliance} /></I18nProvider>);
-    const neutral = container.querySelector(".detection.finding-not-applicable");
+    const neutral = container.querySelector(".finding.finding--not-applicable");
     expect(neutral?.textContent).toContain("Country of origin");
-    expect(neutral?.querySelector(".history-badge.notApplicable")?.textContent).toBe(en.notApplicable);
-    expect(container.querySelectorAll(".history-badge.fail")).toHaveLength(0);
+    expect(neutral?.querySelector('[data-variant="NOT_APPLICABLE"]')?.textContent).toBe(en.notApplicable);
+    expect(container.querySelectorAll('[data-variant="FAIL"]')).toHaveLength(0);
   });
   it("falls back to the overall status for results stored before verdicts", () => {
     render(<I18nProvider><ComplianceResults compliance={{ ...compliance, verdict: null, ruleset_label: null }} /></I18nProvider>);
