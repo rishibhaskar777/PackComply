@@ -1,0 +1,1431 @@
+{
+ "source": "batch_evaluate OCR of 61kt6ySKLqL._SL1001_.jpg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 1001,
+ "image_height": 1001,
+ "ocr_seconds": 24.43,
+ "raw_text": "STAIN\nMAGNETS\nP&G\nee\nshiksha\nScan to know how\nShiksha helps\nPowder Laundry Detergent. CAUIN: E OT O F AHOF\nCHREKe ede\nwateedadedhe.\nRinse hands with water aer use.\nTDEadekTP&mP&\nHome Products Private Limited, Mumbai, Maharashtra-400 099\nTide Lemon & Mint Mfg by Procter & Gamble\nHome Products Private Limited,\nBENEFITS\nP&G Plaza, Cardinal Gracias Road\nREMOVES\nEVERYDAY\nChakala, Andheri (E), Mumbai -\n↑\nSTAINS\n400 099, Maharashtra, India.\nGIVES\nFor Consumer Comments/Complaints,\nOUTSTANDING\nWHITENESS\ncall CONSUMER RELATIONS on\nLEAVES\n1800-202-1364 or\nCLOTHES\nFRESH AND\nWrite to manufacturer or\nBRIGHT\nintouch.im@pg.com or visit\nDOSAGEINSTRUCTIONS\nMACHINE WASH\nhttps://in.pg.com/contact-us/\nHAND WASH\n#consumer-relations\nBest before 24 months\n隆\nADD 2 SCOOPS\nADD1SCOOP\nfrom MFD (see pack)\ndetengent is machine\ndetergent to water\nDID YOU TRY?\nFor MFD, #MRP \n(incl. of all taxes) &\nUnit Sale PriceSee package\nTy \nremovl vs. tide ls\nNet Weight:\nTide\n4987176143365>\n2 kg\nAvoluble in salect cities and cutlets only\nFor MFD, #MRP'र",
+ "detections": [
+  {
+   "text": "STAIN",
+   "confidence": 0.9999674558639526,
+   "bbox": [
+    [
+     253.0,
+     179.0
+    ],
+    [
+     305.0,
+     177.0
+    ],
+    [
+     306.0,
+     196.0
+    ],
+    [
+     254.0,
+     197.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MAGNETS",
+   "confidence": 0.9998904466629028,
+   "bbox": [
+    [
+     255.0,
+     193.0
+    ],
+    [
+     305.0,
+     193.0
+    ],
+    [
+     305.0,
+     204.0
+    ],
+    [
+     255.0,
+     204.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "P&G",
+   "confidence": 0.9998226761817932,
+   "bbox": [
+    [
+     596.0,
+     194.0
+    ],
+    [
+     631.0,
+     194.0
+    ],
+    [
+     631.0,
+     213.0
+    ],
+    [
+     596.0,
+     213.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ee",
+   "confidence": 0.4373829662799835,
+   "bbox": [
+    [
+     340.0,
+     216.0
+    ],
+    [
+     357.0,
+     219.0
+    ],
+    [
+     355.0,
+     232.0
+    ],
+    [
+     337.0,
+     229.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "shiksha",
+   "confidence": 0.9992271065711975,
+   "bbox": [
+    [
+     579.0,
+     213.0
+    ],
+    [
+     646.0,
+     213.0
+    ],
+    [
+     646.0,
+     235.0
+    ],
+    [
+     579.0,
+     235.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Scan to know how",
+   "confidence": 0.9997620582580566,
+   "bbox": [
+    [
+     665.0,
+     239.0
+    ],
+    [
+     749.0,
+     239.0
+    ],
+    [
+     749.0,
+     252.0
+    ],
+    [
+     665.0,
+     252.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Shiksha helps",
+   "confidence": 0.9996404051780701,
+   "bbox": [
+    [
+     675.0,
+     247.0
+    ],
+    [
+     739.0,
+     249.0
+    ],
+    [
+     738.0,
+     265.0
+    ],
+    [
+     675.0,
+     262.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Powder Laundry Detergent. CAUIN: E OT O F AHOF",
+   "confidence": 0.7978787422180176,
+   "bbox": [
+    [
+     527.0,
+     273.0
+    ],
+    [
+     786.0,
+     277.0
+    ],
+    [
+     786.0,
+     302.0
+    ],
+    [
+     527.0,
+     299.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CHREKe ede",
+   "confidence": 0.4864259362220764,
+   "bbox": [
+    [
+     528.0,
+     296.0
+    ],
+    [
+     791.0,
+     297.0
+    ],
+    [
+     791.0,
+     315.0
+    ],
+    [
+     528.0,
+     314.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "wateedadedhe.",
+   "confidence": 0.4256493151187897,
+   "bbox": [
+    [
+     527.0,
+     310.0
+    ],
+    [
+     795.0,
+     312.0
+    ],
+    [
+     795.0,
+     329.0
+    ],
+    [
+     527.0,
+     327.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Rinse hands with water aer use.",
+   "confidence": 0.7489626407623291,
+   "bbox": [
+    [
+     529.0,
+     326.0
+    ],
+    [
+     642.0,
+     326.0
+    ],
+    [
+     642.0,
+     340.0
+    ],
+    [
+     529.0,
+     340.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "TDEadekTP&mP&",
+   "confidence": 0.5780572295188904,
+   "bbox": [
+    [
+     527.0,
+     338.0
+    ],
+    [
+     796.0,
+     339.0
+    ],
+    [
+     796.0,
+     356.0
+    ],
+    [
+     527.0,
+     355.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Home Products Private Limited, Mumbai, Maharashtra-400 099",
+   "confidence": 0.9142285585403442,
+   "bbox": [
+    [
+     528.0,
+     353.0
+    ],
+    [
+     738.0,
+     354.0
+    ],
+    [
+     738.0,
+     369.0
+    ],
+    [
+     528.0,
+     368.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Tide Lemon & Mint Mfg by Procter & Gamble",
+   "confidence": 0.9933387041091919,
+   "bbox": [
+    [
+     528.0,
+     367.0
+    ],
+    [
+     784.0,
+     367.0
+    ],
+    [
+     784.0,
+     395.0
+    ],
+    [
+     528.0,
+     395.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Home Products Private Limited,",
+   "confidence": 0.9878581762313843,
+   "bbox": [
+    [
+     528.0,
+     389.0
+    ],
+    [
+     713.0,
+     392.0
+    ],
+    [
+     712.0,
+     417.0
+    ],
+    [
+     528.0,
+     415.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BENEFITS",
+   "confidence": 0.9999874830245972,
+   "bbox": [
+    [
+     259.0,
+     406.0
+    ],
+    [
+     309.0,
+     406.0
+    ],
+    [
+     309.0,
+     417.0
+    ],
+    [
+     259.0,
+     417.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "P&G Plaza, Cardinal Gracias Road",
+   "confidence": 0.9870247840881348,
+   "bbox": [
+    [
+     528.0,
+     413.0
+    ],
+    [
+     726.0,
+     415.0
+    ],
+    [
+     725.0,
+     440.0
+    ],
+    [
+     528.0,
+     438.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "REMOVES",
+   "confidence": 0.999958872795105,
+   "bbox": [
+    [
+     284.0,
+     432.0
+    ],
+    [
+     332.0,
+     432.0
+    ],
+    [
+     332.0,
+     443.0
+    ],
+    [
+     284.0,
+     443.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "EVERYDAY",
+   "confidence": 0.9999829530715942,
+   "bbox": [
+    [
+     286.0,
+     442.0
+    ],
+    [
+     339.0,
+     442.0
+    ],
+    [
+     339.0,
+     453.0
+    ],
+    [
+     286.0,
+     453.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Chakala, Andheri (E), Mumbai -",
+   "confidence": 0.9815879464149475,
+   "bbox": [
+    [
+     528.0,
+     437.0
+    ],
+    [
+     715.0,
+     439.0
+    ],
+    [
+     714.0,
+     463.0
+    ],
+    [
+     528.0,
+     461.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "↑",
+   "confidence": 0.43313729763031006,
+   "bbox": [
+    [
+     248.0,
+     452.0
+    ],
+    [
+     259.0,
+     452.0
+    ],
+    [
+     259.0,
+     461.0
+    ],
+    [
+     248.0,
+     461.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "STAINS",
+   "confidence": 0.9999845623970032,
+   "bbox": [
+    [
+     285.0,
+     452.0
+    ],
+    [
+     323.0,
+     452.0
+    ],
+    [
+     323.0,
+     463.0
+    ],
+    [
+     285.0,
+     463.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "400 099, Maharashtra, India.",
+   "confidence": 0.9984021186828613,
+   "bbox": [
+    [
+     528.0,
+     460.0
+    ],
+    [
+     703.0,
+     460.0
+    ],
+    [
+     703.0,
+     487.0
+    ],
+    [
+     528.0,
+     487.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "GIVES",
+   "confidence": 0.9999016523361206,
+   "bbox": [
+    [
+     285.0,
+     484.0
+    ],
+    [
+     317.0,
+     484.0
+    ],
+    [
+     317.0,
+     495.0
+    ],
+    [
+     285.0,
+     495.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "For Consumer Comments/Complaints,",
+   "confidence": 0.9854674935340881,
+   "bbox": [
+    [
+     528.0,
+     483.0
+    ],
+    [
+     729.0,
+     485.0
+    ],
+    [
+     728.0,
+     511.0
+    ],
+    [
+     528.0,
+     508.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "OUTSTANDING",
+   "confidence": 0.9999846816062927,
+   "bbox": [
+    [
+     286.0,
+     494.0
+    ],
+    [
+     357.0,
+     494.0
+    ],
+    [
+     357.0,
+     506.0
+    ],
+    [
+     286.0,
+     506.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "WHITENESS",
+   "confidence": 0.9999896287918091,
+   "bbox": [
+    [
+     286.0,
+     505.0
+    ],
+    [
+     344.0,
+     505.0
+    ],
+    [
+     344.0,
+     516.0
+    ],
+    [
+     286.0,
+     516.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "call CONSUMER RELATIONS on",
+   "confidence": 0.9978294372558594,
+   "bbox": [
+    [
+     530.0,
+     509.0
+    ],
+    [
+     704.0,
+     509.0
+    ],
+    [
+     704.0,
+     530.0
+    ],
+    [
+     530.0,
+     530.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LEAVES",
+   "confidence": 0.9999866485595703,
+   "bbox": [
+    [
+     285.0,
+     536.0
+    ],
+    [
+     326.0,
+     536.0
+    ],
+    [
+     326.0,
+     550.0
+    ],
+    [
+     285.0,
+     550.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "1800-202-1364 or",
+   "confidence": 0.9990699291229248,
+   "bbox": [
+    [
+     529.0,
+     531.0
+    ],
+    [
+     645.0,
+     531.0
+    ],
+    [
+     645.0,
+     555.0
+    ],
+    [
+     529.0,
+     555.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CLOTHES",
+   "confidence": 0.9992230534553528,
+   "bbox": [
+    [
+     285.0,
+     544.0
+    ],
+    [
+     332.0,
+     546.0
+    ],
+    [
+     332.0,
+     560.0
+    ],
+    [
+     284.0,
+     558.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FRESH AND",
+   "confidence": 0.9969244003295898,
+   "bbox": [
+    [
+     284.0,
+     554.0
+    ],
+    [
+     343.0,
+     556.0
+    ],
+    [
+     343.0,
+     570.0
+    ],
+    [
+     283.0,
+     568.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Write to manufacturer or",
+   "confidence": 0.9999745488166809,
+   "bbox": [
+    [
+     527.0,
+     553.0
+    ],
+    [
+     677.0,
+     555.0
+    ],
+    [
+     677.0,
+     579.0
+    ],
+    [
+     527.0,
+     577.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BRIGHT",
+   "confidence": 0.9999849200248718,
+   "bbox": [
+    [
+     285.0,
+     566.0
+    ],
+    [
+     324.0,
+     566.0
+    ],
+    [
+     324.0,
+     580.0
+    ],
+    [
+     285.0,
+     580.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "intouch.im@pg.com or visit",
+   "confidence": 0.989871621131897,
+   "bbox": [
+    [
+     528.0,
+     576.0
+    ],
+    [
+     692.0,
+     576.0
+    ],
+    [
+     692.0,
+     603.0
+    ],
+    [
+     528.0,
+     603.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DOSAGEINSTRUCTIONS",
+   "confidence": 0.9999764561653137,
+   "bbox": [
+    [
+     224.0,
+     587.0
+    ],
+    [
+     347.0,
+     589.0
+    ],
+    [
+     347.0,
+     604.0
+    ],
+    [
+     224.0,
+     601.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MACHINE WASH",
+   "confidence": 0.99635910987854,
+   "bbox": [
+    [
+     217.0,
+     607.0
+    ],
+    [
+     285.0,
+     611.0
+    ],
+    [
+     284.0,
+     624.0
+    ],
+    [
+     217.0,
+     620.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "https://in.pg.com/contact-us/",
+   "confidence": 0.977714478969574,
+   "bbox": [
+    [
+     528.0,
+     599.0
+    ],
+    [
+     704.0,
+     599.0
+    ],
+    [
+     704.0,
+     627.0
+    ],
+    [
+     528.0,
+     627.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "HAND WASH",
+   "confidence": 0.9998809099197388,
+   "bbox": [
+    [
+     300.0,
+     613.0
+    ],
+    [
+     354.0,
+     613.0
+    ],
+    [
+     354.0,
+     624.0
+    ],
+    [
+     300.0,
+     624.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "#consumer-relations",
+   "confidence": 0.9999813437461853,
+   "bbox": [
+    [
+     528.0,
+     626.0
+    ],
+    [
+     649.0,
+     626.0
+    ],
+    [
+     649.0,
+     647.0
+    ],
+    [
+     528.0,
+     647.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Best before 24 months",
+   "confidence": 0.9990979433059692,
+   "bbox": [
+    [
+     528.0,
+     646.0
+    ],
+    [
+     663.0,
+     646.0
+    ],
+    [
+     663.0,
+     670.0
+    ],
+    [
+     528.0,
+     670.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "隆",
+   "confidence": 0.18432973325252533,
+   "bbox": [
+    [
+     678.0,
+     648.0
+    ],
+    [
+     702.0,
+     648.0
+    ],
+    [
+     702.0,
+     672.0
+    ],
+    [
+     678.0,
+     672.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ADD 2 SCOOPS",
+   "confidence": 0.9823847413063049,
+   "bbox": [
+    [
+     223.0,
+     670.0
+    ],
+    [
+     277.0,
+     672.0
+    ],
+    [
+     276.0,
+     683.0
+    ],
+    [
+     223.0,
+     681.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ADD1SCOOP",
+   "confidence": 0.9996597766876221,
+   "bbox": [
+    [
+     303.0,
+     674.0
+    ],
+    [
+     352.0,
+     674.0
+    ],
+    [
+     352.0,
+     685.0
+    ],
+    [
+     303.0,
+     685.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "from MFD (see pack)",
+   "confidence": 0.9998410940170288,
+   "bbox": [
+    [
+     527.0,
+     668.0
+    ],
+    [
+     653.0,
+     668.0
+    ],
+    [
+     653.0,
+     692.0
+    ],
+    [
+     527.0,
+     692.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "detengent is machine",
+   "confidence": 0.7928106784820557,
+   "bbox": [
+    [
+     221.0,
+     678.0
+    ],
+    [
+     279.0,
+     681.0
+    ],
+    [
+     278.0,
+     691.0
+    ],
+    [
+     221.0,
+     688.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "detergent to water",
+   "confidence": 0.8809260725975037,
+   "bbox": [
+    [
+     300.0,
+     681.0
+    ],
+    [
+     353.0,
+     682.0
+    ],
+    [
+     353.0,
+     692.0
+    ],
+    [
+     300.0,
+     691.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DID YOU TRY?",
+   "confidence": 0.9975880980491638,
+   "bbox": [
+    [
+     250.0,
+     695.0
+    ],
+    [
+     322.0,
+     697.0
+    ],
+    [
+     322.0,
+     712.0
+    ],
+    [
+     249.0,
+     709.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "For MFD, #MRP ",
+   "confidence": 0.9235392808914185,
+   "bbox": [
+    [
+     528.0,
+     691.0
+    ],
+    [
+     638.0,
+     691.0
+    ],
+    [
+     638.0,
+     715.0
+    ],
+    [
+     528.0,
+     715.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(incl. of all taxes) &",
+   "confidence": 0.9812467694282532,
+   "bbox": [
+    [
+     528.0,
+     714.0
+    ],
+    [
+     647.0,
+     714.0
+    ],
+    [
+     647.0,
+     739.0
+    ],
+    [
+     528.0,
+     739.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Unit Sale PriceSee package",
+   "confidence": 0.7617674469947815,
+   "bbox": [
+    [
+     528.0,
+     737.0
+    ],
+    [
+     694.0,
+     737.0
+    ],
+    [
+     694.0,
+     764.0
+    ],
+    [
+     528.0,
+     764.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ty ",
+   "confidence": 0.590237557888031,
+   "bbox": [
+    [
+     668.0,
+     786.0
+    ],
+    [
+     786.0,
+     783.0
+    ],
+    [
+     786.0,
+     800.0
+    ],
+    [
+     668.0,
+     803.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "removl vs. tide ls",
+   "confidence": 0.7240016460418701,
+   "bbox": [
+    [
+     701.0,
+     798.0
+    ],
+    [
+     787.0,
+     795.0
+    ],
+    [
+     787.0,
+     812.0
+    ],
+    [
+     702.0,
+     816.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Weight:",
+   "confidence": 0.9994441866874695,
+   "bbox": [
+    [
+     683.0,
+     811.0
+    ],
+    [
+     786.0,
+     811.0
+    ],
+    [
+     786.0,
+     837.0
+    ],
+    [
+     683.0,
+     837.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Tide",
+   "confidence": 0.9988992214202881,
+   "bbox": [
+    [
+     250.0,
+     836.0
+    ],
+    [
+     273.0,
+     836.0
+    ],
+    [
+     273.0,
+     852.0
+    ],
+    [
+     250.0,
+     852.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "4987176143365>",
+   "confidence": 0.970761239528656,
+   "bbox": [
+    [
+     541.0,
+     849.0
+    ],
+    [
+     647.0,
+     849.0
+    ],
+    [
+     647.0,
+     862.0
+    ],
+    [
+     541.0,
+     862.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "2 kg",
+   "confidence": 0.9877959489822388,
+   "bbox": [
+    [
+     710.0,
+     844.0
+    ],
+    [
+     759.0,
+     847.0
+    ],
+    [
+     758.0,
+     875.0
+    ],
+    [
+     708.0,
+     872.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Avoluble in salect cities and cutlets only",
+   "confidence": 0.8945895433425903,
+   "bbox": [
+    [
+     540.0,
+     862.0
+    ],
+    [
+     648.0,
+     862.0
+    ],
+    [
+     648.0,
+     872.0
+    ],
+    [
+     540.0,
+     872.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "For MFD, #MRP'र",
+   "confidence": 0.8429318070411682,
+   "bbox": [
+    [
+     526.57,
+     692.36
+    ],
+    [
+     635.01,
+     690.27
+    ],
+    [
+     635.01,
+     715.3
+    ],
+    [
+     526.57,
+     717.38
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

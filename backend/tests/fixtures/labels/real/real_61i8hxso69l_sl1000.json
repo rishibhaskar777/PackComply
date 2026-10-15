@@ -1,0 +1,759 @@
+{
+ "source": "batch_evaluate OCR of 61I8HxSO69L._SL1000_.jpg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 1000,
+ "image_height": 1000,
+ "ocr_seconds": 28.2,
+ "raw_text": "INGREDIENTS: SODIUM PALMATE, SODIUM PALM\nNet Wt. When Packed\n125 g\nKERNELATE, WATER, TALC, GLYCERIN, PERFUME, SODIUM\nCHLORIDE, LAURIC ACID, TETRASODIUM ETIDRONATE, PENTASODIUM PENTETATE\nTETRASODIUM EDTA,SILVER OXIDE,VP/VA COPOLYMER,METHYLCHLOROISOTHIAZOLINONE\nAND METHYLISOTHIAZOLINONE, THYMOL, TERPINEOL, CI 1249O, CI 1168O, LIMONENE,\nLINALOOL, CITRAL,2-(4-TERT-BUTYLBENZYL)PROPIONALDEHYDE, GERANIOL.\nNo\n*MRP  (INCL. OF ALL TAXES) - REFER BAND, #MFD. & @USE BEFORE: SEE CODING AREA. TOILET SOAP. GI. 3.\nTFM 60%. MARKETED BY HINDUSTAN UNILEVER LIMITED (HUL). © HUL 2018. LIFEBUOY IS A\nREGISTERED TRADEMARK. MADE FROM 100% VEGETABLE OILS. DESIGN RD N0. 214190. BUY 4 U LIFEBUOY\nTOTAL 10 125 g AND GET 1 U FREE. INDIVIDUAL UNITS NOT AVAILABLE FOR RETAIL SALE. LIMITED STOCKS OFFER,\nAVAILABLE IN SELECT STATES / CITIES / OUTLETS ONLY. STOCKS WITHOUT THIS OFFER ARE ALSO AVAILABLE.\nMFG. BY, READ THE FIRST CHARACTER(S) OF THE CODE FOLLOWING B. E) LAKME LEVER PVT. LTD., SURVEY\nNO. 159, VARSANA, BHIMASAR - PADANA ROAD, P.O. PADANA, GANDHIDHAM (KACHCHH) - 370 240,\nGUJARAT. M GC/849. I) HINDUSTAN UNILEVER LTD., KUNDAIM INDUSTRIAL ESTATE, GOA 403 115. M 520.\nC) HINDUSTAN UNILEVER LTD., OFF NH-45/A, VADAMANGALAM, PUDUCHERRY 605 102. M PP/5212/97.\nA Hindustan Unilever Limited BRAND\nLEVERCARE-QUERY/FEEDBACK,\nTOLL FREE: 1800-10-22-221, PO BOX 14760\nMUMBAI 400 099, LEVER.CARE@UNILEVER.COM\n业\n678433\nswachh aadat\nswachh bharat\n8\"901030\"730849\">\nAs per lab test, on indicator organism\nvs. soap bar without actives\n££SLt8८9\n॥901030॥730849",
+ "detections": [
+  {
+   "text": "INGREDIENTS: SODIUM PALMATE, SODIUM PALM",
+   "confidence": 0.9979860186576843,
+   "bbox": [
+    [
+     112.0,
+     284.0
+    ],
+    [
+     399.0,
+     284.0
+    ],
+    [
+     399.0,
+     297.0
+    ],
+    [
+     112.0,
+     297.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Wt. When Packed",
+   "confidence": 0.9831573963165283,
+   "bbox": [
+    [
+     403.0,
+     282.0
+    ],
+    [
+     578.0,
+     283.0
+    ],
+    [
+     578.0,
+     300.0
+    ],
+    [
+     403.0,
+     299.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "125 g",
+   "confidence": 0.9456208944320679,
+   "bbox": [
+    [
+     599.0,
+     282.0
+    ],
+    [
+     646.0,
+     282.0
+    ],
+    [
+     646.0,
+     304.0
+    ],
+    [
+     599.0,
+     304.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "KERNELATE, WATER, TALC, GLYCERIN, PERFUME, SODIUM",
+   "confidence": 0.961370050907135,
+   "bbox": [
+    [
+     111.0,
+     296.0
+    ],
+    [
+     397.0,
+     295.0
+    ],
+    [
+     397.0,
+     309.0
+    ],
+    [
+     111.0,
+     311.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CHLORIDE, LAURIC ACID, TETRASODIUM ETIDRONATE, PENTASODIUM PENTETATE",
+   "confidence": 0.9954081177711487,
+   "bbox": [
+    [
+     112.0,
+     308.0
+    ],
+    [
+     580.0,
+     308.0
+    ],
+    [
+     580.0,
+     323.0
+    ],
+    [
+     112.0,
+     323.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "TETRASODIUM EDTA,SILVER OXIDE,VP/VA COPOLYMER,METHYLCHLOROISOTHIAZOLINONE",
+   "confidence": 0.9776822328567505,
+   "bbox": [
+    [
+     111.0,
+     323.0
+    ],
+    [
+     582.0,
+     322.0
+    ],
+    [
+     582.0,
+     336.0
+    ],
+    [
+     111.0,
+     337.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "AND METHYLISOTHIAZOLINONE, THYMOL, TERPINEOL, CI 1249O, CI 1168O, LIMONENE,",
+   "confidence": 0.9847334027290344,
+   "bbox": [
+    [
+     112.0,
+     336.0
+    ],
+    [
+     582.0,
+     336.0
+    ],
+    [
+     582.0,
+     350.0
+    ],
+    [
+     112.0,
+     350.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LINALOOL, CITRAL,2-(4-TERT-BUTYLBENZYL)PROPIONALDEHYDE, GERANIOL.",
+   "confidence": 0.9881113171577454,
+   "bbox": [
+    [
+     112.0,
+     350.0
+    ],
+    [
+     528.0,
+     350.0
+    ],
+    [
+     528.0,
+     363.0
+    ],
+    [
+     112.0,
+     363.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "No",
+   "confidence": 0.9999536275863647,
+   "bbox": [
+    [
+     606.0,
+     345.0
+    ],
+    [
+     626.0,
+     345.0
+    ],
+    [
+     626.0,
+     357.0
+    ],
+    [
+     606.0,
+     357.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "*MRP  (INCL. OF ALL TAXES) - REFER BAND, #MFD. & @USE BEFORE: SEE CODING AREA. TOILET SOAP. GI. 3.",
+   "confidence": 0.979799747467041,
+   "bbox": [
+    [
+     111.0,
+     363.0
+    ],
+    [
+     582.0,
+     362.0
+    ],
+    [
+     582.0,
+     376.0
+    ],
+    [
+     111.0,
+     377.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "TFM 60%. MARKETED BY HINDUSTAN UNILEVER LIMITED (HUL). © HUL 2018. LIFEBUOY IS A",
+   "confidence": 0.98497074842453,
+   "bbox": [
+    [
+     111.0,
+     377.0
+    ],
+    [
+     583.0,
+     376.0
+    ],
+    [
+     583.0,
+     390.0
+    ],
+    [
+     111.0,
+     391.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "REGISTERED TRADEMARK. MADE FROM 100% VEGETABLE OILS. DESIGN RD N0. 214190. BUY 4 U LIFEBUOY",
+   "confidence": 0.9811131358146667,
+   "bbox": [
+    [
+     111.0,
+     391.0
+    ],
+    [
+     661.0,
+     390.0
+    ],
+    [
+     661.0,
+     404.0
+    ],
+    [
+     111.0,
+     405.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "TOTAL 10 125 g AND GET 1 U FREE. INDIVIDUAL UNITS NOT AVAILABLE FOR RETAIL SALE. LIMITED STOCKS OFFER,",
+   "confidence": 0.9909042716026306,
+   "bbox": [
+    [
+     111.0,
+     405.0
+    ],
+    [
+     660.0,
+     404.0
+    ],
+    [
+     660.0,
+     418.0
+    ],
+    [
+     111.0,
+     419.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "AVAILABLE IN SELECT STATES / CITIES / OUTLETS ONLY. STOCKS WITHOUT THIS OFFER ARE ALSO AVAILABLE.",
+   "confidence": 0.9918566942214966,
+   "bbox": [
+    [
+     111.0,
+     419.0
+    ],
+    [
+     643.0,
+     418.0
+    ],
+    [
+     643.0,
+     432.0
+    ],
+    [
+     111.0,
+     433.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MFG. BY, READ THE FIRST CHARACTER(S) OF THE CODE FOLLOWING B. E) LAKME LEVER PVT. LTD., SURVEY",
+   "confidence": 0.9928375482559204,
+   "bbox": [
+    [
+     110.0,
+     434.0
+    ],
+    [
+     662.0,
+     433.0
+    ],
+    [
+     662.0,
+     448.0
+    ],
+    [
+     110.0,
+     449.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NO. 159, VARSANA, BHIMASAR - PADANA ROAD, P.O. PADANA, GANDHIDHAM (KACHCHH) - 370 240,",
+   "confidence": 0.9799710512161255,
+   "bbox": [
+    [
+     111.0,
+     449.0
+    ],
+    [
+     661.0,
+     449.0
+    ],
+    [
+     661.0,
+     462.0
+    ],
+    [
+     111.0,
+     462.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "GUJARAT. M GC/849. I) HINDUSTAN UNILEVER LTD., KUNDAIM INDUSTRIAL ESTATE, GOA 403 115. M 520.",
+   "confidence": 0.9873307943344116,
+   "bbox": [
+    [
+     110.0,
+     461.0
+    ],
+    [
+     662.0,
+     460.0
+    ],
+    [
+     662.0,
+     474.0
+    ],
+    [
+     110.0,
+     475.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "C) HINDUSTAN UNILEVER LTD., OFF NH-45/A, VADAMANGALAM, PUDUCHERRY 605 102. M PP/5212/97.",
+   "confidence": 0.9966422915458679,
+   "bbox": [
+    [
+     111.0,
+     475.0
+    ],
+    [
+     640.0,
+     475.0
+    ],
+    [
+     640.0,
+     488.0
+    ],
+    [
+     111.0,
+     488.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "A Hindustan Unilever Limited BRAND",
+   "confidence": 0.9927144646644592,
+   "bbox": [
+    [
+     112.0,
+     498.0
+    ],
+    [
+     413.0,
+     498.0
+    ],
+    [
+     413.0,
+     518.0
+    ],
+    [
+     112.0,
+     518.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LEVERCARE-QUERY/FEEDBACK,",
+   "confidence": 0.9865016937255859,
+   "bbox": [
+    [
+     434.0,
+     491.0
+    ],
+    [
+     590.0,
+     491.0
+    ],
+    [
+     590.0,
+     505.0
+    ],
+    [
+     434.0,
+     505.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "TOLL FREE: 1800-10-22-221, PO BOX 14760",
+   "confidence": 0.9763342142105103,
+   "bbox": [
+    [
+     434.0,
+     504.0
+    ],
+    [
+     639.0,
+     504.0
+    ],
+    [
+     639.0,
+     518.0
+    ],
+    [
+     434.0,
+     518.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MUMBAI 400 099, LEVER.CARE@UNILEVER.COM",
+   "confidence": 0.9907729029655457,
+   "bbox": [
+    [
+     432.0,
+     516.0
+    ],
+    [
+     663.0,
+     515.0
+    ],
+    [
+     663.0,
+     532.0
+    ],
+    [
+     433.0,
+     533.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "业",
+   "confidence": 0.5362738370895386,
+   "bbox": [
+    [
+     526.0,
+     531.0
+    ],
+    [
+     564.0,
+     531.0
+    ],
+    [
+     564.0,
+     556.0
+    ],
+    [
+     526.0,
+     556.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "678433",
+   "confidence": 0.8170416951179504,
+   "bbox": [
+    [
+     434.0,
+     547.0
+    ],
+    [
+     452.0,
+     547.0
+    ],
+    [
+     452.0,
+     615.0
+    ],
+    [
+     434.0,
+     615.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "swachh aadat",
+   "confidence": 0.9899380803108215,
+   "bbox": [
+    [
+     471.0,
+     556.0
+    ],
+    [
+     578.0,
+     556.0
+    ],
+    [
+     578.0,
+     574.0
+    ],
+    [
+     471.0,
+     574.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "swachh bharat",
+   "confidence": 0.9995489120483398,
+   "bbox": [
+    [
+     471.0,
+     573.0
+    ],
+    [
+     582.0,
+     573.0
+    ],
+    [
+     582.0,
+     587.0
+    ],
+    [
+     471.0,
+     587.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8\"901030\"730849\">",
+   "confidence": 0.9681665897369385,
+   "bbox": [
+    [
+     107.0,
+     592.0
+    ],
+    [
+     414.0,
+     592.0
+    ],
+    [
+     414.0,
+     619.0
+    ],
+    [
+     107.0,
+     619.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "As per lab test, on indicator organism",
+   "confidence": 0.9936692118644714,
+   "bbox": [
+    [
+     453.0,
+     584.0
+    ],
+    [
+     662.0,
+     587.0
+    ],
+    [
+     662.0,
+     604.0
+    ],
+    [
+     453.0,
+     601.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "vs. soap bar without actives",
+   "confidence": 0.9996321797370911,
+   "bbox": [
+    [
+     453.0,
+     602.0
+    ],
+    [
+     607.0,
+     602.0
+    ],
+    [
+     607.0,
+     616.0
+    ],
+    [
+     453.0,
+     616.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "££SLt8८9",
+   "confidence": 0.7271928787231445,
+   "bbox": [
+    [
+     432.29,
+     546.88
+    ],
+    [
+     452.08,
+     546.88
+    ],
+    [
+     453.13,
+     616.67
+    ],
+    [
+     433.33,
+     616.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "॥901030॥730849",
+   "confidence": 0.9268006086349487,
+   "bbox": [
+    [
+     139.58,
+     594.79
+    ],
+    [
+     385.42,
+     594.79
+    ],
+    [
+     385.42,
+     616.67
+    ],
+    [
+     139.58,
+     616.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

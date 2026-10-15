@@ -1,0 +1,831 @@
+{
+ "source": "batch_evaluate OCR of PRODUCT_1614772171439.webp",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 500,
+ "image_height": 500,
+ "ocr_seconds": 10.41,
+ "raw_text": "s es\n\nhead & shoulders anti-dandruff shampoo at only\nDIRECTIONS: Wet hair. Gently massage onto scalp. Lather\nand rinse thoroughly.\nCAUTION: Avoid contact with eyes. If contact occurs, rinse\nthoroughly with water.\nManufactured by: Procter & Gamble Home Products Pvt\nLtd, Plot No.1, Industrial Area, Katha, P.0.Baddi, 173205,\nSolan, H.P., India\nBatch No./Mfg. Date: See package.\nUse before 18 months from the date of manufacture.\nM.L.No. HIM/COS/06/94\n4 \"902430\"829847\nFor Consumer Comments/\nComplaints: Call CONSUMER\nRELATIONS on 022-24942113, or\nwrite to Manufacturer or\nhttp://www.pg.com/en_IN/\ncompany/contact-us.shtml or\nintouch.im@pg.com\nShampoo - surfactant based\n\"MRP (2 incl. of all taxes\nwww.headandshoulders.co.in\nHead & Shoulders is a trademark of\nthe Procter & Gamble Company.\nNet Volume:\n5ml\n(when packed\")\n**Non Statutory/Voluntary Declaration\n90791775\nहेड एंड शोल्डर्स\nऐंटी-डैंडंफ शैम्पू केवल\n\"MRP २2 incl. of all taxes",
+ "detections": [
+  {
+   "text": "s es",
+   "confidence": 0.5365110635757446,
+   "bbox": [
+    [
+     126.0,
+     29.0
+    ],
+    [
+     367.0,
+     29.0
+    ],
+    [
+     367.0,
+     73.0
+    ],
+    [
+     126.0,
+     73.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "",
+   "confidence": 0.0,
+   "bbox": [
+    [
+     197.0,
+     75.0
+    ],
+    [
+     332.0,
+     75.0
+    ],
+    [
+     332.0,
+     95.0
+    ],
+    [
+     197.0,
+     95.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "head & shoulders anti-dandruff shampoo at only",
+   "confidence": 0.9971532225608826,
+   "bbox": [
+    [
+     123.0,
+     98.0
+    ],
+    [
+     319.0,
+     99.0
+    ],
+    [
+     319.0,
+     112.0
+    ],
+    [
+     123.0,
+     111.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DIRECTIONS: Wet hair. Gently massage onto scalp. Lather",
+   "confidence": 0.9922376871109009,
+   "bbox": [
+    [
+     124.0,
+     109.0
+    ],
+    [
+     355.0,
+     110.0
+    ],
+    [
+     355.0,
+     124.0
+    ],
+    [
+     124.0,
+     123.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "and rinse thoroughly.",
+   "confidence": 0.9748316407203674,
+   "bbox": [
+    [
+     125.0,
+     122.0
+    ],
+    [
+     211.0,
+     122.0
+    ],
+    [
+     211.0,
+     136.0
+    ],
+    [
+     125.0,
+     136.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CAUTION: Avoid contact with eyes. If contact occurs, rinse",
+   "confidence": 0.9838744401931763,
+   "bbox": [
+    [
+     125.0,
+     133.0
+    ],
+    [
+     356.0,
+     135.0
+    ],
+    [
+     356.0,
+     148.0
+    ],
+    [
+     125.0,
+     146.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "thoroughly with water.",
+   "confidence": 0.9853625893592834,
+   "bbox": [
+    [
+     126.0,
+     146.0
+    ],
+    [
+     215.0,
+     146.0
+    ],
+    [
+     215.0,
+     159.0
+    ],
+    [
+     126.0,
+     159.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Manufactured by: Procter & Gamble Home Products Pvt",
+   "confidence": 0.9800233244895935,
+   "bbox": [
+    [
+     125.0,
+     156.0
+    ],
+    [
+     350.0,
+     158.0
+    ],
+    [
+     350.0,
+     172.0
+    ],
+    [
+     125.0,
+     170.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ltd, Plot No.1, Industrial Area, Katha, P.0.Baddi, 173205,",
+   "confidence": 0.9596583247184753,
+   "bbox": [
+    [
+     124.0,
+     168.0
+    ],
+    [
+     349.0,
+     171.0
+    ],
+    [
+     349.0,
+     185.0
+    ],
+    [
+     124.0,
+     182.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Solan, H.P., India",
+   "confidence": 0.9797003269195557,
+   "bbox": [
+    [
+     125.0,
+     182.0
+    ],
+    [
+     193.0,
+     182.0
+    ],
+    [
+     193.0,
+     195.0
+    ],
+    [
+     125.0,
+     195.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Batch No./Mfg. Date: See package.",
+   "confidence": 0.9926445484161377,
+   "bbox": [
+    [
+     125.0,
+     192.0
+    ],
+    [
+     264.0,
+     194.0
+    ],
+    [
+     264.0,
+     208.0
+    ],
+    [
+     125.0,
+     206.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Use before 18 months from the date of manufacture.",
+   "confidence": 0.9948264360427856,
+   "bbox": [
+    [
+     125.0,
+     205.0
+    ],
+    [
+     334.0,
+     207.0
+    ],
+    [
+     334.0,
+     220.0
+    ],
+    [
+     125.0,
+     218.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "M.L.No. HIM/COS/06/94",
+   "confidence": 0.9825901985168457,
+   "bbox": [
+    [
+     125.0,
+     216.0
+    ],
+    [
+     222.0,
+     217.0
+    ],
+    [
+     222.0,
+     231.0
+    ],
+    [
+     125.0,
+     230.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "4 \"902430\"829847",
+   "confidence": 0.969816267490387,
+   "bbox": [
+    [
+     127.0,
+     236.0
+    ],
+    [
+     147.0,
+     236.0
+    ],
+    [
+     147.0,
+     433.0
+    ],
+    [
+     127.0,
+     433.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "For Consumer Comments/",
+   "confidence": 0.9997698068618774,
+   "bbox": [
+    [
+     214.0,
+     229.0
+    ],
+    [
+     320.0,
+     229.0
+    ],
+    [
+     320.0,
+     243.0
+    ],
+    [
+     214.0,
+     243.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Complaints: Call CONSUMER",
+   "confidence": 0.998131275177002,
+   "bbox": [
+    [
+     214.0,
+     242.0
+    ],
+    [
+     329.0,
+     242.0
+    ],
+    [
+     329.0,
+     255.0
+    ],
+    [
+     214.0,
+     255.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "RELATIONS on 022-24942113, or",
+   "confidence": 0.9859087467193604,
+   "bbox": [
+    [
+     214.0,
+     254.0
+    ],
+    [
+     348.0,
+     254.0
+    ],
+    [
+     348.0,
+     268.0
+    ],
+    [
+     214.0,
+     268.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "write to Manufacturer or",
+   "confidence": 0.9998721480369568,
+   "bbox": [
+    [
+     214.0,
+     267.0
+    ],
+    [
+     313.0,
+     267.0
+    ],
+    [
+     313.0,
+     279.0
+    ],
+    [
+     214.0,
+     279.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "http://www.pg.com/en_IN/",
+   "confidence": 0.9777129292488098,
+   "bbox": [
+    [
+     214.0,
+     278.0
+    ],
+    [
+     324.0,
+     278.0
+    ],
+    [
+     324.0,
+     291.0
+    ],
+    [
+     214.0,
+     291.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "company/contact-us.shtml or",
+   "confidence": 0.9826503992080688,
+   "bbox": [
+    [
+     213.0,
+     290.0
+    ],
+    [
+     333.0,
+     290.0
+    ],
+    [
+     333.0,
+     304.0
+    ],
+    [
+     213.0,
+     304.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "intouch.im@pg.com",
+   "confidence": 0.9984171390533447,
+   "bbox": [
+    [
+     213.0,
+     303.0
+    ],
+    [
+     297.0,
+     303.0
+    ],
+    [
+     297.0,
+     315.0
+    ],
+    [
+     213.0,
+     315.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Shampoo - surfactant based",
+   "confidence": 0.9667277932167053,
+   "bbox": [
+    [
+     213.0,
+     314.0
+    ],
+    [
+     329.0,
+     314.0
+    ],
+    [
+     329.0,
+     327.0
+    ],
+    [
+     213.0,
+     327.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "\"MRP (2 incl. of all taxes",
+   "confidence": 0.9231380224227905,
+   "bbox": [
+    [
+     212.0,
+     324.0
+    ],
+    [
+     316.0,
+     325.0
+    ],
+    [
+     316.0,
+     339.0
+    ],
+    [
+     212.0,
+     338.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "www.headandshoulders.co.in",
+   "confidence": 0.9999566674232483,
+   "bbox": [
+    [
+     213.0,
+     337.0
+    ],
+    [
+     333.0,
+     337.0
+    ],
+    [
+     333.0,
+     351.0
+    ],
+    [
+     213.0,
+     351.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Head & Shoulders is a trademark of",
+   "confidence": 0.9982612729072571,
+   "bbox": [
+    [
+     212.0,
+     349.0
+    ],
+    [
+     355.0,
+     348.0
+    ],
+    [
+     356.0,
+     361.0
+    ],
+    [
+     212.0,
+     362.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "the Procter & Gamble Company.",
+   "confidence": 0.9986451864242554,
+   "bbox": [
+    [
+     212.0,
+     360.0
+    ],
+    [
+     341.0,
+     361.0
+    ],
+    [
+     341.0,
+     375.0
+    ],
+    [
+     212.0,
+     374.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Volume:",
+   "confidence": 0.9945630431175232,
+   "bbox": [
+    [
+     215.0,
+     434.0
+    ],
+    [
+     258.0,
+     434.0
+    ],
+    [
+     258.0,
+     447.0
+    ],
+    [
+     215.0,
+     447.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "5ml",
+   "confidence": 0.993119478225708,
+   "bbox": [
+    [
+     271.0,
+     433.0
+    ],
+    [
+     290.0,
+     433.0
+    ],
+    [
+     290.0,
+     445.0
+    ],
+    [
+     271.0,
+     445.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(when packed\")",
+   "confidence": 0.9685269594192505,
+   "bbox": [
+    [
+     303.0,
+     434.0
+    ],
+    [
+     358.0,
+     434.0
+    ],
+    [
+     358.0,
+     447.0
+    ],
+    [
+     303.0,
+     447.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "**Non Statutory/Voluntary Declaration",
+   "confidence": 0.9594087600708008,
+   "bbox": [
+    [
+     125.0,
+     454.0
+    ],
+    [
+     271.0,
+     452.0
+    ],
+    [
+     272.0,
+     465.0
+    ],
+    [
+     125.0,
+     467.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "90791775",
+   "confidence": 0.9999940395355225,
+   "bbox": [
+    [
+     288.0,
+     446.0
+    ],
+    [
+     360.0,
+     448.0
+    ],
+    [
+     359.0,
+     469.0
+    ],
+    [
+     287.0,
+     467.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "हेड एंड शोल्डर्स",
+   "confidence": 0.9639788866043091,
+   "bbox": [
+    [
+     123.0,
+     28.0
+    ],
+    [
+     369.0,
+     28.0
+    ],
+    [
+     369.0,
+     75.0
+    ],
+    [
+     123.0,
+     75.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "ऐंटी-डैंडंफ शैम्पू केवल",
+   "confidence": 0.866700291633606,
+   "bbox": [
+    [
+     197.0,
+     73.0
+    ],
+    [
+     332.0,
+     75.0
+    ],
+    [
+     332.0,
+     96.0
+    ],
+    [
+     196.0,
+     94.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "\"MRP २2 incl. of all taxes",
+   "confidence": 0.8602673411369324,
+   "bbox": [
+    [
+     214.0,
+     325.0
+    ],
+    [
+     315.0,
+     325.0
+    ],
+    [
+     315.0,
+     339.0
+    ],
+    [
+     214.0,
+     339.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

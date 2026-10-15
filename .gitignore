@@ -20,3 +20,7 @@ build/
 *.tsbuildinfo
 frontend/vite.config.js
 frontend/vite.config.d.ts
+
+# Batch evaluation reports (embed label photos) and local sample photos
+reports/
+PackComply-samples/

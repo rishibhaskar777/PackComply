@@ -1,0 +1,120 @@
+{
+ "_comment": [
+  "Ground truth for the real label photos, read by a person from each photo (only what is legible; omitted = not visible).",
+  "Keyed by fixture name (see split.json for the photo file and DEV / HOLD-OUT split).",
+  "Same value conventions as ../expected.json: a list means any one is accepted; dates are YYYY-MM[-DD] or P<n>M;",
+  "phones compare digits only. Real-label differences: best_before_or_expiry is one field (printed as best before,",
+  "use before, use by or expiry); consumer_care_website compares the host name only; product_category is 'food' or omitted.",
+  "_meta.real_photo marks phone photographs (the rest are e-commerce catalogue images); _meta.difficulty is clear / moderate / hard; _meta.category is the product category; _meta.source notes whether the",
+  "image is a phone photo or flat catalogue artwork.",
+  "real_parle_g_gluco_biscuits_70g_2 is the same photo as ../parle_g_gluco_70g and keeps exactly its expectations."
+ ],
+ "real_611tfax73zl_sl1500": {
+  "_meta": {"difficulty": "clear", "category": "personal care (soap multipack)", "source": "catalogue artwork"},
+  "product_name": ["Margo Original", "Margo Original Vitamin E moisturiser"],
+  "manufacturer": "Jyothy Labs Limited",
+  "brand_owner": "Jyothy Labs Limited",
+  "packer": "Jyothy Labs Limited",
+  "net_quantity": "1000 g",
+  "mrp_declaration": "present_without_value",
+  "tax_inclusive": "true",
+  "best_before_or_expiry": "P36M",
+  "consumer_care_phone": "18001032992",
+  "consumer_care_email": "customercare@jyothy.com",
+  "consumer_care_website": "jyothylabs.com",
+  "country_of_origin": "India"
+ },
+ "real_61i8hxso69l_sl1000": {
+  "_meta": {"difficulty": "moderate", "category": "personal care (soap)", "source": "catalogue artwork"},
+  "product_name": ["Lifebuoy", "Toilet Soap", "Lifebuoy Toilet Soap"],
+  "manufacturer": ["Lakme Lever Pvt. Ltd.", "Hindustan Unilever Ltd."],
+  "brand_owner": ["Hindustan Unilever Limited", "Hindustan Unilever Limited (HUL)"],
+  "net_quantity": "125 g",
+  "mrp_declaration": "present_without_value",
+  "tax_inclusive": "true",
+  "consumer_care_phone": "18001022221",
+  "consumer_care_email": "lever.care@unilever.com"
+ },
+ "real_61kt6ysklql_sl1001": {
+  "_meta": {"difficulty": "moderate", "category": "household (detergent powder)", "source": "catalogue artwork of a pouch"},
+  "product_name": ["Powder Laundry Detergent", "Tide Lemon & Mint"],
+  "manufacturer": "Procter & Gamble Home Products Private Limited",
+  "net_quantity": "2 kg",
+  "mrp_declaration": "present_without_value",
+  "tax_inclusive": "true",
+  "best_before_or_expiry": "P24M",
+  "consumer_care_phone": "18002021364",
+  "consumer_care_email": "intouch.im@pg.com",
+  "consumer_care_website": "in.pg.com"
+ },
+ "real_713thnhuqpl_sl1500": {
+  "_meta": {"difficulty": "clear", "category": "household (detergent powder)", "source": "catalogue artwork of a pouch"},
+  "product_name": "Presto! Active Wash Detergent Powder",
+  "manufacturer": "Hitkari Gram Udyog Sangh",
+  "brand_owner": "RK Worldinfocom Private Limited",
+  "net_quantity": "8 kg",
+  "mrp_declaration": "present_without_value",
+  "tax_inclusive": "true",
+  "best_before_or_expiry": "P24M",
+  "consumer_care_phone": "18004190416",
+  "consumer_care_email": "amazonbrands@blubirch.com"
+ },
+ "real_71t28cnhd2l_sl1000": {
+  "_meta": {"difficulty": "moderate", "category": "food (imported instant noodles)", "source": "catalogue artwork of a pouch"},
+  "product_name": ["Buldak", "Carbonara Buldak", "Buldak Carbonara"],
+  "importer": "Suresh Kumar & Co. (Impex) Pvt. Ltd.",
+  "mrp_declaration": "present_without_value",
+  "tax_inclusive": "true",
+  "best_before_or_expiry": "P12M",
+  "consumer_care_phone": "918510012345",
+  "consumer_care_email": "info@skco.in",
+  "fssai_license": "10015011002594",
+  "product_category": "food"
+ },
+ "real_813hpcgu0ol_sl1500": {
+  "_meta": {"difficulty": "hard", "category": "food (biscuits)", "source": "catalogue artwork, all text rotated 90 degrees"},
+  "brand_owner": "Britannia Industries Ltd.",
+  "consumer_care_phone": ["18004254449", "180030004530"],
+  "consumer_care_email": "feedback@britindia.com",
+  "fssai_license": "10015043001129",
+  "product_category": "food"
+ },
+ "real_81lk1jbwltl_sl1500": {
+  "_meta": {"difficulty": "moderate", "category": "food (instant noodles, multi-unit)", "source": "catalogue artwork of a pouch"},
+  "product_name": ["Instant Noodles with Seasoning", "Maggi Masala Noodles"],
+  "manufacturer": ["Nestlé India Limited", "Nestle India Limited"],
+  "brand_owner": ["Nestlé India Limited", "Nestle India Limited", "Societe Des Produits Nestle S.A.", "Société Des Produits Nestlé S.A."],
+  "net_quantity": "70 g",
+  "mrp_declaration": "present_without_value",
+  "tax_inclusive": "true",
+  "consumer_care_phone": "18001031947",
+  "consumer_care_email": "wecare@in.nestle.com",
+  "fssai_license": "10012011000168",
+  "product_category": "food"
+ },
+ "real_parle_g_gluco_biscuits_70g_2": {
+  "_meta": {"difficulty": "moderate", "category": "food (biscuits, multi-unit)", "source": "phone photo", "real_photo": true},
+  "product_name": "Parle-G Gluco Biscuits",
+  "brand_owner": "Parle Products Pvt Ltd",
+  "manufacturer": ["CF Foods Pvt Ltd", "Koiel Food Proce's", "Elveety Industries Pvt Ltd", "Shashi Sidnal Foods Pvt Ltd"],
+  "net_quantity": "70 g",
+  "mrp_declaration": "present_without_value",
+  "tax_inclusive": "true",
+  "fssai_license": "10013022002245",
+  "consumer_care_declaration": "present_without_details",
+  "product_category": "food"
+ },
+ "real_product_1614772171439": {
+  "_meta": {"difficulty": "moderate", "category": "personal care (shampoo sachet, Hindi heading)", "source": "low-resolution (500 px) phone photo of a sachet", "real_photo": true},
+  "product_name": ["Head & Shoulders anti-dandruff shampoo", "head & shoulders anti-dandruff shampoo at only", "हेड एंड शोल्डर्स"],
+  "manufacturer": "Procter & Gamble Home Products Pvt Ltd",
+  "net_quantity": "5 ml",
+  "mrp": "₹2",
+  "mrp_declaration": "present_with_value",
+  "tax_inclusive": "true",
+  "best_before_or_expiry": "P18M",
+  "consumer_care_phone": "02224942113",
+  "consumer_care_email": "intouch.im@pg.com",
+  "consumer_care_website": ["pg.com", "headandshoulders.co.in"]
+ }
+}

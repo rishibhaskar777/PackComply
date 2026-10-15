@@ -1,0 +1,2055 @@
+{
+ "source": "batch_evaluate OCR of Parle-G-Gluco-Biscuits-70g-2.jpeg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 832,
+ "image_height": 718,
+ "ocr_seconds": 23.46,
+ "raw_text": "WARNING:\nCOMMERCIAL EXPORT OF THIS PACK IS\nSTRICTLY PROHIBITED AND LIABLE FOR PROSECU\nUSE OF TRADEMARK & PACK DESIGN UNDER\nLICENCE FROM PARLE PRODUCTS PVT. LTD., MUM\nParle-G\nParle-G Gluco BiscuITs\nINGREDIENTS: WHEAT FLOUR (67%), SUGAR, EDIBLE VEG\nOIL (PALM OIL), INVERT SUGAR SYRUP ' [SUGAR, CITRIC\nRAISING AGENTS [ 503 (ii), 500 () ], EDIBLE COMMON SAL\nSOLIDS (0.6 %), EMULSIFIER I DI-ACETYL TARTARIC ACID\nOF MONO AND DI-GLYCERIDES OF EDIBLE VEGETABLE OIL\nSELECTION\nJssai\nDOUGH CONDITIONER [ 223].\nDE LA QUALITE\nMRP RS.\nINCL. OF ALL TAXES\nLIC. No.:10013022002245\nCONTAINS ADDED FLAVOURS (ARTIFICIAL FLAVOURING SUBSTANCES-\nGENEVA 1872 1978 1086\n*(D-GLUCOSE. LEVULOSE)\nBRUSSELS 1974 1967 1993\nPARIS 197 1979 1294\nAMSTÉRDAM 197S 10R1 1902\nLONDON 1976 1962 1989\nNET WEIGHT:\n70g\nLUXEMDOURG 1977 1990\nVIENNA 1900\nROME 1960\nMANUFACTURED FOR:\nMADRIO 1964\nATHEN3 1500\nLISBON 1985\nDARCELONA 1901\nPARLE PRODUCTS PVT LTD\nNORTH LEVEL CROSSING, VILE PARLE EAST, MUMBAI, MH - 400057\n(B)D\nPARLE BISCUITS PVT LTD\nNORTH LEVEL CROSSING, VILE PARLE EAST, MUMBAI, MH - 400057\n8901719255144\nLIC.No.:10013022002253\nMANUFACTURED BY:\nNUTRITION FACTS/INFORMATION\n(HP)-CF FOODS PVT LTD,15 A, SANKALAPUR INDL AREA\nAMOUNT PER 100g (approx.)\nBALLARI ROAD, KARIGNOOR, KA-583231\nLIC. No.:10014043000891\nCARBOHYDRATE\n78.2g\n(MY)-KOIEL FOOD PROCE'S, 33 /B, HOOTAGALLI\nOF WHICH SUGARS\n25.5g\nINDL AREA, K.R.S. ROAD. BELAVADI, KA - 570018\nDIETARYFIBRE\n1.8g\nLIC. No.:10012043000064\nPROTEIN\n6.5g\n(H1)-ELVEETY INDUSTRIES PVT LTD, M -15/16\nFAT\n12.5g\nINDL AREA, GOKUL ROAD, HUBBALLI, KA - 580030\nENERGY\n451 kcal\nLIC. No.: 10012043000070\n(BE) - SHASHI SIDNAL FOODS PVT LTO\nTOTAL TRANS FAT CONTENT NOT MORE THAN O,1 PERCENT BY WEIGHT\nTOTAL SATURATED FAT CONTENT NOT MORE THAN 5.8 PERCENT BY WEIGHT\nSANIKOPPA, BAILHONGAL,KA-591125\nLIC. No.: 10012043000075\nCONSUMER CARE CELL\nTCHINDICATES THE\ngesign\n15\nb\n(P)\nPARLEPRODUC\nLTD\nEASTMUMBALMH\nADDRESS OF\nNITSFSRAILCENCrS\n51\n1h",
+ "detections": [
+  {
+   "text": "WARNING:",
+   "confidence": 0.9710599184036255,
+   "bbox": [
+    [
+     46.0,
+     130.0
+    ],
+    [
+     108.0,
+     130.0
+    ],
+    [
+     108.0,
+     141.0
+    ],
+    [
+     46.0,
+     141.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "COMMERCIAL EXPORT OF THIS PACK IS",
+   "confidence": 0.9857266545295715,
+   "bbox": [
+    [
+     104.0,
+     129.0
+    ],
+    [
+     335.0,
+     129.0
+    ],
+    [
+     335.0,
+     142.0
+    ],
+    [
+     104.0,
+     142.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "STRICTLY PROHIBITED AND LIABLE FOR PROSECU",
+   "confidence": 0.989749550819397,
+   "bbox": [
+    [
+     44.0,
+     140.0
+    ],
+    [
+     333.0,
+     140.0
+    ],
+    [
+     333.0,
+     153.0
+    ],
+    [
+     44.0,
+     153.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "USE OF TRADEMARK & PACK DESIGN UNDER",
+   "confidence": 0.9819701313972473,
+   "bbox": [
+    [
+     41.0,
+     154.0
+    ],
+    [
+     301.0,
+     154.0
+    ],
+    [
+     301.0,
+     168.0
+    ],
+    [
+     41.0,
+     168.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LICENCE FROM PARLE PRODUCTS PVT. LTD., MUM",
+   "confidence": 0.9721758961677551,
+   "bbox": [
+    [
+     48.0,
+     169.0
+    ],
+    [
+     335.0,
+     169.0
+    ],
+    [
+     335.0,
+     184.0
+    ],
+    [
+     48.0,
+     184.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Parle-G",
+   "confidence": 0.9999606013298035,
+   "bbox": [
+    [
+     485.0,
+     167.0
+    ],
+    [
+     790.0,
+     164.0
+    ],
+    [
+     791.0,
+     232.0
+    ],
+    [
+     486.0,
+     236.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Parle-G Gluco BiscuITs",
+   "confidence": 0.8765478730201721,
+   "bbox": [
+    [
+     45.0,
+     191.0
+    ],
+    [
+     288.0,
+     191.0
+    ],
+    [
+     288.0,
+     208.0
+    ],
+    [
+     45.0,
+     208.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "INGREDIENTS: WHEAT FLOUR (67%), SUGAR, EDIBLE VEG",
+   "confidence": 0.9680408835411072,
+   "bbox": [
+    [
+     43.0,
+     207.0
+    ],
+    [
+     337.0,
+     206.0
+    ],
+    [
+     337.0,
+     220.0
+    ],
+    [
+     43.0,
+     221.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "OIL (PALM OIL), INVERT SUGAR SYRUP ' [SUGAR, CITRIC",
+   "confidence": 0.9339390397071838,
+   "bbox": [
+    [
+     44.0,
+     219.0
+    ],
+    [
+     335.0,
+     218.0
+    ],
+    [
+     335.0,
+     233.0
+    ],
+    [
+     44.0,
+     234.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "RAISING AGENTS [ 503 (ii), 500 () ], EDIBLE COMMON SAL",
+   "confidence": 0.9450461268424988,
+   "bbox": [
+    [
+     44.0,
+     232.0
+    ],
+    [
+     337.0,
+     230.0
+    ],
+    [
+     337.0,
+     245.0
+    ],
+    [
+     44.0,
+     246.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SOLIDS (0.6 %), EMULSIFIER I DI-ACETYL TARTARIC ACID",
+   "confidence": 0.9257120490074158,
+   "bbox": [
+    [
+     44.0,
+     244.0
+    ],
+    [
+     336.0,
+     242.0
+    ],
+    [
+     336.0,
+     255.0
+    ],
+    [
+     44.0,
+     257.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "OF MONO AND DI-GLYCERIDES OF EDIBLE VEGETABLE OIL",
+   "confidence": 0.9825571179389954,
+   "bbox": [
+    [
+     44.0,
+     255.0
+    ],
+    [
+     337.0,
+     253.0
+    ],
+    [
+     337.0,
+     267.0
+    ],
+    [
+     44.0,
+     269.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SELECTION",
+   "confidence": 0.9455168843269348,
+   "bbox": [
+    [
+     390.0,
+     257.0
+    ],
+    [
+     433.0,
+     257.0
+    ],
+    [
+     433.0,
+     271.0
+    ],
+    [
+     390.0,
+     271.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Jssai",
+   "confidence": 0.7922765016555786,
+   "bbox": [
+    [
+     729.0,
+     251.0
+    ],
+    [
+     782.0,
+     251.0
+    ],
+    [
+     782.0,
+     272.0
+    ],
+    [
+     729.0,
+     272.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DOUGH CONDITIONER [ 223].",
+   "confidence": 0.9611407518386841,
+   "bbox": [
+    [
+     44.0,
+     267.0
+    ],
+    [
+     194.0,
+     266.0
+    ],
+    [
+     194.0,
+     280.0
+    ],
+    [
+     44.0,
+     282.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DE LA QUALITE",
+   "confidence": 0.9377096891403198,
+   "bbox": [
+    [
+     384.0,
+     264.0
+    ],
+    [
+     437.0,
+     264.0
+    ],
+    [
+     437.0,
+     281.0
+    ],
+    [
+     384.0,
+     281.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP RS.",
+   "confidence": 0.9217215776443481,
+   "bbox": [
+    [
+     574.0,
+     262.0
+    ],
+    [
+     642.0,
+     260.0
+    ],
+    [
+     643.0,
+     282.0
+    ],
+    [
+     575.0,
+     285.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "INCL. OF ALL TAXES",
+   "confidence": 0.9417290091514587,
+   "bbox": [
+    [
+     574.0,
+     281.0
+    ],
+    [
+     689.0,
+     279.0
+    ],
+    [
+     689.0,
+     297.0
+    ],
+    [
+     574.0,
+     298.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LIC. No.:10013022002245",
+   "confidence": 0.9882530570030212,
+   "bbox": [
+    [
+     692.0,
+     272.0
+    ],
+    [
+     815.0,
+     272.0
+    ],
+    [
+     815.0,
+     287.0
+    ],
+    [
+     692.0,
+     287.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CONTAINS ADDED FLAVOURS (ARTIFICIAL FLAVOURING SUBSTANCES-",
+   "confidence": 0.9863073825836182,
+   "bbox": [
+    [
+     45.0,
+     285.0
+    ],
+    [
+     334.0,
+     282.0
+    ],
+    [
+     334.0,
+     297.0
+    ],
+    [
+     45.0,
+     299.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "GENEVA 1872 1978 1086",
+   "confidence": 0.8761966228485107,
+   "bbox": [
+    [
+     376.0,
+     287.0
+    ],
+    [
+     459.0,
+     286.0
+    ],
+    [
+     459.0,
+     297.0
+    ],
+    [
+     376.0,
+     298.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "*(D-GLUCOSE. LEVULOSE)",
+   "confidence": 0.9517067074775696,
+   "bbox": [
+    [
+     44.0,
+     299.0
+    ],
+    [
+     167.0,
+     298.0
+    ],
+    [
+     167.0,
+     312.0
+    ],
+    [
+     44.0,
+     313.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BRUSSELS 1974 1967 1993",
+   "confidence": 0.8534535765647888,
+   "bbox": [
+    [
+     369.0,
+     302.0
+    ],
+    [
+     459.0,
+     301.0
+    ],
+    [
+     459.0,
+     311.0
+    ],
+    [
+     369.0,
+     312.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PARIS 197 1979 1294",
+   "confidence": 0.8541963696479797,
+   "bbox": [
+    [
+     383.0,
+     295.0
+    ],
+    [
+     459.0,
+     294.0
+    ],
+    [
+     459.0,
+     304.0
+    ],
+    [
+     383.0,
+     305.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "AMSTÉRDAM 197S 10R1 1902",
+   "confidence": 0.8722570538520813,
+   "bbox": [
+    [
+     362.0,
+     310.0
+    ],
+    [
+     459.0,
+     308.0
+    ],
+    [
+     459.0,
+     318.0
+    ],
+    [
+     362.0,
+     320.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LONDON 1976 1962 1989",
+   "confidence": 0.9492188692092896,
+   "bbox": [
+    [
+     376.0,
+     316.0
+    ],
+    [
+     459.0,
+     315.0
+    ],
+    [
+     459.0,
+     325.0
+    ],
+    [
+     376.0,
+     326.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NET WEIGHT:",
+   "confidence": 0.9990513324737549,
+   "bbox": [
+    [
+     599.0,
+     314.0
+    ],
+    [
+     689.0,
+     313.0
+    ],
+    [
+     689.0,
+     331.0
+    ],
+    [
+     599.0,
+     333.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "70g",
+   "confidence": 0.9999849200248718,
+   "bbox": [
+    [
+     682.0,
+     308.0
+    ],
+    [
+     732.0,
+     308.0
+    ],
+    [
+     732.0,
+     336.0
+    ],
+    [
+     682.0,
+     336.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LUXEMDOURG 1977 1990",
+   "confidence": 0.8928893208503723,
+   "bbox": [
+    [
+     358.0,
+     322.0
+    ],
+    [
+     443.0,
+     322.0
+    ],
+    [
+     443.0,
+     336.0
+    ],
+    [
+     358.0,
+     336.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "VIENNA 1900",
+   "confidence": 0.9425491094589233,
+   "bbox": [
+    [
+     380.0,
+     332.0
+    ],
+    [
+     424.0,
+     332.0
+    ],
+    [
+     424.0,
+     340.0
+    ],
+    [
+     380.0,
+     340.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ROME 1960",
+   "confidence": 0.8768698573112488,
+   "bbox": [
+    [
+     382.0,
+     339.0
+    ],
+    [
+     423.0,
+     338.0
+    ],
+    [
+     423.0,
+     346.0
+    ],
+    [
+     382.0,
+     347.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MANUFACTURED FOR:",
+   "confidence": 0.9997161626815796,
+   "bbox": [
+    [
+     476.0,
+     334.0
+    ],
+    [
+     617.0,
+     334.0
+    ],
+    [
+     617.0,
+     348.0
+    ],
+    [
+     476.0,
+     348.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MADRIO 1964",
+   "confidence": 0.9174404144287109,
+   "bbox": [
+    [
+     377.0,
+     345.0
+    ],
+    [
+     425.0,
+     345.0
+    ],
+    [
+     425.0,
+     355.0
+    ],
+    [
+     377.0,
+     355.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ATHEN3 1500",
+   "confidence": 0.8543843626976013,
+   "bbox": [
+    [
+     378.0,
+     360.0
+    ],
+    [
+     424.0,
+     360.0
+    ],
+    [
+     424.0,
+     370.0
+    ],
+    [
+     378.0,
+     370.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LISBON 1985",
+   "confidence": 0.8866406083106995,
+   "bbox": [
+    [
+     379.0,
+     352.0
+    ],
+    [
+     424.0,
+     352.0
+    ],
+    [
+     424.0,
+     362.0
+    ],
+    [
+     379.0,
+     362.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DARCELONA 1901",
+   "confidence": 0.8964043259620667,
+   "bbox": [
+    [
+     363.0,
+     367.0
+    ],
+    [
+     424.0,
+     367.0
+    ],
+    [
+     424.0,
+     377.0
+    ],
+    [
+     363.0,
+     377.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PARLE PRODUCTS PVT LTD",
+   "confidence": 0.9892004132270813,
+   "bbox": [
+    [
+     497.0,
+     358.0
+    ],
+    [
+     716.0,
+     358.0
+    ],
+    [
+     716.0,
+     371.0
+    ],
+    [
+     497.0,
+     371.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NORTH LEVEL CROSSING, VILE PARLE EAST, MUMBAI, MH - 400057",
+   "confidence": 0.9660366177558899,
+   "bbox": [
+    [
+     477.0,
+     370.0
+    ],
+    [
+     771.0,
+     370.0
+    ],
+    [
+     771.0,
+     383.0
+    ],
+    [
+     477.0,
+     383.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(B)D",
+   "confidence": 0.7741355299949646,
+   "bbox": [
+    [
+     476.0,
+     392.0
+    ],
+    [
+     522.0,
+     392.0
+    ],
+    [
+     522.0,
+     406.0
+    ],
+    [
+     476.0,
+     406.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PARLE BISCUITS PVT LTD",
+   "confidence": 0.9987999200820923,
+   "bbox": [
+    [
+     521.0,
+     392.0
+    ],
+    [
+     713.0,
+     391.0
+    ],
+    [
+     713.0,
+     405.0
+    ],
+    [
+     521.0,
+     406.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NORTH LEVEL CROSSING, VILE PARLE EAST, MUMBAI, MH - 400057",
+   "confidence": 0.9649568796157837,
+   "bbox": [
+    [
+     476.0,
+     405.0
+    ],
+    [
+     769.0,
+     405.0
+    ],
+    [
+     769.0,
+     418.0
+    ],
+    [
+     476.0,
+     418.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8901719255144",
+   "confidence": 0.9997314214706421,
+   "bbox": [
+    [
+     53.0,
+     421.0
+    ],
+    [
+     264.0,
+     417.0
+    ],
+    [
+     264.0,
+     438.0
+    ],
+    [
+     53.0,
+     443.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LIC.No.:10013022002253",
+   "confidence": 0.999550461769104,
+   "bbox": [
+    [
+     476.0,
+     417.0
+    ],
+    [
+     628.0,
+     417.0
+    ],
+    [
+     628.0,
+     430.0
+    ],
+    [
+     476.0,
+     430.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MANUFACTURED BY:",
+   "confidence": 0.9997401237487793,
+   "bbox": [
+    [
+     473.0,
+     427.0
+    ],
+    [
+     585.0,
+     428.0
+    ],
+    [
+     585.0,
+     440.0
+    ],
+    [
+     473.0,
+     439.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NUTRITION FACTS/INFORMATION",
+   "confidence": 0.9992244243621826,
+   "bbox": [
+    [
+     66.0,
+     446.0
+    ],
+    [
+     250.0,
+     443.0
+    ],
+    [
+     250.0,
+     457.0
+    ],
+    [
+     66.0,
+     460.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(HP)-CF FOODS PVT LTD,15 A, SANKALAPUR INDL AREA",
+   "confidence": 0.9870755672454834,
+   "bbox": [
+    [
+     472.0,
+     438.0
+    ],
+    [
+     752.0,
+     439.0
+    ],
+    [
+     752.0,
+     453.0
+    ],
+    [
+     472.0,
+     452.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "AMOUNT PER 100g (approx.)",
+   "confidence": 0.9992607831954956,
+   "bbox": [
+    [
+     109.0,
+     458.0
+    ],
+    [
+     252.0,
+     456.0
+    ],
+    [
+     252.0,
+     473.0
+    ],
+    [
+     109.0,
+     475.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BALLARI ROAD, KARIGNOOR, KA-583231",
+   "confidence": 0.9696897864341736,
+   "bbox": [
+    [
+     500.0,
+     449.0
+    ],
+    [
+     712.0,
+     451.0
+    ],
+    [
+     712.0,
+     465.0
+    ],
+    [
+     500.0,
+     463.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LIC. No.:10014043000891",
+   "confidence": 0.9803978204727173,
+   "bbox": [
+    [
+     500.0,
+     461.0
+    ],
+    [
+     634.0,
+     462.0
+    ],
+    [
+     634.0,
+     476.0
+    ],
+    [
+     500.0,
+     475.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CARBOHYDRATE",
+   "confidence": 0.9999837279319763,
+   "bbox": [
+    [
+     66.0,
+     474.0
+    ],
+    [
+     155.0,
+     472.0
+    ],
+    [
+     155.0,
+     486.0
+    ],
+    [
+     66.0,
+     489.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "78.2g",
+   "confidence": 0.9999576807022095,
+   "bbox": [
+    [
+     221.0,
+     471.0
+    ],
+    [
+     252.0,
+     471.0
+    ],
+    [
+     252.0,
+     486.0
+    ],
+    [
+     221.0,
+     486.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(MY)-KOIEL FOOD PROCE'S, 33 /B, HOOTAGALLI",
+   "confidence": 0.9610455632209778,
+   "bbox": [
+    [
+     471.0,
+     471.0
+    ],
+    [
+     714.0,
+     473.0
+    ],
+    [
+     714.0,
+     488.0
+    ],
+    [
+     471.0,
+     485.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "OF WHICH SUGARS",
+   "confidence": 0.9970351457595825,
+   "bbox": [
+    [
+     120.0,
+     486.0
+    ],
+    [
+     208.0,
+     484.0
+    ],
+    [
+     208.0,
+     499.0
+    ],
+    [
+     120.0,
+     500.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "25.5g",
+   "confidence": 0.9986165761947632,
+   "bbox": [
+    [
+     222.0,
+     482.0
+    ],
+    [
+     253.0,
+     482.0
+    ],
+    [
+     253.0,
+     499.0
+    ],
+    [
+     222.0,
+     499.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "INDL AREA, K.R.S. ROAD. BELAVADI, KA - 570018",
+   "confidence": 0.9703704118728638,
+   "bbox": [
+    [
+     500.0,
+     484.0
+    ],
+    [
+     742.0,
+     485.0
+    ],
+    [
+     742.0,
+     500.0
+    ],
+    [
+     500.0,
+     499.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DIETARYFIBRE",
+   "confidence": 0.9999393820762634,
+   "bbox": [
+    [
+     139.0,
+     498.0
+    ],
+    [
+     208.0,
+     496.0
+    ],
+    [
+     208.0,
+     510.0
+    ],
+    [
+     139.0,
+     512.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "1.8g",
+   "confidence": 0.9910560846328735,
+   "bbox": [
+    [
+     226.0,
+     496.0
+    ],
+    [
+     253.0,
+     496.0
+    ],
+    [
+     253.0,
+     511.0
+    ],
+    [
+     226.0,
+     511.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LIC. No.:10012043000064",
+   "confidence": 0.9854660630226135,
+   "bbox": [
+    [
+     499.0,
+     495.0
+    ],
+    [
+     634.0,
+     497.0
+    ],
+    [
+     634.0,
+     511.0
+    ],
+    [
+     499.0,
+     509.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PROTEIN",
+   "confidence": 0.9999346733093262,
+   "bbox": [
+    [
+     66.0,
+     509.0
+    ],
+    [
+     115.0,
+     509.0
+    ],
+    [
+     115.0,
+     523.0
+    ],
+    [
+     66.0,
+     523.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "6.5g",
+   "confidence": 0.9996953010559082,
+   "bbox": [
+    [
+     226.0,
+     508.0
+    ],
+    [
+     253.0,
+     508.0
+    ],
+    [
+     253.0,
+     523.0
+    ],
+    [
+     226.0,
+     523.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(H1)-ELVEETY INDUSTRIES PVT LTD, M -15/16",
+   "confidence": 0.9729655385017395,
+   "bbox": [
+    [
+     470.0,
+     505.0
+    ],
+    [
+     705.0,
+     507.0
+    ],
+    [
+     705.0,
+     524.0
+    ],
+    [
+     470.0,
+     522.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FAT",
+   "confidence": 0.9999969005584717,
+   "bbox": [
+    [
+     65.0,
+     523.0
+    ],
+    [
+     89.0,
+     520.0
+    ],
+    [
+     91.0,
+     536.0
+    ],
+    [
+     67.0,
+     539.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "12.5g",
+   "confidence": 0.9998035430908203,
+   "bbox": [
+    [
+     222.0,
+     519.0
+    ],
+    [
+     253.0,
+     519.0
+    ],
+    [
+     253.0,
+     535.0
+    ],
+    [
+     222.0,
+     535.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "INDL AREA, GOKUL ROAD, HUBBALLI, KA - 580030",
+   "confidence": 0.9769159555435181,
+   "bbox": [
+    [
+     498.0,
+     519.0
+    ],
+    [
+     748.0,
+     521.0
+    ],
+    [
+     748.0,
+     535.0
+    ],
+    [
+     498.0,
+     533.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ENERGY",
+   "confidence": 0.9999298453330994,
+   "bbox": [
+    [
+     66.0,
+     536.0
+    ],
+    [
+     112.0,
+     533.0
+    ],
+    [
+     113.0,
+     548.0
+    ],
+    [
+     67.0,
+     551.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "451 kcal",
+   "confidence": 0.9997550249099731,
+   "bbox": [
+    [
+     208.0,
+     533.0
+    ],
+    [
+     252.0,
+     533.0
+    ],
+    [
+     252.0,
+     548.0
+    ],
+    [
+     208.0,
+     548.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LIC. No.: 10012043000070",
+   "confidence": 0.969153106212616,
+   "bbox": [
+    [
+     498.0,
+     530.0
+    ],
+    [
+     632.0,
+     532.0
+    ],
+    [
+     632.0,
+     547.0
+    ],
+    [
+     498.0,
+     545.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(BE) - SHASHI SIDNAL FOODS PVT LTO",
+   "confidence": 0.953170895576477,
+   "bbox": [
+    [
+     467.0,
+     541.0
+    ],
+    [
+     662.0,
+     542.0
+    ],
+    [
+     662.0,
+     560.0
+    ],
+    [
+     467.0,
+     559.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "TOTAL TRANS FAT CONTENT NOT MORE THAN O,1 PERCENT BY WEIGHT",
+   "confidence": 0.970446765422821,
+   "bbox": [
+    [
+     62.0,
+     551.0
+    ],
+    [
+     311.0,
+     546.0
+    ],
+    [
+     311.0,
+     560.0
+    ],
+    [
+     62.0,
+     565.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "TOTAL SATURATED FAT CONTENT NOT MORE THAN 5.8 PERCENT BY WEIGHT",
+   "confidence": 0.9789746999740601,
+   "bbox": [
+    [
+     62.0,
+     563.0
+    ],
+    [
+     328.0,
+     556.0
+    ],
+    [
+     328.0,
+     569.0
+    ],
+    [
+     62.0,
+     576.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SANIKOPPA, BAILHONGAL,KA-591125",
+   "confidence": 0.9793296456336975,
+   "bbox": [
+    [
+     496.0,
+     555.0
+    ],
+    [
+     694.0,
+     558.0
+    ],
+    [
+     694.0,
+     571.0
+    ],
+    [
+     496.0,
+     568.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LIC. No.: 10012043000075",
+   "confidence": 0.9762740135192871,
+   "bbox": [
+    [
+     496.0,
+     565.0
+    ],
+    [
+     630.0,
+     567.0
+    ],
+    [
+     630.0,
+     580.0
+    ],
+    [
+     496.0,
+     578.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CONSUMER CARE CELL",
+   "confidence": 0.996519923210144,
+   "bbox": [
+    [
+     50.0,
+     575.0
+    ],
+    [
+     200.0,
+     573.0
+    ],
+    [
+     200.0,
+     587.0
+    ],
+    [
+     50.0,
+     590.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "TCHINDICATES THE",
+   "confidence": 0.9897325038909912,
+   "bbox": [
+    [
+     642.0,
+     579.0
+    ],
+    [
+     749.0,
+     579.0
+    ],
+    [
+     749.0,
+     589.0
+    ],
+    [
+     642.0,
+     589.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "gesign",
+   "confidence": 0.6577263474464417,
+   "bbox": [
+    [
+     44.0,
+     116.0
+    ],
+    [
+     102.0,
+     121.0
+    ],
+    [
+     101.0,
+     135.0
+    ],
+    [
+     43.0,
+     130.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "15",
+   "confidence": 0.620752215385437,
+   "bbox": [
+    [
+     257.0,
+     121.0
+    ],
+    [
+     277.0,
+     121.0
+    ],
+    [
+     277.0,
+     130.0
+    ],
+    [
+     257.0,
+     130.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "b",
+   "confidence": 0.6448070406913757,
+   "bbox": [
+    [
+     500.0,
+     348.0
+    ],
+    [
+     520.0,
+     348.0
+    ],
+    [
+     520.0,
+     360.0
+    ],
+    [
+     500.0,
+     360.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "(P)",
+   "confidence": 0.8445334434509277,
+   "bbox": [
+    [
+     477.0,
+     359.0
+    ],
+    [
+     498.0,
+     359.0
+    ],
+    [
+     498.0,
+     371.0
+    ],
+    [
+     477.0,
+     371.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "PARLEPRODUC",
+   "confidence": 0.8718258142471313,
+   "bbox": [
+    [
+     51.0,
+     585.0
+    ],
+    [
+     139.0,
+     581.0
+    ],
+    [
+     139.0,
+     594.0
+    ],
+    [
+     51.0,
+     598.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "LTD",
+   "confidence": 0.9721150398254395,
+   "bbox": [
+    [
+     181.0,
+     586.0
+    ],
+    [
+     209.0,
+     583.0
+    ],
+    [
+     210.0,
+     594.0
+    ],
+    [
+     182.0,
+     597.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "EASTMUMBALMH",
+   "confidence": 0.8409872055053711,
+   "bbox": [
+    [
+     213.0,
+     592.0
+    ],
+    [
+     304.0,
+     592.0
+    ],
+    [
+     304.0,
+     602.0
+    ],
+    [
+     213.0,
+     602.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "ADDRESS OF",
+   "confidence": 0.9119625091552734,
+   "bbox": [
+    [
+     463.0,
+     584.0
+    ],
+    [
+     533.0,
+     584.0
+    ],
+    [
+     533.0,
+     595.0
+    ],
+    [
+     463.0,
+     595.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "NITSFSRAILCENCrS",
+   "confidence": 0.7101867198944092,
+   "bbox": [
+    [
+     649.0,
+     587.0
+    ],
+    [
+     777.0,
+     587.0
+    ],
+    [
+     777.0,
+     595.0
+    ],
+    [
+     649.0,
+     595.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "51",
+   "confidence": 0.21579083800315857,
+   "bbox": [
+    [
+     90.0,
+     627.0
+    ],
+    [
+     101.0,
+     627.0
+    ],
+    [
+     101.0,
+     636.0
+    ],
+    [
+     90.0,
+     636.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "1h",
+   "confidence": 0.2689608633518219,
+   "bbox": [
+    [
+     414.0,
+     626.0
+    ],
+    [
+     426.0,
+     626.0
+    ],
+    [
+     426.0,
+     635.0
+    ],
+    [
+     414.0,
+     635.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

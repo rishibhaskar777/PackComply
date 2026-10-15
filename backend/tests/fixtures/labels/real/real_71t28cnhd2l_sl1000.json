@@ -1,0 +1,1407 @@
+{
+ "source": "batch_evaluate OCR of 71t28Cnhd2L._SL1000_.jpg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 1000,
+ "image_height": 1000,
+ "ocr_seconds": 32.23,
+ "raw_text": "\nCarbonara\nBuldak\n5PACKS\nINGREDIENTS\nNOODLE(77.462%): REFINED WHEAT FLOUR, MODIFIED\nImported In India By :\nTAPIOCA STARCH(INS1420), REFINED PALM OIL, MODIFIED\nPOTATO STARCH(INS1420), REFINED SALT, EMULSIFIER\nSuresh Kumar & Co. (Impex) Pvt. Ltd.\n[LECITHIN(INS322[I))], ACIDITY REGULATOR[POTASSIUM\nA-17, Sonu Tower Ilnd Floor,\nCARBONATE ANHYDROUS(INSSO1(i)), SODIUM CARBONATE\n(E330)], GUAR GUM(INS412), RIBOFLAVIN, CITRIC ACID, GREEN\n(ES00), SODIUM PHOSPHATE DIBASIC(INS339(ii)), CITRIC ACID\nDr. Mukherjee Nagar Commercial Complex,\n型\nTEAFLAVOR(NATURE-IDENTICAL).\nDelhi-110009.Email:info@skco.in\nSOUP(12.7%): WATER, ARTIFICIAL CHICKEN FLAVOR POWDER.\nSOY SAUCE (SOY-BEAN, WHEAT, WATER, SALT), WHITE SUGAR,\nCustomer Care #: +91 85100 12345\nRED PEPPER POWDER, CHILLI PEPPER POWDER, SOYBEAN OIL,\nONION, RED PEPPER, GARLIC, MODIFIED POTATO STARCH\nFor Feedback Contact Service Manager\n(INS1420), PAPRIKA OLEORESIN(INS160c(i)), DECOLORIZED\nCHILLI EXTRACT, BLACK PEPPER POWDER, CURRY POWDER.\nat the above mentioned Address /\nPOWDER(9.8%):WHOLE MILK POWDER,WHITE SUGAR,MILK\nContact No. / Email id of the Importer.\nPOWDER, SALT, MOZZARELLA CHEESE POWDER(<2%), BUTTER\nfssai\nPOWDER(<1%), MODIFIED POTATO STARCH(INS1420), CURLY\nPARSLEY, PEPPER POWDER, GARLIC POWDER, SOYBEAN OIL\nCONTAINS:WHEAT, GLUTTEN, SOY, MILK, CONTAINS\nPERMITTED NATURAL COLORS(RIBOFLAVIN & PAPRIKA\nLIC NO. 10015011002594\nOLEORESIN) AND ADDED FLAVORS(GREEN TEA-NATURE\nIDENTICAL&CHICKEN-ARTIFICIAL)\nALLERGENS:FOR ALLERGENS PLEASE SEE INGREDIENTS IN BOLD.\nMANUFACTURED IN A FACILITY THAT ALSO PROCESSES CELERIES,\nCEREALS CONTAINING GLUTEN, CRUSTACEANS, EGGS, FISH,\n01一\nMILK MOLLUSCS, MUSTARD, NUTS, PEANUTS, SESAMÉ SEEDS\nAND SOY PRODUCTS.\nSTORAGE: STORE IN A COOL DRY PLACE. AVOID DIRECT SUNLIGHT.\nFOR MFG, BATCH NO(BNO), MRP DELHI/OTHER STATES:\nSEE BOTTOM OF PACKAGE, MRP INCLUSIVE OF ALL TAXES.\nBEST BEFORE 12 MONTHS FROM MANUFACTURE.\nCOOKING DIRECTIONS\n1. Put the noodles into the 600ml of boiling water for 5 minutes.\n2. Please remove the water(remain 8 spoons of water).\n3. Put liquid soup and cheese powder. Stir well and serve.\non\n8\ndle\nX5]\nज",
+ "detections": [
+  {
+   "text": "",
+   "confidence": 0.0,
+   "bbox": [
+    [
+     308.0,
+     113.0
+    ],
+    [
+     470.0,
+     142.0
+    ],
+    [
+     455.0,
+     226.0
+    ],
+    [
+     293.0,
+     197.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Carbonara",
+   "confidence": 0.99244225025177,
+   "bbox": [
+    [
+     147.0,
+     169.0
+    ],
+    [
+     306.0,
+     150.0
+    ],
+    [
+     311.0,
+     193.0
+    ],
+    [
+     152.0,
+     212.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Buldak",
+   "confidence": 0.9998705983161926,
+   "bbox": [
+    [
+     146.0,
+     188.0
+    ],
+    [
+     457.0,
+     160.0
+    ],
+    [
+     470.0,
+     302.0
+    ],
+    [
+     158.0,
+     330.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "5PACKS",
+   "confidence": 0.9952120184898376,
+   "bbox": [
+    [
+     689.0,
+     185.0
+    ],
+    [
+     863.0,
+     189.0
+    ],
+    [
+     860.0,
+     281.0
+    ],
+    [
+     687.0,
+     277.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "INGREDIENTS",
+   "confidence": 0.9999523162841797,
+   "bbox": [
+    [
+     166.0,
+     398.0
+    ],
+    [
+     251.0,
+     398.0
+    ],
+    [
+     251.0,
+     412.0
+    ],
+    [
+     166.0,
+     412.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NOODLE(77.462%): REFINED WHEAT FLOUR, MODIFIED",
+   "confidence": 0.9643546342849731,
+   "bbox": [
+    [
+     166.0,
+     411.0
+    ],
+    [
+     428.0,
+     411.0
+    ],
+    [
+     428.0,
+     424.0
+    ],
+    [
+     166.0,
+     424.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Imported In India By :",
+   "confidence": 0.9857713580131531,
+   "bbox": [
+    [
+     569.0,
+     405.0
+    ],
+    [
+     695.0,
+     405.0
+    ],
+    [
+     695.0,
+     422.0
+    ],
+    [
+     569.0,
+     422.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "TAPIOCA STARCH(INS1420), REFINED PALM OIL, MODIFIED",
+   "confidence": 0.9822021126747131,
+   "bbox": [
+    [
+     166.0,
+     422.0
+    ],
+    [
+     433.0,
+     422.0
+    ],
+    [
+     433.0,
+     435.0
+    ],
+    [
+     166.0,
+     435.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "POTATO STARCH(INS1420), REFINED SALT, EMULSIFIER",
+   "confidence": 0.9839293360710144,
+   "bbox": [
+    [
+     167.0,
+     435.0
+    ],
+    [
+     414.0,
+     435.0
+    ],
+    [
+     414.0,
+     446.0
+    ],
+    [
+     167.0,
+     446.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Suresh Kumar & Co. (Impex) Pvt. Ltd.",
+   "confidence": 0.9966587424278259,
+   "bbox": [
+    [
+     570.0,
+     427.0
+    ],
+    [
+     796.0,
+     427.0
+    ],
+    [
+     796.0,
+     442.0
+    ],
+    [
+     570.0,
+     442.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "[LECITHIN(INS322[I))], ACIDITY REGULATOR[POTASSIUM",
+   "confidence": 0.9580599069595337,
+   "bbox": [
+    [
+     166.0,
+     446.0
+    ],
+    [
+     421.0,
+     446.0
+    ],
+    [
+     421.0,
+     459.0
+    ],
+    [
+     166.0,
+     459.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "A-17, Sonu Tower Ilnd Floor,",
+   "confidence": 0.9695758819580078,
+   "bbox": [
+    [
+     568.0,
+     447.0
+    ],
+    [
+     737.0,
+     447.0
+    ],
+    [
+     737.0,
+     464.0
+    ],
+    [
+     568.0,
+     464.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CARBONATE ANHYDROUS(INSSO1(i)), SODIUM CARBONATE",
+   "confidence": 0.9615905284881592,
+   "bbox": [
+    [
+     167.0,
+     458.0
+    ],
+    [
+     439.0,
+     458.0
+    ],
+    [
+     439.0,
+     468.0
+    ],
+    [
+     167.0,
+     468.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(E330)], GUAR GUM(INS412), RIBOFLAVIN, CITRIC ACID, GREEN",
+   "confidence": 0.9888935685157776,
+   "bbox": [
+    [
+     166.0,
+     478.0
+    ],
+    [
+     449.0,
+     477.0
+    ],
+    [
+     449.0,
+     491.0
+    ],
+    [
+     166.0,
+     492.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(ES00), SODIUM PHOSPHATE DIBASIC(INS339(ii)), CITRIC ACID",
+   "confidence": 0.9390994310379028,
+   "bbox": [
+    [
+     167.0,
+     469.0
+    ],
+    [
+     447.0,
+     469.0
+    ],
+    [
+     447.0,
+     479.0
+    ],
+    [
+     167.0,
+     479.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Dr. Mukherjee Nagar Commercial Complex,",
+   "confidence": 0.9899374842643738,
+   "bbox": [
+    [
+     569.0,
+     469.0
+    ],
+    [
+     820.0,
+     469.0
+    ],
+    [
+     820.0,
+     483.0
+    ],
+    [
+     569.0,
+     483.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "型",
+   "confidence": 0.321126252412796,
+   "bbox": [
+    [
+     90.0,
+     483.0
+    ],
+    [
+     117.0,
+     488.0
+    ],
+    [
+     111.0,
+     520.0
+    ],
+    [
+     83.0,
+     514.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "TEAFLAVOR(NATURE-IDENTICAL).",
+   "confidence": 0.9987279176712036,
+   "bbox": [
+    [
+     166.0,
+     490.0
+    ],
+    [
+     328.0,
+     490.0
+    ],
+    [
+     328.0,
+     503.0
+    ],
+    [
+     166.0,
+     503.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Delhi-110009.Email:info@skco.in",
+   "confidence": 0.9995755553245544,
+   "bbox": [
+    [
+     569.0,
+     489.0
+    ],
+    [
+     779.0,
+     489.0
+    ],
+    [
+     779.0,
+     503.0
+    ],
+    [
+     569.0,
+     503.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SOUP(12.7%): WATER, ARTIFICIAL CHICKEN FLAVOR POWDER.",
+   "confidence": 0.975986897945404,
+   "bbox": [
+    [
+     166.0,
+     504.0
+    ],
+    [
+     456.0,
+     504.0
+    ],
+    [
+     456.0,
+     517.0
+    ],
+    [
+     166.0,
+     517.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SOY SAUCE (SOY-BEAN, WHEAT, WATER, SALT), WHITE SUGAR,",
+   "confidence": 0.9831442832946777,
+   "bbox": [
+    [
+     166.0,
+     515.0
+    ],
+    [
+     447.0,
+     515.0
+    ],
+    [
+     447.0,
+     528.0
+    ],
+    [
+     166.0,
+     528.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Customer Care #: +91 85100 12345",
+   "confidence": 0.9759677648544312,
+   "bbox": [
+    [
+     569.0,
+     509.0
+    ],
+    [
+     785.0,
+     509.0
+    ],
+    [
+     785.0,
+     523.0
+    ],
+    [
+     569.0,
+     523.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "RED PEPPER POWDER, CHILLI PEPPER POWDER, SOYBEAN OIL,",
+   "confidence": 0.9764783382415771,
+   "bbox": [
+    [
+     166.0,
+     526.0
+    ],
+    [
+     450.0,
+     526.0
+    ],
+    [
+     450.0,
+     539.0
+    ],
+    [
+     166.0,
+     539.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ONION, RED PEPPER, GARLIC, MODIFIED POTATO STARCH",
+   "confidence": 0.9839345216751099,
+   "bbox": [
+    [
+     166.0,
+     537.0
+    ],
+    [
+     430.0,
+     537.0
+    ],
+    [
+     430.0,
+     550.0
+    ],
+    [
+     166.0,
+     550.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "For Feedback Contact Service Manager",
+   "confidence": 0.9861648082733154,
+   "bbox": [
+    [
+     569.0,
+     530.0
+    ],
+    [
+     796.0,
+     530.0
+    ],
+    [
+     796.0,
+     544.0
+    ],
+    [
+     569.0,
+     544.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(INS1420), PAPRIKA OLEORESIN(INS160c(i)), DECOLORIZED",
+   "confidence": 0.9824284315109253,
+   "bbox": [
+    [
+     166.0,
+     548.0
+    ],
+    [
+     434.0,
+     548.0
+    ],
+    [
+     434.0,
+     561.0
+    ],
+    [
+     166.0,
+     561.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CHILLI EXTRACT, BLACK PEPPER POWDER, CURRY POWDER.",
+   "confidence": 0.9744680523872375,
+   "bbox": [
+    [
+     167.0,
+     559.0
+    ],
+    [
+     438.0,
+     559.0
+    ],
+    [
+     438.0,
+     573.0
+    ],
+    [
+     167.0,
+     573.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "at the above mentioned Address /",
+   "confidence": 0.9975745677947998,
+   "bbox": [
+    [
+     569.0,
+     550.0
+    ],
+    [
+     765.0,
+     550.0
+    ],
+    [
+     765.0,
+     565.0
+    ],
+    [
+     569.0,
+     565.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "POWDER(9.8%):WHOLE MILK POWDER,WHITE SUGAR,MILK",
+   "confidence": 0.9773527979850769,
+   "bbox": [
+    [
+     166.0,
+     575.0
+    ],
+    [
+     453.0,
+     575.0
+    ],
+    [
+     453.0,
+     588.0
+    ],
+    [
+     166.0,
+     588.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Contact No. / Email id of the Importer.",
+   "confidence": 0.99503093957901,
+   "bbox": [
+    [
+     569.0,
+     570.0
+    ],
+    [
+     787.0,
+     570.0
+    ],
+    [
+     787.0,
+     587.0
+    ],
+    [
+     569.0,
+     587.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "POWDER, SALT, MOZZARELLA CHEESE POWDER(<2%), BUTTER",
+   "confidence": 0.9776616096496582,
+   "bbox": [
+    [
+     166.0,
+     586.0
+    ],
+    [
+     455.0,
+     586.0
+    ],
+    [
+     455.0,
+     599.0
+    ],
+    [
+     166.0,
+     599.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "fssai",
+   "confidence": 0.9119197726249695,
+   "bbox": [
+    [
+     632.0,
+     587.0
+    ],
+    [
+     704.0,
+     587.0
+    ],
+    [
+     704.0,
+     629.0
+    ],
+    [
+     632.0,
+     629.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "POWDER(<1%), MODIFIED POTATO STARCH(INS1420), CURLY",
+   "confidence": 0.9812756776809692,
+   "bbox": [
+    [
+     166.0,
+     597.0
+    ],
+    [
+     445.0,
+     597.0
+    ],
+    [
+     445.0,
+     610.0
+    ],
+    [
+     166.0,
+     610.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PARSLEY, PEPPER POWDER, GARLIC POWDER, SOYBEAN OIL",
+   "confidence": 0.972125768661499,
+   "bbox": [
+    [
+     166.0,
+     608.0
+    ],
+    [
+     442.0,
+     608.0
+    ],
+    [
+     442.0,
+     621.0
+    ],
+    [
+     166.0,
+     621.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CONTAINS:WHEAT, GLUTTEN, SOY, MILK, CONTAINS",
+   "confidence": 0.9655396938323975,
+   "bbox": [
+    [
+     165.0,
+     622.0
+    ],
+    [
+     419.0,
+     623.0
+    ],
+    [
+     419.0,
+     637.0
+    ],
+    [
+     165.0,
+     636.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PERMITTED NATURAL COLORS(RIBOFLAVIN & PAPRIKA",
+   "confidence": 0.9872791767120361,
+   "bbox": [
+    [
+     166.0,
+     635.0
+    ],
+    [
+     416.0,
+     635.0
+    ],
+    [
+     416.0,
+     648.0
+    ],
+    [
+     166.0,
+     648.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LIC NO. 10015011002594",
+   "confidence": 0.9899242520332336,
+   "bbox": [
+    [
+     567.0,
+     629.0
+    ],
+    [
+     770.0,
+     629.0
+    ],
+    [
+     770.0,
+     663.0
+    ],
+    [
+     567.0,
+     663.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "OLEORESIN) AND ADDED FLAVORS(GREEN TEA-NATURE",
+   "confidence": 0.987214207649231,
+   "bbox": [
+    [
+     165.0,
+     644.0
+    ],
+    [
+     423.0,
+     645.0
+    ],
+    [
+     423.0,
+     659.0
+    ],
+    [
+     165.0,
+     658.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "IDENTICAL&CHICKEN-ARTIFICIAL)",
+   "confidence": 0.9884084463119507,
+   "bbox": [
+    [
+     166.0,
+     657.0
+    ],
+    [
+     326.0,
+     657.0
+    ],
+    [
+     326.0,
+     670.0
+    ],
+    [
+     166.0,
+     670.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ALLERGENS:FOR ALLERGENS PLEASE SEE INGREDIENTS IN BOLD.",
+   "confidence": 0.9826380014419556,
+   "bbox": [
+    [
+     167.0,
+     671.0
+    ],
+    [
+     449.0,
+     671.0
+    ],
+    [
+     449.0,
+     684.0
+    ],
+    [
+     167.0,
+     684.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MANUFACTURED IN A FACILITY THAT ALSO PROCESSES CELERIES,",
+   "confidence": 0.9859396815299988,
+   "bbox": [
+    [
+     166.0,
+     682.0
+    ],
+    [
+     446.0,
+     682.0
+    ],
+    [
+     446.0,
+     696.0
+    ],
+    [
+     166.0,
+     696.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CEREALS CONTAINING GLUTEN, CRUSTACEANS, EGGS, FISH,",
+   "confidence": 0.9872784614562988,
+   "bbox": [
+    [
+     166.0,
+     693.0
+    ],
+    [
+     421.0,
+     693.0
+    ],
+    [
+     421.0,
+     706.0
+    ],
+    [
+     166.0,
+     706.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "01一",
+   "confidence": 0.9074990153312683,
+   "bbox": [
+    [
+     819.0,
+     693.0
+    ],
+    [
+     840.0,
+     693.0
+    ],
+    [
+     840.0,
+     853.0
+    ],
+    [
+     819.0,
+     853.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MILK MOLLUSCS, MUSTARD, NUTS, PEANUTS, SESAMÉ SEEDS",
+   "confidence": 0.9713888168334961,
+   "bbox": [
+    [
+     166.0,
+     705.0
+    ],
+    [
+     427.0,
+     705.0
+    ],
+    [
+     427.0,
+     718.0
+    ],
+    [
+     166.0,
+     718.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "AND SOY PRODUCTS.",
+   "confidence": 0.9761120080947876,
+   "bbox": [
+    [
+     166.0,
+     716.0
+    ],
+    [
+     260.0,
+     716.0
+    ],
+    [
+     260.0,
+     729.0
+    ],
+    [
+     166.0,
+     729.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "STORAGE: STORE IN A COOL DRY PLACE. AVOID DIRECT SUNLIGHT.",
+   "confidence": 0.9888367056846619,
+   "bbox": [
+    [
+     166.0,
+     731.0
+    ],
+    [
+     454.0,
+     731.0
+    ],
+    [
+     454.0,
+     744.0
+    ],
+    [
+     166.0,
+     744.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FOR MFG, BATCH NO(BNO), MRP DELHI/OTHER STATES:",
+   "confidence": 0.9865033030509949,
+   "bbox": [
+    [
+     167.0,
+     744.0
+    ],
+    [
+     436.0,
+     744.0
+    ],
+    [
+     436.0,
+     754.0
+    ],
+    [
+     167.0,
+     754.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SEE BOTTOM OF PACKAGE, MRP INCLUSIVE OF ALL TAXES.",
+   "confidence": 0.9747148752212524,
+   "bbox": [
+    [
+     167.0,
+     755.0
+    ],
+    [
+     430.0,
+     755.0
+    ],
+    [
+     430.0,
+     765.0
+    ],
+    [
+     167.0,
+     765.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BEST BEFORE 12 MONTHS FROM MANUFACTURE.",
+   "confidence": 0.9904102683067322,
+   "bbox": [
+    [
+     166.0,
+     765.0
+    ],
+    [
+     393.0,
+     765.0
+    ],
+    [
+     393.0,
+     778.0
+    ],
+    [
+     166.0,
+     778.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "COOKING DIRECTIONS",
+   "confidence": 0.9992355704307556,
+   "bbox": [
+    [
+     176.0,
+     803.0
+    ],
+    [
+     289.0,
+     803.0
+    ],
+    [
+     289.0,
+     817.0
+    ],
+    [
+     176.0,
+     817.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "1. Put the noodles into the 600ml of boiling water for 5 minutes.",
+   "confidence": 0.9968058466911316,
+   "bbox": [
+    [
+     175.0,
+     817.0
+    ],
+    [
+     438.0,
+     817.0
+    ],
+    [
+     438.0,
+     830.0
+    ],
+    [
+     175.0,
+     830.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "2. Please remove the water(remain 8 spoons of water).",
+   "confidence": 0.9975598454475403,
+   "bbox": [
+    [
+     176.0,
+     828.0
+    ],
+    [
+     398.0,
+     828.0
+    ],
+    [
+     398.0,
+     838.0
+    ],
+    [
+     176.0,
+     838.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "3. Put liquid soup and cheese powder. Stir well and serve.",
+   "confidence": 0.9959494471549988,
+   "bbox": [
+    [
+     176.0,
+     838.0
+    ],
+    [
+     410.0,
+     838.0
+    ],
+    [
+     410.0,
+     848.0
+    ],
+    [
+     176.0,
+     848.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "on",
+   "confidence": 0.9999891519546509,
+   "bbox": [
+    [
+     89.0,
+     852.0
+    ],
+    [
+     108.0,
+     852.0
+    ],
+    [
+     108.0,
+     865.0
+    ],
+    [
+     89.0,
+     865.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8",
+   "confidence": 0.9998519420623779,
+   "bbox": [
+    [
+     821.0,
+     853.0
+    ],
+    [
+     839.0,
+     853.0
+    ],
+    [
+     839.0,
+     871.0
+    ],
+    [
+     821.0,
+     871.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "dle",
+   "confidence": 0.9977186322212219,
+   "bbox": [
+    [
+     88.0,
+     867.0
+    ],
+    [
+     110.0,
+     867.0
+    ],
+    [
+     110.0,
+     884.0
+    ],
+    [
+     88.0,
+     884.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "X5]",
+   "confidence": 0.9699458479881287,
+   "bbox": [
+    [
+     87.0,
+     882.0
+    ],
+    [
+     109.0,
+     882.0
+    ],
+    [
+     109.0,
+     899.0
+    ],
+    [
+     87.0,
+     899.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ज",
+   "confidence": 0.18470607697963715,
+   "bbox": [
+    [
+     92.71,
+     478.13
+    ],
+    [
+     119.79,
+     490.63
+    ],
+    [
+     105.21,
+     520.83
+    ],
+    [
+     79.17,
+     508.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

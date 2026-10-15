@@ -46,6 +46,8 @@ class Settings(BaseSettings):
     ocr_enable_mkldnn: bool = True
     # 0 keeps the library default thread count.
     ocr_cpu_threads: int = 0
+    # Re-read a photo turned 90 / 270 degrees when its text runs sideways.
+    ocr_auto_rotate: bool = True
     # Load OCR models in a background thread when the API starts.
     ocr_warmup_on_startup: bool = True
     session_cookie_name: str = "packcomply_session"
