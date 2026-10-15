@@ -13,7 +13,7 @@ PackComply assists inspectors. Its results are not legally binding decisions.
 - Image upload with validation (JPG/PNG only, size limit, content checked against the declared type)
 - Multilingual OCR with PaddleOCR, configured for `en, hi, gom, mai, mr, ne, sa, ta, te, ur, ka`
 - Explainable field extraction with heuristic confidence, review flags, and source evidence
-- 8 compliance rules with PASS / FAIL / REVIEW results
+- A versioned Legal Metrology (Packaged Commodities) Rules 2011 ruleset: 14 rules, each citing its legal reference, with PASS / FAIL / REVIEW / NOT_APPLICABLE results and an overall verdict
 - Declared-quantity verification (what the label states; no physical weighing)
 - Risk-based targeting queue for officials
 - Repeat-pattern detection across a user's completed inspections
@@ -39,7 +39,7 @@ PackComply assists inspectors. Its results are not legally binding decisions.
 1. **Upload** — `backend/app/services/uploads.py` validates the image and stores it under a generated file name.
 2. **OCR** — `backend/app/services/ocr/ocr_service.py` runs one PaddleOCR recognizer per configured language and removes duplicate text boxes.
 3. **Extraction** — `backend/app/services/extraction/extraction_service.py` deterministically interprets the OCR text into label fields, each with confidence, a review flag, and evidence.
-4. **Compliance** — `backend/app/services/compliance/rule_engine.py` evaluates the extracted fields against the rules: product identity, manufacturer, packer, importer, MRP format, net-quantity format, date consistency, and consumer-care format.
+4. **Compliance** — `backend/app/services/compliance/rule_engine.py` evaluates the extracted fields against the versioned ruleset in `backend/app/services/compliance/rulesets/` (see [Compliance ruleset](#compliance-ruleset)).
 5. **Risk** — `backend/app/services/risk.py` turns persisted findings into a transparent 0–100 prioritisation score for officials.
 6. **Patterns** — `backend/app/services/patterns.py` groups issues that repeat across completed inspections.
 7. **Report** — `backend/app/services/report.py` renders the PDF report from persisted evidence.
@@ -115,8 +115,11 @@ Do not commit `.env`; it may contain credentials.
 ```powershell
 pytest backend/tests
 python -m backend.scripts.eval_extraction   # field-level precision/recall on the labelled fixtures
+python -m backend.scripts.eval_compliance   # rule-outcome and verdict accuracy on the same fixtures
 cd frontend; npm test
 ```
+
+`eval_compliance` extracts every fixture, stores it the way an inspection does, runs the current ruleset and compares each rule outcome and the verdict with the `rules` / `verdict` entries in `expected.json`.
 
 `eval_extraction` runs extraction over every label in `backend/tests/fixtures/labels` (one real Parle-G back label exported from OCR, plus synthetic layouts) and compares the result with `expected.json`. Add a fixture and its ground truth whenever a new label layout is supported; `--failures` prints only the rows that differ.
 
@@ -150,6 +153,38 @@ Translations live in `frontend/src/locales/`. Every locale file must contain eve
 
 UI language and OCR language are separate. Assamese, Bengali, Bodo, Dogri, Gujarati, Kashmiri, Malayalam, Manipuri (Meitei), Odia, Punjabi, Santali, and Sindhi are UI options but are not enabled for OCR. OCR text is never translated; it remains as printed on the package.
 
+## Compliance ruleset
+
+The checks follow the mandatory declarations of the Legal Metrology (Packaged Commodities) Rules, 2011, as amended (including 2022). Rule metadata — title, inspector-facing description, legal reference, severity, applicability, enable/disable and configuration — lives in a versioned YAML file, `backend/app/services/compliance/rulesets/lm_pc_2011_v1.yaml`. The check logic stays in Python, one function per rule code in `rule_engine.py`. The YAML is validated when the API starts and copied into the `compliance_rules` table (rules are updated, never deleted). Every stored result records the ruleset id and version, shown in the API (`ruleset_label`) and the PDF ("Checked against: LM(PC) 2011 ruleset v1"). `GET /api/compliance/rules` lists the active rules.
+
+Each finding is one of:
+
+- **FAIL** — a violation visible on the label (e.g. no net-quantity declaration at all).
+- **REVIEW** — cannot be confirmed from this photo (e.g. the MRP key is printed but the price is stamped elsewhere; the manufacture date is not in the frame). Ask the inspector to check the physical pack.
+- **PASS** — the declaration was found and is well formed.
+- **NOT_APPLICABLE** — the rule does not apply to this label (e.g. importer rules on a domestic product). Not counted as an issue, in risk scores or in repeat patterns.
+
+The verdict is **NON_COMPLIANT** (any FAIL), **NEEDS_REVIEW** (no FAIL, any REVIEW) or **COMPLIANT**. `overall_status` (FAIL / REVIEW / PASS) is still returned for compatibility.
+
+| Rule code | Checks | Legal reference | Severity |
+|---|---|---|---|
+| MANUFACTURER_INFORMATION | Manufacturer / packer / brand-owner (or, if imported, importer) name and address | Rule 6(1)(a) | HIGH |
+| IMPORTER_INFORMATION | Importer name and address — imported goods only | Rule 6(1)(a) | HIGH |
+| COUNTRY_OF_ORIGIN | Country of origin — imported goods only | Rule 6(1)(aa) | HIGH |
+| PACKER_INFORMATION | Address of a separately named packer | Rule 6(1)(a) | INFO |
+| PRODUCT_IDENTITY | Common or generic name | Rule 6(1)(b) | WARNING |
+| NET_QUANTITY_FORMAT | Net quantity in a standard unit | Rule 6(1)(c), Rule 9 | HIGH |
+| NET_QUANTITY_UNIT_SUITABILITY | Unit clearly unsuited to the commodity (e.g. a liquid by count) | Rule 9, Fourth Schedule | INFO |
+| MRP_FORMAT | MRP in Indian rupees | Rule 6(1)(e) | HIGH |
+| MRP_TAX_INCLUSIVE | "Inclusive of all taxes" | Rule 6(1)(e) | WARNING |
+| UNIT_SALE_PRICE | Unit sale price present and consistent with MRP ÷ net quantity | Rule 6(11) (2022) | WARNING |
+| MANUFACTURE_DATE | Month and year of manufacture / packing (REVIEW, never FAIL, when not visible) | Rule 6(1)(d) | WARNING |
+| DATE_CONSISTENCY | Manufacture/packing not after expiry/use-by, not in the future | Rule 6(1)(d) | WARNING |
+| CONSUMER_CARE_FORMAT | Consumer-care telephone / e-mail | Rule 6(2) | WARNING |
+| FSSAI_LICENSE_PRESENT | 14-digit FSSAI licence on food labels — an FSSAI cross-check, not Legal Metrology | FSS labelling regulations | INFO |
+
+To change a rule's meaning, copy the YAML to a new version (`lm_pc_2011_v2.yaml`), bump `version`, point `DEFAULT_RULESET` in `ruleset.py` at it and re-run `python -m backend.scripts.reanalyse_all`. The unit-sale-price base units and tolerance are configuration and must be verified against the official notification.
+
 ## Risk-based targeting
 
 Risk targeting is a transparent, deterministic prioritisation aid for completed inspections. It is not a machine-learning model and does not create legal rules or enforcement decisions. Officials see a queue based only on persisted compliance findings, missing extraction values that need review, and repeated evidence in their own completed-inspection history. Manufacturers cannot access the queue or the numerical score.
@@ -158,9 +193,11 @@ Scores are capped at 100: 0–24 LOW, 25–49 MEDIUM, 50–74 HIGH, and 75–100
 
 - A FAIL contributes 35 / 25 / 15 / 10 points for HIGH / WARNING / INFO / LOW severity.
 - A REVIEW contributes 20 / 12 / 6 / 4 points.
-- Each absent extracted field contributes 6 points (maximum 18).
-- A repeated non-pass rule adds 12, and a repeated missing field adds 8.
-- Three or more distinct non-pass rules add 8.
+- A NOT_APPLICABLE result contributes nothing.
+- A missing field contributes 6 points (maximum 18) only when it is a `required_fields` entry of a rule that FAILed; under a REVIEW the review points already cover it. Optional or informational fields (website, batch number, best before, a packer beside a declared manufacturer) never add points on their own, so a fully compliant label scores 0.
+- Repeats count violations only: a rule that FAILs again adds 12, and a missing required field of a failing rule that recurs adds 8. Repeated REVIEW findings still appear on the patterns page but add no risk points.
+- Repeats are counted per distinct photo: inspections whose latest image has the same checksum (the same photo uploaded again) are one occurrence, for both risk and the patterns page.
+- Three or more distinct FAIL rules (violations) add 8.
 
 Repeat evidence is calculated only within the authenticated owner's completed inspections. `GET /api/risk-targeting` is official-only, paginated, and excludes OCR text and image data.
 

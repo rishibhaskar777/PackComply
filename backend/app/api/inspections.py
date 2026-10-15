@@ -13,12 +13,13 @@ from backend.app.core.config import get_ocr_languages, get_settings
 from backend.app.core.database import get_db
 from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, Inspection, InspectionImage, OcrResult, Product
 from backend.app.schemas.inspection import ComplianceResponse, ExtractionResponse, ImageUploaded, InspectionCreate, InspectionCreated, InspectionHistoryItem, InspectionHistoryPage, InspectionSummary, OcrProcessed, RiskAssessmentResponse, RiskReasonResponse
-from backend.app.services.compliance import ComplianceEngine, ensure_compliance_rules
+from backend.app.services.compliance import ComplianceEngine
+from backend.app.services.compliance.rule_engine import verdict
 from backend.app.services.extraction import ExtractionService
 from backend.app.services.extraction.evidence import build_extracted_fields, field_evidence
 from backend.app.services.ocr import OcrInitializationError, OcrProcessingError, PaddleOcrService
 from backend.app.services.uploads import UploadValidationError, store_image, validate_image
-from backend.app.services.workflow import LATEST_IMAGE_ORDER, InspectionWorkflow, WorkflowError, compliance_response, extraction_field_response, latest_extracted_fields, latest_image, resolve_upload_path
+from backend.app.services.workflow import LATEST_IMAGE_ORDER, InspectionWorkflow, WorkflowError, compliance_response, extraction_field_response, latest_extracted_fields, latest_image, persist_compliance, resolve_upload_path
 from backend.app.services.report import InspectionReportService
 from backend.app.api.auth import get_current_user
 from backend.app.models import User
@@ -70,7 +71,11 @@ def get_workflow(db: Session = Depends(get_db), ocr_service: PaddleOcrService = 
 
 
 def _overall_compliance_status():
-    """Correlated per-inspection status: FAIL > REVIEW > PASS, or NULL without results."""
+    """Correlated per-inspection status: FAIL > REVIEW > PASS, or NULL without results.
+
+    NOT_APPLICABLE results are neither issues nor passes: an inspection whose
+    results are only PASS / NOT_APPLICABLE is PASS (verdict COMPLIANT).
+    """
     def count(state: str):
         return func.sum(case((ComplianceResult.result == state, 1), else_=0))
     return (
@@ -124,7 +129,7 @@ def list_inspections(
         count_query = count_query.where(overall_compliance == normalized_compliance)
     total = db.scalar(count_query) or 0
     rows = db.execute(query.order_by(Inspection.created_at.desc()).offset((page - 1) * page_size).limit(page_size)).all()
-    return InspectionHistoryPage(items=[InspectionHistoryItem(id=i.id, inspection_number=i.inspection_number, status=i.status, created_at=i.created_at, updated_at=i.updated_at, product_name=name, image_filename=image, compliance_status=compliance) for i, name, image, compliance in rows], page=page, page_size=page_size, total=total, total_pages=(total + page_size - 1) // page_size)
+    return InspectionHistoryPage(items=[InspectionHistoryItem(id=i.id, inspection_number=i.inspection_number, status=i.status, created_at=i.created_at, updated_at=i.updated_at, product_name=name, image_filename=image, compliance_status=compliance, verdict=verdict([compliance]) if compliance else None) for i, name, image, compliance in rows], page=page, page_size=page_size, total=total, total_pages=(total + page_size - 1) // page_size)
 
 
 @router.get("/{inspection_id}/report", response_class=Response, responses={200: {"content": {"application/pdf": {}}}})
@@ -317,19 +322,7 @@ def run_inspection_compliance(inspection_id: UUID, db: Session = Depends(get_db)
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Information extraction must be run before compliance analysis.")
     fields = {field.field_name: field_evidence(field) for field in extracted}
     logger.info("Compliance input inspection_id=%s ocr_result_id=%s fields=%s", inspection.id, ocr_result.id, {name: {"raw": item.value, "normalized": compliance_engine._normalized("NET_QUANTITY_FORMAT" if name == "net_quantity" else "MRP_FORMAT" if name == "mrp" else "", item.value)} for name, item in fields.items()})
-    rules = ensure_compliance_rules(db)
-    existing = {result.rule_id: result for result in db.scalars(select(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id)).all()}
-    for finding in compliance_engine.evaluate(fields):
-        rule = rules.get(finding.rule_id)
-        if rule is None or not rule.enabled:
-            continue
-        result = existing.get(rule.id)
-        if result is None:
-            result = ComplianceResult(inspection_id=inspection.id, rule_id=rule.id, result=finding.status, explanation=finding.message)
-            db.add(result)
-        result.result, result.explanation, result.field_name = finding.status, finding.message, finding.field
-        result.value, result.confidence, result.evidence = finding.value, finding.confidence, finding.evidence
-    db.commit()
+    persist_compliance(db, compliance_engine, inspection.id, fields)
     persisted = db.scalars(select(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id).join(ComplianceRule).order_by(ComplianceRule.rule_code)).all()
     response = compliance_response(inspection.id, persisted, list(extracted))
     logger.info("Compliance persisted inspection_id=%s overall=%s findings=%s", inspection.id, response.overall_status, {finding.rule_id: {"status": finding.status, "reason": finding.message} for finding in response.findings})

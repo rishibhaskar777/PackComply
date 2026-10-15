@@ -1,0 +1,9 @@
+{
+ "name": "synthetic_near_empty",
+ "synthetic": true,
+ "description": "Near-empty front panel: brand line and slogan only, no mandatory declarations. Text-only OCR.",
+ "image_width": 640,
+ "image_height": 480,
+ "raw_text": "Spice Magic Garam Masala\nTaste of Tradition",
+ "detections": null
+}

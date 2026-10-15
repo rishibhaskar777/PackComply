@@ -141,6 +141,9 @@ class ComplianceResult(IdTimestampMixin, Base):
     value: Mapped[str | None] = mapped_column(Text)
     confidence: Mapped[Decimal | None] = mapped_column(Numeric(5, 4))
     evidence: Mapped[str | None] = mapped_column(Text)
+    # Which versioned ruleset produced this result; null for results stored before rulesets.
+    ruleset_id: Mapped[str | None] = mapped_column(String(50))
+    ruleset_version: Mapped[str | None] = mapped_column(String(20))
     rule: Mapped[ComplianceRule] = relationship()
 
 

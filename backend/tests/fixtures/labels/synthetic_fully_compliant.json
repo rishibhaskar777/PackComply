@@ -1,0 +1,274 @@
+{
+ "name": "synthetic_fully_compliant",
+ "synthetic": true,
+ "description": "Every mandatory declaration present and consistent: manufacturer with address, MRP incl. taxes, unit sale price, dates, consumer care, FSSAI.",
+ "image_width": 640,
+ "image_height": 480,
+ "raw_text": "Golden Crunch Cookies\nNet Wt. 200 g\nMRP ₹ 50.00 (Incl. of all taxes)\nUnit Sale Price: ₹0.25 per g\nINGREDIENTS: WHEAT FLOUR, SUGAR, BUTTER, MILK SOLIDS\nManufactured by: Golden Crunch Foods Pvt Ltd\nPlot 21, MIDC Ambad, Nashik, MH - 422010\nFSSAI Lic. No. 10020022000456\nMfg. Date: 06/2026\nUse by: 03/2027\nConsumer Care: 1800 123 4567\nEmail: care@goldencrunch.in",
+ "detections": [
+  {
+   "text": "Golden Crunch Cookies",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     20
+    ],
+    [
+     406.5,
+     20
+    ],
+    [
+     406.5,
+     50
+    ],
+    [
+     60,
+     50
+    ]
+   ]
+  },
+  {
+   "text": "Net Wt. 200 g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     70
+    ],
+    [
+     174.4,
+     70
+    ],
+    [
+     174.4,
+     86
+    ],
+    [
+     60,
+     86
+    ]
+   ]
+  },
+  {
+   "text": "MRP ₹ 50.00 (Incl. of all taxes)",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     90
+    ],
+    [
+     341.6,
+     90
+    ],
+    [
+     341.6,
+     106
+    ],
+    [
+     60,
+     106
+    ]
+   ]
+  },
+  {
+   "text": "Unit Sale Price: ₹0.25 per g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     110
+    ],
+    [
+     306.4,
+     110
+    ],
+    [
+     306.4,
+     126
+    ],
+    [
+     60,
+     126
+    ]
+   ]
+  },
+  {
+   "text": "INGREDIENTS: WHEAT FLOUR, SUGAR, BUTTER, MILK SOLIDS",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     130
+    ],
+    [
+     517.6,
+     130
+    ],
+    [
+     517.6,
+     146
+    ],
+    [
+     60,
+     146
+    ]
+   ]
+  },
+  {
+   "text": "Manufactured by: Golden Crunch Foods Pvt Ltd",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     150
+    ],
+    [
+     447.2,
+     150
+    ],
+    [
+     447.2,
+     166
+    ],
+    [
+     60,
+     166
+    ]
+   ]
+  },
+  {
+   "text": "Plot 21, MIDC Ambad, Nashik, MH - 422010",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     170
+    ],
+    [
+     412.0,
+     170
+    ],
+    [
+     412.0,
+     186
+    ],
+    [
+     60,
+     186
+    ]
+   ]
+  },
+  {
+   "text": "FSSAI Lic. No. 10020022000456",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     190
+    ],
+    [
+     315.2,
+     190
+    ],
+    [
+     315.2,
+     206
+    ],
+    [
+     60,
+     206
+    ]
+   ]
+  },
+  {
+   "text": "Mfg. Date: 06/2026",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     210
+    ],
+    [
+     218.4,
+     210
+    ],
+    [
+     218.4,
+     226
+    ],
+    [
+     60,
+     226
+    ]
+   ]
+  },
+  {
+   "text": "Use by: 03/2027",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     230
+    ],
+    [
+     192.0,
+     230
+    ],
+    [
+     192.0,
+     246
+    ],
+    [
+     60,
+     246
+    ]
+   ]
+  },
+  {
+   "text": "Consumer Care: 1800 123 4567",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     250
+    ],
+    [
+     306.4,
+     250
+    ],
+    [
+     306.4,
+     266
+    ],
+    [
+     60,
+     266
+    ]
+   ]
+  },
+  {
+   "text": "Email: care@goldencrunch.in",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     270
+    ],
+    [
+     297.6,
+     270
+    ],
+    [
+     297.6,
+     286
+    ],
+    [
+     60,
+     286
+    ]
+   ]
+  }
+ ]
+}

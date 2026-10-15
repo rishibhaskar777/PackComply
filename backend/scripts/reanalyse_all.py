@@ -52,7 +52,9 @@ def main() -> None:
             fields = db.scalars(select(ExtractedField).where(ExtractedField.inspection_id == inspection_id)).all()
             found = sum(field.value is not None for field in fields)
             overall = summary.compliance.overall_status if summary.compliance else "—"
-            print(f"{number} {inspection_id} fields_with_value={found}/{len(fields)} compliance={overall}")
+            verdict = summary.compliance.verdict if summary.compliance else "—"
+            ruleset = summary.compliance.ruleset_label if summary.compliance else "—"
+            print(f"{number} {inspection_id} fields_with_value={found}/{len(fields)} compliance={overall} verdict={verdict} ruleset={ruleset}")
     print(f"\ninspections={len(inspections)} reanalysed={counts['reanalysed']} skipped_no_ocr={counts['skipped_no_ocr']} failed={counts['failed']}")
 
 

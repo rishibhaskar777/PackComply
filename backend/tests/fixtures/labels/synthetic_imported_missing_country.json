@@ -1,0 +1,252 @@
+{
+ "name": "synthetic_imported_missing_country",
+ "synthetic": true,
+ "description": "Imported product with importer and address but no country of origin.",
+ "image_width": 640,
+ "image_height": 480,
+ "raw_text": "Alpine Swiss Chocolate\nNet Wt. 100 g\nMRP ₹ 350 (Inclusive of all taxes)\nImported by:\nEuro Gourmet Imports Pvt Ltd\n22 Linking Road, Bandra West, Mumbai - 400050\nINGREDIENTS: SUGAR, COCOA BUTTER, MILK SOLIDS\nFSSAI Lic. No. 10021022000999\nMfg. Date: 05/2026\nBest Before: 12 months from manufacture\nConsumer Care: care@eurogourmet.in",
+ "detections": [
+  {
+   "text": "Alpine Swiss Chocolate",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     20
+    ],
+    [
+     423.0,
+     20
+    ],
+    [
+     423.0,
+     50
+    ],
+    [
+     60,
+     50
+    ]
+   ]
+  },
+  {
+   "text": "Net Wt. 100 g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     70
+    ],
+    [
+     174.4,
+     70
+    ],
+    [
+     174.4,
+     86
+    ],
+    [
+     60,
+     86
+    ]
+   ]
+  },
+  {
+   "text": "MRP ₹ 350 (Inclusive of all taxes)",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     90
+    ],
+    [
+     359.2,
+     90
+    ],
+    [
+     359.2,
+     106
+    ],
+    [
+     60,
+     106
+    ]
+   ]
+  },
+  {
+   "text": "Imported by:",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     110
+    ],
+    [
+     165.6,
+     110
+    ],
+    [
+     165.6,
+     126
+    ],
+    [
+     60,
+     126
+    ]
+   ]
+  },
+  {
+   "text": "Euro Gourmet Imports Pvt Ltd",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     130
+    ],
+    [
+     306.4,
+     130
+    ],
+    [
+     306.4,
+     146
+    ],
+    [
+     60,
+     146
+    ]
+   ]
+  },
+  {
+   "text": "22 Linking Road, Bandra West, Mumbai - 400050",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     150
+    ],
+    [
+     456.0,
+     150
+    ],
+    [
+     456.0,
+     166
+    ],
+    [
+     60,
+     166
+    ]
+   ]
+  },
+  {
+   "text": "INGREDIENTS: SUGAR, COCOA BUTTER, MILK SOLIDS",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     170
+    ],
+    [
+     456.0,
+     170
+    ],
+    [
+     456.0,
+     186
+    ],
+    [
+     60,
+     186
+    ]
+   ]
+  },
+  {
+   "text": "FSSAI Lic. No. 10021022000999",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     190
+    ],
+    [
+     315.2,
+     190
+    ],
+    [
+     315.2,
+     206
+    ],
+    [
+     60,
+     206
+    ]
+   ]
+  },
+  {
+   "text": "Mfg. Date: 05/2026",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     210
+    ],
+    [
+     218.4,
+     210
+    ],
+    [
+     218.4,
+     226
+    ],
+    [
+     60,
+     226
+    ]
+   ]
+  },
+  {
+   "text": "Best Before: 12 months from manufacture",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     230
+    ],
+    [
+     403.2,
+     230
+    ],
+    [
+     403.2,
+     246
+    ],
+    [
+     60,
+     246
+    ]
+   ]
+  },
+  {
+   "text": "Consumer Care: care@eurogourmet.in",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     250
+    ],
+    [
+     359.2,
+     250
+    ],
+    [
+     359.2,
+     266
+    ],
+    [
+     60,
+     266
+    ]
+   ]
+  }
+ ]
+}

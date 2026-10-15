@@ -29,6 +29,8 @@ class InspectionHistoryItem(BaseModel):
     product_name: str | None = None
     compliance_status: str | None = None
     image_filename: str | None = None
+    # NON_COMPLIANT / NEEDS_REVIEW / COMPLIANT, derived from compliance_status.
+    verdict: str | None = None
 
 class InspectionHistoryPage(BaseModel):
     items: list[InspectionHistoryItem]
@@ -105,6 +107,7 @@ class ComplianceSummary(BaseModel):
     passed: int
     failed: int
     review: int
+    not_applicable: int = 0
 
 
 class ComplianceFindingResponse(BaseModel):
@@ -120,13 +123,39 @@ class ComplianceFindingResponse(BaseModel):
     category: str = "LEGAL_METROLOGY"
     expected: str | None = None
     source_bboxes: list[list[list[float]]] | None = None
+    legal_reference: str | None = None
+    recommended_action: str | None = None
 
 
 class ComplianceResponse(BaseModel):
     inspection_id: UUID
+    # FAIL / REVIEW / PASS, kept for compatibility; NOT_APPLICABLE never changes it.
     overall_status: str
     summary: ComplianceSummary
     findings: list[ComplianceFindingResponse]
+    # NON_COMPLIANT (any FAIL) / NEEDS_REVIEW (any REVIEW) / COMPLIANT.
+    verdict: str | None = None
+    ruleset_id: str | None = None
+    ruleset_version: str | None = None
+    ruleset_label: str | None = None
+
+
+class ComplianceRuleResponse(BaseModel):
+    code: str
+    title: str
+    description: str
+    legal_reference: str | None = None
+    severity: str
+    applies_when: str | None = None
+
+
+class ComplianceRulesetResponse(BaseModel):
+    ruleset_id: str
+    version: str
+    label: str
+    title: str
+    disclaimer: str
+    rules: list[ComplianceRuleResponse]
 
 
 class QuantityVerificationResponse(BaseModel):

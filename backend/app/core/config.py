@@ -52,6 +52,8 @@ class Settings(BaseSettings):
     session_ttl_hours: int = 12
     session_secure: bool = False
     pattern_min_occurrences: int = 2
+    # Copy the versioned ruleset YAML into compliance_rules when the API starts.
+    compliance_rules_sync_on_startup: bool = True
     allow_official_self_registration: bool = False
     login_max_attempts: int = 5
     login_lockout_minutes: int = 15

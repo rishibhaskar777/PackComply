@@ -32,6 +32,7 @@ CORE_FIELD_NAMES = (
 SUPPLEMENTARY_FIELD_NAMES = (
     "brand_owner", "brand_owner_address", "manufacturing_units", "mrp_declaration", "tax_inclusive",
     "fssai_license", "country_of_origin", "unit_sale_price", "batch_number",
+    "consumer_care_declaration", "import_declaration", "product_category",
 )
 FIELD_NAMES = CORE_FIELD_NAMES + SUPPLEMENTARY_FIELD_NAMES
 
@@ -128,6 +129,8 @@ _COMPANY_NAME = re.compile(rf"(?i)^(.*?(?<![A-Za-z])(?:{_COMPANY_SUFFIX}))(?=\s*
 _TRAILING_SUFFIX = re.compile(r"(?i)^\s*,?\s*((?:pvt\.?\s*)?ltd|limited|inc)\.?(?=\s*(?:[,;]|$))")
 _PIN = re.compile(r"(?<!\d)\d{3}\s?\d{3}(?!\d)")
 _ADDRESS_HINT = re.compile(r"(?i)\d|road|street|nagar|area|estate|sector|village|plot|dist|marg|lane|colony|phase|india|भारत|नगर")
+# Food labels: an ingredients list, a nutrition panel or FSSAI text (not the generic "Lic. No.").
+_FOOD_HINT = re.compile(r"(?i)(?<![A-Za-z])(?:ingredients?|nutrition(?:al)?|fssai)(?![A-Za-z])|सामग्री|पोषण")
 _CARE_KEY = re.compile(r"(?i)consumer\s*care|customer\s*care|consumer\s*(?:complaints?|services?)|customer\s*services?|help\s*line|contact|toll\s*free|ग्राहक\s*सेवा|उपभोक्ता\s*सेवा")
 _PHONE = (
     re.compile(r"(?<!\d)(?:\+?91[\s\-]?)?(?:1800|1860)[\s\-]?\d{3}[\s\-]?\d{3,4}(?!\d)"),
@@ -185,6 +188,8 @@ class ExtractionService:
         results["country_of_origin"] = self._country(layout)
         results["unit_sale_price"] = self._unit_sale_price(layout)
         results["batch_number"] = self._batch(layout)
+        results["import_declaration"] = self._first_line(layout, _key(_ROLE_KEYS["importer"]), "present", "import_declaration:key")
+        results["product_category"] = self._first_line(layout, _FOOD_HINT, "food", "product_category:food_keywords", 0.8)
         results["product_name"] = self._product_name(layout, results)
         logger.debug("Extraction layout geometric=%s lines=%d fields=%s", layout.geometric, len(layout.lines), {name: value.value for name, value in results.items() if value.value})
         return results
@@ -230,6 +235,12 @@ class ExtractionService:
         ambiguous = len(dict.fromkeys(item.normalized or item.value for item in found)) > 1
         confidence = CONFIDENCE[first.method] - (AMBIGUITY_PENALTY if ambiguous else 0.0)
         return ExtractedValue(first.value, round(confidence, 2), ambiguous or review, _source(first.lines), f"{name}:{first.method}", first.normalized or first.value, _boxes(first.lines))
+
+    @staticmethod
+    def _first_line(layout: Layout, pattern: re.Pattern[str], value: str, method: str, confidence: float = 0.85) -> ExtractedValue:
+        """A fixed value when ``pattern`` occurs on any line; the first such line is the evidence."""
+        line = next((line for line in layout.lines if pattern.search(line.text)), None)
+        return ExtractedValue(value, confidence, False, line.text, method, value, _boxes([line])) if line else ExtractedValue()
 
     # ----------------------------------------------------------- quantity
 
@@ -529,6 +540,15 @@ class ExtractionService:
                 if value := find(line.text):
                     result[name] = ExtractedValue(value, 0.8, False, line.text, f"{name}:anywhere", normalize(value), _boxes([line]))
                     break
+        # Like mrp_declaration: a printed heading whose details are unreadable
+        # (cut off in the photo) is different from no consumer-care block at all.
+        if not blocks:
+            declaration = ExtractedValue("absent", 0.7, False, None, "consumer_care_declaration:no_key", "absent")
+        elif any(value.value for value in result.values()):
+            declaration = ExtractedValue("present_with_details", 0.9, False, blocks[0][0].text, "consumer_care_declaration:key_with_details", "present_with_details", _boxes(blocks[0][:1]))
+        else:
+            declaration = ExtractedValue("present_without_details", 0.85, True, blocks[0][0].text, "consumer_care_declaration:key_without_details", "present_without_details", _boxes(blocks[0][:1]))
+        result["consumer_care_declaration"] = declaration
         return result
 
     # ------------------------------------------------------- product name
