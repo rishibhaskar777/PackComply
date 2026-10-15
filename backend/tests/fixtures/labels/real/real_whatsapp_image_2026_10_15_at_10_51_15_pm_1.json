@@ -1,0 +1,951 @@
+{
+ "source": "batch_evaluate OCR of WhatsApp Image 2026-10-15 at 10.51.15 PM (1).jpeg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 960,
+ "image_height": 1280,
+ "ocr_seconds": 20.25,
+ "raw_text": "Ingredients\nWater/Aqua, Cyclopentasiloxane, Panthenol,\nPEG/PPG-18/18 Dimethicone, Glycerin,\nHydrogenated Polyisobutene, Betaine,\nSodium Hyaluronate, Allantoin, Copper\nGluconate, Dimethicone Crosspolymer,\nXylitylglucoside, Anhydroxylitol, Xylitol,\nMagnesium Aspartate, Zinc Gluconate,\nPentylene Glycol, Magnesium Sulphate\nHeptahydrate, Phenoxyethanol,\nHydroxyethyl Acrylate/Sodium\nAcryloyldimethyl Taurate Copolymer,\nCarbomer, Ethylhexylglycerin\nManufactured By\nL.B.C.P., Unit II, Haridwar, Uttarakhand, India -\n249403,\nML No.: 16/C/UA/2010.\nCountry of Origin: India\nMarketed By\nUprising Science Pvt. Ltd., F-2109, RIICO Ind.\nArea, Ramchandrapura,\nJaipur - 302022, Rajasthan, India.\nFor Consumer Complaints / Queries\nAddress : Same as Marketed By Address\nMobile :+91 97723 46555\nEmail ID: help@beminimalist.co\nProduct Information\nNet weight:\n100 g / 3.53 oz.\n@MRP(R)\nand of\nUnit Sale\nPrice tu\nSee at Bottom\n#Batch No.\n\"Mfg. Date\n&Exp. Date\n8906128101433\n2000001174",
+ "detections": [
+  {
+   "text": "Ingredients",
+   "confidence": 0.9999883770942688,
+   "bbox": [
+    [
+     307.0,
+     306.0
+    ],
+    [
+     379.0,
+     306.0
+    ],
+    [
+     379.0,
+     323.0
+    ],
+    [
+     307.0,
+     323.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Water/Aqua, Cyclopentasiloxane, Panthenol,",
+   "confidence": 0.9962706565856934,
+   "bbox": [
+    [
+     308.0,
+     322.0
+    ],
+    [
+     559.0,
+     323.0
+    ],
+    [
+     559.0,
+     338.0
+    ],
+    [
+     308.0,
+     337.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PEG/PPG-18/18 Dimethicone, Glycerin,",
+   "confidence": 0.9967243671417236,
+   "bbox": [
+    [
+     309.0,
+     337.0
+    ],
+    [
+     524.0,
+     338.0
+    ],
+    [
+     524.0,
+     355.0
+    ],
+    [
+     309.0,
+     354.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Hydrogenated Polyisobutene, Betaine,",
+   "confidence": 0.9995992183685303,
+   "bbox": [
+    [
+     309.0,
+     354.0
+    ],
+    [
+     527.0,
+     354.0
+    ],
+    [
+     527.0,
+     368.0
+    ],
+    [
+     309.0,
+     368.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Sodium Hyaluronate, Allantoin, Copper",
+   "confidence": 0.9987154006958008,
+   "bbox": [
+    [
+     310.0,
+     371.0
+    ],
+    [
+     529.0,
+     371.0
+    ],
+    [
+     529.0,
+     385.0
+    ],
+    [
+     310.0,
+     385.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Gluconate, Dimethicone Crosspolymer,",
+   "confidence": 0.996934175491333,
+   "bbox": [
+    [
+     310.0,
+     386.0
+    ],
+    [
+     530.0,
+     387.0
+    ],
+    [
+     530.0,
+     401.0
+    ],
+    [
+     310.0,
+     400.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Xylitylglucoside, Anhydroxylitol, Xylitol,",
+   "confidence": 0.9734715819358826,
+   "bbox": [
+    [
+     310.0,
+     402.0
+    ],
+    [
+     527.0,
+     402.0
+    ],
+    [
+     527.0,
+     416.0
+    ],
+    [
+     310.0,
+     416.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Magnesium Aspartate, Zinc Gluconate,",
+   "confidence": 0.9998304843902588,
+   "bbox": [
+    [
+     311.0,
+     418.0
+    ],
+    [
+     528.0,
+     418.0
+    ],
+    [
+     528.0,
+     432.0
+    ],
+    [
+     311.0,
+     432.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Pentylene Glycol, Magnesium Sulphate",
+   "confidence": 0.9998201727867126,
+   "bbox": [
+    [
+     310.0,
+     433.0
+    ],
+    [
+     528.0,
+     433.0
+    ],
+    [
+     528.0,
+     447.0
+    ],
+    [
+     310.0,
+     447.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Heptahydrate, Phenoxyethanol,",
+   "confidence": 0.9904171228408813,
+   "bbox": [
+    [
+     311.0,
+     449.0
+    ],
+    [
+     488.0,
+     449.0
+    ],
+    [
+     488.0,
+     463.0
+    ],
+    [
+     311.0,
+     463.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Hydroxyethyl Acrylate/Sodium",
+   "confidence": 0.999069094657898,
+   "bbox": [
+    [
+     312.0,
+     464.0
+    ],
+    [
+     481.0,
+     464.0
+    ],
+    [
+     481.0,
+     478.0
+    ],
+    [
+     312.0,
+     478.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Acryloyldimethyl Taurate Copolymer,",
+   "confidence": 0.9951828122138977,
+   "bbox": [
+    [
+     312.0,
+     480.0
+    ],
+    [
+     517.0,
+     480.0
+    ],
+    [
+     517.0,
+     494.0
+    ],
+    [
+     312.0,
+     494.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Carbomer, Ethylhexylglycerin",
+   "confidence": 0.9839825630187988,
+   "bbox": [
+    [
+     312.0,
+     495.0
+    ],
+    [
+     476.0,
+     495.0
+    ],
+    [
+     476.0,
+     509.0
+    ],
+    [
+     312.0,
+     509.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Manufactured By",
+   "confidence": 0.9999841451644897,
+   "bbox": [
+    [
+     312.0,
+     537.0
+    ],
+    [
+     413.0,
+     537.0
+    ],
+    [
+     413.0,
+     551.0
+    ],
+    [
+     312.0,
+     551.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "L.B.C.P., Unit II, Haridwar, Uttarakhand, India -",
+   "confidence": 0.9854098558425903,
+   "bbox": [
+    [
+     313.0,
+     553.0
+    ],
+    [
+     563.0,
+     553.0
+    ],
+    [
+     563.0,
+     567.0
+    ],
+    [
+     313.0,
+     567.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "249403,",
+   "confidence": 0.9983268976211548,
+   "bbox": [
+    [
+     313.0,
+     567.0
+    ],
+    [
+     364.0,
+     567.0
+    ],
+    [
+     364.0,
+     583.0
+    ],
+    [
+     313.0,
+     583.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ML No.: 16/C/UA/2010.",
+   "confidence": 0.9967448711395264,
+   "bbox": [
+    [
+     314.0,
+     583.0
+    ],
+    [
+     438.0,
+     583.0
+    ],
+    [
+     438.0,
+     596.0
+    ],
+    [
+     314.0,
+     596.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Country of Origin: India",
+   "confidence": 0.9999601244926453,
+   "bbox": [
+    [
+     314.0,
+     598.0
+    ],
+    [
+     443.0,
+     598.0
+    ],
+    [
+     443.0,
+     612.0
+    ],
+    [
+     314.0,
+     612.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Marketed By",
+   "confidence": 0.9999910593032837,
+   "bbox": [
+    [
+     315.0,
+     638.0
+    ],
+    [
+     390.0,
+     638.0
+    ],
+    [
+     390.0,
+     652.0
+    ],
+    [
+     315.0,
+     652.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Uprising Science Pvt. Ltd., F-2109, RIICO Ind.",
+   "confidence": 0.9887934923171997,
+   "bbox": [
+    [
+     314.0,
+     650.0
+    ],
+    [
+     558.0,
+     649.0
+    ],
+    [
+     558.0,
+     666.0
+    ],
+    [
+     314.0,
+     667.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Area, Ramchandrapura,",
+   "confidence": 0.9985170960426331,
+   "bbox": [
+    [
+     315.0,
+     666.0
+    ],
+    [
+     445.0,
+     666.0
+    ],
+    [
+     445.0,
+     679.0
+    ],
+    [
+     315.0,
+     679.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Jaipur - 302022, Rajasthan, India.",
+   "confidence": 0.9658808708190918,
+   "bbox": [
+    [
+     315.0,
+     681.0
+    ],
+    [
+     498.0,
+     680.0
+    ],
+    [
+     498.0,
+     694.0
+    ],
+    [
+     315.0,
+     695.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "For Consumer Complaints / Queries",
+   "confidence": 0.98178631067276,
+   "bbox": [
+    [
+     316.0,
+     720.0
+    ],
+    [
+     518.0,
+     718.0
+    ],
+    [
+     518.0,
+     732.0
+    ],
+    [
+     316.0,
+     734.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Address : Same as Marketed By Address",
+   "confidence": 0.9850287437438965,
+   "bbox": [
+    [
+     316.0,
+     734.0
+    ],
+    [
+     537.0,
+     733.0
+    ],
+    [
+     537.0,
+     747.0
+    ],
+    [
+     316.0,
+     748.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mobile :+91 97723 46555",
+   "confidence": 0.9612006545066833,
+   "bbox": [
+    [
+     317.0,
+     749.0
+    ],
+    [
+     465.0,
+     747.0
+    ],
+    [
+     465.0,
+     761.0
+    ],
+    [
+     317.0,
+     763.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Email ID: help@beminimalist.co",
+   "confidence": 0.9875357151031494,
+   "bbox": [
+    [
+     317.0,
+     764.0
+    ],
+    [
+     488.0,
+     762.0
+    ],
+    [
+     488.0,
+     776.0
+    ],
+    [
+     317.0,
+     778.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Product Information",
+   "confidence": 0.9998521208763123,
+   "bbox": [
+    [
+     319.0,
+     802.0
+    ],
+    [
+     431.0,
+     802.0
+    ],
+    [
+     431.0,
+     816.0
+    ],
+    [
+     319.0,
+     816.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net weight:",
+   "confidence": 0.977952778339386,
+   "bbox": [
+    [
+     319.0,
+     845.0
+    ],
+    [
+     383.0,
+     845.0
+    ],
+    [
+     383.0,
+     859.0
+    ],
+    [
+     319.0,
+     859.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "100 g / 3.53 oz.",
+   "confidence": 0.9402213096618652,
+   "bbox": [
+    [
+     318.0,
+     878.0
+    ],
+    [
+     435.0,
+     880.0
+    ],
+    [
+     435.0,
+     904.0
+    ],
+    [
+     318.0,
+     902.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "@MRP(R)",
+   "confidence": 0.8851729035377502,
+   "bbox": [
+    [
+     321.0,
+     947.0
+    ],
+    [
+     373.0,
+     947.0
+    ],
+    [
+     373.0,
+     961.0
+    ],
+    [
+     321.0,
+     961.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "and of",
+   "confidence": 0.6998875737190247,
+   "bbox": [
+    [
+     321.0,
+     959.0
+    ],
+    [
+     346.0,
+     959.0
+    ],
+    [
+     346.0,
+     970.0
+    ],
+    [
+     321.0,
+     970.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Unit Sale",
+   "confidence": 0.9740080237388611,
+   "bbox": [
+    [
+     322.0,
+     977.0
+    ],
+    [
+     380.0,
+     977.0
+    ],
+    [
+     380.0,
+     991.0
+    ],
+    [
+     322.0,
+     991.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Price tu",
+   "confidence": 0.8561160564422607,
+   "bbox": [
+    [
+     320.0,
+     989.0
+    ],
+    [
+     370.0,
+     991.0
+    ],
+    [
+     370.0,
+     1006.0
+    ],
+    [
+     320.0,
+     1004.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "See at Bottom",
+   "confidence": 0.9996359944343567,
+   "bbox": [
+    [
+     426.0,
+     990.0
+    ],
+    [
+     509.0,
+     990.0
+    ],
+    [
+     509.0,
+     1003.0
+    ],
+    [
+     426.0,
+     1003.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "#Batch No.",
+   "confidence": 0.9998086094856262,
+   "bbox": [
+    [
+     322.0,
+     1004.0
+    ],
+    [
+     385.0,
+     1004.0
+    ],
+    [
+     385.0,
+     1018.0
+    ],
+    [
+     322.0,
+     1018.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "\"Mfg. Date",
+   "confidence": 0.9463311433792114,
+   "bbox": [
+    [
+     323.0,
+     1018.0
+    ],
+    [
+     384.0,
+     1018.0
+    ],
+    [
+     384.0,
+     1032.0
+    ],
+    [
+     323.0,
+     1032.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "&Exp. Date",
+   "confidence": 0.961783766746521,
+   "bbox": [
+    [
+     323.0,
+     1032.0
+    ],
+    [
+     385.0,
+     1032.0
+    ],
+    [
+     385.0,
+     1046.0
+    ],
+    [
+     323.0,
+     1046.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8906128101433",
+   "confidence": 0.9994736313819885,
+   "bbox": [
+    [
+     346.0,
+     1153.0
+    ],
+    [
+     540.0,
+     1149.0
+    ],
+    [
+     540.0,
+     1170.0
+    ],
+    [
+     346.0,
+     1174.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "2000001174",
+   "confidence": 0.999969482421875,
+   "bbox": [
+    [
+     497.0,
+     1182.0
+    ],
+    [
+     571.0,
+     1180.0
+    ],
+    [
+     571.0,
+     1194.0
+    ],
+    [
+     497.0,
+     1196.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  }
+ ]
+}

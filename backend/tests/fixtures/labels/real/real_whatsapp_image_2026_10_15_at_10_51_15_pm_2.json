@@ -1,0 +1,639 @@
+{
+ "source": "batch_evaluate OCR of WhatsApp Image 2026-10-15 at 10.51.15 PM (2).jpeg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 960,
+ "image_height": 1280,
+ "ocr_seconds": 17.7,
+ "raw_text": "Ketom\nF S\nKetoconazole Shampoo\nKetomac\nR\nCOMPOSITION:\nKetoconazole\nIP\n2% w/v\nShampoo base\nq.s.\nSTORAGE:\nStore in a cool place.\nProtect from light\nKeep out of reach of children.\nKetomac shampoo contains 2%\nKetoconazole which is the drug of\nchoice for dandruff.\nKetoconazole acts by killing\nP.Ovale which causes dandruff.\nKetomac's superior action clears\ndandruff and helps to maintain a\nclear scalp.Ketomac can be freely\nused on coloured and dyed hair.\nFOR EXTERNAL USE ONLY.\n(01)18906044105079",
+ "detections": [
+  {
+   "text": "Ketom",
+   "confidence": 0.8935889005661011,
+   "bbox": [
+    [
+     402.0,
+     0.0
+    ],
+    [
+     511.0,
+     0.0
+    ],
+    [
+     500.0,
+     267.0
+    ],
+    [
+     391.0,
+     263.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "F S",
+   "confidence": 0.6653501987457275,
+   "bbox": [
+    [
+     503.0,
+     0.0
+    ],
+    [
+     530.0,
+     0.0
+    ],
+    [
+     528.0,
+     250.0
+    ],
+    [
+     501.0,
+     250.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ketoconazole Shampoo",
+   "confidence": 0.9999788403511047,
+   "bbox": [
+    [
+     339.0,
+     350.0
+    ],
+    [
+     577.0,
+     350.0
+    ],
+    [
+     577.0,
+     377.0
+    ],
+    [
+     339.0,
+     377.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ketomac",
+   "confidence": 0.9999066591262817,
+   "bbox": [
+    [
+     337.0,
+     380.0
+    ],
+    [
+     419.0,
+     378.0
+    ],
+    [
+     420.0,
+     403.0
+    ],
+    [
+     338.0,
+     405.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "R",
+   "confidence": 0.6836602091789246,
+   "bbox": [
+    [
+     414.0,
+     377.0
+    ],
+    [
+     427.0,
+     377.0
+    ],
+    [
+     427.0,
+     391.0
+    ],
+    [
+     414.0,
+     391.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "COMPOSITION:",
+   "confidence": 0.9997803568840027,
+   "bbox": [
+    [
+     339.0,
+     413.0
+    ],
+    [
+     458.0,
+     412.0
+    ],
+    [
+     458.0,
+     430.0
+    ],
+    [
+     339.0,
+     431.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ketoconazole",
+   "confidence": 0.9999718070030212,
+   "bbox": [
+    [
+     339.0,
+     432.0
+    ],
+    [
+     438.0,
+     432.0
+    ],
+    [
+     438.0,
+     449.0
+    ],
+    [
+     339.0,
+     449.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "IP",
+   "confidence": 0.9997105598449707,
+   "bbox": [
+    [
+     468.0,
+     430.0
+    ],
+    [
+     488.0,
+     430.0
+    ],
+    [
+     488.0,
+     448.0
+    ],
+    [
+     468.0,
+     448.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "2% w/v",
+   "confidence": 0.999316930770874,
+   "bbox": [
+    [
+     512.0,
+     428.0
+    ],
+    [
+     570.0,
+     428.0
+    ],
+    [
+     570.0,
+     450.0
+    ],
+    [
+     512.0,
+     450.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Shampoo base",
+   "confidence": 0.9999848008155823,
+   "bbox": [
+    [
+     339.0,
+     450.0
+    ],
+    [
+     448.0,
+     450.0
+    ],
+    [
+     448.0,
+     467.0
+    ],
+    [
+     339.0,
+     467.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "q.s.",
+   "confidence": 0.9897614121437073,
+   "bbox": [
+    [
+     539.0,
+     450.0
+    ],
+    [
+     570.0,
+     450.0
+    ],
+    [
+     570.0,
+     469.0
+    ],
+    [
+     539.0,
+     469.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "STORAGE:",
+   "confidence": 0.9999611377716064,
+   "bbox": [
+    [
+     339.0,
+     489.0
+    ],
+    [
+     424.0,
+     489.0
+    ],
+    [
+     424.0,
+     506.0
+    ],
+    [
+     339.0,
+     506.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Store in a cool place.",
+   "confidence": 0.9998966455459595,
+   "bbox": [
+    [
+     339.0,
+     507.0
+    ],
+    [
+     498.0,
+     507.0
+    ],
+    [
+     498.0,
+     524.0
+    ],
+    [
+     339.0,
+     524.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Protect from light",
+   "confidence": 0.9999945759773254,
+   "bbox": [
+    [
+     339.0,
+     525.0
+    ],
+    [
+     473.0,
+     525.0
+    ],
+    [
+     473.0,
+     542.0
+    ],
+    [
+     339.0,
+     542.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Keep out of reach of children.",
+   "confidence": 0.9953881502151489,
+   "bbox": [
+    [
+     338.0,
+     564.0
+    ],
+    [
+     544.0,
+     564.0
+    ],
+    [
+     544.0,
+     581.0
+    ],
+    [
+     338.0,
+     581.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ketomac shampoo contains 2%",
+   "confidence": 0.9998399019241333,
+   "bbox": [
+    [
+     339.0,
+     605.0
+    ],
+    [
+     576.0,
+     605.0
+    ],
+    [
+     576.0,
+     622.0
+    ],
+    [
+     339.0,
+     622.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ketoconazole which is the drug of",
+   "confidence": 0.9999856948852539,
+   "bbox": [
+    [
+     338.0,
+     622.0
+    ],
+    [
+     577.0,
+     624.0
+    ],
+    [
+     577.0,
+     641.0
+    ],
+    [
+     338.0,
+     639.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "choice for dandruff.",
+   "confidence": 0.9999847412109375,
+   "bbox": [
+    [
+     338.0,
+     640.0
+    ],
+    [
+     475.0,
+     640.0
+    ],
+    [
+     475.0,
+     657.0
+    ],
+    [
+     338.0,
+     657.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ketoconazole acts by killing",
+   "confidence": 0.9999385476112366,
+   "bbox": [
+    [
+     336.0,
+     676.0
+    ],
+    [
+     559.0,
+     678.0
+    ],
+    [
+     559.0,
+     696.0
+    ],
+    [
+     336.0,
+     694.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "P.Ovale which causes dandruff.",
+   "confidence": 0.9999741911888123,
+   "bbox": [
+    [
+     335.0,
+     692.0
+    ],
+    [
+     561.0,
+     694.0
+    ],
+    [
+     561.0,
+     714.0
+    ],
+    [
+     335.0,
+     712.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ketomac's superior action clears",
+   "confidence": 0.9998799562454224,
+   "bbox": [
+    [
+     336.0,
+     731.0
+    ],
+    [
+     575.0,
+     733.0
+    ],
+    [
+     575.0,
+     751.0
+    ],
+    [
+     336.0,
+     749.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "dandruff and helps to maintain a",
+   "confidence": 0.9860722422599792,
+   "bbox": [
+    [
+     336.0,
+     749.0
+    ],
+    [
+     575.0,
+     752.0
+    ],
+    [
+     575.0,
+     769.0
+    ],
+    [
+     336.0,
+     766.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "clear scalp.Ketomac can be freely",
+   "confidence": 0.999983012676239,
+   "bbox": [
+    [
+     336.0,
+     767.0
+    ],
+    [
+     574.0,
+     769.0
+    ],
+    [
+     574.0,
+     787.0
+    ],
+    [
+     336.0,
+     785.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "used on coloured and dyed hair.",
+   "confidence": 0.9989939332008362,
+   "bbox": [
+    [
+     337.0,
+     785.0
+    ],
+    [
+     562.0,
+     787.0
+    ],
+    [
+     562.0,
+     805.0
+    ],
+    [
+     337.0,
+     803.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FOR EXTERNAL USE ONLY.",
+   "confidence": 0.9841030240058899,
+   "bbox": [
+    [
+     342.0,
+     836.0
+    ],
+    [
+     568.0,
+     838.0
+    ],
+    [
+     568.0,
+     858.0
+    ],
+    [
+     342.0,
+     856.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(01)18906044105079",
+   "confidence": 0.9997279644012451,
+   "bbox": [
+    [
+     376.0,
+     950.0
+    ],
+    [
+     541.0,
+     953.0
+    ],
+    [
+     541.0,
+     973.0
+    ],
+    [
+     376.0,
+     970.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  }
+ ]
+}

@@ -1,0 +1,1167 @@
+{
+ "source": "batch_evaluate OCR of WhatsApp Image 2026-10-15 at 10.51.16 PM.jpeg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 960,
+ "image_height": 1280,
+ "ocr_seconds": 21.19,
+ "raw_text": "The NIVEA\nne Smooth body lotion\n5in1 COMPLETE CARE\n48hr moisturization\nDeep nourishment\nDryness protection\nSmooth skin feel\nHealthy looking skin\nOur care promise\nBuildingon00 years of skin care expertise\n•Skin compotibility dermatologically approved\n· Ingredients corefully selected according to striet\nquality standiords.\nSXIN LOTION,INGREDIENTS: Aqua, Paraffinum Liquittum\nGlycerin, Ceteoryl Alcohol, Glyceryl Stegrate Citrate, C15-\nAlkone, Butyrospermum Parkil Butter, Dimethicone, Corbomm\nSodium Hycdroxide, Phenoxyethanol. Ethylhexylglyemm\nLinalool, Limonene, Benzyl Alcohol, Citronellol, Alpho-somehy\nlonone, Parfum.\nMarketed by: NIVEA India Pvt. Ltd. 4th Floor, AGH\nQuery/Feedback Contact NIVEA CARE Execuea\naddress or\n(022)62487999\n:care@beiersdort.com\nBeiersdorl\nALA\n8CEEI\n8190400000151\n⑧ =reg tm. of\nBeiersdorfAG,Gm\nManufacturdby: N\nSM-9/1.Sd\nVill. Boi. Tl Sanand.  \n(Gujarat) 210\nMfg. Lic No.: MGC/1212\nNet Content\n(whin packed):\n200ml\nMRP ? (Inct. of af\nNo. MFD. (M) & \n330\n02165/ml\n845130650\n05\nM 12/24\n18 31\nU 12/27\nP Mt Gty Kura W M Mm 4",
+ "detections": [
+  {
+   "text": "The NIVEA",
+   "confidence": 0.9979209899902344,
+   "bbox": [
+    [
+     417.0,
+     159.0
+    ],
+    [
+     522.0,
+     157.0
+    ],
+    [
+     522.0,
+     179.0
+    ],
+    [
+     417.0,
+     181.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ne Smooth body lotion",
+   "confidence": 0.963678240776062,
+   "bbox": [
+    [
+     382.0,
+     178.0
+    ],
+    [
+     571.0,
+     181.0
+    ],
+    [
+     571.0,
+     205.0
+    ],
+    [
+     382.0,
+     202.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "5in1 COMPLETE CARE",
+   "confidence": 0.9582481384277344,
+   "bbox": [
+    [
+     409.0,
+     202.0
+    ],
+    [
+     577.0,
+     205.0
+    ],
+    [
+     577.0,
+     228.0
+    ],
+    [
+     409.0,
+     225.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "48hr moisturization",
+   "confidence": 0.998617947101593,
+   "bbox": [
+    [
+     405.0,
+     228.0
+    ],
+    [
+     559.0,
+     230.0
+    ],
+    [
+     559.0,
+     251.0
+    ],
+    [
+     405.0,
+     249.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Deep nourishment",
+   "confidence": 0.9988832473754883,
+   "bbox": [
+    [
+     405.0,
+     249.0
+    ],
+    [
+     554.0,
+     251.0
+    ],
+    [
+     554.0,
+     272.0
+    ],
+    [
+     405.0,
+     270.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Dryness protection",
+   "confidence": 0.9999666213989258,
+   "bbox": [
+    [
+     406.0,
+     272.0
+    ],
+    [
+     555.0,
+     272.0
+    ],
+    [
+     555.0,
+     292.0
+    ],
+    [
+     406.0,
+     292.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Smooth skin feel",
+   "confidence": 0.9995051622390747,
+   "bbox": [
+    [
+     407.0,
+     291.0
+    ],
+    [
+     538.0,
+     291.0
+    ],
+    [
+     538.0,
+     311.0
+    ],
+    [
+     407.0,
+     311.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Healthy looking skin",
+   "confidence": 0.999718189239502,
+   "bbox": [
+    [
+     407.0,
+     312.0
+    ],
+    [
+     562.0,
+     312.0
+    ],
+    [
+     562.0,
+     332.0
+    ],
+    [
+     407.0,
+     332.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Our care promise",
+   "confidence": 0.9995315670967102,
+   "bbox": [
+    [
+     380.0,
+     370.0
+    ],
+    [
+     570.0,
+     370.0
+    ],
+    [
+     570.0,
+     404.0
+    ],
+    [
+     380.0,
+     404.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Buildingon00 years of skin care expertise",
+   "confidence": 0.9701355695724487,
+   "bbox": [
+    [
+     315.0,
+     409.0
+    ],
+    [
+     606.0,
+     404.0
+    ],
+    [
+     606.0,
+     427.0
+    ],
+    [
+     315.0,
+     432.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "•Skin compotibility dermatologically approved",
+   "confidence": 0.9457030296325684,
+   "bbox": [
+    [
+     316.0,
+     428.0
+    ],
+    [
+     622.0,
+     424.0
+    ],
+    [
+     622.0,
+     444.0
+    ],
+    [
+     316.0,
+     448.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "· Ingredients corefully selected according to striet",
+   "confidence": 0.9189099073410034,
+   "bbox": [
+    [
+     316.0,
+     446.0
+    ],
+    [
+     631.0,
+     442.0
+    ],
+    [
+     631.0,
+     462.0
+    ],
+    [
+     316.0,
+     466.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "quality standiords.",
+   "confidence": 0.9559563994407654,
+   "bbox": [
+    [
+     318.0,
+     466.0
+    ],
+    [
+     433.0,
+     464.0
+    ],
+    [
+     433.0,
+     481.0
+    ],
+    [
+     318.0,
+     483.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SXIN LOTION,INGREDIENTS: Aqua, Paraffinum Liquittum",
+   "confidence": 0.9306802153587341,
+   "bbox": [
+    [
+     320.0,
+     520.0
+    ],
+    [
+     629.0,
+     516.0
+    ],
+    [
+     629.0,
+     533.0
+    ],
+    [
+     320.0,
+     537.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Glycerin, Ceteoryl Alcohol, Glyceryl Stegrate Citrate, C15-",
+   "confidence": 0.9400975704193115,
+   "bbox": [
+    [
+     320.0,
+     536.0
+    ],
+    [
+     631.0,
+     531.0
+    ],
+    [
+     631.0,
+     551.0
+    ],
+    [
+     320.0,
+     556.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Alkone, Butyrospermum Parkil Butter, Dimethicone, Corbomm",
+   "confidence": 0.9301161766052246,
+   "bbox": [
+    [
+     322.0,
+     555.0
+    ],
+    [
+     628.0,
+     551.0
+    ],
+    [
+     628.0,
+     568.0
+    ],
+    [
+     322.0,
+     572.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Sodium Hycdroxide, Phenoxyethanol. Ethylhexylglyemm",
+   "confidence": 0.9158017635345459,
+   "bbox": [
+    [
+     321.0,
+     570.0
+    ],
+    [
+     630.0,
+     566.0
+    ],
+    [
+     630.0,
+     586.0
+    ],
+    [
+     321.0,
+     590.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Linalool, Limonene, Benzyl Alcohol, Citronellol, Alpho-somehy",
+   "confidence": 0.9401577711105347,
+   "bbox": [
+    [
+     321.0,
+     586.0
+    ],
+    [
+     631.0,
+     582.0
+    ],
+    [
+     631.0,
+     603.0
+    ],
+    [
+     321.0,
+     607.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "lonone, Parfum.",
+   "confidence": 0.9372265934944153,
+   "bbox": [
+    [
+     324.0,
+     605.0
+    ],
+    [
+     404.0,
+     605.0
+    ],
+    [
+     404.0,
+     622.0
+    ],
+    [
+     324.0,
+     622.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Marketed by: NIVEA India Pvt. Ltd. 4th Floor, AGH",
+   "confidence": 0.8902212381362915,
+   "bbox": [
+    [
+     324.0,
+     624.0
+    ],
+    [
+     566.0,
+     624.0
+    ],
+    [
+     566.0,
+     644.0
+    ],
+    [
+     324.0,
+     644.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Query/Feedback Contact NIVEA CARE Execuea",
+   "confidence": 0.7286992073059082,
+   "bbox": [
+    [
+     325.0,
+     654.0
+    ],
+    [
+     602.0,
+     653.0
+    ],
+    [
+     602.0,
+     674.0
+    ],
+    [
+     325.0,
+     675.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "address or",
+   "confidence": 0.9567567110061646,
+   "bbox": [
+    [
+     326.0,
+     670.0
+    ],
+    [
+     376.0,
+     672.0
+    ],
+    [
+     375.0,
+     690.0
+    ],
+    [
+     325.0,
+     688.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(022)62487999",
+   "confidence": 0.9998645186424255,
+   "bbox": [
+    [
+     327.0,
+     683.0
+    ],
+    [
+     426.0,
+     687.0
+    ],
+    [
+     425.0,
+     708.0
+    ],
+    [
+     326.0,
+     704.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": ":care@beiersdort.com",
+   "confidence": 0.9539963603019714,
+   "bbox": [
+    [
+     327.0,
+     700.0
+    ],
+    [
+     453.0,
+     705.0
+    ],
+    [
+     453.0,
+     722.0
+    ],
+    [
+     327.0,
+     717.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Beiersdorl",
+   "confidence": 0.9487432241439819,
+   "bbox": [
+    [
+     473.0,
+     723.0
+    ],
+    [
+     555.0,
+     719.0
+    ],
+    [
+     556.0,
+     739.0
+    ],
+    [
+     474.0,
+     743.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ALA",
+   "confidence": 0.5075104832649231,
+   "bbox": [
+    [
+     574.0,
+     716.0
+    ],
+    [
+     623.0,
+     710.0
+    ],
+    [
+     625.0,
+     723.0
+    ],
+    [
+     576.0,
+     729.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8CEEI",
+   "confidence": 0.47836369276046753,
+   "bbox": [
+    [
+     567.0,
+     731.0
+    ],
+    [
+     624.0,
+     724.0
+    ],
+    [
+     626.0,
+     736.0
+    ],
+    [
+     569.0,
+     743.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8190400000151",
+   "confidence": 0.7483392953872681,
+   "bbox": [
+    [
+     437.0,
+     750.0
+    ],
+    [
+     457.0,
+     750.0
+    ],
+    [
+     461.0,
+     929.0
+    ],
+    [
+     441.0,
+     929.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "⑧ =reg tm. of",
+   "confidence": 0.8238965272903442,
+   "bbox": [
+    [
+     474.0,
+     745.0
+    ],
+    [
+     537.0,
+     742.0
+    ],
+    [
+     538.0,
+     756.0
+    ],
+    [
+     475.0,
+     759.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BeiersdorfAG,Gm",
+   "confidence": 0.7681378126144409,
+   "bbox": [
+    [
+     474.0,
+     756.0
+    ],
+    [
+     564.0,
+     752.0
+    ],
+    [
+     564.0,
+     766.0
+    ],
+    [
+     474.0,
+     770.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Manufacturdby: N",
+   "confidence": 0.6638646721839905,
+   "bbox": [
+    [
+     472.0,
+     768.0
+    ],
+    [
+     625.0,
+     755.0
+    ],
+    [
+     627.0,
+     772.0
+    ],
+    [
+     474.0,
+     785.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SM-9/1.Sd",
+   "confidence": 0.7768419981002808,
+   "bbox": [
+    [
+     475.0,
+     780.0
+    ],
+    [
+     610.0,
+     770.0
+    ],
+    [
+     611.0,
+     785.0
+    ],
+    [
+     476.0,
+     795.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Vill. Boi. Tl Sanand.  ",
+   "confidence": 0.6597731709480286,
+   "bbox": [
+    [
+     476.0,
+     791.0
+    ],
+    [
+     591.0,
+     784.0
+    ],
+    [
+     592.0,
+     798.0
+    ],
+    [
+     477.0,
+     805.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(Gujarat) 210",
+   "confidence": 0.6789476871490479,
+   "bbox": [
+    [
+     476.0,
+     803.0
+    ],
+    [
+     552.0,
+     798.0
+    ],
+    [
+     553.0,
+     812.0
+    ],
+    [
+     477.0,
+     817.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mfg. Lic No.: MGC/1212",
+   "confidence": 0.9257602095603943,
+   "bbox": [
+    [
+     475.0,
+     814.0
+    ],
+    [
+     576.0,
+     806.0
+    ],
+    [
+     577.0,
+     823.0
+    ],
+    [
+     476.0,
+     831.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Content",
+   "confidence": 0.9770383834838867,
+   "bbox": [
+    [
+     475.0,
+     837.0
+    ],
+    [
+     540.0,
+     834.0
+    ],
+    [
+     541.0,
+     852.0
+    ],
+    [
+     476.0,
+     855.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(whin packed):",
+   "confidence": 0.8708897233009338,
+   "bbox": [
+    [
+     476.0,
+     852.0
+    ],
+    [
+     554.0,
+     847.0
+    ],
+    [
+     555.0,
+     868.0
+    ],
+    [
+     477.0,
+     873.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "200ml",
+   "confidence": 0.999760627746582,
+   "bbox": [
+    [
+     550.0,
+     871.0
+    ],
+    [
+     594.0,
+     865.0
+    ],
+    [
+     597.0,
+     885.0
+    ],
+    [
+     553.0,
+     891.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP ? (Inct. of af",
+   "confidence": 0.7623981237411499,
+   "bbox": [
+    [
+     474.0,
+     900.0
+    ],
+    [
+     600.0,
+     889.0
+    ],
+    [
+     602.0,
+     910.0
+    ],
+    [
+     476.0,
+     921.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "No. MFD. (M) & ",
+   "confidence": 0.7608715891838074,
+   "bbox": [
+    [
+     473.0,
+     915.0
+    ],
+    [
+     607.0,
+     901.0
+    ],
+    [
+     610.0,
+     925.0
+    ],
+    [
+     476.0,
+     939.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "330",
+   "confidence": 0.9967522621154785,
+   "bbox": [
+    [
+     405.0,
+     956.0
+    ],
+    [
+     465.0,
+     956.0
+    ],
+    [
+     465.0,
+     977.0
+    ],
+    [
+     405.0,
+     977.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "02165/ml",
+   "confidence": 0.894373893737793,
+   "bbox": [
+    [
+     456.0,
+     956.0
+    ],
+    [
+     563.0,
+     953.0
+    ],
+    [
+     563.0,
+     974.0
+    ],
+    [
+     456.0,
+     977.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "845130650",
+   "confidence": 0.9456918239593506,
+   "bbox": [
+    [
+     402.0,
+     977.0
+    ],
+    [
+     509.0,
+     975.0
+    ],
+    [
+     509.0,
+     996.0
+    ],
+    [
+     402.0,
+     998.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "05",
+   "confidence": 0.9742259979248047,
+   "bbox": [
+    [
+     530.0,
+     976.0
+    ],
+    [
+     557.0,
+     976.0
+    ],
+    [
+     557.0,
+     994.0
+    ],
+    [
+     530.0,
+     994.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "M 12/24",
+   "confidence": 0.9827795028686523,
+   "bbox": [
+    [
+     402.0,
+     998.0
+    ],
+    [
+     481.0,
+     998.0
+    ],
+    [
+     481.0,
+     1019.0
+    ],
+    [
+     402.0,
+     1019.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "18 31",
+   "confidence": 0.9304546117782593,
+   "bbox": [
+    [
+     488.0,
+     999.0
+    ],
+    [
+     537.0,
+     996.0
+    ],
+    [
+     538.0,
+     1015.0
+    ],
+    [
+     489.0,
+     1018.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "U 12/27",
+   "confidence": 0.8883804678916931,
+   "bbox": [
+    [
+     403.0,
+     1017.0
+    ],
+    [
+     477.0,
+     1019.0
+    ],
+    [
+     477.0,
+     1041.0
+    ],
+    [
+     403.0,
+     1039.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "P Mt Gty Kura W M Mm 4",
+   "confidence": 0.6822941303253174,
+   "bbox": [
+    [
+     324.0,
+     636.0
+    ],
+    [
+     605.33,
+     634.67
+    ],
+    [
+     605.33,
+     658.67
+    ],
+    [
+     324.0,
+     660.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

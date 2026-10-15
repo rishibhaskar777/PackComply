@@ -1,0 +1,903 @@
+{
+ "source": "batch_evaluate OCR of WhatsApp Image 2026-10-15 at 10.51.16 PM (3).jpeg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 960,
+ "image_height": 1280,
+ "ocr_seconds": 23.62,
+ "raw_text": "ALL OUT Liquid Vaporiser\nAOUaTar2(w/)LqudVaporseReosedsee)\nA O Ua  12 (R/)   (R -)\nA eb 12 (t)  G (\nu \nChemical Composition:Active Ingredient: Transfluthrin (a.)1.20%(w/w).\nButylated Hydroxytoulene (BHT)-Stabliser 1.00% (w/w), F&I K705/A (Mixture\nof a number of aroma chemicals like Benzyl Acetate, Geraniol etc.)\nPerfume - 1.00% (w/w). Deodorised Kerosene - Solvent - QS%, Total:\n100.0% (w/w). Direction to use: See leaflet. Cautions: DOORS AND\nWINDOWS SHOULD BE KEPT OPEN WHILE USING. Antidote: No Specific\nantidote is known. Treat symptomatically. Recommendations:\nRecommended for use to control/repel adult mosquitoes in house.\nSee first two characters of Batch No. for manufacturer address.\nWorks: U2, Unit No. 2, Plot No. 70, HPSIDC Indl.\nsriefiions\nArea, Baddi - 173205, Dist. Solan, Himachal Pradesh,\nIndia. Mfg. Lic No. H.P.PML-008 (dld SLN-21) dated\nHau\nCAUTION\n14.11.2005.\nNEEP OUT OF REACH OF CHILDREN\nWorks: U6, Unit No. 6, Dag No.13 KA, Bamunimaidan\nIndustrial Área, Guwahati, Assam - 781021, India.\net n oe è ge rd\nMfg. Lic No. AGRI/DEV/PP/MF/2019-20/009.\nInflammable, keep in cool, dry place away from heat and open flame.\n\nCPCB Plastic EPR Regn. No.:B0-03-000-06-AAACL3128M-22\nALL OUT used under authority from S.C. Johnson & Sons., Inc, Racine, Wisconsin, USA.\nFor MRP and other details, see bottom of the pack.\nSCAN TO\nKNOW MORE\n8906006435773\nट्ासपतचिन 12% (भार/भार) लिक्व वेपोराजर (रेलुू कटनाशक)\nDna प Ca\nजवलनशील, ठंडे, सूखे स्थान पर गमी और खुली आंच से दूर स्खें।",
+ "detections": [
+  {
+   "text": "ALL OUT Liquid Vaporiser",
+   "confidence": 0.9598028063774109,
+   "bbox": [
+    [
+     226.0,
+     221.0
+    ],
+    [
+     416.0,
+     217.0
+    ],
+    [
+     416.0,
+     244.0
+    ],
+    [
+     226.0,
+     248.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "AOUaTar2(w/)LqudVaporseReosedsee)",
+   "confidence": 0.5905312299728394,
+   "bbox": [
+    [
+     225.0,
+     243.0
+    ],
+    [
+     741.0,
+     236.0
+    ],
+    [
+     741.0,
+     266.0
+    ],
+    [
+     225.0,
+     273.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "A O Ua  12 (R/)   (R -)",
+   "confidence": 0.6214283108711243,
+   "bbox": [
+    [
+     226.0,
+     268.0
+    ],
+    [
+     653.0,
+     262.0
+    ],
+    [
+     653.0,
+     286.0
+    ],
+    [
+     226.0,
+     292.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "A eb 12 (t)  G (",
+   "confidence": 0.6158252358436584,
+   "bbox": [
+    [
+     226.0,
+     288.0
+    ],
+    [
+     725.0,
+     282.0
+    ],
+    [
+     725.0,
+     306.0
+    ],
+    [
+     226.0,
+     312.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "u ",
+   "confidence": 0.5035902261734009,
+   "bbox": [
+    [
+     227.0,
+     311.0
+    ],
+    [
+     412.0,
+     305.0
+    ],
+    [
+     412.0,
+     325.0
+    ],
+    [
+     227.0,
+     331.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Chemical Composition:Active Ingredient: Transfluthrin (a.)1.20%(w/w).",
+   "confidence": 0.8073404431343079,
+   "bbox": [
+    [
+     225.0,
+     325.0
+    ],
+    [
+     747.0,
+     316.0
+    ],
+    [
+     747.0,
+     347.0
+    ],
+    [
+     225.0,
+     356.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Butylated Hydroxytoulene (BHT)-Stabliser 1.00% (w/w), F&I K705/A (Mixture",
+   "confidence": 0.9618707895278931,
+   "bbox": [
+    [
+     227.0,
+     347.0
+    ],
+    [
+     748.0,
+     336.0
+    ],
+    [
+     748.0,
+     364.0
+    ],
+    [
+     227.0,
+     375.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "of a number of aroma chemicals like Benzyl Acetate, Geraniol etc.)",
+   "confidence": 0.975782573223114,
+   "bbox": [
+    [
+     227.0,
+     367.0
+    ],
+    [
+     748.0,
+     356.0
+    ],
+    [
+     748.0,
+     383.0
+    ],
+    [
+     227.0,
+     394.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Perfume - 1.00% (w/w). Deodorised Kerosene - Solvent - QS%, Total:",
+   "confidence": 0.9702532291412354,
+   "bbox": [
+    [
+     227.0,
+     385.0
+    ],
+    [
+     750.0,
+     373.0
+    ],
+    [
+     750.0,
+     400.0
+    ],
+    [
+     227.0,
+     412.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "100.0% (w/w). Direction to use: See leaflet. Cautions: DOORS AND",
+   "confidence": 0.9883372187614441,
+   "bbox": [
+    [
+     229.0,
+     404.0
+    ],
+    [
+     749.0,
+     393.0
+    ],
+    [
+     749.0,
+     418.0
+    ],
+    [
+     229.0,
+     429.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "WINDOWS SHOULD BE KEPT OPEN WHILE USING. Antidote: No Specific",
+   "confidence": 0.9597666263580322,
+   "bbox": [
+    [
+     227.0,
+     422.0
+    ],
+    [
+     751.0,
+     411.0
+    ],
+    [
+     751.0,
+     438.0
+    ],
+    [
+     227.0,
+     449.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "antidote is known. Treat symptomatically. Recommendations:",
+   "confidence": 0.9908527135848999,
+   "bbox": [
+    [
+     227.0,
+     443.0
+    ],
+    [
+     753.0,
+     430.0
+    ],
+    [
+     753.0,
+     456.0
+    ],
+    [
+     227.0,
+     469.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Recommended for use to control/repel adult mosquitoes in house.",
+   "confidence": 0.9842511415481567,
+   "bbox": [
+    [
+     230.0,
+     464.0
+    ],
+    [
+     694.0,
+     452.0
+    ],
+    [
+     694.0,
+     475.0
+    ],
+    [
+     230.0,
+     487.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "See first two characters of Batch No. for manufacturer address.",
+   "confidence": 0.9999497532844543,
+   "bbox": [
+    [
+     230.0,
+     488.0
+    ],
+    [
+     679.0,
+     475.0
+    ],
+    [
+     679.0,
+     498.0
+    ],
+    [
+     230.0,
+     511.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Works: U2, Unit No. 2, Plot No. 70, HPSIDC Indl.",
+   "confidence": 0.9791901707649231,
+   "bbox": [
+    [
+     231.0,
+     512.0
+    ],
+    [
+     605.0,
+     501.0
+    ],
+    [
+     605.0,
+     524.0
+    ],
+    [
+     231.0,
+     535.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "sriefiions",
+   "confidence": 0.643619179725647,
+   "bbox": [
+    [
+     689.0,
+     503.0
+    ],
+    [
+     734.0,
+     545.0
+    ],
+    [
+     723.0,
+     556.0
+    ],
+    [
+     678.0,
+     514.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Area, Baddi - 173205, Dist. Solan, Himachal Pradesh,",
+   "confidence": 0.98848557472229,
+   "bbox": [
+    [
+     232.0,
+     532.0
+    ],
+    [
+     603.0,
+     520.0
+    ],
+    [
+     604.0,
+     543.0
+    ],
+    [
+     233.0,
+     555.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "India. Mfg. Lic No. H.P.PML-008 (dld SLN-21) dated",
+   "confidence": 0.9835764169692993,
+   "bbox": [
+    [
+     231.0,
+     552.0
+    ],
+    [
+     605.0,
+     540.0
+    ],
+    [
+     606.0,
+     564.0
+    ],
+    [
+     232.0,
+     576.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Hau",
+   "confidence": 0.4526444971561432,
+   "bbox": [
+    [
+     647.0,
+     544.0
+    ],
+    [
+     677.0,
+     513.0
+    ],
+    [
+     688.0,
+     524.0
+    ],
+    [
+     658.0,
+     555.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CAUTION",
+   "confidence": 0.9998968243598938,
+   "bbox": [
+    [
+     663.0,
+     548.0
+    ],
+    [
+     713.0,
+     546.0
+    ],
+    [
+     714.0,
+     564.0
+    ],
+    [
+     664.0,
+     566.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "14.11.2005.",
+   "confidence": 0.9998713135719299,
+   "bbox": [
+    [
+     232.0,
+     571.0
+    ],
+    [
+     322.0,
+     568.0
+    ],
+    [
+     323.0,
+     592.0
+    ],
+    [
+     233.0,
+     595.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NEEP OUT OF REACH OF CHILDREN",
+   "confidence": 0.8862118124961853,
+   "bbox": [
+    [
+     621.0,
+     564.0
+    ],
+    [
+     696.0,
+     633.0
+    ],
+    [
+     686.0,
+     643.0
+    ],
+    [
+     611.0,
+     574.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Works: U6, Unit No. 6, Dag No.13 KA, Bamunimaidan",
+   "confidence": 0.9752246141433716,
+   "bbox": [
+    [
+     233.0,
+     595.0
+    ],
+    [
+     607.0,
+     582.0
+    ],
+    [
+     608.0,
+     606.0
+    ],
+    [
+     234.0,
+     619.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Industrial Área, Guwahati, Assam - 781021, India.",
+   "confidence": 0.9781850576400757,
+   "bbox": [
+    [
+     234.0,
+     616.0
+    ],
+    [
+     607.0,
+     603.0
+    ],
+    [
+     608.0,
+     626.0
+    ],
+    [
+     235.0,
+     639.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "et n oe è ge rd",
+   "confidence": 0.5026789903640747,
+   "bbox": [
+    [
+     697.0,
+     626.0
+    ],
+    [
+     751.0,
+     565.0
+    ],
+    [
+     761.0,
+     574.0
+    ],
+    [
+     707.0,
+     635.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mfg. Lic No. AGRI/DEV/PP/MF/2019-20/009.",
+   "confidence": 0.9737655520439148,
+   "bbox": [
+    [
+     235.0,
+     636.0
+    ],
+    [
+     550.0,
+     623.0
+    ],
+    [
+     551.0,
+     647.0
+    ],
+    [
+     236.0,
+     660.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Inflammable, keep in cool, dry place away from heat and open flame.",
+   "confidence": 0.9826966524124146,
+   "bbox": [
+    [
+     234.0,
+     660.0
+    ],
+    [
+     725.0,
+     641.0
+    ],
+    [
+     726.0,
+     668.0
+    ],
+    [
+     235.0,
+     687.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "",
+   "confidence": 0.0,
+   "bbox": [
+    [
+     236.0,
+     687.0
+    ],
+    [
+     639.0,
+     671.0
+    ],
+    [
+     640.0,
+     695.0
+    ],
+    [
+     237.0,
+     711.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CPCB Plastic EPR Regn. No.:B0-03-000-06-AAACL3128M-22",
+   "confidence": 0.9966530203819275,
+   "bbox": [
+    [
+     236.0,
+     714.0
+    ],
+    [
+     659.0,
+     696.0
+    ],
+    [
+     660.0,
+     720.0
+    ],
+    [
+     237.0,
+     738.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ALL OUT used under authority from S.C. Johnson & Sons., Inc, Racine, Wisconsin, USA.",
+   "confidence": 0.8484720587730408,
+   "bbox": [
+    [
+     236.0,
+     736.0
+    ],
+    [
+     704.0,
+     715.0
+    ],
+    [
+     705.0,
+     738.0
+    ],
+    [
+     237.0,
+     759.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "For MRP and other details, see bottom of the pack.",
+   "confidence": 0.9990353584289551,
+   "bbox": [
+    [
+     237.0,
+     760.0
+    ],
+    [
+     604.0,
+     744.0
+    ],
+    [
+     605.0,
+     768.0
+    ],
+    [
+     238.0,
+     784.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SCAN TO",
+   "confidence": 0.9988370537757874,
+   "bbox": [
+    [
+     571.0,
+     775.0
+    ],
+    [
+     628.0,
+     771.0
+    ],
+    [
+     630.0,
+     796.0
+    ],
+    [
+     573.0,
+     800.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "KNOW MORE",
+   "confidence": 0.9997954964637756,
+   "bbox": [
+    [
+     573.0,
+     798.0
+    ],
+    [
+     651.0,
+     794.0
+    ],
+    [
+     652.0,
+     819.0
+    ],
+    [
+     574.0,
+     823.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8906006435773",
+   "confidence": 0.999723494052887,
+   "bbox": [
+    [
+     250.0,
+     979.0
+    ],
+    [
+     530.0,
+     961.0
+    ],
+    [
+     532.0,
+     992.0
+    ],
+    [
+     252.0,
+     1010.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ट्ासपतचिन 12% (भार/भार) लिक्व वेपोराजर (रेलुू कटनाशक)",
+   "confidence": 0.5821471214294434,
+   "bbox": [
+    [
+     225.33,
+     268.0
+    ],
+    [
+     653.33,
+     261.33
+    ],
+    [
+     653.33,
+     286.67
+    ],
+    [
+     225.33,
+     293.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "Dna प Ca",
+   "confidence": 0.4700830280780792,
+   "bbox": [
+    [
+     225.33,
+     310.67
+    ],
+    [
+     410.67,
+     304.0
+    ],
+    [
+     412.0,
+     326.67
+    ],
+    [
+     225.33,
+     333.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "जवलनशील, ठंडे, सूखे स्थान पर गमी और खुली आंच से दूर स्खें।",
+   "confidence": 0.8198801875114441,
+   "bbox": [
+    [
+     234.67,
+     686.67
+    ],
+    [
+     641.33,
+     669.33
+    ],
+    [
+     642.67,
+     696.0
+    ],
+    [
+     236.0,
+     713.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

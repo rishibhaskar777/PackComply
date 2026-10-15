@@ -1,0 +1,1071 @@
+{
+ "source": "batch_evaluate OCR of WhatsApp Image 2026-10-15 at 10.51.14 PM (2).jpeg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 1280,
+ "image_height": 960,
+ "ocr_seconds": 66.8,
+ "raw_text": "Ingredlents\nWater/ Aqua, 3-O-Ethyl Ascorblc Acid, Dirnethyl\nIsosorbide. Ethoxydiglycol, Glycerin, Sodlum\nGluconate, Acetyl Glucosamine, Gluconolactone.\nCitric Acid, Pentylene Glycol, Sodlum Hyaluronate.\nPullulan, Hydroxyethylcellulose, Hydrolyzed Sodium\nHyaluronate, Xanthan Gum, Sclerotlum Gum,\nPhenoxyethanol, Ethylhexylglycerin, Lecithin, PEG/\nPPG-17/6 Copolymer, Trisodlum Ethylenediamine\nDisuccinate, Sodlum Citrate\nFACE SERUM. MADE IN INDIA. For mfg. unit\naddress, see the first character of Batch No. &\nrefer below\nMfg. By: (H) HUL, Unit-6, SIDCUL, Haridwar,\nUttarakhand - 249403 M.L. No.: 9/C/UA/2017:\n(B) L.B.C.P., Unit II, Haridwar, Uttarakhand, 249403\nM.L. No.: 16/C/UA/2010;\n(U) Uprising Science Pvt. Ltd., F-2109, RIICO Ind. Area,\nRamchandrapura, Jaipur, RJ-303905,\nM.L. No.: COS8RJ2026000012\nMktd. By: Uprising Science Pvt. Ltd., F-2109, RIICO\nInd. Area, Ramchandrapura, Jaipur, RJ-303905\nFor Consumer Complaints / Queries\nAddress: Same as Marketed By Address\nMobile :+91 97723 46555\nEmail ID: help@beminimalist.co\nProduct Information\n30 ml/1.01 fl. oz.\nNet content:\n6M\nMRP(R)\npuci af\nUnit Sale\nT699.00\nPrice;\n电3.30\nBatch No\n\"\nMfg Date :\nExp. Date\n8906128100139\n2000001612\ne\nक",
+ "detections": [
+  {
+   "text": "Ingredlents",
+   "confidence": 0.9978065490722656,
+   "bbox": [
+    [
+     1181.0,
+     313.0
+    ],
+    [
+     1181.0,
+     393.0
+    ],
+    [
+     1163.0,
+     393.0
+    ],
+    [
+     1163.0,
+     313.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Water/ Aqua, 3-O-Ethyl Ascorblc Acid, Dirnethyl",
+   "confidence": 0.945054292678833,
+   "bbox": [
+    [
+     1163.0,
+     311.0
+    ],
+    [
+     1161.0,
+     611.0
+    ],
+    [
+     1141.0,
+     611.0
+    ],
+    [
+     1143.0,
+     311.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Isosorbide. Ethoxydiglycol, Glycerin, Sodlum",
+   "confidence": 0.9785835146903992,
+   "bbox": [
+    [
+     1142.0,
+     312.0
+    ],
+    [
+     1140.0,
+     593.0
+    ],
+    [
+     1123.0,
+     593.0
+    ],
+    [
+     1125.0,
+     312.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Gluconate, Acetyl Glucosamine, Gluconolactone.",
+   "confidence": 0.985417902469635,
+   "bbox": [
+    [
+     1124.0,
+     313.0
+    ],
+    [
+     1122.0,
+     620.0
+    ],
+    [
+     1102.0,
+     620.0
+    ],
+    [
+     1104.0,
+     313.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Citric Acid, Pentylene Glycol, Sodlum Hyaluronate.",
+   "confidence": 0.9618173837661743,
+   "bbox": [
+    [
+     1104.0,
+     313.0
+    ],
+    [
+     1101.0,
+     628.0
+    ],
+    [
+     1083.0,
+     628.0
+    ],
+    [
+     1086.0,
+     313.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Pullulan, Hydroxyethylcellulose, Hydrolyzed Sodium",
+   "confidence": 0.9789061546325684,
+   "bbox": [
+    [
+     1084.0,
+     313.0
+    ],
+    [
+     1082.0,
+     640.0
+    ],
+    [
+     1064.0,
+     640.0
+    ],
+    [
+     1066.0,
+     313.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Hyaluronate, Xanthan Gum, Sclerotlum Gum,",
+   "confidence": 0.9839203953742981,
+   "bbox": [
+    [
+     1064.0,
+     313.0
+    ],
+    [
+     1063.0,
+     596.0
+    ],
+    [
+     1045.0,
+     596.0
+    ],
+    [
+     1046.0,
+     313.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Phenoxyethanol, Ethylhexylglycerin, Lecithin, PEG/",
+   "confidence": 0.9938825368881226,
+   "bbox": [
+    [
+     1044.0,
+     313.0
+    ],
+    [
+     1043.0,
+     629.0
+    ],
+    [
+     1026.0,
+     629.0
+    ],
+    [
+     1027.0,
+     313.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "PPG-17/6 Copolymer, Trisodlum Ethylenediamine",
+   "confidence": 0.9928269982337952,
+   "bbox": [
+    [
+     1025.0,
+     313.0
+    ],
+    [
+     1023.0,
+     620.0
+    ],
+    [
+     1006.0,
+     620.0
+    ],
+    [
+     1008.0,
+     313.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Disuccinate, Sodlum Citrate",
+   "confidence": 0.9775660037994385,
+   "bbox": [
+    [
+     1004.0,
+     314.0
+    ],
+    [
+     1004.0,
+     488.0
+    ],
+    [
+     990.0,
+     488.0
+    ],
+    [
+     990.0,
+     314.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "FACE SERUM. MADE IN INDIA. For mfg. unit",
+   "confidence": 0.9970966577529907,
+   "bbox": [
+    [
+     969.0,
+     314.0
+    ],
+    [
+     967.0,
+     610.0
+    ],
+    [
+     950.0,
+     610.0
+    ],
+    [
+     952.0,
+     314.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "address, see the first character of Batch No. &",
+   "confidence": 0.9911842942237854,
+   "bbox": [
+    [
+     949.0,
+     314.0
+    ],
+    [
+     948.0,
+     614.0
+    ],
+    [
+     931.0,
+     614.0
+    ],
+    [
+     932.0,
+     314.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "refer below",
+   "confidence": 0.9995666146278381,
+   "bbox": [
+    [
+     927.0,
+     315.0
+    ],
+    [
+     927.0,
+     393.0
+    ],
+    [
+     913.0,
+     393.0
+    ],
+    [
+     913.0,
+     315.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Mfg. By: (H) HUL, Unit-6, SIDCUL, Haridwar,",
+   "confidence": 0.9818446040153503,
+   "bbox": [
+    [
+     894.0,
+     316.0
+    ],
+    [
+     894.0,
+     600.0
+    ],
+    [
+     877.0,
+     600.0
+    ],
+    [
+     877.0,
+     316.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Uttarakhand - 249403 M.L. No.: 9/C/UA/2017:",
+   "confidence": 0.9643442034721375,
+   "bbox": [
+    [
+     876.0,
+     314.0
+    ],
+    [
+     875.0,
+     617.0
+    ],
+    [
+     858.0,
+     617.0
+    ],
+    [
+     859.0,
+     314.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "(B) L.B.C.P., Unit II, Haridwar, Uttarakhand, 249403",
+   "confidence": 0.9907525777816772,
+   "bbox": [
+    [
+     856.0,
+     316.0
+    ],
+    [
+     856.0,
+     643.0
+    ],
+    [
+     839.0,
+     643.0
+    ],
+    [
+     839.0,
+     316.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "M.L. No.: 16/C/UA/2010;",
+   "confidence": 0.9892874956130981,
+   "bbox": [
+    [
+     837.0,
+     316.0
+    ],
+    [
+     837.0,
+     471.0
+    ],
+    [
+     820.0,
+     471.0
+    ],
+    [
+     820.0,
+     316.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "(U) Uprising Science Pvt. Ltd., F-2109, RIICO Ind. Area,",
+   "confidence": 0.9805834889411926,
+   "bbox": [
+    [
+     818.0,
+     316.0
+    ],
+    [
+     817.0,
+     663.0
+    ],
+    [
+     800.0,
+     663.0
+    ],
+    [
+     801.0,
+     316.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Ramchandrapura, Jaipur, RJ-303905,",
+   "confidence": 0.9850265383720398,
+   "bbox": [
+    [
+     797.0,
+     318.0
+    ],
+    [
+     797.0,
+     564.0
+    ],
+    [
+     783.0,
+     564.0
+    ],
+    [
+     783.0,
+     318.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "M.L. No.: COS8RJ2026000012",
+   "confidence": 0.9801181554794312,
+   "bbox": [
+    [
+     778.0,
+     318.0
+    ],
+    [
+     778.0,
+     516.0
+    ],
+    [
+     764.0,
+     516.0
+    ],
+    [
+     764.0,
+     318.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Mktd. By: Uprising Science Pvt. Ltd., F-2109, RIICO",
+   "confidence": 0.9969013929367065,
+   "bbox": [
+    [
+     742.0,
+     317.0
+    ],
+    [
+     743.0,
+     640.0
+    ],
+    [
+     726.0,
+     640.0
+    ],
+    [
+     725.0,
+     317.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Ind. Area, Ramchandrapura, Jaipur, RJ-303905",
+   "confidence": 0.9956545233726501,
+   "bbox": [
+    [
+     722.0,
+     319.0
+    ],
+    [
+     722.0,
+     624.0
+    ],
+    [
+     708.0,
+     624.0
+    ],
+    [
+     708.0,
+     319.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "For Consumer Complaints / Queries",
+   "confidence": 0.9871444702148438,
+   "bbox": [
+    [
+     689.0,
+     317.0
+    ],
+    [
+     688.0,
+     557.0
+    ],
+    [
+     671.0,
+     557.0
+    ],
+    [
+     672.0,
+     317.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Address: Same as Marketed By Address",
+   "confidence": 0.9939918518066406,
+   "bbox": [
+    [
+     668.0,
+     320.0
+    ],
+    [
+     668.0,
+     576.0
+    ],
+    [
+     654.0,
+     576.0
+    ],
+    [
+     654.0,
+     320.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Mobile :+91 97723 46555",
+   "confidence": 0.9683896899223328,
+   "bbox": [
+    [
+     651.0,
+     319.0
+    ],
+    [
+     651.0,
+     492.0
+    ],
+    [
+     637.0,
+     492.0
+    ],
+    [
+     637.0,
+     319.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Email ID: help@beminimalist.co",
+   "confidence": 0.9866784811019897,
+   "bbox": [
+    [
+     631.0,
+     320.0
+    ],
+    [
+     631.0,
+     519.0
+    ],
+    [
+     617.0,
+     519.0
+    ],
+    [
+     617.0,
+     320.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Product Information",
+   "confidence": 0.9986531138420105,
+   "bbox": [
+    [
+     584.0,
+     320.0
+    ],
+    [
+     584.0,
+     453.0
+    ],
+    [
+     570.0,
+     453.0
+    ],
+    [
+     570.0,
+     320.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "30 ml/1.01 fl. oz.",
+   "confidence": 0.9409804940223694,
+   "bbox": [
+    [
+     548.0,
+     419.0
+    ],
+    [
+     546.0,
+     581.0
+    ],
+    [
+     519.0,
+     581.0
+    ],
+    [
+     521.0,
+     419.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Net content:",
+   "confidence": 0.9996166229248047,
+   "bbox": [
+    [
+     535.0,
+     321.0
+    ],
+    [
+     535.0,
+     405.0
+    ],
+    [
+     521.0,
+     405.0
+    ],
+    [
+     521.0,
+     321.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "6M",
+   "confidence": 0.9996034502983093,
+   "bbox": [
+    [
+     466.0,
+     395.0
+    ],
+    [
+     466.0,
+     427.0
+    ],
+    [
+     447.0,
+     427.0
+    ],
+    [
+     447.0,
+     395.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "MRP(R)",
+   "confidence": 0.9397099018096924,
+   "bbox": [
+    [
+     373.0,
+     322.0
+    ],
+    [
+     373.0,
+     374.0
+    ],
+    [
+     355.0,
+     374.0
+    ],
+    [
+     355.0,
+     322.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "puci af",
+   "confidence": 0.5418716669082642,
+   "bbox": [
+    [
+     359.0,
+     323.0
+    ],
+    [
+     359.0,
+     352.0
+    ],
+    [
+     348.0,
+     352.0
+    ],
+    [
+     348.0,
+     323.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Unit Sale",
+   "confidence": 0.9530549645423889,
+   "bbox": [
+    [
+     342.0,
+     322.0
+    ],
+    [
+     340.0,
+     385.0
+    ],
+    [
+     322.0,
+     385.0
+    ],
+    [
+     324.0,
+     322.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "T699.00",
+   "confidence": 0.8609008193016052,
+   "bbox": [
+    [
+     350.0,
+     434.0
+    ],
+    [
+     354.0,
+     623.0
+    ],
+    [
+     330.0,
+     623.0
+    ],
+    [
+     326.0,
+     434.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Price;",
+   "confidence": 0.9134384989738464,
+   "bbox": [
+    [
+     321.0,
+     323.0
+    ],
+    [
+     321.0,
+     398.0
+    ],
+    [
+     304.0,
+     398.0
+    ],
+    [
+     304.0,
+     323.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "电3.30",
+   "confidence": 0.691608726978302,
+   "bbox": [
+    [
+     327.0,
+     437.0
+    ],
+    [
+     327.0,
+     591.0
+    ],
+    [
+     303.0,
+     591.0
+    ],
+    [
+     303.0,
+     437.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Batch No",
+   "confidence": 0.9956345558166504,
+   "bbox": [
+    [
+     302.0,
+     324.0
+    ],
+    [
+     302.0,
+     397.0
+    ],
+    [
+     285.0,
+     397.0
+    ],
+    [
+     285.0,
+     324.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "\"",
+   "confidence": 0.3670392334461212,
+   "bbox": [
+    [
+     311.0,
+     429.0
+    ],
+    [
+     311.0,
+     607.0
+    ],
+    [
+     233.0,
+     607.0
+    ],
+    [
+     233.0,
+     429.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Mfg Date :",
+   "confidence": 0.9543164968490601,
+   "bbox": [
+    [
+     283.0,
+     324.0
+    ],
+    [
+     283.0,
+     398.0
+    ],
+    [
+     265.0,
+     398.0
+    ],
+    [
+     265.0,
+     324.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "Exp. Date",
+   "confidence": 0.9902566075325012,
+   "bbox": [
+    [
+     265.0,
+     323.0
+    ],
+    [
+     263.0,
+     398.0
+    ],
+    [
+     245.0,
+     398.0
+    ],
+    [
+     247.0,
+     323.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "8906128100139",
+   "confidence": 0.9997498393058777,
+   "bbox": [
+    [
+     126.0,
+     354.0
+    ],
+    [
+     131.0,
+     602.0
+    ],
+    [
+     108.0,
+     602.0
+    ],
+    [
+     103.0,
+     354.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "2000001612",
+   "confidence": 0.9999397993087769,
+   "bbox": [
+    [
+     88.0,
+     532.0
+    ],
+    [
+     89.0,
+     627.0
+    ],
+    [
+     71.0,
+     627.0
+    ],
+    [
+     70.0,
+     532.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 270
+  },
+  {
+   "text": "e",
+   "confidence": 0.9772047400474548,
+   "bbox": [
+    [
+     498.67,
+     314.67
+    ],
+    [
+     498.67,
+     381.33
+    ],
+    [
+     441.33,
+     381.33
+    ],
+    [
+     441.33,
+     314.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 270
+  },
+  {
+   "text": "क",
+   "confidence": 0.1293368935585022,
+   "bbox": [
+    [
+     330.67,
+     429.33
+    ],
+    [
+     337.33,
+     593.33
+    ],
+    [
+     304.0,
+     594.67
+    ],
+    [
+     297.33,
+     430.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 270
+  }
+ ]
+}

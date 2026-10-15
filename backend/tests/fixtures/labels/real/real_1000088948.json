@@ -1,0 +1,351 @@
+{
+ "source": "batch_evaluate OCR of 1000088948.jpg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 3000,
+ "image_height": 4000,
+ "ocr_seconds": 15.82,
+ "raw_text": "DBO\nManufactured & Packed by\nDhampur Bio Organics Ltd.\nUnit Asmoli - Division Sugar,\nSugar Mill Compound,\nVillage - Asmoli, Sambhal - 244304\nUttar Pradesh.\ninfo@dhampur.com\n011 69055200|www.dhampur.com\nIssal Lic. No. 10012051000386\nMFG-APRIL 2026. EXP-MARCH 2028\nLAXMII\nNet Wt 5g\nSHONNV1XV",
+ "detections": [
+  {
+   "text": "DBO",
+   "confidence": 0.999769389629364,
+   "bbox": [
+    [
+     1225.0,
+     965.62
+    ],
+    [
+     1881.25,
+     996.88
+    ],
+    [
+     1865.62,
+     1315.62
+    ],
+    [
+     1209.38,
+     1284.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Manufactured & Packed by",
+   "confidence": 0.9833381772041321,
+   "bbox": [
+    [
+     1037.5,
+     1293.75
+    ],
+    [
+     2115.62,
+     1337.5
+    ],
+    [
+     2112.5,
+     1443.75
+    ],
+    [
+     1034.38,
+     1400.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Dhampur Bio Organics Ltd.",
+   "confidence": 0.9999098181724548,
+   "bbox": [
+    [
+     1040.62,
+     1409.38
+    ],
+    [
+     2109.38,
+     1446.88
+    ],
+    [
+     2106.25,
+     1543.75
+    ],
+    [
+     1037.5,
+     1506.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Unit Asmoli - Division Sugar,",
+   "confidence": 0.987762987613678,
+   "bbox": [
+    [
+     1009.38,
+     1506.25
+    ],
+    [
+     2128.12,
+     1556.25
+    ],
+    [
+     2125.0,
+     1653.12
+    ],
+    [
+     1006.25,
+     1603.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Sugar Mill Compound,",
+   "confidence": 0.9984610676765442,
+   "bbox": [
+    [
+     1121.88,
+     1621.88
+    ],
+    [
+     2009.38,
+     1656.25
+    ],
+    [
+     2006.25,
+     1753.12
+    ],
+    [
+     1118.75,
+     1718.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Village - Asmoli, Sambhal - 244304",
+   "confidence": 0.9750446081161499,
+   "bbox": [
+    [
+     875.0,
+     1715.62
+    ],
+    [
+     2237.5,
+     1768.75
+    ],
+    [
+     2234.38,
+     1865.62
+    ],
+    [
+     871.88,
+     1812.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Uttar Pradesh.",
+   "confidence": 0.9997605681419373,
+   "bbox": [
+    [
+     1271.88,
+     1837.5
+    ],
+    [
+     1837.5,
+     1859.38
+    ],
+    [
+     1834.38,
+     1946.88
+    ],
+    [
+     1268.75,
+     1925.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "info@dhampur.com",
+   "confidence": 0.9999783039093018,
+   "bbox": [
+    [
+     1162.5,
+     1934.38
+    ],
+    [
+     1943.75,
+     1965.62
+    ],
+    [
+     1940.62,
+     2062.5
+    ],
+    [
+     1159.38,
+     2031.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "011 69055200|www.dhampur.com",
+   "confidence": 0.9800377488136292,
+   "bbox": [
+    [
+     875.0,
+     2018.75
+    ],
+    [
+     2218.75,
+     2084.38
+    ],
+    [
+     2215.62,
+     2181.25
+    ],
+    [
+     871.88,
+     2115.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Issal Lic. No. 10012051000386",
+   "confidence": 0.962765634059906,
+   "bbox": [
+    [
+     850.0,
+     2153.12
+    ],
+    [
+     2259.38,
+     2250.0
+    ],
+    [
+     2250.0,
+     2400.0
+    ],
+    [
+     840.62,
+     2303.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MFG-APRIL 2026. EXP-MARCH 2028",
+   "confidence": 0.9886330366134644,
+   "bbox": [
+    [
+     900.0,
+     2346.88
+    ],
+    [
+     2181.25,
+     2409.38
+    ],
+    [
+     2178.12,
+     2496.88
+    ],
+    [
+     896.88,
+     2434.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LAXMII",
+   "confidence": 0.9013462662696838,
+   "bbox": [
+    [
+     2403.12,
+     2431.25
+    ],
+    [
+     2456.25,
+     2434.38
+    ],
+    [
+     2446.88,
+     2643.75
+    ],
+    [
+     2393.75,
+     2640.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Wt 5g",
+   "confidence": 0.9998279213905334,
+   "bbox": [
+    [
+     1312.5,
+     2562.5
+    ],
+    [
+     1740.62,
+     2571.88
+    ],
+    [
+     1740.62,
+     2650.0
+    ],
+    [
+     1312.5,
+     2640.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SHONNV1XV",
+   "confidence": 0.4145129919052124,
+   "bbox": [
+    [
+     2408.33,
+     2033.33
+    ],
+    [
+     2575.0,
+     2045.83
+    ],
+    [
+     2516.67,
+     2675.0
+    ],
+    [
+     2354.17,
+     2662.5
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

@@ -1,0 +1,1503 @@
+{
+ "source": "batch_evaluate OCR of WhatsApp Image 2026-10-15 at 10.51.16 PM (2).jpeg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 960,
+ "image_height": 1280,
+ "ocr_seconds": 21.12,
+ "raw_text": "magic\nower of neem\nREADY TO MIX\nera. it protects\nHAND\nfrom germs\nyour skin\n shake and\nWASH\nVtrotected\n& dry place\nuse\nREFILL PACK\nam children\ntact with\nnediately\nManufactured by:\nS. Godrej Consumer Products\nLTD. Plot No.. 85-88, EPIP Phase-lI\nThana, Baddi, Tehsil Nalagarh,\nWORKS\nDISTT. SOLAN, (H.P.)-173205. India\nM.LN-(M)-HIM/COS/03/19\nMarkelad by**/Registered\nAddress**/ Corisumer Feedback:\nManager (Cc umer Relations)\n#Godrej Consumer Products\nLimited Godrej one, Vikhroli (East)\nMumbai 400 079, India\nT18002660007\nE: care@godrejcp.com\n#Trademark Owners\nProduct also available\nwith bottle @ ?40/-\nNET CONTENT:\n9g\nUse before 24 months\nfrom date of PKD.##\nNote: Pack once opened\nhould be consumed fully\nB. No: (B)\nMRP (inclusive of all taxes)\nUnit Sale Price\nPacked on##\nee below.\n15\nm\nIAKE\n21\n8901023018190\nSUNC103497192\nwith bottle @२40/\nP\n\nटN\ns\nNi\nrw\nC\n-\n*\nD",
+ "detections": [
+  {
+   "text": "magic",
+   "confidence": 0.9480801820755005,
+   "bbox": [
+    [
+     381.0,
+     87.0
+    ],
+    [
+     551.0,
+     96.0
+    ],
+    [
+     548.0,
+     149.0
+    ],
+    [
+     378.0,
+     140.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ower of neem",
+   "confidence": 0.9824209809303284,
+   "bbox": [
+    [
+     680.0,
+     119.0
+    ],
+    [
+     763.0,
+     132.0
+    ],
+    [
+     760.0,
+     149.0
+    ],
+    [
+     677.0,
+     136.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "READY TO MIX",
+   "confidence": 0.9653266072273254,
+   "bbox": [
+    [
+     386.0,
+     138.0
+    ],
+    [
+     550.0,
+     152.0
+    ],
+    [
+     547.0,
+     180.0
+    ],
+    [
+     383.0,
+     166.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "era. it protects",
+   "confidence": 0.9829735159873962,
+   "bbox": [
+    [
+     681.0,
+     136.0
+    ],
+    [
+     764.0,
+     149.0
+    ],
+    [
+     761.0,
+     166.0
+    ],
+    [
+     678.0,
+     153.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "HAND",
+   "confidence": 0.9999920129776001,
+   "bbox": [
+    [
+     385.0,
+     158.0
+    ],
+    [
+     563.0,
+     174.0
+    ],
+    [
+     556.0,
+     256.0
+    ],
+    [
+     378.0,
+     240.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "from germs",
+   "confidence": 0.9989899396896362,
+   "bbox": [
+    [
+     685.0,
+     152.0
+    ],
+    [
+     754.0,
+     164.0
+    ],
+    [
+     751.0,
+     182.0
+    ],
+    [
+     682.0,
+     170.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "your skin",
+   "confidence": 0.9979767203330994,
+   "bbox": [
+    [
+     682.0,
+     168.0
+    ],
+    [
+     736.0,
+     177.0
+    ],
+    [
+     733.0,
+     195.0
+    ],
+    [
+     679.0,
+     186.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": " shake and",
+   "confidence": 0.859570324420929,
+   "bbox": [
+    [
+     680.0,
+     205.0
+    ],
+    [
+     767.0,
+     207.0
+    ],
+    [
+     767.0,
+     224.0
+    ],
+    [
+     680.0,
+     222.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "WASH",
+   "confidence": 0.9999386072158813,
+   "bbox": [
+    [
+     384.0,
+     229.0
+    ],
+    [
+     563.0,
+     238.0
+    ],
+    [
+     559.0,
+     325.0
+    ],
+    [
+     380.0,
+     316.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Vtrotected",
+   "confidence": 0.7582574486732483,
+   "bbox": [
+    [
+     680.0,
+     223.0
+    ],
+    [
+     757.0,
+     222.0
+    ],
+    [
+     757.0,
+     237.0
+    ],
+    [
+     680.0,
+     238.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "& dry place",
+   "confidence": 0.9910643100738525,
+   "bbox": [
+    [
+     680.0,
+     283.0
+    ],
+    [
+     751.0,
+     283.0
+    ],
+    [
+     751.0,
+     300.0
+    ],
+    [
+     680.0,
+     300.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "use",
+   "confidence": 0.999323844909668,
+   "bbox": [
+    [
+     680.0,
+     297.0
+    ],
+    [
+     705.0,
+     300.0
+    ],
+    [
+     704.0,
+     315.0
+    ],
+    [
+     678.0,
+     312.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "REFILL PACK",
+   "confidence": 0.9999236464500427,
+   "bbox": [
+    [
+     401.0,
+     324.0
+    ],
+    [
+     538.0,
+     329.0
+    ],
+    [
+     537.0,
+     353.0
+    ],
+    [
+     400.0,
+     348.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "am children",
+   "confidence": 0.9346862435340881,
+   "bbox": [
+    [
+     681.0,
+     315.0
+    ],
+    [
+     749.0,
+     315.0
+    ],
+    [
+     749.0,
+     329.0
+    ],
+    [
+     681.0,
+     329.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "tact with",
+   "confidence": 0.9876048564910889,
+   "bbox": [
+    [
+     680.0,
+     329.0
+    ],
+    [
+     735.0,
+     329.0
+    ],
+    [
+     735.0,
+     346.0
+    ],
+    [
+     680.0,
+     346.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "nediately",
+   "confidence": 0.9941595792770386,
+   "bbox": [
+    [
+     680.0,
+     342.0
+    ],
+    [
+     735.0,
+     344.0
+    ],
+    [
+     734.0,
+     362.0
+    ],
+    [
+     679.0,
+     360.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Manufactured by:",
+   "confidence": 0.999809741973877,
+   "bbox": [
+    [
+     380.0,
+     370.0
+    ],
+    [
+     479.0,
+     370.0
+    ],
+    [
+     479.0,
+     387.0
+    ],
+    [
+     380.0,
+     387.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "S. Godrej Consumer Products",
+   "confidence": 0.9833707213401794,
+   "bbox": [
+    [
+     379.0,
+     382.0
+    ],
+    [
+     550.0,
+     385.0
+    ],
+    [
+     550.0,
+     402.0
+    ],
+    [
+     379.0,
+     399.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LTD. Plot No.. 85-88, EPIP Phase-lI",
+   "confidence": 0.9549293518066406,
+   "bbox": [
+    [
+     378.0,
+     397.0
+    ],
+    [
+     563.0,
+     398.0
+    ],
+    [
+     563.0,
+     416.0
+    ],
+    [
+     378.0,
+     415.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Thana, Baddi, Tehsil Nalagarh,",
+   "confidence": 0.9979826807975769,
+   "bbox": [
+    [
+     378.0,
+     412.0
+    ],
+    [
+     540.0,
+     412.0
+    ],
+    [
+     540.0,
+     429.0
+    ],
+    [
+     378.0,
+     429.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "WORKS",
+   "confidence": 0.9623404741287231,
+   "bbox": [
+    [
+     680.0,
+     405.0
+    ],
+    [
+     756.0,
+     403.0
+    ],
+    [
+     756.0,
+     425.0
+    ],
+    [
+     680.0,
+     427.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DISTT. SOLAN, (H.P.)-173205. India",
+   "confidence": 0.9624742865562439,
+   "bbox": [
+    [
+     376.0,
+     424.0
+    ],
+    [
+     568.0,
+     426.0
+    ],
+    [
+     568.0,
+     444.0
+    ],
+    [
+     376.0,
+     442.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "M.LN-(M)-HIM/COS/03/19",
+   "confidence": 0.9690282344818115,
+   "bbox": [
+    [
+     377.0,
+     441.0
+    ],
+    [
+     534.0,
+     441.0
+    ],
+    [
+     534.0,
+     455.0
+    ],
+    [
+     377.0,
+     455.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Markelad by**/Registered",
+   "confidence": 0.9704115986824036,
+   "bbox": [
+    [
+     378.0,
+     470.0
+    ],
+    [
+     520.0,
+     470.0
+    ],
+    [
+     520.0,
+     484.0
+    ],
+    [
+     378.0,
+     484.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Address**/ Corisumer Feedback:",
+   "confidence": 0.9805776476860046,
+   "bbox": [
+    [
+     379.0,
+     484.0
+    ],
+    [
+     555.0,
+     484.0
+    ],
+    [
+     555.0,
+     498.0
+    ],
+    [
+     379.0,
+     498.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Manager (Cc umer Relations)",
+   "confidence": 0.9775548577308655,
+   "bbox": [
+    [
+     379.0,
+     498.0
+    ],
+    [
+     541.0,
+     498.0
+    ],
+    [
+     541.0,
+     512.0
+    ],
+    [
+     379.0,
+     512.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "#Godrej Consumer Products",
+   "confidence": 0.9976584911346436,
+   "bbox": [
+    [
+     378.0,
+     509.0
+    ],
+    [
+     540.0,
+     511.0
+    ],
+    [
+     540.0,
+     528.0
+    ],
+    [
+     378.0,
+     526.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Limited Godrej one, Vikhroli (East)",
+   "confidence": 0.9939940571784973,
+   "bbox": [
+    [
+     378.0,
+     523.0
+    ],
+    [
+     558.0,
+     525.0
+    ],
+    [
+     558.0,
+     542.0
+    ],
+    [
+     378.0,
+     540.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mumbai 400 079, India",
+   "confidence": 0.9973039031028748,
+   "bbox": [
+    [
+     379.0,
+     538.0
+    ],
+    [
+     500.0,
+     540.0
+    ],
+    [
+     500.0,
+     554.0
+    ],
+    [
+     379.0,
+     552.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "T18002660007",
+   "confidence": 0.9913904666900635,
+   "bbox": [
+    [
+     378.0,
+     551.0
+    ],
+    [
+     465.0,
+     554.0
+    ],
+    [
+     465.0,
+     568.0
+    ],
+    [
+     378.0,
+     565.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "E: care@godrejcp.com",
+   "confidence": 0.9858227968215942,
+   "bbox": [
+    [
+     378.0,
+     565.0
+    ],
+    [
+     499.0,
+     569.0
+    ],
+    [
+     499.0,
+     584.0
+    ],
+    [
+     378.0,
+     580.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "#Trademark Owners",
+   "confidence": 0.999806821346283,
+   "bbox": [
+    [
+     378.0,
+     580.0
+    ],
+    [
+     494.0,
+     583.0
+    ],
+    [
+     494.0,
+     597.0
+    ],
+    [
+     378.0,
+     594.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Product also available",
+   "confidence": 0.9989293813705444,
+   "bbox": [
+    [
+     378.0,
+     608.0
+    ],
+    [
+     504.0,
+     610.0
+    ],
+    [
+     504.0,
+     624.0
+    ],
+    [
+     378.0,
+     622.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "with bottle @ ?40/-",
+   "confidence": 0.9520376920700073,
+   "bbox": [
+    [
+     377.0,
+     621.0
+    ],
+    [
+     485.0,
+     624.0
+    ],
+    [
+     485.0,
+     639.0
+    ],
+    [
+     377.0,
+     636.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NET CONTENT:",
+   "confidence": 0.9997313618659973,
+   "bbox": [
+    [
+     377.0,
+     650.0
+    ],
+    [
+     469.0,
+     651.0
+    ],
+    [
+     469.0,
+     665.0
+    ],
+    [
+     377.0,
+     664.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "9g",
+   "confidence": 0.9987798929214478,
+   "bbox": [
+    [
+     479.0,
+     654.0
+    ],
+    [
+     496.0,
+     654.0
+    ],
+    [
+     496.0,
+     668.0
+    ],
+    [
+     479.0,
+     668.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Use before 24 months",
+   "confidence": 0.9798253774642944,
+   "bbox": [
+    [
+     379.0,
+     678.0
+    ],
+    [
+     504.0,
+     680.0
+    ],
+    [
+     504.0,
+     694.0
+    ],
+    [
+     379.0,
+     692.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "from date of PKD.##",
+   "confidence": 0.9997925758361816,
+   "bbox": [
+    [
+     381.0,
+     693.0
+    ],
+    [
+     494.0,
+     693.0
+    ],
+    [
+     494.0,
+     707.0
+    ],
+    [
+     381.0,
+     707.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Note: Pack once opened",
+   "confidence": 0.9904623627662659,
+   "bbox": [
+    [
+     382.0,
+     708.0
+    ],
+    [
+     519.0,
+     708.0
+    ],
+    [
+     519.0,
+     722.0
+    ],
+    [
+     382.0,
+     722.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "hould be consumed fully",
+   "confidence": 0.9963754415512085,
+   "bbox": [
+    [
+     379.0,
+     721.0
+    ],
+    [
+     523.0,
+     722.0
+    ],
+    [
+     523.0,
+     737.0
+    ],
+    [
+     379.0,
+     736.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "B. No: (B)",
+   "confidence": 0.9828131794929504,
+   "bbox": [
+    [
+     380.0,
+     737.0
+    ],
+    [
+     435.0,
+     737.0
+    ],
+    [
+     435.0,
+     751.0
+    ],
+    [
+     380.0,
+     751.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP (inclusive of all taxes)",
+   "confidence": 0.9940328598022461,
+   "bbox": [
+    [
+     382.0,
+     752.0
+    ],
+    [
+     521.0,
+     752.0
+    ],
+    [
+     521.0,
+     765.0
+    ],
+    [
+     382.0,
+     765.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Unit Sale Price",
+   "confidence": 0.9964485764503479,
+   "bbox": [
+    [
+     382.0,
+     766.0
+    ],
+    [
+     463.0,
+     766.0
+    ],
+    [
+     463.0,
+     780.0
+    ],
+    [
+     382.0,
+     780.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Packed on##",
+   "confidence": 0.9997190833091736,
+   "bbox": [
+    [
+     381.0,
+     781.0
+    ],
+    [
+     455.0,
+     781.0
+    ],
+    [
+     455.0,
+     795.0
+    ],
+    [
+     381.0,
+     795.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ee below.",
+   "confidence": 0.991851270198822,
+   "bbox": [
+    [
+     379.0,
+     796.0
+    ],
+    [
+     441.0,
+     794.0
+    ],
+    [
+     441.0,
+     809.0
+    ],
+    [
+     379.0,
+     811.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "15",
+   "confidence": 0.9967004656791687,
+   "bbox": [
+    [
+     501.0,
+     898.0
+    ],
+    [
+     520.0,
+     898.0
+    ],
+    [
+     520.0,
+     929.0
+    ],
+    [
+     501.0,
+     929.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "m",
+   "confidence": 0.8810921907424927,
+   "bbox": [
+    [
+     505.0,
+     929.0
+    ],
+    [
+     520.0,
+     929.0
+    ],
+    [
+     520.0,
+     944.0
+    ],
+    [
+     505.0,
+     944.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "IAKE",
+   "confidence": 0.9509914517402649,
+   "bbox": [
+    [
+     697.0,
+     982.0
+    ],
+    [
+     761.0,
+     969.0
+    ],
+    [
+     769.0,
+     1008.0
+    ],
+    [
+     705.0,
+     1021.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "21",
+   "confidence": 0.9566553831100464,
+   "bbox": [
+    [
+     593.0,
+     1094.0
+    ],
+    [
+     608.0,
+     1098.0
+    ],
+    [
+     596.0,
+     1143.0
+    ],
+    [
+     581.0,
+     1139.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8901023018190",
+   "confidence": 0.9985777139663696,
+   "bbox": [
+    [
+     373.0,
+     1155.0
+    ],
+    [
+     555.0,
+     1128.0
+    ],
+    [
+     558.0,
+     1148.0
+    ],
+    [
+     376.0,
+     1175.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SUNC103497192",
+   "confidence": 0.8265314698219299,
+   "bbox": [
+    [
+     701.0,
+     1178.0
+    ],
+    [
+     752.0,
+     1166.0
+    ],
+    [
+     755.0,
+     1178.0
+    ],
+    [
+     704.0,
+     1190.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "with bottle @२40/",
+   "confidence": 0.865637481212616,
+   "bbox": [
+    [
+     377.33,
+     621.33
+    ],
+    [
+     485.33,
+     621.33
+    ],
+    [
+     485.33,
+     638.67
+    ],
+    [
+     377.33,
+     638.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "P",
+   "confidence": 0.49533960223197937,
+   "bbox": [
+    [
+     498.67,
+     832.0
+    ],
+    [
+     517.33,
+     832.0
+    ],
+    [
+     517.33,
+     852.0
+    ],
+    [
+     498.67,
+     852.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "",
+   "confidence": 0.0,
+   "bbox": [
+    [
+     526.67,
+     837.33
+    ],
+    [
+     568.0,
+     837.33
+    ],
+    [
+     568.0,
+     881.33
+    ],
+    [
+     526.67,
+     881.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "टN",
+   "confidence": 0.6552325487136841,
+   "bbox": [
+    [
+     498.67,
+     856.0
+    ],
+    [
+     521.33,
+     856.0
+    ],
+    [
+     521.33,
+     892.0
+    ],
+    [
+     498.67,
+     892.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "s",
+   "confidence": 0.32071763277053833,
+   "bbox": [
+    [
+     522.67,
+     877.33
+    ],
+    [
+     530.67,
+     877.33
+    ],
+    [
+     530.67,
+     889.33
+    ],
+    [
+     522.67,
+     889.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "Ni",
+   "confidence": 0.3199640214443207,
+   "bbox": [
+    [
+     526.67,
+     872.0
+    ],
+    [
+     561.33,
+     868.0
+    ],
+    [
+     564.0,
+     888.0
+    ],
+    [
+     529.33,
+     892.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "rw",
+   "confidence": 0.2922914922237396,
+   "bbox": [
+    [
+     529.33,
+     886.67
+    ],
+    [
+     561.33,
+     884.0
+    ],
+    [
+     564.0,
+     900.0
+    ],
+    [
+     532.0,
+     902.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "C",
+   "confidence": 0.46765926480293274,
+   "bbox": [
+    [
+     546.67,
+     901.33
+    ],
+    [
+     561.33,
+     901.33
+    ],
+    [
+     561.33,
+     914.67
+    ],
+    [
+     546.67,
+     914.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "-",
+   "confidence": 0.22049784660339355,
+   "bbox": [
+    [
+     534.67,
+     917.33
+    ],
+    [
+     549.33,
+     917.33
+    ],
+    [
+     549.33,
+     929.33
+    ],
+    [
+     534.67,
+     929.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "*",
+   "confidence": 0.7629210352897644,
+   "bbox": [
+    [
+     546.67,
+     912.0
+    ],
+    [
+     564.0,
+     912.0
+    ],
+    [
+     564.0,
+     929.33
+    ],
+    [
+     546.67,
+     929.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "D",
+   "confidence": 0.16969972848892212,
+   "bbox": [
+    [
+     501.33,
+     926.67
+    ],
+    [
+     565.33,
+     926.67
+    ],
+    [
+     565.33,
+     946.67
+    ],
+    [
+     501.33,
+     946.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

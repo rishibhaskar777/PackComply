@@ -1,0 +1,1743 @@
+{
+ "source": "batch_evaluate OCR of WhatsApp Image 2026-10-15 at 10.51.14 PM.jpeg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 960,
+ "image_height": 1280,
+ "ocr_seconds": 23.57,
+ "raw_text": "Chloroxylenol, Terpineol &\nAbsolute Alcohol Antiseptic Liquid\nDETTOL ANTISEPTIC LIQUID\nDettol\nACTIVEINGREDIENTS\nRECOMMENDED DILUTIONS**\nChloroxylenolIP.4.8%w/v,TerpineolB.P.9.0%v/v.\nAlcohol (Denatured) eq. to abselute alcohol 13.1% v/v.\nFIRST AID:\nSHAVING:\nContains Laramel as colour, Excipients q.s.\nMfd. & Mktd. by:Reckitt Benckiser [India] Pvt. Ltd.\n61 & 62, Hootagalli Ind. Area, Mysore - 570018,\nKarnataka,M.L.KTK/25/242/89\nPWM Registration No.BO-27-000-06-AABCR2655Q-22\nCamtact us:Reckitt Consumer Care, DLF Cyber Park,\n1 tablespoon in 250ml water [1:20]\n2 teaspoons in a mug of water\n6th & 7th Floor (Tower C), 405B, Udyog Vihar,\nfor cleaning of minor wounds\n(1:20)\nPhase III, Sector 20, Gurugram-122016.\nNAPPY WASH\nBATHING:\nToll Free Number: 18001035012.\nEmail: ConsumerHealth_Indialdreckitt.com\nDETTOL & SWORD device are registered\ntrademarks of Reckitt Benckiser [India] Pvt. Ltd.\nFOR COMPLETE PROTECTION\n1 tablespoon in 500ml water\n1 teaspoon in a bucket of water\nLIQUID HANDWASH\nBAR SOAP\n(1:40)\nDilute & Use for disinfection of floors, hard surfaces\nMidwifery - To disinfect water, Linen, hard surfaces etc. Use\non intact skin only\nProven effective against wide range of disease-causing\ngerms including H1N1, SARS-CoV, MERS (1:40)\nFreshly prepared dutons for staed uses\n*As per standard testing protocol\nSAFETYINSTRUCTIONS:\n0\nFor External Use Only\nB. No.(#), MRP [Inclusive of all taxes).\nStore in a dry place at a temperature of not exceeding\nreckitt\nMfg. Date ($) & Expiry Date [¥]\n30°C, protected from light\nKeep out of sight and reach of children\nIf swallowed, wash out mouth and drink plenty of water or\nmilk. If contact is made with eyes, wash them thoroughly\nwith cold water. In both cases, consult your doctor\n8901396354604\nNot for use around eyes, ears, nose, and mouth\nNot for use for children below one year of age\n3323\nNever use undiluted, may cause irritation\nIf applied as a spray, spray away from body, avoid contact\n550mlnet\nwith eyes, do not inhale the spray\nNot for personal use if pregnant. Dont use on skin o\nbreast when breasfeeding without doc suers\nDon t use if allergic to Chloroxylenol/ay ngre\nou have eczema\n#TT913\n284.90\n$0P/25\n¥12/28\nA\n0\nर 284 90",
+ "detections": [
+  {
+   "text": "Chloroxylenol, Terpineol &",
+   "confidence": 0.9961236715316772,
+   "bbox": [
+    [
+     335.0,
+     167.0
+    ],
+    [
+     541.0,
+     174.0
+    ],
+    [
+     540.0,
+     199.0
+    ],
+    [
+     334.0,
+     192.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Absolute Alcohol Antiseptic Liquid",
+   "confidence": 0.9909549951553345,
+   "bbox": [
+    [
+     305.0,
+     190.0
+    ],
+    [
+     569.0,
+     200.0
+    ],
+    [
+     568.0,
+     224.0
+    ],
+    [
+     304.0,
+     214.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DETTOL ANTISEPTIC LIQUID",
+   "confidence": 0.9996927380561829,
+   "bbox": [
+    [
+     357.0,
+     215.0
+    ],
+    [
+     515.0,
+     220.0
+    ],
+    [
+     515.0,
+     240.0
+    ],
+    [
+     357.0,
+     235.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Dettol",
+   "confidence": 0.9999803900718689,
+   "bbox": [
+    [
+     393.0,
+     277.0
+    ],
+    [
+     478.0,
+     280.0
+    ],
+    [
+     477.0,
+     314.0
+    ],
+    [
+     392.0,
+     311.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ACTIVEINGREDIENTS",
+   "confidence": 0.9998841285705566,
+   "bbox": [
+    [
+     305.0,
+     342.0
+    ],
+    [
+     425.0,
+     344.0
+    ],
+    [
+     425.0,
+     362.0
+    ],
+    [
+     305.0,
+     360.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "RECOMMENDED DILUTIONS**",
+   "confidence": 0.9896087646484375,
+   "bbox": [
+    [
+     443.0,
+     345.0
+    ],
+    [
+     601.0,
+     349.0
+    ],
+    [
+     601.0,
+     369.0
+    ],
+    [
+     443.0,
+     365.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ChloroxylenolIP.4.8%w/v,TerpineolB.P.9.0%v/v.",
+   "confidence": 0.7942637205123901,
+   "bbox": [
+    [
+     181.0,
+     358.0
+    ],
+    [
+     422.0,
+     360.0
+    ],
+    [
+     422.0,
+     380.0
+    ],
+    [
+     181.0,
+     378.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Alcohol (Denatured) eq. to abselute alcohol 13.1% v/v.",
+   "confidence": 0.9610714316368103,
+   "bbox": [
+    [
+     171.0,
+     374.0
+    ],
+    [
+     422.0,
+     376.0
+    ],
+    [
+     422.0,
+     393.0
+    ],
+    [
+     171.0,
+     391.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FIRST AID:",
+   "confidence": 0.9886552691459656,
+   "bbox": [
+    [
+     452.0,
+     369.0
+    ],
+    [
+     516.0,
+     369.0
+    ],
+    [
+     516.0,
+     387.0
+    ],
+    [
+     452.0,
+     387.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SHAVING:",
+   "confidence": 0.9997773170471191,
+   "bbox": [
+    [
+     593.0,
+     372.0
+    ],
+    [
+     650.0,
+     372.0
+    ],
+    [
+     650.0,
+     390.0
+    ],
+    [
+     593.0,
+     390.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Contains Laramel as colour, Excipients q.s.",
+   "confidence": 0.9577669501304626,
+   "bbox": [
+    [
+     220.0,
+     388.0
+    ],
+    [
+     422.0,
+     391.0
+    ],
+    [
+     422.0,
+     408.0
+    ],
+    [
+     220.0,
+     405.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mfd. & Mktd. by:Reckitt Benckiser [India] Pvt. Ltd.",
+   "confidence": 0.9672797918319702,
+   "bbox": [
+    [
+     186.0,
+     405.0
+    ],
+    [
+     422.0,
+     406.0
+    ],
+    [
+     422.0,
+     424.0
+    ],
+    [
+     186.0,
+     423.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "61 & 62, Hootagalli Ind. Area, Mysore - 570018,",
+   "confidence": 0.9648299813270569,
+   "bbox": [
+    [
+     205.0,
+     421.0
+    ],
+    [
+     422.0,
+     421.0
+    ],
+    [
+     422.0,
+     438.0
+    ],
+    [
+     205.0,
+     438.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Karnataka,M.L.KTK/25/242/89",
+   "confidence": 0.99918133020401,
+   "bbox": [
+    [
+     276.0,
+     436.0
+    ],
+    [
+     423.0,
+     436.0
+    ],
+    [
+     423.0,
+     453.0
+    ],
+    [
+     276.0,
+     453.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PWM Registration No.BO-27-000-06-AABCR2655Q-22",
+   "confidence": 0.9839924573898315,
+   "bbox": [
+    [
+     179.0,
+     449.0
+    ],
+    [
+     423.0,
+     450.0
+    ],
+    [
+     423.0,
+     468.0
+    ],
+    [
+     179.0,
+     467.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Camtact us:Reckitt Consumer Care, DLF Cyber Park,",
+   "confidence": 0.9769982099533081,
+   "bbox": [
+    [
+     181.0,
+     464.0
+    ],
+    [
+     423.0,
+     466.0
+    ],
+    [
+     423.0,
+     484.0
+    ],
+    [
+     181.0,
+     482.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "1 tablespoon in 250ml water [1:20]",
+   "confidence": 0.9340646862983704,
+   "bbox": [
+    [
+     443.0,
+     457.0
+    ],
+    [
+     580.0,
+     459.0
+    ],
+    [
+     580.0,
+     476.0
+    ],
+    [
+     443.0,
+     474.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "2 teaspoons in a mug of water",
+   "confidence": 0.9454494714736938,
+   "bbox": [
+    [
+     585.0,
+     457.0
+    ],
+    [
+     702.0,
+     459.0
+    ],
+    [
+     702.0,
+     476.0
+    ],
+    [
+     585.0,
+     474.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "6th & 7th Floor (Tower C), 405B, Udyog Vihar,",
+   "confidence": 0.9723501205444336,
+   "bbox": [
+    [
+     216.0,
+     479.0
+    ],
+    [
+     424.0,
+     481.0
+    ],
+    [
+     424.0,
+     498.0
+    ],
+    [
+     216.0,
+     496.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "for cleaning of minor wounds",
+   "confidence": 0.9765030145645142,
+   "bbox": [
+    [
+     444.0,
+     473.0
+    ],
+    [
+     559.0,
+     473.0
+    ],
+    [
+     559.0,
+     490.0
+    ],
+    [
+     444.0,
+     490.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(1:20)",
+   "confidence": 0.9675775170326233,
+   "bbox": [
+    [
+     586.0,
+     471.0
+    ],
+    [
+     613.0,
+     471.0
+    ],
+    [
+     613.0,
+     489.0
+    ],
+    [
+     586.0,
+     489.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Phase III, Sector 20, Gurugram-122016.",
+   "confidence": 0.9804714322090149,
+   "bbox": [
+    [
+     240.0,
+     494.0
+    ],
+    [
+     424.0,
+     495.0
+    ],
+    [
+     424.0,
+     512.0
+    ],
+    [
+     240.0,
+     511.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NAPPY WASH",
+   "confidence": 0.9481337666511536,
+   "bbox": [
+    [
+     451.0,
+     493.0
+    ],
+    [
+     536.0,
+     493.0
+    ],
+    [
+     536.0,
+     511.0
+    ],
+    [
+     451.0,
+     511.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BATHING:",
+   "confidence": 0.9998307824134827,
+   "bbox": [
+    [
+     592.0,
+     495.0
+    ],
+    [
+     648.0,
+     495.0
+    ],
+    [
+     648.0,
+     512.0
+    ],
+    [
+     592.0,
+     512.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Toll Free Number: 18001035012.",
+   "confidence": 0.9973018169403076,
+   "bbox": [
+    [
+     273.0,
+     508.0
+    ],
+    [
+     424.0,
+     509.0
+    ],
+    [
+     424.0,
+     526.0
+    ],
+    [
+     273.0,
+     525.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Email: ConsumerHealth_Indialdreckitt.com",
+   "confidence": 0.9539958834648132,
+   "bbox": [
+    [
+     224.0,
+     523.0
+    ],
+    [
+     425.0,
+     524.0
+    ],
+    [
+     425.0,
+     541.0
+    ],
+    [
+     224.0,
+     540.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DETTOL & SWORD device are registered",
+   "confidence": 0.9972260594367981,
+   "bbox": [
+    [
+     241.0,
+     539.0
+    ],
+    [
+     425.0,
+     540.0
+    ],
+    [
+     425.0,
+     557.0
+    ],
+    [
+     241.0,
+     556.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "trademarks of Reckitt Benckiser [India] Pvt. Ltd.",
+   "confidence": 0.9786049723625183,
+   "bbox": [
+    [
+     204.0,
+     555.0
+    ],
+    [
+     423.0,
+     555.0
+    ],
+    [
+     423.0,
+     569.0
+    ],
+    [
+     204.0,
+     569.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FOR COMPLETE PROTECTION",
+   "confidence": 0.9900822043418884,
+   "bbox": [
+    [
+     220.0,
+     572.0
+    ],
+    [
+     418.0,
+     573.0
+    ],
+    [
+     418.0,
+     593.0
+    ],
+    [
+     220.0,
+     592.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "1 tablespoon in 500ml water",
+   "confidence": 0.9971932172775269,
+   "bbox": [
+    [
+     447.0,
+     579.0
+    ],
+    [
+     556.0,
+     579.0
+    ],
+    [
+     556.0,
+     593.0
+    ],
+    [
+     447.0,
+     593.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "1 teaspoon in a bucket of water",
+   "confidence": 0.9969454407691956,
+   "bbox": [
+    [
+     587.0,
+     581.0
+    ],
+    [
+     703.0,
+     581.0
+    ],
+    [
+     703.0,
+     594.0
+    ],
+    [
+     587.0,
+     594.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LIQUID HANDWASH",
+   "confidence": 0.9932880997657776,
+   "bbox": [
+    [
+     222.0,
+     594.0
+    ],
+    [
+     307.0,
+     594.0
+    ],
+    [
+     307.0,
+     608.0
+    ],
+    [
+     222.0,
+     608.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BAR SOAP",
+   "confidence": 0.998660683631897,
+   "bbox": [
+    [
+     347.0,
+     595.0
+    ],
+    [
+     396.0,
+     595.0
+    ],
+    [
+     396.0,
+     609.0
+    ],
+    [
+     347.0,
+     609.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(1:40)",
+   "confidence": 0.9416265487670898,
+   "bbox": [
+    [
+     445.0,
+     591.0
+    ],
+    [
+     472.0,
+     591.0
+    ],
+    [
+     472.0,
+     609.0
+    ],
+    [
+     445.0,
+     609.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Dilute & Use for disinfection of floors, hard surfaces",
+   "confidence": 0.9952609539031982,
+   "bbox": [
+    [
+     459.0,
+     609.0
+    ],
+    [
+     678.0,
+     608.0
+    ],
+    [
+     678.0,
+     625.0
+    ],
+    [
+     459.0,
+     626.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Midwifery - To disinfect water, Linen, hard surfaces etc. Use",
+   "confidence": 0.9735963344573975,
+   "bbox": [
+    [
+     458.0,
+     623.0
+    ],
+    [
+     707.0,
+     621.0
+    ],
+    [
+     707.0,
+     638.0
+    ],
+    [
+     458.0,
+     640.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "on intact skin only",
+   "confidence": 0.9921726584434509,
+   "bbox": [
+    [
+     458.0,
+     638.0
+    ],
+    [
+     540.0,
+     637.0
+    ],
+    [
+     540.0,
+     652.0
+    ],
+    [
+     458.0,
+     653.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Proven effective against wide range of disease-causing",
+   "confidence": 0.9744051694869995,
+   "bbox": [
+    [
+     445.0,
+     648.0
+    ],
+    [
+     687.0,
+     646.0
+    ],
+    [
+     687.0,
+     664.0
+    ],
+    [
+     445.0,
+     666.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "germs including H1N1, SARS-CoV, MERS (1:40)",
+   "confidence": 0.9616084694862366,
+   "bbox": [
+    [
+     445.0,
+     662.0
+    ],
+    [
+     651.0,
+     659.0
+    ],
+    [
+     651.0,
+     677.0
+    ],
+    [
+     445.0,
+     680.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Freshly prepared dutons for staed uses",
+   "confidence": 0.719061553478241,
+   "bbox": [
+    [
+     234.0,
+     686.0
+    ],
+    [
+     428.0,
+     690.0
+    ],
+    [
+     428.0,
+     711.0
+    ],
+    [
+     234.0,
+     707.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "*As per standard testing protocol",
+   "confidence": 0.997706413269043,
+   "bbox": [
+    [
+     282.0,
+     677.0
+    ],
+    [
+     425.0,
+     677.0
+    ],
+    [
+     425.0,
+     691.0
+    ],
+    [
+     282.0,
+     691.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SAFETYINSTRUCTIONS:",
+   "confidence": 0.9900565147399902,
+   "bbox": [
+    [
+     445.0,
+     677.0
+    ],
+    [
+     561.0,
+     676.0
+    ],
+    [
+     561.0,
+     694.0
+    ],
+    [
+     445.0,
+     695.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "0",
+   "confidence": 0.326723575592041,
+   "bbox": [
+    [
+     451.0,
+     698.0
+    ],
+    [
+     457.0,
+     698.0
+    ],
+    [
+     457.0,
+     703.0
+    ],
+    [
+     451.0,
+     703.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "For External Use Only",
+   "confidence": 0.9997425079345703,
+   "bbox": [
+    [
+     458.0,
+     692.0
+    ],
+    [
+     554.0,
+     692.0
+    ],
+    [
+     554.0,
+     706.0
+    ],
+    [
+     458.0,
+     706.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "B. No.(#), MRP [Inclusive of all taxes).",
+   "confidence": 0.9400066137313843,
+   "bbox": [
+    [
+     256.0,
+     705.0
+    ],
+    [
+     424.0,
+     705.0
+    ],
+    [
+     424.0,
+     722.0
+    ],
+    [
+     256.0,
+     722.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Store in a dry place at a temperature of not exceeding",
+   "confidence": 0.9828131794929504,
+   "bbox": [
+    [
+     456.0,
+     703.0
+    ],
+    [
+     687.0,
+     699.0
+    ],
+    [
+     687.0,
+     716.0
+    ],
+    [
+     456.0,
+     720.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "reckitt",
+   "confidence": 0.9999242424964905,
+   "bbox": [
+    [
+     183.0,
+     724.0
+    ],
+    [
+     227.0,
+     724.0
+    ],
+    [
+     227.0,
+     743.0
+    ],
+    [
+     183.0,
+     743.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mfg. Date ($) & Expiry Date [¥]",
+   "confidence": 0.9394474625587463,
+   "bbox": [
+    [
+     292.0,
+     720.0
+    ],
+    [
+     425.0,
+     720.0
+    ],
+    [
+     425.0,
+     737.0
+    ],
+    [
+     292.0,
+     737.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "30°C, protected from light",
+   "confidence": 0.9951158165931702,
+   "bbox": [
+    [
+     458.0,
+     716.0
+    ],
+    [
+     573.0,
+     714.0
+    ],
+    [
+     573.0,
+     730.0
+    ],
+    [
+     458.0,
+     732.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Keep out of sight and reach of children",
+   "confidence": 0.9799860715866089,
+   "bbox": [
+    [
+     458.0,
+     728.0
+    ],
+    [
+     627.0,
+     724.0
+    ],
+    [
+     627.0,
+     741.0
+    ],
+    [
+     458.0,
+     745.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "If swallowed, wash out mouth and drink plenty of water or",
+   "confidence": 0.9849351644515991,
+   "bbox": [
+    [
+     458.0,
+     742.0
+    ],
+    [
+     704.0,
+     735.0
+    ],
+    [
+     704.0,
+     749.0
+    ],
+    [
+     458.0,
+     756.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "milk. If contact is made with eyes, wash them thoroughly",
+   "confidence": 0.9902611970901489,
+   "bbox": [
+    [
+     457.0,
+     753.0
+    ],
+    [
+     699.0,
+     747.0
+    ],
+    [
+     699.0,
+     763.0
+    ],
+    [
+     457.0,
+     769.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "with cold water. In both cases, consult your doctor",
+   "confidence": 0.9124839901924133,
+   "bbox": [
+    [
+     458.0,
+     765.0
+    ],
+    [
+     672.0,
+     759.0
+    ],
+    [
+     672.0,
+     776.0
+    ],
+    [
+     458.0,
+     782.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8901396354604",
+   "confidence": 0.999933660030365,
+   "bbox": [
+    [
+     262.0,
+     779.0
+    ],
+    [
+     425.0,
+     779.0
+    ],
+    [
+     425.0,
+     796.0
+    ],
+    [
+     262.0,
+     796.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Not for use around eyes, ears, nose, and mouth",
+   "confidence": 0.9827971458435059,
+   "bbox": [
+    [
+     458.0,
+     778.0
+    ],
+    [
+     659.0,
+     772.0
+    ],
+    [
+     659.0,
+     788.0
+    ],
+    [
+     458.0,
+     794.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Not for use for children below one year of age",
+   "confidence": 0.9922411441802979,
+   "bbox": [
+    [
+     459.0,
+     790.0
+    ],
+    [
+     653.0,
+     784.0
+    ],
+    [
+     653.0,
+     800.0
+    ],
+    [
+     459.0,
+     806.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "3323",
+   "confidence": 0.9799996614456177,
+   "bbox": [
+    [
+     413.0,
+     805.0
+    ],
+    [
+     434.0,
+     805.0
+    ],
+    [
+     434.0,
+     885.0
+    ],
+    [
+     413.0,
+     885.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Never use undiluted, may cause irritation",
+   "confidence": 0.9870684742927551,
+   "bbox": [
+    [
+     459.0,
+     803.0
+    ],
+    [
+     636.0,
+     797.0
+    ],
+    [
+     636.0,
+     811.0
+    ],
+    [
+     459.0,
+     817.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "If applied as a spray, spray away from body, avoid contact",
+   "confidence": 0.8793286681175232,
+   "bbox": [
+    [
+     457.0,
+     815.0
+    ],
+    [
+     700.0,
+     805.0
+    ],
+    [
+     700.0,
+     822.0
+    ],
+    [
+     457.0,
+     832.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "550mlnet",
+   "confidence": 0.9993612170219421,
+   "bbox": [
+    [
+     188.0,
+     829.0
+    ],
+    [
+     277.0,
+     837.0
+    ],
+    [
+     274.0,
+     869.0
+    ],
+    [
+     185.0,
+     861.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "with eyes, do not inhale the spray",
+   "confidence": 0.9982675909996033,
+   "bbox": [
+    [
+     457.0,
+     828.0
+    ],
+    [
+     603.0,
+     823.0
+    ],
+    [
+     603.0,
+     837.0
+    ],
+    [
+     457.0,
+     842.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Not for personal use if pregnant. Dont use on skin o",
+   "confidence": 0.8879009485244751,
+   "bbox": [
+    [
+     458.0,
+     839.0
+    ],
+    [
+     681.0,
+     829.0
+    ],
+    [
+     682.0,
+     846.0
+    ],
+    [
+     459.0,
+     856.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "breast when breasfeeding without doc suers",
+   "confidence": 0.6919806599617004,
+   "bbox": [
+    [
+     458.0,
+     851.0
+    ],
+    [
+     681.0,
+     840.0
+    ],
+    [
+     682.0,
+     857.0
+    ],
+    [
+     459.0,
+     868.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Don t use if allergic to Chloroxylenol/ay ngre",
+   "confidence": 0.7573698163032532,
+   "bbox": [
+    [
+     457.0,
+     863.0
+    ],
+    [
+     697.0,
+     852.0
+    ],
+    [
+     698.0,
+     869.0
+    ],
+    [
+     458.0,
+     880.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ou have eczema",
+   "confidence": 0.7790584564208984,
+   "bbox": [
+    [
+     458.0,
+     877.0
+    ],
+    [
+     534.0,
+     875.0
+    ],
+    [
+     534.0,
+     889.0
+    ],
+    [
+     458.0,
+     891.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "#TT913",
+   "confidence": 0.9992978572845459,
+   "bbox": [
+    [
+     317.0,
+     915.0
+    ],
+    [
+     436.0,
+     913.0
+    ],
+    [
+     436.0,
+     934.0
+    ],
+    [
+     317.0,
+     936.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "284.90",
+   "confidence": 0.9967480301856995,
+   "bbox": [
+    [
+     458.0,
+     911.0
+    ],
+    [
+     577.0,
+     906.0
+    ],
+    [
+     578.0,
+     930.0
+    ],
+    [
+     459.0,
+     935.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "$0P/25",
+   "confidence": 0.9064697623252869,
+   "bbox": [
+    [
+     316.0,
+     934.0
+    ],
+    [
+     440.0,
+     934.0
+    ],
+    [
+     440.0,
+     958.0
+    ],
+    [
+     316.0,
+     958.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "¥12/28",
+   "confidence": 0.9489924311637878,
+   "bbox": [
+    [
+     459.0,
+     933.0
+    ],
+    [
+     576.0,
+     928.0
+    ],
+    [
+     577.0,
+     952.0
+    ],
+    [
+     460.0,
+     957.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "A",
+   "confidence": 0.8594101667404175,
+   "bbox": [
+    [
+     273.33,
+     610.67
+    ],
+    [
+     312.0,
+     610.67
+    ],
+    [
+     312.0,
+     630.67
+    ],
+    [
+     273.33,
+     630.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "0",
+   "confidence": 0.2774386405944824,
+   "bbox": [
+    [
+     185.33,
+     761.33
+    ],
+    [
+     206.67,
+     761.33
+    ],
+    [
+     206.67,
+     790.67
+    ],
+    [
+     185.33,
+     790.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "र 284 90",
+   "confidence": 0.8731400966644287,
+   "bbox": [
+    [
+     456.0,
+     910.67
+    ],
+    [
+     577.33,
+     905.33
+    ],
+    [
+     578.67,
+     929.33
+    ],
+    [
+     457.33,
+     934.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}
