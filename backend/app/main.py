@@ -2,8 +2,10 @@ from contextlib import asynccontextmanager
 import logging
 from threading import Thread
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError
 
 from backend.app.api.health import router as health_router
 from backend.app.api.inspections import get_ocr_service, router as inspections_router
@@ -55,6 +57,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.exception_handler(OperationalError)
+async def database_unavailable(request: Request, error: OperationalError) -> JSONResponse:
+    # Connection-level failures (PostgreSQL stopped, network, timeout) are
+    # transient for the client; the full error stays in the server log.
+    logger.error("Database unavailable method=%s path=%s", request.method, request.url.path, exc_info=error)
+    return JSONResponse(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, content={"detail": "Database unavailable. Please try again shortly."})
+
 
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):

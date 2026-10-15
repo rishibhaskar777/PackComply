@@ -7,6 +7,8 @@ from uuid import uuid4
 from PIL import Image, UnidentifiedImageError
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg": ".jpg", "image/png": ".png"}
+# EXIF orientations that rotate the image by 90/270 degrees on display.
+_TRANSPOSED_ORIENTATIONS = {5, 6, 7, 8}
 
 
 class UploadValidationError(ValueError):
@@ -20,6 +22,23 @@ class StoredUpload:
     content_type: str
     byte_size: int
     checksum: str
+    width: int | None = None
+    height: int | None = None
+
+
+def image_dimensions(source: bytes | Path) -> tuple[int, int] | None:
+    """Return the displayed (EXIF-oriented) pixel size, or None if unreadable.
+
+    OpenCV and browsers both apply EXIF orientation, so stored dimensions and
+    OCR bounding boxes must use the same oriented coordinate space.
+    """
+    try:
+        with Image.open(BytesIO(source) if isinstance(source, bytes) else source) as image:
+            width, height = image.size
+            orientation = image.getexif().get(0x0112)
+    except (UnidentifiedImageError, OSError, ValueError):
+        return None
+    return (height, width) if orientation in _TRANSPOSED_ORIENTATIONS else (width, height)
 
 
 def validate_image(content: bytes, declared_content_type: str, max_bytes: int) -> str:
@@ -53,10 +72,13 @@ def store_image(content: bytes, original_filename: str, content_type: str, uploa
 
     root.mkdir(parents=True, exist_ok=True)
     destination.write_bytes(content)
+    width, height = image_dimensions(content) or (None, None)
     return StoredUpload(
         storage_key=safe_name,
         original_filename=Path(original_filename or "package-image").name,
         content_type=content_type,
         byte_size=len(content),
         checksum=sha256(content).hexdigest(),
+        width=width,
+        height=height,
     )

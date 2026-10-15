@@ -21,6 +21,8 @@ dependencies = [
   "paddlepaddle>=3.0,<4.0",
   "cryptography>=43,<46",
   "reportlab>=4.2,<5.0",
+  # HarfBuzz shaping so Devanagari matras and conjuncts render correctly in PDFs.
+  "uharfbuzz>=0.39,<1.0",
 ]
 
 [project.optional-dependencies]
@@ -28,6 +30,10 @@ dev = ["httpx>=0.27,<1.0", "pytest>=8.0,<9.0"]
 
 [tool.setuptools.packages.find]
 include = ["backend*"]
+
+[tool.setuptools.package-data]
+# Noto fonts (SIL Open Font License) used by the PDF report.
+"backend.app" = ["assets/fonts/*.ttf", "assets/fonts/OFL.txt"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

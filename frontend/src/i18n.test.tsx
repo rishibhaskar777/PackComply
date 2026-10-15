@@ -59,6 +59,28 @@ describe("inspection workflow UI", () => {
     fireEvent.change(await screen.findByRole("textbox", { name: en.username }), { target: { value: "inspector" } }); fireEvent.change(screen.getByLabelText(en.password), { target: { value: "wrong-password" } }); fireEvent.click(screen.getByRole("button", { name: en.signIn }));
     expect((await screen.findByRole("alert")).textContent).toBe(en.tooManyAttempts);
   });
+  async function attemptLogin(loginResult: () => Promise<unknown>) {
+    const fetchMock = vi.fn().mockResolvedValueOnce(response({ detail: "Not authenticated" }, false, 401)).mockImplementationOnce(loginResult); vi.stubGlobal("fetch", fetchMock); renderApp();
+    fireEvent.change(await screen.findByRole("textbox", { name: en.username }), { target: { value: "inspector" } }); fireEvent.change(screen.getByLabelText(en.password), { target: { value: "a-password" } }); fireEvent.click(screen.getByRole("button", { name: en.signIn }));
+  }
+  it("shows invalid credentials only for a 401 login", async () => {
+    await attemptLogin(async () => response({ detail: "Invalid username or password." }, false, 401));
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toBe(en.invalidCredentials));
+  });
+  it("explains an unavailable database instead of invalid credentials", async () => {
+    await attemptLogin(async () => response({ detail: "Database unavailable. Please try again shortly." }, false, 503));
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toBe(en.serverUnavailable));
+  });
+  it("explains an unreachable backend on login", async () => {
+    await attemptLogin(async () => { throw new TypeError("Failed to fetch"); });
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toBe(en.serverUnavailable));
+  });
+  it("explains an unavailable server during the startup session check", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValueOnce(new TypeError("Failed to fetch"))); renderApp();
+    expect((await screen.findByRole("alert")).textContent).toBe(en.serverUnavailable);
+    cleanup(); vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(response({ detail: "Database unavailable." }, false, 503))); renderApp();
+    expect((await screen.findByRole("alert")).textContent).toBe(en.serverUnavailable);
+  });
   it("registers explicitly as a manufacturer and explains why", async () => {
     const fetchMock = vi.fn().mockResolvedValueOnce(response({ detail: "Not authenticated" }, false, 401)).mockResolvedValueOnce(response({ username: "new-user" })).mockResolvedValueOnce(response({ username: "new-user" })); vi.stubGlobal("fetch", fetchMock); renderApp();
     fireEvent.click(await screen.findByRole("tab", { name: en.register })); expect(screen.getByText(en.manufacturerRegistrationNote)).toBeTruthy();

@@ -5,19 +5,20 @@ from time import perf_counter
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
-from sqlalchemy import delete, func, or_, select
+from fastapi.responses import FileResponse
+from sqlalchemy import case, delete, func, or_, select
 from sqlalchemy.orm import Session
 
 from backend.app.core.config import get_ocr_languages, get_settings
 from backend.app.core.database import get_db
 from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, Inspection, InspectionImage, OcrResult, Product
-from backend.app.schemas.inspection import ComplianceFindingResponse, ComplianceResponse, ComplianceSummary, ExtractionFieldResponse, ExtractionResponse, ImageUploaded, InspectionCreate, InspectionCreated, InspectionHistoryItem, InspectionHistoryPage, InspectionSummary, OcrProcessed, RiskAssessmentResponse, RiskReasonResponse
-from backend.app.services.compliance import ComplianceEngine
-from backend.app.services.compliance.rule_engine import FieldEvidence, RULES
+from backend.app.schemas.inspection import ComplianceResponse, ExtractionResponse, ImageUploaded, InspectionCreate, InspectionCreated, InspectionHistoryItem, InspectionHistoryPage, InspectionSummary, OcrProcessed, RiskAssessmentResponse, RiskReasonResponse
+from backend.app.services.compliance import ComplianceEngine, ensure_compliance_rules
 from backend.app.services.extraction import ExtractionService
+from backend.app.services.extraction.evidence import build_extracted_fields, field_evidence
 from backend.app.services.ocr import OcrInitializationError, OcrProcessingError, PaddleOcrService
 from backend.app.services.uploads import UploadValidationError, store_image, validate_image
-from backend.app.services.workflow import InspectionWorkflow, WorkflowError
+from backend.app.services.workflow import InspectionWorkflow, WorkflowError, compliance_response, extraction_field_response, latest_extracted_fields, latest_image, resolve_upload_path
 from backend.app.services.report import InspectionReportService
 from backend.app.api.auth import get_current_user
 from backend.app.models import User
@@ -68,22 +69,16 @@ def get_workflow(db: Session = Depends(get_db), ocr_service: PaddleOcrService = 
     return InspectionWorkflow(db, ocr_service, extraction_service, compliance_engine, settings.upload_dir, settings.max_upload_bytes)
 
 
-def _compliance_response(inspection_id: UUID, results: list[ComplianceResult]) -> ComplianceResponse:
-    findings = [ComplianceFindingResponse(rule_id=result.rule.rule_code, rule_name=result.rule.description.split(".", 1)[0], status=result.result, severity=result.rule.severity, message=result.explanation, field=result.field_name, value=result.value, confidence=float(result.confidence) if result.confidence is not None else None, evidence=result.evidence, expected=result.rule.description) for result in results]
-    counts = {name: sum(finding.status == name for finding in findings) for name in ("PASS", "FAIL", "REVIEW")}
-    overall = "FAIL" if counts["FAIL"] else "REVIEW" if counts["REVIEW"] else "PASS"
-    return ComplianceResponse(inspection_id=inspection_id, overall_status=overall, summary=ComplianceSummary(passed=counts["PASS"], failed=counts["FAIL"], review=counts["REVIEW"]), findings=findings)
-
-
-def _ensure_compliance_rules(db: Session) -> dict[str, ComplianceRule]:
-    existing = {rule.rule_code: rule for rule in db.scalars(select(ComplianceRule)).all()}
-    for code, name, target_field, severity in RULES:
-        if code not in existing:
-            rule = ComplianceRule(rule_code=code, description=f"{name}. Deterministic extraction-evidence check; it is not a legal determination.", target_field=target_field, severity=severity, enabled=True, configuration={})
-            db.add(rule)
-            existing[code] = rule
-    db.flush()
-    return existing
+def _overall_compliance_status():
+    """Correlated per-inspection status: FAIL > REVIEW > PASS, or NULL without results."""
+    def count(state: str):
+        return func.sum(case((ComplianceResult.result == state, 1), else_=0))
+    return (
+        select(case((count("FAIL") > 0, "FAIL"), (count("REVIEW") > 0, "REVIEW"), (func.count(ComplianceResult.id) > 0, "PASS"), else_=None))
+        .where(ComplianceResult.inspection_id == Inspection.id)
+        .correlate(Inspection)
+        .scalar_subquery()
+    )
 
 
 @router.post("", response_model=InspectionCreated, status_code=status.HTTP_201_CREATED)
@@ -112,9 +107,9 @@ def list_inspections(
     user: User = Depends(get_current_user),
 ) -> InspectionHistoryPage:
     """Return a compact, newest-first history owned exclusively by ``user``."""
-    latest_image = select(InspectionImage.original_filename).where(InspectionImage.inspection_id == Inspection.id).order_by(InspectionImage.created_at.desc()).limit(1).scalar_subquery()
-    latest_compliance = select(ComplianceResult.result).where(ComplianceResult.inspection_id == Inspection.id).order_by(ComplianceResult.updated_at.desc()).limit(1).scalar_subquery()
-    query = select(Inspection, Product.name, latest_image, latest_compliance).outerjoin(Product, Product.id == Inspection.product_id).where(Inspection.user_id == user.id)
+    latest_filename = select(InspectionImage.original_filename).where(InspectionImage.inspection_id == Inspection.id).order_by(InspectionImage.created_at.desc()).limit(1).scalar_subquery()
+    overall_compliance = _overall_compliance_status()
+    query = select(Inspection, Product.name, latest_filename, overall_compliance).outerjoin(Product, Product.id == Inspection.product_id).where(Inspection.user_id == user.id)
     count_query = select(func.count()).select_from(Inspection).outerjoin(Product, Product.id == Inspection.product_id).where(Inspection.user_id == user.id)
     if search and (term := search.strip()):
         predicate = or_(Product.name.ilike(f"%{term}%"), Inspection.inspection_number.ilike(f"%{term}%"))
@@ -125,8 +120,8 @@ def list_inspections(
         count_query = count_query.where(Inspection.status == status_filter)
     if compliance_status:
         normalized_compliance = "REVIEW" if compliance_status == "WARNING" else compliance_status
-        query = query.where(latest_compliance == normalized_compliance)
-        count_query = count_query.where(latest_compliance == normalized_compliance)
+        query = query.where(overall_compliance == normalized_compliance)
+        count_query = count_query.where(overall_compliance == normalized_compliance)
     total = db.scalar(count_query) or 0
     rows = db.execute(query.order_by(Inspection.created_at.desc()).offset((page - 1) * page_size).limit(page_size)).all()
     return InspectionHistoryPage(items=[InspectionHistoryItem(id=i.id, inspection_number=i.inspection_number, status=i.status, created_at=i.created_at, updated_at=i.updated_at, product_name=name, image_filename=image, compliance_status=compliance) for i, name, image, compliance in rows], page=page, page_size=page_size, total=total, total_pages=(total + page_size - 1) // page_size)
@@ -176,6 +171,17 @@ async def upload_inspection_image(
     return image_record
 
 
+@router.get("/{inspection_id}/image", response_class=FileResponse, responses={200: {"content": {"image/jpeg": {}, "image/png": {}}}})
+def get_inspection_image(inspection_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> FileResponse:
+    """Serve the latest stored package photo to its owner only."""
+    inspection = require_owner(db.get(Inspection, inspection_id), user)
+    image = latest_image(db, inspection.id)
+    path = resolve_upload_path(get_settings().upload_dir, image.storage_key) if image else None
+    if path is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inspection image not found.")
+    return FileResponse(path, media_type=image.content_type, headers={"Cache-Control": "private, max-age=300", "X-Content-Type-Options": "nosniff"})
+
+
 @router.post("/{inspection_id}/process", response_model=InspectionSummary)
 def process_inspection(inspection_id: UUID, workflow: InspectionWorkflow = Depends(get_workflow), user: User = Depends(get_current_user)) -> InspectionSummary:
     """Run any unfinished stage once; safe to call again after success or failure."""
@@ -217,9 +223,8 @@ def process_inspection_image_ocr(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inspection image not found.")
 
     settings = get_settings()
-    upload_root = settings.upload_dir.resolve()
-    image_path = (upload_root / image.storage_key).resolve()
-    if not image_path.is_relative_to(upload_root) or not image_path.is_file():
+    image_path = resolve_upload_path(settings.upload_dir, image.storage_key)
+    if image_path is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Uploaded image file is unavailable.")
     try:
         validate_image(image_path.read_bytes(), image.content_type, settings.max_upload_bytes)
@@ -279,21 +284,14 @@ def extract_inspection_information(
     # Findings are derived from extraction. Keeping them after a new parse made
     # reports show an old FAIL/REVIEW beside a corrected extracted value.
     invalidated = db.execute(delete(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id)).rowcount
-    for field_name, field in fields.items():
-        db.add(ExtractedField(
-            inspection_id=inspection.id,
-            ocr_result_id=ocr_result.id,
-            field_name=field_name,
-            value=field.value,
-            confidence=field.confidence,
-            review_status="REVIEW" if field.needs_review else "EXTRACTED",
-        ))
+    persisted = build_extracted_fields(inspection.id, ocr_result, fields)
+    db.add_all(persisted)
     db.commit()
     logger.info("Extraction persisted inspection_id=%s ocr_result_id=%s fields=%s invalidated_compliance_results=%s", inspection.id, ocr_result.id, {name: {"raw_ocr": field.source_text, "parsed": field.value, "normalized": field.normalized_value} for name, field in fields.items() if field.value}, invalidated)
     return ExtractionResponse(
         inspection_id=inspection.id,
         ocr_result_id=ocr_result.id,
-        fields={name: ExtractionFieldResponse(**field.__dict__) for name, field in fields.items()},
+        fields={field.field_name: extraction_field_response(field) for field in persisted},
     )
 
 
@@ -306,9 +304,9 @@ def run_inspection_compliance(inspection_id: UUID, db: Session = Depends(get_db)
     extracted = db.scalars(select(ExtractedField).where(ExtractedField.ocr_result_id == ocr_result.id)).all()
     if not extracted:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Information extraction must be run before compliance analysis.")
-    fields = {field.field_name: FieldEvidence(value=field.value, confidence=float(field.confidence) if field.confidence is not None else None, needs_review=field.review_status == "REVIEW", evidence=field.value) for field in extracted}
+    fields = {field.field_name: field_evidence(field) for field in extracted}
     logger.info("Compliance input inspection_id=%s ocr_result_id=%s fields=%s", inspection.id, ocr_result.id, {name: {"raw": item.value, "normalized": compliance_engine._normalized("NET_QUANTITY_FORMAT" if name == "net_quantity" else "MRP_FORMAT" if name == "mrp" else "", item.value)} for name, item in fields.items()})
-    rules = _ensure_compliance_rules(db)
+    rules = ensure_compliance_rules(db)
     existing = {result.rule_id: result for result in db.scalars(select(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id)).all()}
     for finding in compliance_engine.evaluate(fields):
         rule = rules.get(finding.rule_id)
@@ -322,7 +320,7 @@ def run_inspection_compliance(inspection_id: UUID, db: Session = Depends(get_db)
         result.value, result.confidence, result.evidence = finding.value, finding.confidence, finding.evidence
     db.commit()
     persisted = db.scalars(select(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id).join(ComplianceRule).order_by(ComplianceRule.rule_code)).all()
-    response = _compliance_response(inspection.id, persisted)
+    response = compliance_response(inspection.id, persisted, list(extracted))
     logger.info("Compliance persisted inspection_id=%s overall=%s findings=%s", inspection.id, response.overall_status, {finding.rule_id: {"status": finding.status, "reason": finding.message} for finding in response.findings})
     return response
 
@@ -333,4 +331,4 @@ def get_inspection_compliance(inspection_id: UUID, db: Session = Depends(get_db)
     results = db.scalars(select(ComplianceResult).where(ComplianceResult.inspection_id == inspection_id).join(ComplianceRule).order_by(ComplianceRule.rule_code)).all()
     if not results:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Compliance analysis has not been run.")
-    return _compliance_response(inspection_id, results)
+    return compliance_response(inspection_id, results, latest_extracted_fields(db, inspection_id))

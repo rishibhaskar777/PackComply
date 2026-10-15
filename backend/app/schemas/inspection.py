@@ -61,6 +61,8 @@ class ImageUploaded(BaseModel):
     content_type: str
     byte_size: int
     created_at: datetime
+    width: int | None = None
+    height: int | None = None
 
 
 class OcrDetectionResponse(BaseModel):
@@ -88,6 +90,8 @@ class ExtractionFieldResponse(BaseModel):
     source_text: str | None = None
     matched_pattern: str | None = None
     normalized_value: str | None = None
+    # OCR boxes (lists of [x, y] points in original image pixels) for source_text.
+    source_bboxes: list[list[list[float]]] | None = None
 
 
 class ExtractionResponse(BaseModel):
@@ -114,6 +118,7 @@ class ComplianceFindingResponse(BaseModel):
     evidence: str | None = None
     category: str = "LEGAL_METROLOGY"
     expected: str | None = None
+    source_bboxes: list[list[list[float]]] | None = None
 
 
 class ComplianceResponse(BaseModel):

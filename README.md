@@ -77,11 +77,13 @@ Windows users without Docker: see [docs/local-setup-windows.md](docs/local-setup
 ### Run with Docker
 
 1. Copy `.env.example` to `.env` and adjust values only if needed.
-2. Run `docker compose up --build`.
+2. Run `docker compose up --build`. The backend waits for PostgreSQL (up to 30 s), applies all Alembic migrations, then starts the API.
 3. Open `http://localhost:5173` for the frontend.
 4. Open `http://localhost:8000/docs` for API documentation.
 
-The backend health check is available at `GET http://localhost:8000/api/health`.
+Uploaded images and the downloaded PaddleOCR models are kept in the named volumes `uploads` and `paddlex_cache`, so they survive rebuilds. The first OCR run downloads the models, which needs internet access.
+
+Health checks: `GET http://localhost:8000/api/health` (liveness) and `GET http://localhost:8000/api/health/ready` (readiness: 200 when PostgreSQL answers, 503 otherwise).
 
 ### Run locally
 

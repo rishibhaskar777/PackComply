@@ -4,7 +4,7 @@ Keeping this adapter separate means a future OCR provider can implement the
 same `scan` method without changing routes or database persistence.
 """
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 import json
 import logging
 import multiprocessing
@@ -15,6 +15,8 @@ from threading import RLock
 from time import perf_counter
 from typing import Any
 from queue import Empty
+
+from backend.app.services.uploads import image_dimensions
 
 
 # Uvicorn configures this logger at INFO, unlike the process root logger.
@@ -350,6 +352,9 @@ class PaddleOcrService:
             preprocess_started = perf_counter()
             processed_path = self._preprocess(image_path, self.max_image_dimension)
             processed_paths.append(processed_path)
+            # Boxes are reported in each pass's downscaled space; map them back
+            # so every stored box uses original (EXIF-oriented) image pixels.
+            original_size = image_dimensions(image_path)
             logger.info("OCR preprocessing completed path=%s elapsed_seconds=%.3f", processed_path, perf_counter() - preprocess_started)
             detections: list[OcrDetection] = []
             completed_languages: list[str] = []
@@ -357,12 +362,14 @@ class PaddleOcrService:
 
             # Secondary languages run in their own long-lived worker processes;
             # submit them first so they overlap with the primary language.
-            pending: list[tuple[str, Any]] = []
+            pending: list[tuple[str, Any, int]] = []
             for language in self.languages[1:]:
                 if self._engine is not None:
                     continue
                 language_image_path = processed_path
+                language_dimension = self.max_image_dimension
                 if self.secondary_language_max_image_dimension < self.max_image_dimension:
+                    language_dimension = self.secondary_language_max_image_dimension
                     secondary_started = perf_counter()
                     language_image_path = self._preprocess(image_path, self.secondary_language_max_image_dimension)
                     processed_paths.append(language_image_path)
@@ -374,24 +381,24 @@ class PaddleOcrService:
                     skipped_languages.append(language)
                     continue
                 tickets.append(ticket)
-                pending.append((language, ticket))
+                pending.append((language, ticket, language_dimension))
 
             primary = self.languages[0]
             inference_started = perf_counter()
             logger.info("OCR inference started language=%s", primary)
             primary_detections = self._predict(primary, processed_path)
             logger.info("OCR inference completed language=%s detections=%d elapsed_seconds=%.3f", primary, len(primary_detections), perf_counter() - inference_started)
-            detections.extend(primary_detections)
+            detections.extend(self._to_original_pixels(primary_detections, original_size, self.max_image_dimension))
             completed_languages.append(primary)
 
             if self._engine is not None:
                 # An injected engine serves every language in this process.
                 for language in self.languages[1:]:
                     language_detections = self._predict(language, processed_path)
-                    detections.extend(language_detections)
+                    detections.extend(self._to_original_pixels(language_detections, original_size, self.max_image_dimension))
                     completed_languages.append(language)
 
-            for language, ticket in pending:
+            for language, ticket, language_dimension in pending:
                 secondary_started = perf_counter()
                 try:
                     language_detections = ticket.collect()
@@ -401,7 +408,7 @@ class PaddleOcrService:
                     skipped_languages.append(language)
                     continue
                 logger.info("OCR inference completed language=%s detections=%d wait_seconds=%.3f", language, len(language_detections), perf_counter() - secondary_started)
-                detections.extend(language_detections)
+                detections.extend(self._to_original_pixels(language_detections, original_size, language_dimension))
                 completed_languages.append(language)
             parse_started = perf_counter()
             deduplicated = self._deduplicate(detections)
@@ -570,6 +577,14 @@ class PaddleOcrService:
         if value is None:
             return None
         return [[float(coordinate) for coordinate in point] for point in value]
+
+    @staticmethod
+    def _to_original_pixels(detections: list[OcrDetection], original_size: tuple[int, int] | None, max_image_dimension: int) -> list[OcrDetection]:
+        """Undo the preprocessing downscale applied before this pass."""
+        if original_size is None or max(original_size) <= max_image_dimension:
+            return detections
+        factor = max(original_size) / max_image_dimension
+        return [replace(item, bbox=[[round(coordinate * factor, 2) for coordinate in point] for point in item.bbox]) if item.bbox else item for item in detections]
 
     @staticmethod
     def _deduplicate(detections: list[OcrDetection]) -> list[OcrDetection]:

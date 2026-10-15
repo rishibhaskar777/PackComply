@@ -6,7 +6,6 @@ from decimal import Decimal, InvalidOperation
 import logging
 import re
 
-LOW_CONFIDENCE = .75
 logger = logging.getLogger(__name__)
 RULES = (("PRODUCT_IDENTITY", "Product identity", "product_name", "WARNING"), ("MANUFACTURER_INFORMATION", "Manufacturer information", "manufacturer", "INFO"), ("PACKER_INFORMATION", "Packer information", "packer", "INFO"), ("IMPORTER_INFORMATION", "Importer information", "importer", "INFO"), ("MRP_FORMAT", "MRP format", "mrp", "WARNING"), ("NET_QUANTITY_FORMAT", "Net quantity format", "net_quantity", "WARNING"), ("DATE_CONSISTENCY", "Date consistency", "dates", "WARNING"), ("CONSUMER_CARE_FORMAT", "Consumer-care format", "consumer_care", "INFO"))
 
@@ -57,7 +56,8 @@ class ComplianceEngine:
         return ComplianceFinding(code, name, status, severity, message, field, item.value if item else None, item.confidence if item else None, item.evidence if item else None)
     def evaluate(self, fields: dict[str, FieldEvidence]) -> list[ComplianceFinding]:
         findings = [self._identity(fields), *(self._role(fields, field) for field in ("manufacturer", "packer", "importer")), self._mrp(fields), self._quantity(fields), self._dates(fields), self._consumer_care(fields)]
-        return findings + self._uncertainty_findings(fields)
+        # Low extraction confidence is surfaced per field via needs_review, not as a finding.
+        return findings
     def _identity(self, fields):
         item = fields.get("product_name", FieldEvidence()); return self._finding("PRODUCT_IDENTITY", "Product identity", "PASS" if item.value and self.clean(item.value) else "REVIEW", "WARNING", "A product identity was extracted." if item.value and self.clean(item.value) else "No product identity was extracted; manual review is required.", "product_name", item)
     def _role(self, fields, field):
@@ -95,5 +95,3 @@ class ComplianceEngine:
             item = fields.get(field, FieldEvidence())
             if item.value and not validators[field](normalizer(item.value)): return self._finding("CONSUMER_CARE_FORMAT", "Consumer-care format", "REVIEW", "INFO", f"The extracted {field.replace('_', ' ')} has an unrecognized structure.", field, item)
         return self._finding("CONSUMER_CARE_FORMAT", "Consumer-care format", "PASS", "INFO", "Available consumer-care information has a recognizable basic structure." if any(fields.get(f, FieldEvidence()).value for f in values) else "No consumer-care information was extracted; no requirement is assumed.")
-    def _uncertainty_findings(self, fields):
-        return [self._finding("LOW_CONFIDENCE_"+field.upper(), "Extraction confidence review", "REVIEW", "WARNING", "The extracted value requires manual verification before it is treated as authoritative.", field, item) for field, item in fields.items() if item.value and (item.needs_review or (item.confidence is not None and item.confidence < LOW_CONFIDENCE))]

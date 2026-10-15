@@ -72,6 +72,9 @@ class InspectionImage(IdTimestampMixin, Base):
     content_type: Mapped[str] = mapped_column(String(100), nullable=False)
     byte_size: Mapped[int] = mapped_column(Integer, nullable=False)
     checksum: Mapped[str | None] = mapped_column(String(128), index=True)
+    # Displayed (EXIF-oriented) pixel size; null for rows uploaded before it was recorded.
+    width: Mapped[int | None] = mapped_column(Integer)
+    height: Mapped[int | None] = mapped_column(Integer)
 
 
 class OcrResult(IdTimestampMixin, Base):
@@ -95,6 +98,11 @@ class ExtractedField(IdTimestampMixin, Base):
     value: Mapped[str | None] = mapped_column(Text)
     confidence: Mapped[Decimal | None] = mapped_column(Numeric(5, 4))
     review_status: Mapped[str] = mapped_column(String(30), default="REVIEW", nullable=False)
+    # Evidence: the OCR line the value came from and where it sits on the photo.
+    source_text: Mapped[str | None] = mapped_column(Text)
+    matched_pattern: Mapped[str | None] = mapped_column(String(100))
+    normalized_value: Mapped[str | None] = mapped_column(Text)
+    source_bboxes: Mapped[list[list[list[float]]] | None] = mapped_column(JSON)
 
 
 class ComplianceRule(IdTimestampMixin, Base):
