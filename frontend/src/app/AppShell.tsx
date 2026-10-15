@@ -1,10 +1,14 @@
 import { ReactNode, useEffect, useId, useRef, useState } from "react";
+import { AnimatePresence, m } from "motion/react";
 import { BookOpen, ChevronsUpDown, ClipboardList, Cpu, FileText, LayoutDashboard, LogOut, LucideIcon, PanelLeft, Plus, Repeat2, ShieldAlert, X } from "lucide-react";
 import { LanguageSelector } from "../components/LanguageSelector";
 import { Button, SearchInput } from "../components/ui";
 import { TranslationKey, useI18n } from "../i18n";
+import { DURATION, EASE, SPRING, useReducedMotion } from "../lib/motion";
 import { User } from "../types";
+import { Backdrop } from "./Backdrop";
 import { BrandMark } from "./BrandMark";
+import { ThemeSwitcher, ThemeToggle } from "./ThemeControls";
 import { Route, RouteName } from "./router";
 
 type NavItem = { name: RouteName; label: TranslationKey; icon: LucideIcon; officialOnly?: boolean };
@@ -53,6 +57,7 @@ type AppShellProps = {
 
 export function AppShell({ route, user, riskCount, search, onSearchChange, onNewInspection, onLogout, children }: AppShellProps) {
   const { t } = useI18n();
+  const reduced = useReducedMotion();
   const official = user.role === "OFFICIAL";
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -84,6 +89,8 @@ export function AppShell({ route, user, riskCount, search, onSearchChange, onNew
         return (
           <li key={name}>
             <a href={`#/${name}`} className={current ? "nav-item is-active" : "nav-item"} aria-current={current ? "page" : undefined} title={collapsed ? t(label) : undefined}>
+              {/* One shared highlight that slides to the active item. */}
+              {current && <m.span layoutId="nav-active" className="nav-item__highlight" transition={SPRING} aria-hidden="true" />}
               <Icon size={16} aria-hidden="true" />
               <span className="nav-item__label">{t(label)}</span>
               {name === "risk" && riskCount ? <span className="nav-item__count mono" aria-label={`${riskCount} ${t("highRiskLabels")}`}>{riskCount}</span> : null}
@@ -96,6 +103,7 @@ export function AppShell({ route, user, riskCount, search, onSearchChange, onNew
 
   return (
     <div className={`shell ${collapsed ? "is-collapsed" : ""} ${drawerOpen ? "is-drawer-open" : ""}`.trim()}>
+      <Backdrop />
       <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); document.getElementById("main-content")?.focus(); }}>{t("skipToContent")}</a>
       <aside className="sidebar" id="app-sidebar" aria-label={t("sidebar")}>
         <div className="sidebar__brand">
@@ -120,7 +128,10 @@ export function AppShell({ route, user, riskCount, search, onSearchChange, onNew
           <UserMenu user={user} onLogout={onLogout} />
         </div>
       </aside>
-      {drawerOpen && <button type="button" className="shell__backdrop" aria-label={t("closeMenu")} onClick={() => setDrawerOpen(false)} />}
+      <AnimatePresence>
+        {drawerOpen && <m.button type="button" className="shell__backdrop" aria-label={t("closeMenu")} onClick={() => setDrawerOpen(false)}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : DURATION.base, ease: EASE }} />}
+      </AnimatePresence>
 
       <div className="shell__main">
         <header className="topbar">
@@ -133,6 +144,7 @@ export function AppShell({ route, user, riskCount, search, onSearchChange, onNew
             </ol>
           </nav>
           <div className="topbar__spacer" />
+          <ThemeToggle />
           <SearchInput ref={searchRef} className="topbar__search" aria-label={t("searchInspections")} placeholder={t("searchPlaceholder")} hint="Ctrl K" value={search} onChange={event => onSearch(event.target.value)} />
           <Button className="topbar__new" icon={<Plus size={16} aria-hidden="true" />} onClick={onNewInspection}>{t("newInspection")}</Button>
         </header>
@@ -153,6 +165,7 @@ export function AppShell({ route, user, riskCount, search, onSearchChange, onNew
 
 function UserMenu({ user, onLogout }: { user: User; onLogout: () => void }) {
   const { t } = useI18n();
+  const reduced = useReducedMotion();
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const container = useRef<HTMLDivElement>(null);
@@ -169,13 +182,19 @@ function UserMenu({ user, onLogout }: { user: User; onLogout: () => void }) {
 
   return (
     <div className="user-menu" ref={container}>
-      {open && (
-        <div className="user-menu__panel" id={menuId}>
-          <LanguageSelector />
-          <hr className="user-menu__separator" />
-          <Button variant="ghost" className="user-menu__logout" icon={<LogOut size={16} aria-hidden="true" />} onClick={onLogout}>{t("logout")}</Button>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <m.div className="user-menu__panel" id={menuId}
+            initial={reduced ? false : { opacity: 0, y: 6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduced ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, y: 6, scale: 0.98, transition: { duration: DURATION.fast } }}
+            transition={{ duration: DURATION.base, ease: EASE }}>
+            <ThemeSwitcher />
+            <LanguageSelector />
+            <hr className="user-menu__separator" />
+            <Button variant="ghost" className="user-menu__logout" icon={<LogOut size={16} aria-hidden="true" />} onClick={onLogout}>{t("logout")}</Button>
+          </m.div>
+        )}
+      </AnimatePresence>
       <button type="button" className="user-menu__button" aria-expanded={open} aria-controls={menuId} aria-label={`${t("accountMenu")}: ${user.username}`} onClick={() => setOpen(value => !value)}>
         <span className="avatar" aria-hidden="true">{initials(user.username)}</span>
         <span className="user-menu__text">

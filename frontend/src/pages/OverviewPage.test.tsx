@@ -68,6 +68,18 @@ describe("overview dashboard", () => {
     expect(screen.getByRole("link", { name: en.startFirstInspectionAction }).getAttribute("href")).toBe("#/new");
   });
 
+  it("shows the Live pill only while the backend reports ready", async () => {
+    const fetchMock = mockApi({ "GET /dashboard/summary": response(summary), "GET /health/ready": response({ status: "ready" }) });
+    render(<I18nProvider><OverviewPage official onExpired={() => undefined} showLive /></I18nProvider>);
+    expect(await screen.findByText(en.live)).toBeTruthy();
+    expect(fetchMock).toHaveBeenCalledWith(`${API}/health/ready`, expect.objectContaining({ credentials: "include" }));
+    cleanup();
+    mockApi({ "GET /dashboard/summary": response(summary), "GET /health/ready": response({ detail: "Database unavailable." }, false, 503) });
+    render(<I18nProvider><OverviewPage official onExpired={() => undefined} showLive /></I18nProvider>);
+    await screen.findByText("12 inspections · LM(PC) ruleset 2");
+    expect(screen.queryByText(en.live)).toBeNull();
+  });
+
   it("explains an unavailable API and retries", async () => {
     const fetchMock = mockApi({ "GET /dashboard/summary": [response({ detail: "Database unavailable." }, false, 503), response(summary)] });
     renderOverview();

@@ -2,7 +2,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { FileDown, ImageIcon, Plus, RefreshCw, Upload } from "lucide-react";
 import { api, ApiError, downloadReport, isExpired } from "../api/client";
 import { navigate } from "../app/router";
-import { Alert, Badge, Button, Card } from "../components/ui";
+import { Alert, Badge, Button, Card, CountUp, useToast } from "../components/ui";
 import { TranslationKey, useI18n } from "../i18n";
 import { Compliance, Summary } from "../types";
 
@@ -57,6 +57,7 @@ type InspectionPageProps = { inspectionId?: string; onExpired: () => void; onCom
 /** Single-inspection workflow (upload → OCR → extraction → compliance). Layout is rebuilt in Phase 3B. */
 export function InspectionPage({ inspectionId, onExpired, onCompleted }: InspectionPageProps) {
   const { t } = useI18n();
+  const toast = useToast();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [stage, setStage] = useState("CREATED");
@@ -100,7 +101,7 @@ export function InspectionPage({ inspectionId, onExpired, onCompleted }: Inspect
     setStage("OCR_PROCESSING");
     const result: Summary = await (await api(`/inspections/${id}/process`, "process", { method: "POST" }, 300_000)).json();
     setSummary(result); setStage(result.status);
-    if (result.status === "COMPLETED") onCompleted();
+    if (result.status === "COMPLETED") { onCompleted(); toast(t("toastInspectionSaved")); }
   }
   async function selectImage(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]; if (!file) return;
@@ -125,7 +126,7 @@ export function InspectionPage({ inspectionId, onExpired, onCompleted }: Inspect
   async function report() {
     if (!summary || reportBusy) return;
     setReportBusy(true); setError(null);
-    try { await downloadReport(summary.id, summary.inspection_number); }
+    try { await downloadReport(summary.id, summary.inspection_number); toast(t("toastReportDownloaded")); }
     catch (e) { if (isExpired(e)) onExpired(); else setError(t("reportGenerationError")); }
     finally { setReportBusy(false); }
   }
@@ -159,7 +160,7 @@ export function InspectionPage({ inspectionId, onExpired, onCompleted }: Inspect
           {summary?.image && <p className="upload-note">{t("imageUploaded")}: <span className="mono">{summary.image.original_filename}</span></p>}
         </Card>
         <Card title={t("imagePreview")}>
-          {preview ? <img className="label-preview" src={preview} alt={t("imagePreview")} /> : <div className="preview-placeholder"><ImageIcon size={16} aria-hidden="true" /><p>{t("noImage")}</p></div>}
+          {preview ? <div className="evidence"><img className="label-preview" src={preview} alt={t("imagePreview")} /></div> : <div className="preview-placeholder"><ImageIcon size={16} aria-hidden="true" /><p>{t("noImage")}</p></div>}
         </Card>
       </div>
 
@@ -194,7 +195,7 @@ export function InspectionPage({ inspectionId, onExpired, onCompleted }: Inspect
 
       {compliance && <ComplianceResults compliance={compliance} />}
 
-      {summary?.risk && <Card title={<>{t("riskScore")}: <span className="mono">{summary.risk.risk_score}/100</span></>} description={t("riskReasons")} action={<Badge variant={summary.risk.risk_level} />}>
+      {summary?.risk && <Card title={<>{t("riskScore")}: <span className="mono"><CountUp value={summary.risk.risk_score} />/100</span></>} description={t("riskReasons")} action={<Badge variant={summary.risk.risk_level} />}>
         <ul className="detection-list">
           {summary.risk.reasons.map((reason, index) => <li className="detection" key={`${reason.type}-${index}`}><strong><span className="mono">+{reason.points}</span> — <span className="mono">{reason.rule_code ?? reason.field ?? reason.type}</span></strong><span className="detection__meta">{reason.description}</span></li>)}
         </ul>

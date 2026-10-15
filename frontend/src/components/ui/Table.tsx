@@ -1,4 +1,6 @@
-import { MouseEvent, ReactNode } from "react";
+import { MouseEvent, ReactNode, useEffect, useRef } from "react";
+import { m } from "motion/react";
+import { fadeRise, STAGGER, STAGGER_LIMIT, useReducedMotion } from "../../lib/motion";
 
 export type Column<T> = {
   key: string;
@@ -16,6 +18,12 @@ export type Column<T> = {
 type TableProps<T> = { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string; rowHref?: (row: T) => string; caption?: string; className?: string };
 
 export function Table<T>({ columns, rows, rowKey, rowHref, caption, className = "" }: TableProps<T>) {
+  const reduced = useReducedMotion();
+  // Only the first rows this table shows get the staggered entrance; filtering and paging swap rows instantly.
+  const firstLoad = useRef(true);
+  const hasRows = rows.length > 0;
+  useEffect(() => { if (hasRows) firstLoad.current = false; }, [hasRows]);
+
   function onRowClick(event: MouseEvent<HTMLTableRowElement>, row: T) {
     // Links and buttons inside the row keep their own behaviour.
     if (!rowHref || (event.target as HTMLElement).closest("a, button, input, select")) return;
@@ -30,15 +38,21 @@ export function Table<T>({ columns, rows, rowKey, rowHref, caption, className = 
           <tr>{columns.map(column => <th key={column.key} scope="col" className={cellClass(column)} style={column.width ? { width: column.width } : undefined}>{column.header}</th>)}</tr>
         </thead>
         <tbody>
-          {rows.map(row => (
-            <tr key={rowKey(row)} className={rowHref ? "is-clickable" : undefined} onClick={event => onRowClick(event, row)}>
-              {columns.map(column => (
-                <td key={column.key} className={cellClass(column)}>
-                  {column.link && rowHref ? <a className="table__link" href={rowHref(row)}>{column.render(row)}</a> : column.render(row)}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {rows.map((row, index) => {
+            const key = rowKey(row);
+            // `initial` is only read on mount, so rows that mount later appear without an entrance.
+            const enter = !reduced && firstLoad.current;
+            return (
+              <m.tr key={key} className={rowHref ? "is-clickable" : undefined} onClick={event => onRowClick(event, row)}
+                initial={enter ? { opacity: 0, y: 4 } : false} animate={{ opacity: 1, y: 0 }} transition={fadeRise(Math.min(index, STAGGER_LIMIT) * STAGGER)}>
+                {columns.map(column => (
+                  <td key={column.key} className={cellClass(column)}>
+                    {column.link && rowHref ? <a className="table__link" href={rowHref(row)}>{column.render(row)}</a> : column.render(row)}
+                  </td>
+                ))}
+              </m.tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

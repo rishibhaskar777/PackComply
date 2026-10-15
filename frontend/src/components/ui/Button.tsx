@@ -11,9 +11,11 @@ export function buttonClass(variant: ButtonVariant = "primary", size: ButtonSize
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: ButtonSize; loading?: boolean; icon?: ReactNode };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button({ variant = "primary", size = "default", loading = false, icon, className, children, disabled, type = "button", ...props }, ref) {
+  const leading = loading ? <LoaderCircle className="btn__spinner" size={16} aria-hidden="true" /> : icon;
   return (
     <button ref={ref} type={type} className={buttonClass(variant, size, className)} disabled={disabled || loading} aria-busy={loading || undefined} {...props}>
-      {loading ? <LoaderCircle className="btn__spinner" size={16} aria-hidden="true" /> : icon}
+      {/* Keyed so the spinner and the icon cross-fade when loading starts or ends. */}
+      {leading && <span className="btn__icon" key={loading ? "loading" : "idle"}>{leading}</span>}
       {children}
     </button>
   );
@@ -22,5 +24,5 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 type LinkButtonProps = AnchorHTMLAttributes<HTMLAnchorElement> & { variant?: ButtonVariant; size?: ButtonSize; icon?: ReactNode };
 
 export function LinkButton({ variant = "primary", size = "default", icon, className, children, ...props }: LinkButtonProps) {
-  return <a className={buttonClass(variant, size, className)} {...props}>{icon}{children}</a>;
+  return <a className={buttonClass(variant, size, className)} {...props}>{icon && <span className="btn__icon">{icon}</span>}{children}</a>;
 }
