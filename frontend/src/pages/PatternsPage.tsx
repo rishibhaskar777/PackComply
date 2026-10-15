@@ -44,9 +44,9 @@ export function PatternsPage({ onExpired }: { onExpired: () => void }) {
       {failure ? <Alert title={failure === "unavailable" ? t("serverUnavailable") : t("patternsLoadError")} action={<Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={load}>{t("tryAgain")}</Button>} />
         : <>
           <div className="stat-grid stat-grid--three">
-            <StatCard label={t("detectedPatterns")} value={patterns ? items.length : "—"} icon={<Layers size={16} />} />
-            <StatCard label={t("occurrences")} value={patterns ? items.reduce((total, item) => total + item.occurrence_count, 0) : "—"} icon={<Repeat2 size={16} />} />
-            <StatCard label={t("highSeverity")} value={patterns ? items.filter(item => item.severity === "HIGH").length : "—"} icon={<CircleAlert size={16} />} tone="violation" />
+            <StatCard index={0} label={t("detectedPatterns")} value={patterns ? items.length : "—"} icon={<Layers size={16} />} />
+            <StatCard index={1} label={t("occurrences")} value={patterns ? items.reduce((total, item) => total + item.occurrence_count, 0) : "—"} icon={<Repeat2 size={16} />} />
+            <StatCard index={2} label={t("highSeverity")} value={patterns ? items.filter(item => item.severity === "HIGH").length : "—"} icon={<CircleAlert size={16} />} tone="violation" />
           </div>
           <Card title={t("repeatedIssues")} description={t("patternsTableDescription")} flush>
             {patterns === null ? <SkeletonRows label={t("loading")} />

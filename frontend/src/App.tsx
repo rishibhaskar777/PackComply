@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { AnimatePresence, LazyMotion, m, MotionConfig } from "motion/react";
 import { api, getJson, isExpired, isUnavailable, ApiError } from "./api/client";
 import { AppShell, routeTitles } from "./app/AppShell";
 import { navigate, Route, useHashRoute } from "./app/router";
+import { ToastProvider } from "./components/ui";
 import { useI18n } from "./i18n";
+import { DURATION, EASE, useReducedMotion } from "./lib/motion";
+import { useSpotlight } from "./lib/spotlight";
 import { AuthPage, Registration } from "./pages/AuthPage";
 import { InspectionPage } from "./pages/InspectionPage";
 import { InspectionsPage } from "./pages/InspectionsPage";
@@ -11,11 +15,34 @@ import { PatternsPage } from "./pages/PatternsPage";
 import { ReportsPage } from "./pages/ReportsPage";
 import { RiskQueuePage } from "./pages/RiskQueuePage";
 import { RulesetsPage } from "./pages/RulesetsPage";
+import { ThemeProvider } from "./theme/theme";
 import { RiskPageData, User } from "./types";
 
 export { ComplianceResults, FieldValue, labelFields } from "./pages/InspectionPage";
 
+// Animation and layout features are fetched after first paint; elements render statically until then.
+const loadMotionFeatures = () => import("./lib/motionFeatures").then(module => module.default);
+
+/** Theme, motion and notification context shared by every screen. */
+function AppProviders({ children }: { children: ReactNode }) {
+  const reduced = useReducedMotion();
+  useSpotlight();
+  return (
+    <ThemeProvider>
+      <LazyMotion features={loadMotionFeatures} strict>
+        <MotionConfig reducedMotion="user" transition={reduced ? { duration: 0 } : { duration: DURATION.base, ease: EASE }}>
+          <ToastProvider>{children}</ToastProvider>
+        </MotionConfig>
+      </LazyMotion>
+    </ThemeProvider>
+  );
+}
+
 export default function App() {
+  return <AppProviders><AppContent /></AppProviders>;
+}
+
+function AppContent() {
   const { t } = useI18n();
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -74,6 +101,7 @@ export default function App() {
 
 function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => void; onExpired: () => void }) {
   const { t } = useI18n();
+  const reduced = useReducedMotion();
   const route = useHashRoute();
   const official = user.role === "OFFICIAL";
   const [search, setSearch] = useState("");
@@ -102,18 +130,27 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
 
   function newInspection() { setNewKey(key => key + 1); navigate("/new"); }
 
+  // New and saved inspections share one page instance, so creating one does not remount the workflow.
+  const pageKey = route.name === "new" || route.name === "inspection" ? `inspection-${newKey}` : route.name;
   return (
     <AppShell route={route} user={user} riskCount={riskCount} search={search} onSearchChange={setSearch} onNewInspection={newInspection} onLogout={onLogout}>
-      {renderPage(route)}
+      {reduced
+        ? <div key={pageKey}>{renderPage(route)}</div>
+        : <AnimatePresence mode="wait" initial={false}>
+          <m.div key={pageKey} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: DURATION.slow, ease: EASE } }}
+            exit={{ opacity: 0, transition: { duration: DURATION.fast, ease: EASE } }}>
+            {renderPage(route)}
+          </m.div>
+        </AnimatePresence>}
     </AppShell>
   );
 
   function renderPage(current: Route) {
     switch (current.name) {
-      case "overview": return <OverviewPage official={official} onExpired={onExpired} />;
+      case "overview": return <OverviewPage official={official} onExpired={onExpired} showLive />;
       case "inspections": return <InspectionsPage search={search} onSearchChange={setSearch} onExpired={onExpired} />;
       case "new": case "inspection":
-        return <InspectionPage key={newKey} inspectionId={current.name === "inspection" ? current.id : undefined} onExpired={onExpired} onCompleted={loadRiskCount} />;
+        return <InspectionPage inspectionId={current.name === "inspection" ? current.id : undefined} onExpired={onExpired} onCompleted={loadRiskCount} />;
       case "risk": return official ? <RiskQueuePage onExpired={onExpired} /> : null;
       case "patterns": return <PatternsPage onExpired={onExpired} />;
       case "rulesets": return <RulesetsPage onExpired={onExpired} />;

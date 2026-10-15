@@ -4,7 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="PackComply inspection-assistance workspace" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>PackComply</title>
+    <!-- Set the theme before first paint so there is never a flash of the wrong theme (see src/theme/theme.tsx). -->
+    <script id="theme-init">
+      (function () {
+        var preference = null;
+        try { preference = localStorage.getItem("packcomply-theme"); } catch (e) {}
+        var dark = preference === "dark" || (preference !== "light" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        var theme = dark ? "dark" : "light";
+        var root = document.documentElement;
+        root.setAttribute("data-theme", theme);
+        root.style.colorScheme = theme;
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", dark ? "#09090B" : "#FFFFFF");
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

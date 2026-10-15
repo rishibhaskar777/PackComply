@@ -3,7 +3,7 @@ import { FileDown, FileText, RefreshCw } from "lucide-react";
 import { downloadReport, getJson, isExpired, isUnavailable } from "../api/client";
 import { PageHeader } from "../components/PageHeader";
 import { Pagination } from "../components/Pagination";
-import { Alert, Badge, Button, Card, Column, EmptyState, SkeletonRows, Table } from "../components/ui";
+import { Alert, Badge, Button, Card, Column, EmptyState, SkeletonRows, Table, useToast } from "../components/ui";
 import { fill, useI18n } from "../i18n";
 import { HistoryItem, HistoryResponse } from "../types";
 import { formatDate } from "./InspectionsPage";
@@ -11,11 +11,11 @@ import { formatDate } from "./InspectionsPage";
 /** Completed inspections with a PDF report download. */
 export function ReportsPage({ onExpired }: { onExpired: () => void }) {
   const { t } = useI18n();
+  const toast = useToast();
   const [data, setData] = useState<HistoryResponse | null>(null);
   const [failure, setFailure] = useState<"unavailable" | "error" | null>(null);
   const [page, setPage] = useState(1);
   const [downloading, setDownloading] = useState<string | null>(null);
-  const [downloadError, setDownloadError] = useState(false);
 
   async function load() {
     setFailure(null);
@@ -25,9 +25,9 @@ export function ReportsPage({ onExpired }: { onExpired: () => void }) {
   useEffect(() => { load(); }, [page]);
 
   async function download(item: HistoryItem) {
-    setDownloading(item.id); setDownloadError(false);
-    try { await downloadReport(item.id, item.inspection_number); }
-    catch (error) { if (isExpired(error)) onExpired(); else setDownloadError(true); }
+    setDownloading(item.id);
+    try { await downloadReport(item.id, item.inspection_number); toast(t("toastReportDownloaded")); }
+    catch (error) { if (isExpired(error)) onExpired(); else toast(t("reportGenerationError"), "error"); }
     finally { setDownloading(null); }
   }
 
@@ -43,7 +43,6 @@ export function ReportsPage({ onExpired }: { onExpired: () => void }) {
   return (
     <div className="page">
       <PageHeader title={t("reports")} subtitle={t("reportsDescription")} />
-      {downloadError && <Alert>{t("reportGenerationError")}</Alert>}
       {failure ? <Alert title={failure === "unavailable" ? t("serverUnavailable") : t("historyLoadError")} action={<Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={load}>{t("tryAgain")}</Button>} />
         : <Card title={t("completedInspections")} description={data ? fill(t("inspectionsSubtitle"), { count: data.total }) : undefined} flush>
           {data === null ? <SkeletonRows label={t("loading")} />

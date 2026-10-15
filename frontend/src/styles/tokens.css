@@ -1,5 +1,7 @@
 /* PackComply design tokens. Components read these variables only; no raw colours elsewhere. */
 /* Geist and Geist Mono are bundled from @fontsource-variable (imported in main.tsx); no network fonts. */
+/* Colour tokens are defined twice: light (also the default before the theme script runs) and dark.
+   Dark is designed, not inverted: raised surfaces get lighter, shadows become inner highlights. */
 
 :root {
   /* Type */
@@ -11,56 +13,15 @@
   --text-md: 16px;
   --text-lg: 18px;
   --text-xl: 24px;
+  --text-title: 28px;
   --text-2xl: 30px;
-
-  /* Neutrals (zinc) */
-  --background: #FFFFFF;
-  --muted-bg: #FAFAFA;
-  --muted: #F4F4F5;
-  --border: #E4E4E7;
-  --input: #E4E4E7;
-  --foreground: #09090B;
-  --muted-foreground: #71717A;
-  --subtle-foreground: #A1A1AA;
-  --secondary-foreground: #3F3F46;
-
-  /* Brand */
-  --primary: #4F46E5;
-  --primary-foreground: #FFFFFF;
-  --primary-strong: #4338CA;
-  --primary-soft: #EEF2FF;
-  --primary-border: #C7D2FE;
-  --brand-gradient: linear-gradient(135deg, #6366F1, #8B5CF6);
-  --brand-soft-gradient: linear-gradient(135deg, #EEF2FF, #F5F3FF);
-  --ring: rgba(79, 70, 229, 0.35);
-
-  /* Status: colour is used for status only */
-  --violation-bg: #FEF2F2;
-  --violation-text: #B91C1C;
-  --violation-dot: #DC2626;
-  --violation-border: #FECACA;
-  --review-bg: #FFFBEB;
-  --review-text: #B45309;
-  --review-dot: #F59E0B;
-  --review-border: #FDE68A;
-  --pass-bg: #ECFDF5;
-  --pass-text: #047857;
-  --pass-dot: #10B981;
-  --pass-border: #A7F3D0;
-  --na-bg: var(--muted);
-  --na-text: var(--muted-foreground);
-  --na-dot: var(--subtle-foreground);
-  --na-border: var(--border);
 
   /* Shape */
   --radius-sm: 6px;
   --radius: 8px;
   --radius-lg: 12px;
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 8px 24px rgba(9, 9, 11, 0.12);
-  --overlay: rgba(9, 9, 11, 0.4);
 
-  /* Spacing (4px grid) */
+  /* Spacing (8px rhythm with 4px half-steps) */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -72,14 +33,186 @@
 
   /* Layout */
   --sidebar-width: 256px;
+  --sidebar-collapsed-width: 64px;
   --topbar-height: 56px;
   --tabbar-height: 64px;
+  --content-max: 1400px;
+
+  /* Motion (mirrors src/lib/motion.ts) */
+  --duration-fast: 150ms;
   --duration: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root, :root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Neutrals (zinc) */
+  --background: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --surface-muted: #FAFAFA;
+  --muted-bg: var(--surface-muted);
+  --muted: #F4F4F5;
+  --border: #E4E4E7;
+  --border-strong: #D4D4D8;
+  --input: #E4E4E7;
+  --foreground: #09090B;
+  --muted-foreground: #71717A;
+  --subtle-foreground: #A1A1AA;
+  --secondary-foreground: #3F3F46;
+  --tab-foreground: #52525B;
+
+  /* Brand */
+  --primary: #4F46E5;
+  --primary-solid: #4F46E5;
+  --primary-solid-hover: #4338CA;
+  --primary-foreground: #FFFFFF;
+  --primary-strong: #4338CA;
+  --primary-soft: #EEF2FF;
+  --primary-border: #C7D2FE;
+  --brand-gradient: linear-gradient(135deg, #6366F1, #8B5CF6);
+  --brand-soft-gradient: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+  --brand-glow: 0 0 0 transparent;
+  --ring: rgba(79, 70, 229, 0.45);
+
+  /* Status: colour is used for status only */
+  --violation-bg: #FEF2F2;
+  --violation-text: #B91C1C;
+  --violation-dot: #DC2626;
+  --violation-border: #FECACA;
+  --violation-pulse: rgba(220, 38, 38, 0.45);
+  --critical-bg: #B91C1C;
+  --critical-text: #FFFFFF;
+  --review-bg: #FFFBEB;
+  --review-text: #B45309;
+  --review-dot: #F59E0B;
+  --review-border: #FDE68A;
+  --pass-bg: #ECFDF5;
+  --pass-text: #047857;
+  --pass-dot: #10B981;
+  --pass-border: #A7F3D0;
+  --na-bg: var(--muted);
+  --na-text: var(--secondary-foreground);
+  --na-dot: var(--subtle-foreground);
+  --na-border: var(--border);
+
+  /* Elevation: soft drop shadows in light */
+  --shadow-xs: 0 1px 2px rgba(9, 9, 11, 0.04);
+  --shadow-sm: 0 1px 3px rgba(9, 9, 11, 0.06), 0 1px 2px rgba(9, 9, 11, 0.04);
+  --shadow-hover: 0 8px 24px -8px rgba(9, 9, 11, 0.14), 0 2px 6px rgba(9, 9, 11, 0.04);
+  --shadow-md: 0 8px 24px rgba(9, 9, 11, 0.12);
+  --overlay: rgba(9, 9, 11, 0.4);
+
+  /* Translucent chrome over the animated background */
+  --topbar-bg: rgba(255, 255, 255, 0.72);
+  --sidebar-bg: rgba(250, 250, 250, 0.92);
+  --tabbar-bg: rgba(255, 255, 255, 0.86);
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: linear-gradient(135deg, rgba(99, 102, 241, 0.45), rgba(228, 228, 231, 0.6) 40%, rgba(139, 92, 246, 0.4));
+
+  /* Ambient background */
+  --aurora-1: rgba(99, 102, 241, 1);
+  --aurora-2: rgba(139, 92, 246, 1);
+  --aurora-3: rgba(6, 182, 212, 1);
+  --aurora-opacity: 0.10;
+  --aurora-auth-opacity: 0.18;
+  --dot-color: rgba(9, 9, 11, 0.07);
+  --ring-gradient: conic-gradient(from 0deg, rgba(99, 102, 241, 0), rgba(99, 102, 241, 0.55), rgba(139, 92, 246, 0.5), rgba(6, 182, 212, 0.4), rgba(99, 102, 241, 0));
+
+  /* Interaction effects */
+  --spotlight: rgba(99, 102, 241, 0.07);
+  --card-hover-border: var(--border-strong);
+  --shimmer-edge: rgba(255, 255, 255, 0.85);
+  --skeleton-shine: rgba(255, 255, 255, 0.65);
+  --scrollbar-thumb: rgba(9, 9, 11, 0.18);
+  --scrollbar-thumb-hover: rgba(9, 9, 11, 0.3);
+  --selection: #E0E7FF;
+
+  /* Evidence photo markers stay readable on any photo in either theme */
+  --marker-ring: #FFFFFF;
+  --marker-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.25);
+  --evidence-bg: #F4F4F5;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: #09090B;
+  --surface: #111114;
+  --surface-raised: #18181B;
+  --surface-muted: #0C0C0F;
+  --muted: #1C1C21;
+  --border: #27272A;
+  --border-strong: #3F3F46;
+  --input: #27272A;
+  --foreground: #FAFAFA;
+  --muted-foreground: #A1A1AA;
+  --subtle-foreground: #71717A;
+  --secondary-foreground: #D4D4D8;
+  --tab-foreground: #A1A1AA;
+
+  --primary: #6366F1;
+  /* #6366F1 is 4.47:1 under white text; solid fills that carry text use the deeper indigo with a glow. */
+  --primary-solid: #4F46E5;
+  --primary-solid-hover: #5B54EA;
+  --primary-foreground: #FFFFFF;
+  --primary-strong: #A5B4FC;
+  --primary-soft: rgba(99, 102, 241, 0.14);
+  --primary-border: rgba(129, 140, 248, 0.35);
+  --brand-soft-gradient: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(139, 92, 246, 0.1));
+  --brand-glow: 0 0 24px rgba(99, 102, 241, 0.35);
+  --ring: rgba(129, 140, 248, 0.6);
+
+  --violation-bg: rgba(239, 68, 68, 0.12);
+  --violation-text: #F87171;
+  --violation-dot: #F87171;
+  --violation-border: rgba(248, 113, 113, 0.28);
+  --violation-pulse: rgba(248, 113, 113, 0.5);
+  --critical-bg: #DC2626;
+  --critical-text: #FFFFFF;
+  --review-bg: rgba(245, 158, 11, 0.12);
+  --review-text: #FBBF24;
+  --review-dot: #FBBF24;
+  --review-border: rgba(251, 191, 36, 0.28);
+  --pass-bg: rgba(16, 185, 129, 0.12);
+  --pass-text: #34D399;
+  --pass-dot: #34D399;
+  --pass-border: rgba(52, 211, 153, 0.28);
+
+  /* Elevation: shadows vanish on dark, so surfaces get a 1px inner highlight plus their border */
+  --shadow-xs: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-sm: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-hover: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 0 1px rgba(129, 140, 248, 0.12);
+  --shadow-md: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 16px 40px rgba(0, 0, 0, 0.55);
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  --topbar-bg: rgba(9, 9, 11, 0.66);
+  --sidebar-bg: rgba(12, 12, 15, 0.9);
+  --tabbar-bg: rgba(17, 17, 20, 0.86);
+  --glass-bg: rgba(17, 17, 20, 0.66);
+  --glass-border: linear-gradient(135deg, rgba(129, 140, 248, 0.55), rgba(39, 39, 42, 0.6) 40%, rgba(139, 92, 246, 0.45));
+
+  --aurora-opacity: 0.18;
+  --aurora-auth-opacity: 0.3;
+  --dot-color: rgba(255, 255, 255, 0.06);
+
+  --spotlight: rgba(129, 140, 248, 0.1);
+  --card-hover-border: rgba(129, 140, 248, 0.3);
+  --shimmer-edge: rgba(255, 255, 255, 0.7);
+  --skeleton-shine: rgba(255, 255, 255, 0.05);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.14);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.26);
+  --selection: rgba(99, 102, 241, 0.32);
+
+  --evidence-bg: #18181B;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; background: var(--background); }
 
 body {
   margin: 0;
@@ -105,15 +238,34 @@ a:hover { text-decoration: underline; }
 .mono, code, kbd { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .tabular { font-variant-numeric: tabular-nums; }
 
+::selection { background: var(--selection); color: var(--foreground); }
+
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
+/* Thin, theme-aware scrollbars */
+* { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 999px; background: var(--scrollbar-thumb); background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--scrollbar-thumb-hover); }
+
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
+
+/* Theme switch: a circular reveal from the toggle (View Transitions API), or a short cross-fade. */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root) { z-index: 2; }
+:root.theme-fade, :root.theme-fade *, :root.theme-fade *::before, :root.theme-fade *::after {
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, fill 200ms ease !important;
+}
+
+/* The ambient background is paused while the tab is hidden (set from src/theme/theme.tsx). */
+:root.is-hidden * { animation-play-state: paused !important; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

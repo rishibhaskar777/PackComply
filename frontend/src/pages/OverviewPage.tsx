@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { CircleAlert, CircleCheck, ClipboardList, Plus, RefreshCw, TriangleAlert } from "lucide-react";
 import { getJson, isExpired, isUnavailable } from "../api/client";
+import { LivePill } from "../components/LivePill";
 import { PageHeader } from "../components/PageHeader";
 import { Alert, Badge, Button, Card, Column, EmptyState, LinkButton, RiskScore, Skeleton, SkeletonRows, StatCard, Table, Tabs } from "../components/ui";
 import { fill, useI18n } from "../i18n";
@@ -11,7 +12,7 @@ const VERDICTS: Array<{ key: Verdict; tone: "violation" | "review" | "pass" }> =
   { key: "NON_COMPLIANT", tone: "violation" }, { key: "NEEDS_REVIEW", tone: "review" }, { key: "COMPLIANT", tone: "pass" },
 ];
 
-export function OverviewPage({ official, onExpired }: { official: boolean; onExpired: () => void }) {
+export function OverviewPage({ official, onExpired, showLive = false }: { official: boolean; onExpired: () => void; showLive?: boolean }) {
   const { t } = useI18n();
   const [period, setPeriod] = useState<DashboardPeriod>("all");
   const [data, setData] = useState<DashboardSummary | null>(null);
@@ -53,21 +54,21 @@ export function OverviewPage({ official, onExpired }: { official: boolean; onExp
     const decided = counts.NON_COMPLIANT + counts.NEEDS_REVIEW + counts.COMPLIANT;
     body = <>
       <div className="stat-grid">
-        <StatCard label={t("inspections")} value={data.total_inspections} icon={<ClipboardList size={16} />} tone="primary"
+        <StatCard index={0} label={t("inspections")} value={data.total_inspections} icon={<ClipboardList size={16} />} tone="primary"
           caption={data.median_processing_seconds !== null ? fill(t("medianProcessing"), { seconds: Math.round(data.median_processing_seconds) }) : counts.PENDING ? fill(t("pendingCount"), { count: counts.PENDING }) : t("inspectionsCaption")} />
-        <StatCard label={t("verdictNonCompliant")} value={counts.NON_COMPLIANT} icon={<CircleAlert size={16} />} tone="violation" caption={t("nonCompliantCaption")} />
-        <StatCard label={t("verdictNeedsReview")} value={counts.NEEDS_REVIEW} icon={<TriangleAlert size={16} />} tone="review" caption={t("needsReviewCaption")} />
-        <StatCard label={t("verdictCompliant")} value={counts.COMPLIANT} icon={<CircleCheck size={16} />} tone="pass" caption={t("compliantCaption")} />
+        <StatCard index={1} label={t("verdictNonCompliant")} value={counts.NON_COMPLIANT} icon={<CircleAlert size={16} />} tone="violation" caption={t("nonCompliantCaption")} />
+        <StatCard index={2} label={t("verdictNeedsReview")} value={counts.NEEDS_REVIEW} icon={<TriangleAlert size={16} />} tone="review" caption={t("needsReviewCaption")} />
+        <StatCard index={3} label={t("verdictCompliant")} value={counts.COMPLIANT} icon={<CircleCheck size={16} />} tone="pass" caption={t("compliantCaption")} />
       </div>
       <div className="dashboard-grid">
-        <Card title={official ? t("riskQueue") : t("needsAttention")} description={official ? t("riskQueueDescription") : t("needsAttentionDescription")} flush
+        <Card index={4} title={official ? t("riskQueue") : t("needsAttention")} description={official ? t("riskQueueDescription") : t("needsAttentionDescription")} flush
           action={<LinkButton variant="outline" size="sm" href={official ? "#/risk" : "#/inspections"}>{t("viewAll")}</LinkButton>}>
           {data.top_risk.length
             ? <Table caption={official ? t("riskQueue") : t("needsAttention")} columns={queueColumns} rows={data.top_risk} rowKey={row => row.id} rowHref={row => `#/inspections/${row.id}`} />
             : <EmptyState title={t("noCompletedInPeriod")} />}
         </Card>
         <div className="dashboard-side">
-          <Card title={t("verdictMix")} description={fill(t("verdictMixDescription"), { count: decided })}>
+          <Card index={5} title={t("verdictMix")} description={fill(t("verdictMixDescription"), { count: decided })}>
             <div className="verdict-bar" aria-hidden="true">
               {decided ? VERDICTS.filter(item => counts[item.key] > 0).map(item => <span key={item.key} className={`verdict-bar__segment verdict-bar__segment--${item.tone}`} style={{ flexGrow: counts[item.key] }} />) : <span className="verdict-bar__segment" style={{ flexGrow: 1 }} />}
             </div>
@@ -75,7 +76,7 @@ export function OverviewPage({ official, onExpired }: { official: boolean; onExp
               {VERDICTS.map(item => <li key={item.key}><span className={`legend-dot legend-dot--${item.tone}`} aria-hidden="true" /><span className="verdict-legend__label">{verdictLabel[item.key]}</span><span className="verdict-legend__count mono">{counts[item.key]}</span></li>)}
             </ul>
           </Card>
-          <Card title={t("repeatIssues")} description={t("repeatIssuesDescription")}
+          <Card index={6} title={t("repeatIssues")} description={t("repeatIssuesDescription")}
             action={<LinkButton variant="ghost" size="sm" href="#/patterns">{t("viewAll")}</LinkButton>}>
             {data.repeat_issues.length ? (
               <ul className="issue-list">
@@ -98,7 +99,7 @@ export function OverviewPage({ official, onExpired }: { official: boolean; onExp
 
   return (
     <div className="page">
-      <PageHeader title={t("overview")} subtitle={subtitle} actions={periodTabs} />
+      <PageHeader title={t("overview")} subtitle={subtitle} actions={periodTabs} status={showLive ? <LivePill /> : undefined} />
       {body}
     </div>
   );
