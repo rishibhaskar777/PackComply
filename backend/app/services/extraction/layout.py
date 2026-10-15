@@ -6,7 +6,7 @@ newline order: "below" is simply the next line and nothing is "to the right".
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import re
 from statistics import median
 from typing import Any, Iterable
@@ -23,6 +23,9 @@ ROW_OVERLAP = 0.6
 BELOW_GAP_FACTOR = 2.5
 # A value to the right of a key is at most this many key-line heights away.
 RIGHT_GAP_FACTOR = 8.0
+# A box of at least three characters this many times taller than wide is
+# rotated side text (e.g. "scan QR code" printed up a panel edge).
+VERTICAL_ASPECT = 1.5
 _DUPLICATE_IOU = 0.3
 _DUPLICATE_CONTAINMENT = 0.6
 _SCRIPTS = {name: re.compile(f"[{block}]") for name, block in {**LANGUAGE_SCRIPTS, "latin": "A-Za-z"}.items()}
@@ -38,10 +41,15 @@ class LayoutBox:
     confidence: float | None
     bbox: list[list[float]] | None
     language: str | None = None
+    # Degrees the photo was turned to read this text (OcrDetection.rotation).
+    rotation: int = 0
+    # Extent in the upright reading frame when the photo was read rotated;
+    # ``bbox`` stays in original photo pixels for evidence.
+    frame: tuple[float, float, float, float] | None = None
 
     @property
     def extent(self) -> tuple[float, float, float, float]:
-        return bbox_extent(self.bbox) or (0.0, 0.0, 0.0, 0.0)
+        return self.frame or bbox_extent(self.bbox) or (0.0, 0.0, 0.0, 0.0)
 
     @property
     def height(self) -> float:
@@ -50,6 +58,11 @@ class LayoutBox:
     @property
     def center_y(self) -> float:
         return (self.extent[1] + self.extent[3]) / 2
+
+    @property
+    def vertical(self) -> bool:
+        x0, y0, x1, y1 = self.extent
+        return len(self.text.replace(" ", "")) >= 3 and (y1 - y0) >= VERTICAL_ASPECT * max(x1 - x0, 1.0)
 
 
 @dataclass(frozen=True)
@@ -76,6 +89,10 @@ class LayoutLine:
     def center_y(self) -> float:
         return (self.extent[1] + self.extent[3]) / 2 if self.extent else float(self.index)
 
+    @property
+    def vertical(self) -> bool:
+        return bool(self.boxes) and all(box.vertical for box in self.boxes)
+
 
 def _vertical_overlap(a: tuple[float, float, float, float], b: tuple[float, float, float, float]) -> float:
     return max(min(a[3], b[3]) - max(a[1], b[1]), 0.0)
@@ -96,15 +113,34 @@ def _scripts(text: str) -> set[str]:
 
 def _as_box(item: Any) -> LayoutBox | None:
     if isinstance(item, OcrDetection):
-        text, confidence, bbox, language = item.text, item.confidence, item.bbox, item.language
+        text, confidence, bbox, language, rotation = item.text, item.confidence, item.bbox, item.language, item.rotation
     elif isinstance(item, dict):
-        text, confidence, bbox, language = item.get("text"), item.get("confidence"), item.get("bbox"), item.get("language")
+        text, confidence, bbox, language, rotation = item.get("text"), item.get("confidence"), item.get("bbox"), item.get("language"), item.get("rotation") or 0
     else:
         return None
     text = clean_text(str(text or ""))
     if not text or (confidence is not None and confidence < MIN_DETECTION_CONFIDENCE):
         return None
-    return LayoutBox(text, confidence, bbox or None, language)
+    return LayoutBox(text, confidence, bbox or None, language, int(rotation))
+
+
+def upright(boxes: list[LayoutBox]) -> list[LayoutBox]:
+    """Give boxes read on a rotated photo their extent in the upright reading frame.
+
+    Original pixels (x, y) of a photo turned 90 degrees clockwise read at
+    (-y, x); turned 270 degrees, at (y, -x).  Only relative geometry matters,
+    so the frame is shifted to start at zero.
+    """
+    if not any(box.rotation for box in boxes):
+        return boxes
+    turn = {90: lambda x, y: (-y, x), 270: lambda x, y: (y, -x), 180: lambda x, y: (-x, -y)}
+    frames = []
+    for box in boxes:
+        points = [turn.get(box.rotation, lambda x, y: (x, y))(x, y) for x, y in box.bbox or []]
+        frames.append((min(p[0] for p in points), min(p[1] for p in points), max(p[0] for p in points), max(p[1] for p in points)) if points else None)
+    left = min(frame[0] for frame in frames if frame)
+    top = min(frame[1] for frame in frames if frame)
+    return [replace(box, frame=(frame[0] - left, frame[1] - top, frame[2] - left, frame[3] - top) if frame else None) for box, frame in zip(boxes, frames)]
 
 
 def suppress_duplicates(boxes: list[LayoutBox]) -> list[LayoutBox]:
@@ -133,12 +169,19 @@ def merge_lines(boxes: list[LayoutBox]) -> list[list[LayoutBox]]:
 
     Distant boxes on one row stay separate lines so two label columns never
     merge; the key/value search reaches across that gap explicitly instead.
+    Rotated side text is a line of its own: its tall box would otherwise
+    swallow every row it crosses.
     """
     groups: list[list[LayoutBox]] = []
     for box in sorted(boxes, key=lambda item: (item.center_y, item.extent[0])):
         x0, y0, x1, y1 = box.extent
         best, best_overlap = None, 0.0
+        if box.vertical:
+            groups.append([box])
+            continue
         for group in groups:
+            if group[0].vertical:
+                continue
             extent = _union(item.extent for item in group)
             reference = min(box.height, median(item.height for item in group))
             overlap = _vertical_overlap(box.extent, extent) / reference
@@ -169,7 +212,7 @@ class Layout:
         boxes = [box for box in boxes if box.bbox]
         if not boxes:
             return cls.from_text(text)
-        groups = merge_lines(suppress_duplicates(boxes))
+        groups = merge_lines(upright(suppress_duplicates(boxes)))
         extents = [_union(box.extent for box in group) for group in groups]
         order = sorted(range(len(groups)), key=lambda i: (extents[i][1], extents[i][0]))
         lines = [LayoutLine(position, tuple(groups[i]), clean_text(" ".join(box.text for box in groups[i])), extents[i]) for position, i in enumerate(order)]

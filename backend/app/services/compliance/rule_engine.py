@@ -420,7 +420,8 @@ _CARE_NORMALIZE = {
 _CARE_VALID = {
     "consumer_care_phone": lambda x: 10 <= len(re.sub(r"\D", "", x)) <= 13,
     "consumer_care_email": lambda x: bool(re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", x)),
-    "consumer_care_website": lambda x: bool(re.fullmatch(r"(?:https?://)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+/?", x)),
+    # A contact page ("in.example.com/contact-us/") is as valid as a bare host.
+    "consumer_care_website": lambda x: bool(re.fullmatch(r"(?:https?://)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:/\S*)?", x)),
 }
 
 

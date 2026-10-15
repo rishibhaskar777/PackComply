@@ -43,6 +43,9 @@ class OcrDetection:
     bbox: list[list[float]] | None
     # Recognition language that produced this text; None for legacy/injected results.
     language: str | None = None
+    # Degrees the photo was turned clockwise (0, 90 or 270) before this text
+    # was read upright.  The box itself is always in original photo pixels.
+    rotation: int = 0
 
 
 # Unicode block of each configured language's native script.  A secondary
@@ -103,6 +106,41 @@ def overlaps_any(detection: OcrDetection, others: list[OcrDetection]) -> bool:
         or bbox_containment(detection.bbox, other.bbox) >= SECONDARY_CONTAINMENT_THRESHOLD
         for other in others
     )
+
+
+# Text read across the photo (a label photographed sideways) yields tall, narrow
+# boxes.  At least this many such boxes, outnumbering the wide ones, means the
+# photo is turned and is read again rotated by 90 and 270 degrees.
+ROTATION_MIN_VERTICAL_BOXES = 5
+
+
+def is_sideways(detections: list[OcrDetection]) -> bool:
+    vertical = horizontal = 0
+    for item in detections:
+        extent = bbox_extent(item.bbox)
+        if extent is None or len(item.text.replace(" ", "")) < 3:
+            continue
+        width, height = extent[2] - extent[0], extent[3] - extent[1]
+        if height >= 2 * width:
+            vertical += 1
+        elif width >= 2 * height:
+            horizontal += 1
+    return vertical >= ROTATION_MIN_VERTICAL_BOXES and vertical > horizontal
+
+
+def reading_score(detections: list[OcrDetection]) -> float:
+    """How much confidently read text an orientation produced."""
+    return sum((item.confidence or 0.0) * len(item.text.strip()) for item in detections if (item.confidence or 0.0) >= 0.5)
+
+
+def unrotate_bbox(bbox: list[list[float]], rotation: int, original_size: tuple[int, int]) -> list[list[float]]:
+    """Map a box read on the photo turned ``rotation`` degrees clockwise back to original pixels."""
+    width, height = original_size
+    if rotation == 90:
+        return [[round(y, 2), round(height - x, 2)] for x, y in bbox]
+    if rotation == 270:
+        return [[round(width - y, 2), round(x, 2)] for x, y in bbox]
+    return bbox
 
 
 def filter_secondary_detections(primary: list[OcrDetection], secondary: list[OcrDetection], language: str) -> tuple[list[OcrDetection], int]:
@@ -274,8 +312,10 @@ class PaddleOcrService:
         recognition_model: str = "",
         enable_mkldnn: bool = True,
         cpu_threads: int = 0,
+        auto_rotate: bool = True,
     ) -> None:
         self.languages = languages
+        self.auto_rotate = auto_rotate
         self._engine = engine
         self._engines: dict[str, Any] = {}
         self.max_image_dimension = max_image_dimension
@@ -463,7 +503,26 @@ class PaddleOcrService:
             logger.info("OCR inference started language=%s", primary)
             primary_detections = self._predict(primary, processed_path)
             logger.info("OCR inference completed language=%s detections=%d elapsed_seconds=%.3f", primary, len(primary_detections), perf_counter() - inference_started)
-            primary_detections = self._tag(self._to_original_pixels(primary_detections, original_size, self.max_image_dimension), primary)
+            rotation = 0
+            if self.auto_rotate and original_size and is_sideways(primary_detections):
+                rotation, primary_detections, rotated_path = self._best_rotation(image_path, primary, primary_detections)
+                if rotation and rotated_path is not None:
+                    processed_paths.append(rotated_path)
+                    processed_path = rotated_path
+                    # The secondary passes read the unrotated photo: read the turned one instead.
+                    for _, ticket, _ in pending:
+                        ticket.cancel()
+                    pending = []
+                    for language in self.languages[1:]:
+                        if self._engine is not None or language in skipped_languages:
+                            continue
+                        language_dimension = min(self.secondary_language_max_image_dimension, self.max_image_dimension)
+                        language_image_path = self._preprocess(image_path, language_dimension, rotation)
+                        processed_paths.append(language_image_path)
+                        ticket = self._start_secondary_language(language, language_image_path)
+                        tickets.append(ticket)
+                        pending.append((language, ticket, language_dimension))
+            primary_detections = self._tag(self._to_original(primary_detections, original_size, self.max_image_dimension, rotation), primary)
             detections.extend(primary_detections)
             completed_languages.append(primary)
             dropped_total = 0
@@ -479,7 +538,7 @@ class PaddleOcrService:
                 # An injected engine serves every language in this process.
                 for language in self.languages[1:]:
                     language_detections = self._predict(language, processed_path)
-                    add_secondary(language, self._to_original_pixels(language_detections, original_size, self.max_image_dimension))
+                    add_secondary(language, self._to_original(language_detections, original_size, self.max_image_dimension, rotation))
                     completed_languages.append(language)
 
             for language, ticket, language_dimension in pending:
@@ -492,7 +551,7 @@ class PaddleOcrService:
                     skipped_languages.append(language)
                     continue
                 logger.info("OCR inference completed language=%s detections=%d wait_seconds=%.3f", language, len(language_detections), perf_counter() - secondary_started)
-                add_secondary(language, self._to_original_pixels(language_detections, original_size, language_dimension))
+                add_secondary(language, self._to_original(language_detections, original_size, language_dimension, rotation))
                 completed_languages.append(language)
             parse_started = perf_counter()
             deduplicated = self._deduplicate(detections)
@@ -516,6 +575,25 @@ class PaddleOcrService:
                 if processed_path.exists():
                     processed_path.unlink()
             logger.info("OCR request completed image_path=%s elapsed_seconds=%.3f", image_path, perf_counter() - started)
+
+    def _best_rotation(self, image_path: Path, language: str, upright: list[OcrDetection]) -> tuple[int, list[OcrDetection], Path | None]:
+        """Read a sideways photo turned 90 and 270 degrees; keep the orientation that reads best."""
+        best: tuple[float, int, list[OcrDetection], Path | None] = (reading_score(upright), 0, upright, None)
+        paths = []
+        for rotation in (90, 270):
+            path = self._preprocess(image_path, self.max_image_dimension, rotation)
+            paths.append(path)
+            started = perf_counter()
+            detections = self._predict(language, path)
+            score = reading_score(detections)
+            logger.info("OCR rotation candidate rotation=%d score=%.1f detections=%d elapsed_seconds=%.3f", rotation, score, len(detections), perf_counter() - started)
+            if score > best[0]:
+                best = (score, rotation, detections, path)
+        for path in paths:
+            if path != best[3]:
+                path.unlink(missing_ok=True)
+        logger.info("OCR orientation chosen rotation=%d", best[1])
+        return best[1], best[2], best[3]
 
     def _worker_for(self, language: str) -> _SecondaryWorker:
         with self._worker_lock:
@@ -585,8 +663,8 @@ class PaddleOcrService:
         self._workers.clear()
 
     @staticmethod
-    def _preprocess(image_path: Path, max_image_dimension: int = 640) -> Path:
-        """Create a bounded-size grayscale, denoised copy for real PaddleOCR."""
+    def _preprocess(image_path: Path, max_image_dimension: int = 640, rotation: int = 0) -> Path:
+        """Create a bounded-size grayscale, denoised copy for real PaddleOCR, turned ``rotation`` degrees clockwise."""
         try:
             import cv2
         except ImportError as error:
@@ -595,6 +673,8 @@ class PaddleOcrService:
         image = cv2.imread(str(image_path))
         if image is None:
             raise OcrProcessingError("The stored image cannot be read.")
+        if rotation:
+            image = cv2.rotate(image, {90: cv2.ROTATE_90_CLOCKWISE, 180: cv2.ROTATE_180, 270: cv2.ROTATE_90_COUNTERCLOCKWISE}[rotation])
         if max_image_dimension < 1:
             raise OcrProcessingError("OCR image dimension limit must be positive.")
         height, width = image.shape[:2]
@@ -674,6 +754,14 @@ class PaddleOcrService:
             return detections
         factor = max(original_size) / max_image_dimension
         return [replace(item, bbox=[[round(coordinate * factor, 2) for coordinate in point] for point in item.bbox]) if item.bbox else item for item in detections]
+
+    @classmethod
+    def _to_original(cls, detections: list[OcrDetection], original_size: tuple[int, int] | None, max_image_dimension: int, rotation: int) -> list[OcrDetection]:
+        """Undo the downscale and any rotation, so boxes are in original photo pixels."""
+        detections = cls._to_original_pixels(detections, original_size, max_image_dimension)
+        if not rotation or original_size is None:
+            return detections
+        return [replace(item, bbox=unrotate_bbox(item.bbox, rotation, original_size) if item.bbox else None, rotation=rotation) for item in detections]
 
     @staticmethod
     def _deduplicate(detections: list[OcrDetection]) -> list[OcrDetection]:

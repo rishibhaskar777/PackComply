@@ -54,6 +54,7 @@ def get_ocr_service() -> PaddleOcrService:
         recognition_model=settings.ocr_recognition_model,
         enable_mkldnn=settings.ocr_enable_mkldnn,
         cpu_threads=settings.ocr_cpu_threads,
+        auto_rotate=settings.ocr_auto_rotate,
     )
 
 

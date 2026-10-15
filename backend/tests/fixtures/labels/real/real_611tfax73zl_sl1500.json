@@ -1,0 +1,951 @@
+{
+ "source": "batch_evaluate OCR of 611tFAX73zL._SL1500_.jpg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 1500,
+ "image_height": 1500,
+ "ocr_seconds": 36.71,
+ "raw_text": "Offer valid in selected cities/outlets till stocks last. Pack without offer also available\nMargo\nNo two offers can be clubbed together Offer may be withdrawn without prior notice\n19 20\nDisputes are subject to Mumbai jurisdiction only Individual packs not intended for retail sale\nCompared to MRP Rs. (inclusive of all taxes) of a single unit of Margo Original Neem 125g pack\nscan QR code\nTo know more\nJyothy labs\nNoTCC&\nTriciosan\nINGREDIENTS: Sodium Paimate. Sodium Palm Kernelate/Cocoate/Laurate\nSodium Soap of Neem Oil Agua. Talc Perfume Sodium Chioride. Petroleum Jelly, Azadirachta indica\nORIGINAL\n(Neem) Leaf Extract. Lauric: Acid Disodium EDTA. Disodium Etidronate. Butyrospermum Parki Hard\nParaffin. Vitamin E Acetate. Giyceryl Monostearate. CI 74260 CI 61565 Toilet Soap Gr II. TFM 71%\nVitamin E moisturiser\nMfg Dt.:# Use before 36 months from Mfg Dt.\nManufactured, Packed and Marketed by:\nMRP Rs.* Incl. of all taxes (Rs. ∆ per g)\nJyothy Labs Limited. 'Ujala House Ramkrishna Mandir Road, Kondivita. Andheri (East)\nNet Weight:\n1000g\n(125g x 8 units)\nMumbai-400059.CIN-L24240MH1992PLC128651 www.jyothylabs.com\nWhen Packed.\nAt: JLGH5 - Jagati Mini Industrial Estate. Sila Sinduri Ghopa, Kamalpur. Chowkigate, Changsari\nKamrup (R). Assam - 781101. Mfg. Lic No. M C-55M/2021 For 'Manufacturing and Packed By details\nBatch No.: $\nrefer first four letters of the Batch No. \"Margo is the Registered Trademark of Jyothy Labs Limited\nImitation of graphics is a punishable offence\nMade in India\nFor Customer Feedback Contact: Customer Care Executive at 'Manufactured\nPacked and Marketed By Address. Email: customercare@jyothy.com\nCustomer Care No.\n18001032992\n(Toll Free)\nNH\nD",
+ "detections": [
+  {
+   "text": "Offer valid in selected cities/outlets till stocks last. Pack without offer also available",
+   "confidence": 0.9939031600952148,
+   "bbox": [
+    [
+     137.11,
+     530.86
+    ],
+    [
+     635.16,
+     530.86
+    ],
+    [
+     635.16,
+     546.09
+    ],
+    [
+     137.11,
+     546.09
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Margo",
+   "confidence": 0.9196518659591675,
+   "bbox": [
+    [
+     786.33,
+     528.52
+    ],
+    [
+     1256.25,
+     546.09
+    ],
+    [
+     1249.22,
+     716.02
+    ],
+    [
+     779.3,
+     698.44
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "No two offers can be clubbed together Offer may be withdrawn without prior notice",
+   "confidence": 0.9908273816108704,
+   "bbox": [
+    [
+     135.94,
+     549.61
+    ],
+    [
+     635.16,
+     549.61
+    ],
+    [
+     635.16,
+     564.84
+    ],
+    [
+     135.94,
+     564.84
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "19 20",
+   "confidence": 0.9054544568061829,
+   "bbox": [
+    [
+     1082.81,
+     549.61
+    ],
+    [
+     1163.67,
+     549.61
+    ],
+    [
+     1163.67,
+     566.02
+    ],
+    [
+     1082.81,
+     566.02
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Disputes are subject to Mumbai jurisdiction only Individual packs not intended for retail sale",
+   "confidence": 0.9940627217292786,
+   "bbox": [
+    [
+     137.11,
+     568.36
+    ],
+    [
+     683.2,
+     568.36
+    ],
+    [
+     683.2,
+     583.59
+    ],
+    [
+     137.11,
+     583.59
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Compared to MRP Rs. (inclusive of all taxes) of a single unit of Margo Original Neem 125g pack",
+   "confidence": 0.9967182278633118,
+   "bbox": [
+    [
+     135.94,
+     584.77
+    ],
+    [
+     708.98,
+     585.94
+    ],
+    [
+     708.98,
+     602.34
+    ],
+    [
+     135.94,
+     601.17
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "scan QR code",
+   "confidence": 0.9996251463890076,
+   "bbox": [
+    [
+     655.08,
+     617.58
+    ],
+    [
+     667.97,
+     617.58
+    ],
+    [
+     667.97,
+     680.86
+    ],
+    [
+     655.08,
+     680.86
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "To know more",
+   "confidence": 0.9996439814567566,
+   "bbox": [
+    [
+     666.8,
+     615.23
+    ],
+    [
+     679.69,
+     615.23
+    ],
+    [
+     679.69,
+     679.69
+    ],
+    [
+     666.8,
+     679.69
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Jyothy labs",
+   "confidence": 0.9991781711578369,
+   "bbox": [
+    [
+     208.59,
+     633.98
+    ],
+    [
+     363.28,
+     631.64
+    ],
+    [
+     363.28,
+     664.45
+    ],
+    [
+     208.59,
+     666.8
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NoTCC&",
+   "confidence": 0.998485267162323,
+   "bbox": [
+    [
+     503.91,
+     652.73
+    ],
+    [
+     543.75,
+     652.73
+    ],
+    [
+     543.75,
+     664.45
+    ],
+    [
+     503.91,
+     664.45
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Triciosan",
+   "confidence": 0.9761795401573181,
+   "bbox": [
+    [
+     503.91,
+     662.11
+    ],
+    [
+     543.75,
+     662.11
+    ],
+    [
+     543.75,
+     675.0
+    ],
+    [
+     503.91,
+     675.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "INGREDIENTS: Sodium Paimate. Sodium Palm Kernelate/Cocoate/Laurate",
+   "confidence": 0.9943607449531555,
+   "bbox": [
+    [
+     138.28,
+     694.92
+    ],
+    [
+     520.31,
+     696.09
+    ],
+    [
+     520.31,
+     712.5
+    ],
+    [
+     138.28,
+     711.33
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Sodium Soap of Neem Oil Agua. Talc Perfume Sodium Chioride. Petroleum Jelly, Azadirachta indica",
+   "confidence": 0.9753417372703552,
+   "bbox": [
+    [
+     139.45,
+     713.67
+    ],
+    [
+     655.08,
+     713.67
+    ],
+    [
+     655.08,
+     728.91
+    ],
+    [
+     139.45,
+     728.91
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ORIGINAL",
+   "confidence": 0.9998962879180908,
+   "bbox": [
+    [
+     876.56,
+     711.33
+    ],
+    [
+     1175.39,
+     711.33
+    ],
+    [
+     1175.39,
+     742.97
+    ],
+    [
+     876.56,
+     742.97
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(Neem) Leaf Extract. Lauric: Acid Disodium EDTA. Disodium Etidronate. Butyrospermum Parki Hard",
+   "confidence": 0.9804624319076538,
+   "bbox": [
+    [
+     140.62,
+     733.59
+    ],
+    [
+     651.56,
+     733.59
+    ],
+    [
+     651.56,
+     748.83
+    ],
+    [
+     140.62,
+     748.83
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Paraffin. Vitamin E Acetate. Giyceryl Monostearate. CI 74260 CI 61565 Toilet Soap Gr II. TFM 71%",
+   "confidence": 0.9690853953361511,
+   "bbox": [
+    [
+     140.62,
+     751.17
+    ],
+    [
+     643.36,
+     751.17
+    ],
+    [
+     643.36,
+     766.41
+    ],
+    [
+     140.62,
+     766.41
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Vitamin E moisturiser",
+   "confidence": 0.9994520545005798,
+   "bbox": [
+    [
+     884.77,
+     748.83
+    ],
+    [
+     1169.53,
+     748.83
+    ],
+    [
+     1169.53,
+     772.27
+    ],
+    [
+     884.77,
+     772.27
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mfg Dt.:# Use before 36 months from Mfg Dt.",
+   "confidence": 0.9968605041503906,
+   "bbox": [
+    [
+     141.8,
+     783.98
+    ],
+    [
+     451.17,
+     783.98
+    ],
+    [
+     451.17,
+     800.39
+    ],
+    [
+     141.8,
+     800.39
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Manufactured, Packed and Marketed by:",
+   "confidence": 0.9994897842407227,
+   "bbox": [
+    [
+     701.95,
+     802.73
+    ],
+    [
+     972.66,
+     802.73
+    ],
+    [
+     972.66,
+     822.66
+    ],
+    [
+     701.95,
+     822.66
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP Rs.* Incl. of all taxes (Rs. ∆ per g)",
+   "confidence": 0.997146725654602,
+   "bbox": [
+    [
+     140.62,
+     815.62
+    ],
+    [
+     407.81,
+     816.8
+    ],
+    [
+     407.81,
+     840.23
+    ],
+    [
+     140.62,
+     839.06
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Jyothy Labs Limited. 'Ujala House Ramkrishna Mandir Road, Kondivita. Andheri (East)",
+   "confidence": 0.9601783156394958,
+   "bbox": [
+    [
+     704.3,
+     829.69
+    ],
+    [
+     1245.7,
+     829.69
+    ],
+    [
+     1245.7,
+     846.09
+    ],
+    [
+     704.3,
+     846.09
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Weight:",
+   "confidence": 0.9999250173568726,
+   "bbox": [
+    [
+     141.8,
+     855.47
+    ],
+    [
+     226.17,
+     855.47
+    ],
+    [
+     226.17,
+     876.56
+    ],
+    [
+     141.8,
+     876.56
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "1000g",
+   "confidence": 0.9999932050704956,
+   "bbox": [
+    [
+     248.44,
+     854.3
+    ],
+    [
+     318.75,
+     854.3
+    ],
+    [
+     318.75,
+     878.91
+    ],
+    [
+     248.44,
+     878.91
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(125g x 8 units)",
+   "confidence": 0.9544258117675781,
+   "bbox": [
+    [
+     318.75,
+     856.64
+    ],
+    [
+     427.73,
+     856.64
+    ],
+    [
+     427.73,
+     877.73
+    ],
+    [
+     318.75,
+     877.73
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mumbai-400059.CIN-L24240MH1992PLC128651 www.jyothylabs.com",
+   "confidence": 0.9821282625198364,
+   "bbox": [
+    [
+     703.12,
+     851.95
+    ],
+    [
+     1167.19,
+     851.95
+    ],
+    [
+     1167.19,
+     871.88
+    ],
+    [
+     703.12,
+     871.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "When Packed.",
+   "confidence": 0.9999857544898987,
+   "bbox": [
+    [
+     141.8,
+     883.59
+    ],
+    [
+     229.69,
+     883.59
+    ],
+    [
+     229.69,
+     904.69
+    ],
+    [
+     141.8,
+     904.69
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "At: JLGH5 - Jagati Mini Industrial Estate. Sila Sinduri Ghopa, Kamalpur. Chowkigate, Changsari",
+   "confidence": 0.9905214309692383,
+   "bbox": [
+    [
+     703.12,
+     884.77
+    ],
+    [
+     1298.44,
+     885.94
+    ],
+    [
+     1298.44,
+     905.86
+    ],
+    [
+     703.12,
+     904.69
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Kamrup (R). Assam - 781101. Mfg. Lic No. M C-55M/2021 For 'Manufacturing and Packed By details",
+   "confidence": 0.9752722382545471,
+   "bbox": [
+    [
+     704.3,
+     909.38
+    ],
+    [
+     1338.28,
+     909.38
+    ],
+    [
+     1338.28,
+     925.78
+    ],
+    [
+     704.3,
+     925.78
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Batch No.: $",
+   "confidence": 0.9808242917060852,
+   "bbox": [
+    [
+     142.97,
+     942.19
+    ],
+    [
+     232.03,
+     942.19
+    ],
+    [
+     232.03,
+     963.28
+    ],
+    [
+     142.97,
+     963.28
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "refer first four letters of the Batch No. \"Margo is the Registered Trademark of Jyothy Labs Limited",
+   "confidence": 0.9944347143173218,
+   "bbox": [
+    [
+     703.12,
+     931.64
+    ],
+    [
+     1304.3,
+     931.64
+    ],
+    [
+     1304.3,
+     948.05
+    ],
+    [
+     703.12,
+     948.05
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Imitation of graphics is a punishable offence",
+   "confidence": 0.9998261332511902,
+   "bbox": [
+    [
+     703.12,
+     951.56
+    ],
+    [
+     978.52,
+     951.56
+    ],
+    [
+     978.52,
+     971.48
+    ],
+    [
+     703.12,
+     971.48
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Made in India",
+   "confidence": 0.9997381567955017,
+   "bbox": [
+    [
+     700.78,
+     979.69
+    ],
+    [
+     809.77,
+     982.03
+    ],
+    [
+     809.77,
+     1003.12
+    ],
+    [
+     700.78,
+     1000.78
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "For Customer Feedback Contact: Customer Care Executive at 'Manufactured",
+   "confidence": 0.9992017149925232,
+   "bbox": [
+    [
+     145.31,
+     1001.95
+    ],
+    [
+     662.11,
+     1001.95
+    ],
+    [
+     662.11,
+     1021.88
+    ],
+    [
+     145.31,
+     1021.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Packed and Marketed By Address. Email: customercare@jyothy.com",
+   "confidence": 0.9826787114143372,
+   "bbox": [
+    [
+     144.14,
+     1023.05
+    ],
+    [
+     607.03,
+     1024.22
+    ],
+    [
+     607.03,
+     1044.14
+    ],
+    [
+     144.14,
+     1042.97
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Customer Care No.",
+   "confidence": 0.9999439120292664,
+   "bbox": [
+    [
+     703.12,
+     1025.39
+    ],
+    [
+     862.5,
+     1025.39
+    ],
+    [
+     862.5,
+     1041.8
+    ],
+    [
+     703.12,
+     1041.8
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "18001032992",
+   "confidence": 0.9999986290931702,
+   "bbox": [
+    [
+     882.42,
+     1025.39
+    ],
+    [
+     986.72,
+     1025.39
+    ],
+    [
+     986.72,
+     1041.8
+    ],
+    [
+     882.42,
+     1041.8
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(Toll Free)",
+   "confidence": 0.9940128326416016,
+   "bbox": [
+    [
+     1008.98,
+     1020.7
+    ],
+    [
+     1091.02,
+     1023.05
+    ],
+    [
+     1091.02,
+     1045.31
+    ],
+    [
+     1008.98,
+     1042.97
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NH",
+   "confidence": 0.2611924111843109,
+   "bbox": [
+    [
+     228.12,
+     446.88
+    ],
+    [
+     312.5,
+     446.88
+    ],
+    [
+     312.5,
+     457.81
+    ],
+    [
+     228.12,
+     457.81
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "D",
+   "confidence": 0.5801680088043213,
+   "bbox": [
+    [
+     1289.06,
+     551.56
+    ],
+    [
+     1335.94,
+     551.56
+    ],
+    [
+     1335.94,
+     595.31
+    ],
+    [
+     1289.06,
+     595.31
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

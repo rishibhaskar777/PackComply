@@ -1,0 +1,1383 @@
+{
+ "source": "batch_evaluate OCR of 713ThnhUQPL._SL1500_.jpg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 1500,
+ "image_height": 1500,
+ "ocr_seconds": 34.35,
+ "raw_text": "PRESTO! ACTIVE WASH\nPresto! Active Wash Detergent Powder effortlessly\nhandles stubborn stains, leaving behind a subtle and\nDETERGENT POWDER\nrefreshing scent.\nMANUFACTURED BY:\nHITKARI GRAM UDYOG SANGH 18/57 KM STONE\nDOSAGEINSTRUCTIONS:\nGANDHRA MORE, VPO ISMAILA, DELHI ROHTAK\nAdd 60g in bucket or machine for normal\nROAD. ROHTAK - 124501, HARYANA\nloads and 80g for soiled clothes.\nMARKETED BY: RK WORLDINFOCOM PRIVATE\nUSAGEINSTRUCTIONS:\nLIMITED, 20, 1ST FLOOR, WARD NO. 67, 4TH CROSS,\nHAND WASH:\n5TH BLOCK, KORAMANGALA INDUSTRIAL LAYOUT,\nBANGALORE-560095\nFOR CUSTOMER COMPLAINTS, FEEDBACK,\nPLEASE WRITE TO: CUSTOMER SUPPORT DESK,\nPut Presto! Active Wash Detergent\nSoak clothes if needed\npowder as per dosage in a water tub\n& wash as usual.\nREFER MARKETED BY ADDRESS AS ABOVE,\n& shake till the foam appears.\nPHONE NO.: 1800 419 0416,\nE-MAIL:AMAZONBRANDS@BLUBIRCH.COM\nMACHINE WASH:\nPut Presto! Active Wash Detergent powder as per\nCAUTION: Keep out of reach of children & pets. In case o\ndosage directly in the machine dispenser/drum.\naccidental contact with eyes, wash immediately with\nWash as usual.\nplenty of water. Do not ingest. If swallowed, seek medica\nadvice. Do wash your hands after use.\nFOR TOUGH STAINS:\nSTORAGE: Always store upright in a cool & dry place,\naway from direct sunlight.\nMRP  (INCL. OF ALL TAXES); USP /KG;\nRinse the stained area, apply small\nWash as per above\nBATCH NO.; MFD.;\namount of Presto! detergent & rub\ninstructions.\ngently onto the stain.\nNET WEIGHT:\n8 kg\n90·100 mm\nB0CV7GMSJY\n*TESTED UNDER SPECIFIC\nLABORATORY CONDITIONS.\nBEST BEFORE 24 MONTHS FROM\nOTHER\nCPCB PWMR EPR REG.NO: RK WORLDINFOCOM PRIVATE LIMITED:\nTHE DATE OF MANUFACTURING\nB0-19-000-07-AAECR0564M-22",
+ "detections": [
+  {
+   "text": "PRESTO! ACTIVE WASH",
+   "confidence": 0.9803503751754761,
+   "bbox": [
+    [
+     342.19,
+     240.23
+    ],
+    [
+     587.11,
+     240.23
+    ],
+    [
+     587.11,
+     264.84
+    ],
+    [
+     342.19,
+     264.84
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Presto! Active Wash Detergent Powder effortlessly",
+   "confidence": 0.9998283982276917,
+   "bbox": [
+    [
+     779.3,
+     236.72
+    ],
+    [
+     1121.48,
+     236.72
+    ],
+    [
+     1121.48,
+     256.64
+    ],
+    [
+     779.3,
+     256.64
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "handles stubborn stains, leaving behind a subtle and",
+   "confidence": 0.9985980987548828,
+   "bbox": [
+    [
+     776.95,
+     255.47
+    ],
+    [
+     1132.03,
+     256.64
+    ],
+    [
+     1132.03,
+     277.73
+    ],
+    [
+     776.95,
+     276.56
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DETERGENT POWDER",
+   "confidence": 0.9997959136962891,
+   "bbox": [
+    [
+     342.19,
+     268.36
+    ],
+    [
+     567.19,
+     268.36
+    ],
+    [
+     567.19,
+     296.48
+    ],
+    [
+     342.19,
+     296.48
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "refreshing scent.",
+   "confidence": 0.9999951720237732,
+   "bbox": [
+    [
+     779.3,
+     278.91
+    ],
+    [
+     896.48,
+     278.91
+    ],
+    [
+     896.48,
+     298.83
+    ],
+    [
+     779.3,
+     298.83
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MANUFACTURED BY:",
+   "confidence": 0.9995362758636475,
+   "bbox": [
+    [
+     342.19,
+     307.03
+    ],
+    [
+     489.84,
+     307.03
+    ],
+    [
+     489.84,
+     326.95
+    ],
+    [
+     342.19,
+     326.95
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "HITKARI GRAM UDYOG SANGH 18/57 KM STONE",
+   "confidence": 0.9985339641571045,
+   "bbox": [
+    [
+     343.36,
+     330.47
+    ],
+    [
+     669.14,
+     330.47
+    ],
+    [
+     669.14,
+     350.39
+    ],
+    [
+     343.36,
+     350.39
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "DOSAGEINSTRUCTIONS:",
+   "confidence": 0.9995761513710022,
+   "bbox": [
+    [
+     780.47,
+     321.09
+    ],
+    [
+     953.91,
+     321.09
+    ],
+    [
+     953.91,
+     337.5
+    ],
+    [
+     780.47,
+     337.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "GANDHRA MORE, VPO ISMAILA, DELHI ROHTAK",
+   "confidence": 0.986149787902832,
+   "bbox": [
+    [
+     343.36,
+     352.73
+    ],
+    [
+     664.45,
+     352.73
+    ],
+    [
+     664.45,
+     372.66
+    ],
+    [
+     343.36,
+     372.66
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Add 60g in bucket or machine for normal",
+   "confidence": 0.9946609139442444,
+   "bbox": [
+    [
+     780.47,
+     348.05
+    ],
+    [
+     1000.78,
+     348.05
+    ],
+    [
+     1000.78,
+     364.45
+    ],
+    [
+     780.47,
+     364.45
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "ROAD. ROHTAK - 124501, HARYANA",
+   "confidence": 0.9213451147079468,
+   "bbox": [
+    [
+     341.02,
+     373.83
+    ],
+    [
+     581.25,
+     373.83
+    ],
+    [
+     581.25,
+     393.75
+    ],
+    [
+     341.02,
+     393.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "loads and 80g for soiled clothes.",
+   "confidence": 0.9982654452323914,
+   "bbox": [
+    [
+     779.3,
+     365.62
+    ],
+    [
+     959.77,
+     365.62
+    ],
+    [
+     959.77,
+     385.55
+    ],
+    [
+     779.3,
+     385.55
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MARKETED BY: RK WORLDINFOCOM PRIVATE",
+   "confidence": 0.9993042349815369,
+   "bbox": [
+    [
+     341.02,
+     411.33
+    ],
+    [
+     657.42,
+     411.33
+    ],
+    [
+     657.42,
+     431.25
+    ],
+    [
+     341.02,
+     431.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "USAGEINSTRUCTIONS:",
+   "confidence": 0.9999371767044067,
+   "bbox": [
+    [
+     780.47,
+     406.64
+    ],
+    [
+     946.88,
+     406.64
+    ],
+    [
+     946.88,
+     426.56
+    ],
+    [
+     780.47,
+     426.56
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LIMITED, 20, 1ST FLOOR, WARD NO. 67, 4TH CROSS,",
+   "confidence": 0.98064124584198,
+   "bbox": [
+    [
+     339.84,
+     438.28
+    ],
+    [
+     691.41,
+     438.28
+    ],
+    [
+     691.41,
+     458.2
+    ],
+    [
+     339.84,
+     458.2
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "HAND WASH:",
+   "confidence": 0.9999486207962036,
+   "bbox": [
+    [
+     780.47,
+     427.73
+    ],
+    [
+     864.84,
+     427.73
+    ],
+    [
+     864.84,
+     448.83
+    ],
+    [
+     780.47,
+     448.83
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "5TH BLOCK, KORAMANGALA INDUSTRIAL LAYOUT,",
+   "confidence": 0.9971001148223877,
+   "bbox": [
+    [
+     338.67,
+     461.72
+    ],
+    [
+     682.03,
+     462.89
+    ],
+    [
+     682.03,
+     486.33
+    ],
+    [
+     338.67,
+     485.16
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BANGALORE-560095",
+   "confidence": 0.9994984865188599,
+   "bbox": [
+    [
+     338.67,
+     491.02
+    ],
+    [
+     488.67,
+     491.02
+    ],
+    [
+     488.67,
+     510.94
+    ],
+    [
+     338.67,
+     510.94
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FOR CUSTOMER COMPLAINTS, FEEDBACK,",
+   "confidence": 0.9975669980049133,
+   "bbox": [
+    [
+     336.33,
+     521.48
+    ],
+    [
+     641.02,
+     521.48
+    ],
+    [
+     641.02,
+     544.92
+    ],
+    [
+     336.33,
+     544.92
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PLEASE WRITE TO: CUSTOMER SUPPORT DESK,",
+   "confidence": 0.9997878670692444,
+   "bbox": [
+    [
+     335.16,
+     548.44
+    ],
+    [
+     679.69,
+     548.44
+    ],
+    [
+     679.69,
+     571.88
+    ],
+    [
+     335.16,
+     571.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Put Presto! Active Wash Detergent",
+   "confidence": 0.9924653768539429,
+   "bbox": [
+    [
+     781.64,
+     542.58
+    ],
+    [
+     976.17,
+     543.75
+    ],
+    [
+     976.17,
+     563.67
+    ],
+    [
+     781.64,
+     562.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Soak clothes if needed",
+   "confidence": 0.9998483061790466,
+   "bbox": [
+    [
+     1008.98,
+     543.75
+    ],
+    [
+     1136.72,
+     543.75
+    ],
+    [
+     1136.72,
+     563.67
+    ],
+    [
+     1008.98,
+     563.67
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "powder as per dosage in a water tub",
+   "confidence": 0.9999142289161682,
+   "bbox": [
+    [
+     783.98,
+     566.02
+    ],
+    [
+     982.03,
+     566.02
+    ],
+    [
+     982.03,
+     582.42
+    ],
+    [
+     783.98,
+     582.42
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "& wash as usual.",
+   "confidence": 0.998210608959198,
+   "bbox": [
+    [
+     1008.98,
+     563.67
+    ],
+    [
+     1106.25,
+     563.67
+    ],
+    [
+     1106.25,
+     583.59
+    ],
+    [
+     1008.98,
+     583.59
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "REFER MARKETED BY ADDRESS AS ABOVE,",
+   "confidence": 0.9997746348381042,
+   "bbox": [
+    [
+     335.16,
+     575.39
+    ],
+    [
+     648.05,
+     575.39
+    ],
+    [
+     648.05,
+     598.83
+    ],
+    [
+     335.16,
+     598.83
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "& shake till the foam appears.",
+   "confidence": 0.9880434274673462,
+   "bbox": [
+    [
+     781.64,
+     583.59
+    ],
+    [
+     950.39,
+     584.77
+    ],
+    [
+     950.39,
+     604.69
+    ],
+    [
+     781.64,
+     603.52
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PHONE NO.: 1800 419 0416,",
+   "confidence": 0.9986976385116577,
+   "bbox": [
+    [
+     335.16,
+     601.17
+    ],
+    [
+     529.69,
+     601.17
+    ],
+    [
+     529.69,
+     624.61
+    ],
+    [
+     335.16,
+     624.61
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "E-MAIL:AMAZONBRANDS@BLUBIRCH.COM",
+   "confidence": 0.9907009601593018,
+   "bbox": [
+    [
+     335.16,
+     629.3
+    ],
+    [
+     649.22,
+     629.3
+    ],
+    [
+     649.22,
+     649.22
+    ],
+    [
+     335.16,
+     649.22
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MACHINE WASH:",
+   "confidence": 0.99941486120224,
+   "bbox": [
+    [
+     782.81,
+     624.61
+    ],
+    [
+     888.28,
+     624.61
+    ],
+    [
+     888.28,
+     644.53
+    ],
+    [
+     782.81,
+     644.53
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Put Presto! Active Wash Detergent powder as per",
+   "confidence": 0.999916672706604,
+   "bbox": [
+    [
+     862.5,
+     648.05
+    ],
+    [
+     1137.89,
+     650.39
+    ],
+    [
+     1137.89,
+     670.31
+    ],
+    [
+     862.5,
+     667.97
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CAUTION: Keep out of reach of children & pets. In case o",
+   "confidence": 0.9961405396461487,
+   "bbox": [
+    [
+     333.98,
+     660.94
+    ],
+    [
+     698.44,
+     662.11
+    ],
+    [
+     698.44,
+     683.2
+    ],
+    [
+     333.98,
+     682.03
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "dosage directly in the machine dispenser/drum.",
+   "confidence": 0.987413227558136,
+   "bbox": [
+    [
+     864.84,
+     670.31
+    ],
+    [
+     1125.0,
+     670.31
+    ],
+    [
+     1125.0,
+     686.72
+    ],
+    [
+     864.84,
+     686.72
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "accidental contact with eyes, wash immediately with",
+   "confidence": 0.9999265670776367,
+   "bbox": [
+    [
+     332.81,
+     685.55
+    ],
+    [
+     672.66,
+     686.72
+    ],
+    [
+     672.66,
+     707.81
+    ],
+    [
+     332.81,
+     706.64
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Wash as usual.",
+   "confidence": 0.990464985370636,
+   "bbox": [
+    [
+     863.67,
+     694.92
+    ],
+    [
+     950.39,
+     694.92
+    ],
+    [
+     950.39,
+     714.84
+    ],
+    [
+     863.67,
+     714.84
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "plenty of water. Do not ingest. If swallowed, seek medica",
+   "confidence": 0.9992920160293579,
+   "bbox": [
+    [
+     333.98,
+     711.33
+    ],
+    [
+     699.61,
+     711.33
+    ],
+    [
+     699.61,
+     731.25
+    ],
+    [
+     333.98,
+     731.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "advice. Do wash your hands after use.",
+   "confidence": 0.9999375343322754,
+   "bbox": [
+    [
+     332.81,
+     734.77
+    ],
+    [
+     575.39,
+     734.77
+    ],
+    [
+     575.39,
+     754.69
+    ],
+    [
+     332.81,
+     754.69
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FOR TOUGH STAINS:",
+   "confidence": 0.9995487332344055,
+   "bbox": [
+    [
+     782.81,
+     739.45
+    ],
+    [
+     907.03,
+     741.8
+    ],
+    [
+     907.03,
+     762.89
+    ],
+    [
+     782.81,
+     760.55
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "STORAGE: Always store upright in a cool & dry place,",
+   "confidence": 0.9992693662643433,
+   "bbox": [
+    [
+     330.47,
+     766.41
+    ],
+    [
+     675.0,
+     768.75
+    ],
+    [
+     675.0,
+     792.19
+    ],
+    [
+     330.47,
+     789.84
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "away from direct sunlight.",
+   "confidence": 0.9927597641944885,
+   "bbox": [
+    [
+     331.64,
+     792.19
+    ],
+    [
+     501.56,
+     792.19
+    ],
+    [
+     501.56,
+     815.62
+    ],
+    [
+     331.64,
+     815.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP  (INCL. OF ALL TAXES); USP /KG;",
+   "confidence": 0.9818543791770935,
+   "bbox": [
+    [
+     330.47,
+     825.0
+    ],
+    [
+     628.12,
+     826.17
+    ],
+    [
+     628.12,
+     850.78
+    ],
+    [
+     330.47,
+     849.61
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Rinse the stained area, apply small",
+   "confidence": 0.999829113483429,
+   "bbox": [
+    [
+     783.98,
+     842.58
+    ],
+    [
+     978.52,
+     842.58
+    ],
+    [
+     978.52,
+     862.5
+    ],
+    [
+     783.98,
+     862.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Wash as per above",
+   "confidence": 0.9580216407775879,
+   "bbox": [
+    [
+     1011.33,
+     842.58
+    ],
+    [
+     1120.31,
+     842.58
+    ],
+    [
+     1120.31,
+     862.5
+    ],
+    [
+     1011.33,
+     862.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BATCH NO.; MFD.;",
+   "confidence": 0.9878044128417969,
+   "bbox": [
+    [
+     330.47,
+     856.64
+    ],
+    [
+     464.06,
+     858.98
+    ],
+    [
+     464.06,
+     884.77
+    ],
+    [
+     330.47,
+     882.42
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "amount of Presto! detergent & rub",
+   "confidence": 0.999747097492218,
+   "bbox": [
+    [
+     782.81,
+     862.5
+    ],
+    [
+     975.0,
+     862.5
+    ],
+    [
+     975.0,
+     882.42
+    ],
+    [
+     782.81,
+     882.42
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "instructions.",
+   "confidence": 0.9999930262565613,
+   "bbox": [
+    [
+     1011.33,
+     862.5
+    ],
+    [
+     1086.33,
+     862.5
+    ],
+    [
+     1086.33,
+     882.42
+    ],
+    [
+     1011.33,
+     882.42
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "gently onto the stain.",
+   "confidence": 0.9972372651100159,
+   "bbox": [
+    [
+     782.81,
+     883.59
+    ],
+    [
+     902.34,
+     883.59
+    ],
+    [
+     902.34,
+     903.52
+    ],
+    [
+     782.81,
+     903.52
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NET WEIGHT:",
+   "confidence": 0.9999068975448608,
+   "bbox": [
+    [
+     779.3,
+     950.39
+    ],
+    [
+     926.95,
+     952.73
+    ],
+    [
+     926.95,
+     993.75
+    ],
+    [
+     779.3,
+     991.41
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8 kg",
+   "confidence": 0.9826794862747192,
+   "bbox": [
+    [
+     966.8,
+     946.88
+    ],
+    [
+     1039.45,
+     951.56
+    ],
+    [
+     1035.94,
+     1004.3
+    ],
+    [
+     963.28,
+     999.61
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "90·100 mm",
+   "confidence": 0.7800854444503784,
+   "bbox": [
+    [
+     359.77,
+     1040.62
+    ],
+    [
+     389.06,
+     1040.62
+    ],
+    [
+     389.06,
+     1150.78
+    ],
+    [
+     359.77,
+     1150.78
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "B0CV7GMSJY",
+   "confidence": 0.9695758819580078,
+   "bbox": [
+    [
+     895.31,
+     1106.25
+    ],
+    [
+     986.72,
+     1106.25
+    ],
+    [
+     986.72,
+     1127.34
+    ],
+    [
+     895.31,
+     1127.34
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "*TESTED UNDER SPECIFIC",
+   "confidence": 0.9999170899391174,
+   "bbox": [
+    [
+     779.3,
+     1155.47
+    ],
+    [
+     921.09,
+     1155.47
+    ],
+    [
+     921.09,
+     1171.88
+    ],
+    [
+     779.3,
+     1171.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "LABORATORY CONDITIONS.",
+   "confidence": 0.988525927066803,
+   "bbox": [
+    [
+     779.3,
+     1176.56
+    ],
+    [
+     924.61,
+     1176.56
+    ],
+    [
+     924.61,
+     1191.8
+    ],
+    [
+     779.3,
+     1191.8
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "BEST BEFORE 24 MONTHS FROM",
+   "confidence": 0.9874001741409302,
+   "bbox": [
+    [
+     342.19,
+     1188.28
+    ],
+    [
+     571.88,
+     1188.28
+    ],
+    [
+     571.88,
+     1208.2
+    ],
+    [
+     342.19,
+     1208.2
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "OTHER",
+   "confidence": 0.9999225735664368,
+   "bbox": [
+    [
+     1067.58,
+     1187.11
+    ],
+    [
+     1099.22,
+     1189.45
+    ],
+    [
+     1098.05,
+     1203.52
+    ],
+    [
+     1066.41,
+     1201.17
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CPCB PWMR EPR REG.NO: RK WORLDINFOCOM PRIVATE LIMITED:",
+   "confidence": 0.9991612434387207,
+   "bbox": [
+    [
+     778.12,
+     1203.52
+    ],
+    [
+     1128.52,
+     1204.69
+    ],
+    [
+     1128.52,
+     1224.61
+    ],
+    [
+     778.12,
+     1223.44
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "THE DATE OF MANUFACTURING",
+   "confidence": 0.9994516968727112,
+   "bbox": [
+    [
+     343.36,
+     1215.23
+    ],
+    [
+     563.67,
+     1215.23
+    ],
+    [
+     563.67,
+     1235.16
+    ],
+    [
+     343.36,
+     1235.16
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "B0-19-000-07-AAECR0564M-22",
+   "confidence": 0.9974722266197205,
+   "bbox": [
+    [
+     778.12,
+     1226.95
+    ],
+    [
+     950.39,
+     1226.95
+    ],
+    [
+     950.39,
+     1243.36
+    ],
+    [
+     778.12,
+     1243.36
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  }
+ ]
+}

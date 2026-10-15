@@ -1,0 +1,1671 @@
+{
+ "source": "batch_evaluate OCR of 813hpCgU0OL._SL1500_.jpg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 1500,
+ "image_height": 1500,
+ "ocr_seconds": 105.18,
+ "raw_text": "For feedback- Contact: Executive, Consumer Care Cell, Ph.: (Toll Free)\n1-800-4254449/1-800-30004530 @ Britannia Industries Ltd., Prestige\n8 19199292791\n BRTD\nShantiniketan, Tower C, Whitefield, Bangalore-560048, Karnataka.\nE-mail: feedback@britindia.com\nMarketed By: BRITANNIA INDUSTRIES LTD., 5/1 A HUNGERFORD STREET,\nRIA\nKOLKATA-7Ó0017, WEST BENGAL (A WADIA Enterprise)\nFor manufacturer details scan the barcode using the Smart Consumer App\nand refer to the last two characters of the Lot/Batch No. printed on the pack.\nSTORE IN À COOL, HYGIENIC AND DRY PLACE.\nfssaí\nB\nTRANSFERCONTENTSTO ACLEAN AIRTIGHT\nCONTAINER ONCE OPENED.\nBIL|REGN.NO.BO-23-000-08-AABCB2066P-22\nLic. No. 10015043001129\nS4-07\nNUTRITION INFORMATION\nINGREDIENTS: REFINED WHEAT FLOUR (MAIDA), SUGAR (24%),\nServing Size: 11.5 g (1 Biscuit°)\nREFINED PALM OIL, INVERT SUGAR SYRUP, INTERESTERIFIED\nNo. of Servings per pack - 12\nVEGETABLE FAT, DEXTROSE, MILK PRODUCTS (MILK SOLIDS &\n°Per 100 g\nPer serve\nSWEETENED CONDENSED MILK), MAIZE STARCH, MALTODEXTRIN,\nproduct\n(%) RDA^\nFRUITPRODUCTS(O.7%)(APPLÉJUICE CONCENTRATE, BANANA\nEnergy\n483 kcal\n3\nPOWDER & PLUM JUICE CONCENTRATE), IODISED SALT,\nProtein\n5g\nEMULSIFIERS [322(i) & 471], RAISING AGENTS [503(ii) & 500(ii)],\nCarbohydrate\n73g\n32.9 g\nNATURE IDENTICAL AND ARTIFICIAL(MIXED FRUIT, VANILLA &\nAdded Sugars\nTotal Sugars\n31.8 g\nBUTTER) FLAVOURING SUBSTANCES, ACIDITY REGULATORS [330 &\n735\n19g\n331(iii), GELLING AGENT (440) AND COLOUR (122).\nTotal Fat\nSaturated fatty acids\n9.5 g\n(Numbers in brackets as per International Numbering System)\nMono unsaturated fatty acids\n7.2g\nPoly unsaturated fatty acids\n2.2g\nCONTAINS WHEAT, MILK &SOY.\nTrans fatty acids\n0g\n0mg\n0\nCholesterol\nBiscuit Design Registration No. 293085\nSodium\n211 mg\n^Basis average adult's Recommended\nDietary Allowance (2000 kcal diet)\n*Approximate Values",
+ "detections": [
+  {
+   "text": "For feedback- Contact: Executive, Consumer Care Cell, Ph.: (Toll Free)",
+   "confidence": 0.9763400554656982,
+   "bbox": [
+    [
+     385.55,
+     1083.98
+    ],
+    [
+     385.55,
+     659.77
+    ],
+    [
+     401.95,
+     659.77
+    ],
+    [
+     401.95,
+     1083.98
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "1-800-4254449/1-800-30004530 @ Britannia Industries Ltd., Prestige",
+   "confidence": 0.9922272562980652,
+   "bbox": [
+    [
+     400.78,
+     1086.33
+    ],
+    [
+     401.95,
+     651.56
+    ],
+    [
+     421.88,
+     651.56
+    ],
+    [
+     420.7,
+     1086.33
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "8 19199292791",
+   "confidence": 0.7763543725013733,
+   "bbox": [
+    [
+     407.81,
+     507.42
+    ],
+    [
+     407.81,
+     483.98
+    ],
+    [
+     612.89,
+     483.98
+    ],
+    [
+     612.89,
+     507.42
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": " BRTD",
+   "confidence": 0.7477413415908813,
+   "bbox": [
+    [
+     408.98,
+     476.95
+    ],
+    [
+     408.98,
+     460.55
+    ],
+    [
+     604.69,
+     460.55
+    ],
+    [
+     604.69,
+     476.95
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Shantiniketan, Tower C, Whitefield, Bangalore-560048, Karnataka.",
+   "confidence": 0.9903643727302551,
+   "bbox": [
+    [
+     420.7,
+     1085.16
+    ],
+    [
+     420.7,
+     685.55
+    ],
+    [
+     437.11,
+     685.55
+    ],
+    [
+     437.11,
+     1085.16
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "E-mail: feedback@britindia.com",
+   "confidence": 0.9842551946640015,
+   "bbox": [
+    [
+     439.45,
+     1083.98
+    ],
+    [
+     439.45,
+     891.8
+    ],
+    [
+     455.86,
+     891.8
+    ],
+    [
+     455.86,
+     1083.98
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Marketed By: BRITANNIA INDUSTRIES LTD., 5/1 A HUNGERFORD STREET,",
+   "confidence": 0.9897328019142151,
+   "bbox": [
+    [
+     464.06,
+     1083.98
+    ],
+    [
+     464.06,
+     650.39
+    ],
+    [
+     480.47,
+     650.39
+    ],
+    [
+     480.47,
+     1083.98
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "RIA",
+   "confidence": 0.6502282619476318,
+   "bbox": [
+    [
+     453.52,
+     608.2
+    ],
+    [
+     453.52,
+     591.8
+    ],
+    [
+     534.38,
+     591.8
+    ],
+    [
+     534.38,
+     608.2
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "KOLKATA-7Ó0017, WEST BENGAL (A WADIA Enterprise)",
+   "confidence": 0.9766556620597839,
+   "bbox": [
+    [
+     479.3,
+     1086.33
+    ],
+    [
+     480.47,
+     753.52
+    ],
+    [
+     500.39,
+     753.52
+    ],
+    [
+     499.22,
+     1086.33
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "For manufacturer details scan the barcode using the Smart Consumer App",
+   "confidence": 0.999571681022644,
+   "bbox": [
+    [
+     501.56,
+     1087.5
+    ],
+    [
+     502.73,
+     644.53
+    ],
+    [
+     522.66,
+     644.53
+    ],
+    [
+     521.48,
+     1087.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "and refer to the last two characters of the Lot/Batch No. printed on the pack.",
+   "confidence": 0.9901617765426636,
+   "bbox": [
+    [
+     519.14,
+     1087.5
+    ],
+    [
+     520.31,
+     636.33
+    ],
+    [
+     540.23,
+     636.33
+    ],
+    [
+     539.06,
+     1087.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "STORE IN À COOL, HYGIENIC AND DRY PLACE.",
+   "confidence": 0.9695245623588562,
+   "bbox": [
+    [
+     549.61,
+     1085.16
+    ],
+    [
+     549.61,
+     825.0
+    ],
+    [
+     566.02,
+     825.0
+    ],
+    [
+     566.02,
+     1085.16
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "fssaí",
+   "confidence": 0.9126046895980835,
+   "bbox": [
+    [
+     547.27,
+     767.58
+    ],
+    [
+     547.27,
+     658.59
+    ],
+    [
+     604.69,
+     658.59
+    ],
+    [
+     604.69,
+     767.58
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "B",
+   "confidence": 0.9988177418708801,
+   "bbox": [
+    [
+     550.78,
+     610.55
+    ],
+    [
+     550.78,
+     592.97
+    ],
+    [
+     567.19,
+     592.97
+    ],
+    [
+     567.19,
+     610.55
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "TRANSFERCONTENTSTO ACLEAN AIRTIGHT",
+   "confidence": 0.9818429350852966,
+   "bbox": [
+    [
+     568.36,
+     1085.16
+    ],
+    [
+     568.36,
+     833.2
+    ],
+    [
+     584.77,
+     833.2
+    ],
+    [
+     584.77,
+     1085.16
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "CONTAINER ONCE OPENED.",
+   "confidence": 0.9551001191139221,
+   "bbox": [
+    [
+     585.94,
+     1083.98
+    ],
+    [
+     585.94,
+     926.95
+    ],
+    [
+     602.34,
+     926.95
+    ],
+    [
+     602.34,
+     1083.98
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "BIL|REGN.NO.BO-23-000-08-AABCB2066P-22",
+   "confidence": 0.9795451760292053,
+   "bbox": [
+    [
+     611.72,
+     1085.16
+    ],
+    [
+     611.72,
+     853.12
+    ],
+    [
+     626.95,
+     853.12
+    ],
+    [
+     626.95,
+     1085.16
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Lic. No. 10015043001129",
+   "confidence": 0.9805211424827576,
+   "bbox": [
+    [
+     601.17,
+     796.88
+    ],
+    [
+     601.17,
+     633.98
+    ],
+    [
+     625.78,
+     633.98
+    ],
+    [
+     625.78,
+     796.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "S4-07",
+   "confidence": 0.8596703410148621,
+   "bbox": [
+    [
+     754.69,
+     341.02
+    ],
+    [
+     754.69,
+     305.86
+    ],
+    [
+     773.44,
+     305.86
+    ],
+    [
+     773.44,
+     341.02
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "NUTRITION INFORMATION",
+   "confidence": 0.9990213513374329,
+   "bbox": [
+    [
+     789.84,
+     1041.8
+    ],
+    [
+     789.84,
+     878.91
+    ],
+    [
+     801.56,
+     878.91
+    ],
+    [
+     801.56,
+     1041.8
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "INGREDIENTS: REFINED WHEAT FLOUR (MAIDA), SUGAR (24%),",
+   "confidence": 0.9850332736968994,
+   "bbox": [
+    [
+     791.02,
+     839.06
+    ],
+    [
+     792.19,
+     452.34
+    ],
+    [
+     812.11,
+     452.34
+    ],
+    [
+     810.94,
+     839.06
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Serving Size: 11.5 g (1 Biscuit°)",
+   "confidence": 0.9494127035140991,
+   "bbox": [
+    [
+     805.08,
+     1028.91
+    ],
+    [
+     805.08,
+     892.97
+    ],
+    [
+     821.48,
+     892.97
+    ],
+    [
+     821.48,
+     1028.91
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "REFINED PALM OIL, INVERT SUGAR SYRUP, INTERESTERIFIED",
+   "confidence": 0.9727761149406433,
+   "bbox": [
+    [
+     809.77,
+     836.72
+    ],
+    [
+     809.77,
+     468.75
+    ],
+    [
+     826.17,
+     468.75
+    ],
+    [
+     826.17,
+     836.72
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "No. of Servings per pack - 12",
+   "confidence": 0.9966651797294617,
+   "bbox": [
+    [
+     823.83,
+     1021.88
+    ],
+    [
+     823.83,
+     898.83
+    ],
+    [
+     840.23,
+     898.83
+    ],
+    [
+     840.23,
+     1021.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "VEGETABLE FAT, DEXTROSE, MILK PRODUCTS (MILK SOLIDS &",
+   "confidence": 0.9658535122871399,
+   "bbox": [
+    [
+     826.17,
+     836.72
+    ],
+    [
+     826.17,
+     461.72
+    ],
+    [
+     842.58,
+     461.72
+    ],
+    [
+     842.58,
+     836.72
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "°Per 100 g",
+   "confidence": 0.9260011911392212,
+   "bbox": [
+    [
+     842.58,
+     941.02
+    ],
+    [
+     842.58,
+     891.8
+    ],
+    [
+     860.16,
+     891.8
+    ],
+    [
+     860.16,
+     941.02
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Per serve",
+   "confidence": 0.9987716674804688,
+   "bbox": [
+    [
+     843.75,
+     890.62
+    ],
+    [
+     843.75,
+     846.09
+    ],
+    [
+     860.16,
+     846.09
+    ],
+    [
+     860.16,
+     890.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "SWEETENED CONDENSED MILK), MAIZE STARCH, MALTODEXTRIN,",
+   "confidence": 0.9850459694862366,
+   "bbox": [
+    [
+     843.75,
+     836.72
+    ],
+    [
+     843.75,
+     435.94
+    ],
+    [
+     858.98,
+     435.94
+    ],
+    [
+     858.98,
+     836.72
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "product",
+   "confidence": 0.9996167421340942,
+   "bbox": [
+    [
+     857.81,
+     936.33
+    ],
+    [
+     857.81,
+     895.31
+    ],
+    [
+     875.39,
+     895.31
+    ],
+    [
+     875.39,
+     936.33
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "(%) RDA^",
+   "confidence": 0.9694232940673828,
+   "bbox": [
+    [
+     857.81,
+     890.62
+    ],
+    [
+     857.81,
+     846.09
+    ],
+    [
+     875.39,
+     846.09
+    ],
+    [
+     875.39,
+     890.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "FRUITPRODUCTS(O.7%)(APPLÉJUICE CONCENTRATE, BANANA",
+   "confidence": 0.9774046540260315,
+   "bbox": [
+    [
+     858.98,
+     835.55
+    ],
+    [
+     858.98,
+     448.83
+    ],
+    [
+     875.39,
+     448.83
+    ],
+    [
+     875.39,
+     835.55
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Energy",
+   "confidence": 0.9999558329582214,
+   "bbox": [
+    [
+     876.56,
+     1076.95
+    ],
+    [
+     878.91,
+     1041.8
+    ],
+    [
+     897.66,
+     1042.97
+    ],
+    [
+     895.31,
+     1078.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "483 kcal",
+   "confidence": 0.9963486194610596,
+   "bbox": [
+    [
+     876.56,
+     933.98
+    ],
+    [
+     876.56,
+     894.14
+    ],
+    [
+     894.14,
+     894.14
+    ],
+    [
+     894.14,
+     933.98
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "3",
+   "confidence": 0.9999942779541016,
+   "bbox": [
+    [
+     878.91,
+     874.22
+    ],
+    [
+     878.91,
+     863.67
+    ],
+    [
+     892.97,
+     863.67
+    ],
+    [
+     892.97,
+     874.22
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "POWDER & PLUM JUICE CONCENTRATE), IODISED SALT,",
+   "confidence": 0.9806740283966064,
+   "bbox": [
+    [
+     875.39,
+     836.72
+    ],
+    [
+     875.39,
+     498.05
+    ],
+    [
+     891.8,
+     498.05
+    ],
+    [
+     891.8,
+     836.72
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Protein",
+   "confidence": 0.9998987913131714,
+   "bbox": [
+    [
+     892.97,
+     1076.95
+    ],
+    [
+     892.97,
+     1041.8
+    ],
+    [
+     910.55,
+     1041.8
+    ],
+    [
+     910.55,
+     1076.95
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "5g",
+   "confidence": 0.9975143074989319,
+   "bbox": [
+    [
+     891.8,
+     912.89
+    ],
+    [
+     891.8,
+     891.8
+    ],
+    [
+     911.72,
+     891.8
+    ],
+    [
+     911.72,
+     912.89
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "EMULSIFIERS [322(i) & 471], RAISING AGENTS [503(ii) & 500(ii)],",
+   "confidence": 0.979653000831604,
+   "bbox": [
+    [
+     890.62,
+     836.72
+    ],
+    [
+     890.62,
+     442.97
+    ],
+    [
+     910.55,
+     442.97
+    ],
+    [
+     910.55,
+     836.72
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Carbohydrate",
+   "confidence": 0.9983858466148376,
+   "bbox": [
+    [
+     905.86,
+     1076.95
+    ],
+    [
+     905.86,
+     1014.84
+    ],
+    [
+     925.78,
+     1014.84
+    ],
+    [
+     925.78,
+     1076.95
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "73g",
+   "confidence": 0.9959104657173157,
+   "bbox": [
+    [
+     903.52,
+     918.75
+    ],
+    [
+     905.86,
+     891.8
+    ],
+    [
+     925.78,
+     892.97
+    ],
+    [
+     923.44,
+     921.09
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "32.9 g",
+   "confidence": 0.9119393229484558,
+   "bbox": [
+    [
+     917.58,
+     925.78
+    ],
+    [
+     922.27,
+     889.45
+    ],
+    [
+     944.53,
+     892.97
+    ],
+    [
+     939.84,
+     928.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "NATURE IDENTICAL AND ARTIFICIAL(MIXED FRUIT, VANILLA &",
+   "confidence": 0.965507447719574,
+   "bbox": [
+    [
+     908.2,
+     836.72
+    ],
+    [
+     908.2,
+     460.55
+    ],
+    [
+     924.61,
+     460.55
+    ],
+    [
+     924.61,
+     836.72
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Added Sugars",
+   "confidence": 0.9982090592384338,
+   "bbox": [
+    [
+     933.98,
+     1073.44
+    ],
+    [
+     936.33,
+     1010.16
+    ],
+    [
+     957.42,
+     1011.33
+    ],
+    [
+     955.08,
+     1074.61
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Total Sugars",
+   "confidence": 0.9881109595298767,
+   "bbox": [
+    [
+     923.44,
+     1072.27
+    ],
+    [
+     923.44,
+     1016.02
+    ],
+    [
+     939.84,
+     1016.02
+    ],
+    [
+     939.84,
+     1072.27
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "31.8 g",
+   "confidence": 0.9068905711174011,
+   "bbox": [
+    [
+     935.16,
+     924.61
+    ],
+    [
+     935.16,
+     890.62
+    ],
+    [
+     957.42,
+     890.62
+    ],
+    [
+     957.42,
+     924.61
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "BUTTER) FLAVOURING SUBSTANCES, ACIDITY REGULATORS [330 &",
+   "confidence": 0.9790770411491394,
+   "bbox": [
+    [
+     924.61,
+     836.72
+    ],
+    [
+     924.61,
+     432.42
+    ],
+    [
+     941.02,
+     432.42
+    ],
+    [
+     941.02,
+     836.72
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "735",
+   "confidence": 0.9971272945404053,
+   "bbox": [
+    [
+     937.5,
+     875.39
+    ],
+    [
+     937.5,
+     862.5
+    ],
+    [
+     984.38,
+     862.5
+    ],
+    [
+     984.38,
+     875.39
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "19g",
+   "confidence": 0.8893921971321106,
+   "bbox": [
+    [
+     949.22,
+     918.75
+    ],
+    [
+     952.73,
+     889.45
+    ],
+    [
+     973.83,
+     892.97
+    ],
+    [
+     970.31,
+     921.09
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "331(iii), GELLING AGENT (440) AND COLOUR (122).",
+   "confidence": 0.9702776670455933,
+   "bbox": [
+    [
+     939.84,
+     837.89
+    ],
+    [
+     939.84,
+     523.83
+    ],
+    [
+     959.77,
+     523.83
+    ],
+    [
+     959.77,
+     837.89
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Total Fat",
+   "confidence": 0.9965296983718872,
+   "bbox": [
+    [
+     952.73,
+     1075.78
+    ],
+    [
+     952.73,
+     1035.94
+    ],
+    [
+     970.31,
+     1035.94
+    ],
+    [
+     970.31,
+     1075.78
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Saturated fatty acids",
+   "confidence": 0.9944896697998047,
+   "bbox": [
+    [
+     967.97,
+     1071.09
+    ],
+    [
+     967.97,
+     982.03
+    ],
+    [
+     984.38,
+     982.03
+    ],
+    [
+     984.38,
+     1071.09
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "9.5 g",
+   "confidence": 0.8925105929374695,
+   "bbox": [
+    [
+     966.8,
+     919.92
+    ],
+    [
+     966.8,
+     891.8
+    ],
+    [
+     986.72,
+     891.8
+    ],
+    [
+     986.72,
+     919.92
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "(Numbers in brackets as per International Numbering System)",
+   "confidence": 0.9990875720977783,
+   "bbox": [
+    [
+     965.62,
+     835.55
+    ],
+    [
+     965.62,
+     454.69
+    ],
+    [
+     982.03,
+     454.69
+    ],
+    [
+     982.03,
+     835.55
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Mono unsaturated fatty acids",
+   "confidence": 0.9975164532661438,
+   "bbox": [
+    [
+     983.2,
+     1071.09
+    ],
+    [
+     983.2,
+     948.05
+    ],
+    [
+     999.61,
+     948.05
+    ],
+    [
+     999.61,
+     1071.09
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "7.2g",
+   "confidence": 0.9940779209136963,
+   "bbox": [
+    [
+     982.03,
+     919.92
+    ],
+    [
+     982.03,
+     891.8
+    ],
+    [
+     1001.95,
+     891.8
+    ],
+    [
+     1001.95,
+     919.92
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Poly unsaturated fatty acids",
+   "confidence": 0.9986355900764465,
+   "bbox": [
+    [
+     999.61,
+     1071.09
+    ],
+    [
+     999.61,
+     952.73
+    ],
+    [
+     1016.02,
+     952.73
+    ],
+    [
+     1016.02,
+     1071.09
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "2.2g",
+   "confidence": 0.9955438375473022,
+   "bbox": [
+    [
+     997.27,
+     919.92
+    ],
+    [
+     997.27,
+     891.8
+    ],
+    [
+     1017.19,
+     891.8
+    ],
+    [
+     1017.19,
+     919.92
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "CONTAINS WHEAT, MILK &SOY.",
+   "confidence": 0.9616608023643494,
+   "bbox": [
+    [
+     989.06,
+     835.55
+    ],
+    [
+     989.06,
+     644.53
+    ],
+    [
+     1005.47,
+     644.53
+    ],
+    [
+     1005.47,
+     835.55
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Trans fatty acids",
+   "confidence": 0.9917854070663452,
+   "bbox": [
+    [
+     1012.5,
+     1073.44
+    ],
+    [
+     1012.5,
+     998.44
+    ],
+    [
+     1032.42,
+     998.44
+    ],
+    [
+     1032.42,
+     1073.44
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "0g",
+   "confidence": 0.9753476977348328,
+   "bbox": [
+    [
+     1010.16,
+     912.89
+    ],
+    [
+     1016.02,
+     889.45
+    ],
+    [
+     1035.94,
+     894.14
+    ],
+    [
+     1030.08,
+     917.58
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "0mg",
+   "confidence": 0.999464213848114,
+   "bbox": [
+    [
+     1025.39,
+     921.09
+    ],
+    [
+     1028.91,
+     891.8
+    ],
+    [
+     1048.83,
+     894.14
+    ],
+    [
+     1045.31,
+     923.44
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "0",
+   "confidence": 0.9999386072158813,
+   "bbox": [
+    [
+     1014.84,
+     874.22
+    ],
+    [
+     1014.84,
+     863.67
+    ],
+    [
+     1030.08,
+     863.67
+    ],
+    [
+     1030.08,
+     874.22
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Cholesterol",
+   "confidence": 0.9985004663467407,
+   "bbox": [
+    [
+     1028.91,
+     1075.78
+    ],
+    [
+     1028.91,
+     1026.56
+    ],
+    [
+     1046.48,
+     1026.56
+    ],
+    [
+     1046.48,
+     1075.78
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Biscuit Design Registration No. 293085",
+   "confidence": 0.9972417950630188,
+   "bbox": [
+    [
+     1021.88,
+     834.38
+    ],
+    [
+     1021.88,
+     590.62
+    ],
+    [
+     1038.28,
+     590.62
+    ],
+    [
+     1038.28,
+     834.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Sodium",
+   "confidence": 0.9999310970306396,
+   "bbox": [
+    [
+     1042.97,
+     1076.95
+    ],
+    [
+     1042.97,
+     1040.62
+    ],
+    [
+     1061.72,
+     1040.62
+    ],
+    [
+     1061.72,
+     1076.95
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "211 mg",
+   "confidence": 0.9894267916679382,
+   "bbox": [
+    [
+     1040.62,
+     930.47
+    ],
+    [
+     1042.97,
+     891.8
+    ],
+    [
+     1064.06,
+     892.97
+    ],
+    [
+     1061.72,
+     931.64
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "^Basis average adult's Recommended",
+   "confidence": 0.999176561832428,
+   "bbox": [
+    [
+     1068.75,
+     1075.78
+    ],
+    [
+     1068.75,
+     890.62
+    ],
+    [
+     1085.16,
+     890.62
+    ],
+    [
+     1085.16,
+     1075.78
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "Dietary Allowance (2000 kcal diet)",
+   "confidence": 0.8673061728477478,
+   "bbox": [
+    [
+     1082.81,
+     1076.95
+    ],
+    [
+     1082.81,
+     904.69
+    ],
+    [
+     1102.73,
+     904.69
+    ],
+    [
+     1102.73,
+     1076.95
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  },
+  {
+   "text": "*Approximate Values",
+   "confidence": 0.9826565980911255,
+   "bbox": [
+    [
+     1101.56,
+     1076.95
+    ],
+    [
+     1101.56,
+     970.31
+    ],
+    [
+     1121.48,
+     970.31
+    ],
+    [
+     1121.48,
+     1076.95
+    ]
+   ],
+   "language": "en",
+   "rotation": 90
+  }
+ ]
+}

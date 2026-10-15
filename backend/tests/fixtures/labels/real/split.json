@@ -1,0 +1,60 @@
+{
+ "_comment": "Fixed DEV / HOLD-OUT split of the real label photos. Created once by batch_evaluate before any extraction change; never edit to improve scores. On 2026-10-15 the original hold-out was retired: every photo listed here is DEV; photos added later all go to a fresh HOLD-OUT (new_photos).",
+ "seed": "packcomply-real-labels-v1",
+ "holdout_share": 0.3,
+ "method": "sort photo file names by sha256(seed:name); the first round(n * holdout_share) not pinned to DEV are HOLD-OUT",
+ "pinned_dev": [
+  "Parle-G-Gluco-Biscuits-70g-2.jpeg"
+ ],
+ "photos": {
+  "real_611tfax73zl_sl1500": {
+   "file": "611tFAX73zL._SL1500_.jpg",
+   "split": "dev"
+  },
+  "real_61i8hxso69l_sl1000": {
+   "file": "61I8HxSO69L._SL1000_.jpg",
+   "split": "dev",
+   "note": "retired hold-out on 2026-10-15"
+  },
+  "real_61kt6ysklql_sl1001": {
+   "file": "61kt6ySKLqL._SL1001_.jpg",
+   "split": "dev"
+  },
+  "real_713thnhuqpl_sl1500": {
+   "file": "713ThnhUQPL._SL1500_.jpg",
+   "split": "dev",
+   "note": "retired hold-out on 2026-10-15"
+  },
+  "real_71t28cnhd2l_sl1000": {
+   "file": "71t28Cnhd2L._SL1000_.jpg",
+   "split": "dev",
+   "note": "retired hold-out on 2026-10-15"
+  },
+  "real_813hpcgu0ol_sl1500": {
+   "file": "813hpCgU0OL._SL1500_.jpg",
+   "split": "dev"
+  },
+  "real_81lk1jbwltl_sl1500": {
+   "file": "81lk1JbWLTL._SL1500_.jpg",
+   "split": "dev"
+  },
+  "real_product_1614772171439": {
+   "file": "PRODUCT_1614772171439.webp",
+   "split": "dev"
+  },
+  "real_parle_g_gluco_biscuits_70g_2": {
+   "file": "Parle-G-Gluco-Biscuits-70g-2.jpeg",
+   "split": "dev"
+  }
+ },
+ "retired_holdout": {
+  "date": "2026-10-15",
+  "photos": [
+   "real_61i8hxso69l_sl1000",
+   "real_713thnhuqpl_sl1500",
+   "real_71t28cnhd2l_sl1000"
+  ],
+  "reason": "its failure patterns were inspected and fixed, so it no longer measures unseen labels"
+ },
+ "new_photos": "holdout"
+}
