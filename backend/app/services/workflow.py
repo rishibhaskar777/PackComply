@@ -12,8 +12,8 @@ from sqlalchemy.orm import Session
 
 from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, Inspection, InspectionImage, OcrResult
 from backend.app.schemas.inspection import ComplianceFindingResponse, ComplianceResponse, ComplianceSummary, ExtractionFieldResponse, ExtractionResponse, ImageUploaded, InspectionSummary, OcrProcessed, QuantityVerificationResponse
-from backend.app.services.compliance.registry import ensure_compliance_rules
-from backend.app.services.compliance.rule_engine import ComplianceEngine
+from backend.app.services.compliance.registry import ensure_compliance_rules, results_ruleset, rule_action, rule_expected, rule_legal_reference, rule_title
+from backend.app.services.compliance.rule_engine import NOT_APPLICABLE, ComplianceEngine, FieldEvidence, overall_status, verdict
 from backend.app.services.extraction.evidence import build_extracted_fields, field_evidence
 from backend.app.services.extraction.extraction_service import ExtractionService
 from backend.app.services.quantity_verification import QuantityVerificationService
@@ -49,10 +49,36 @@ def extraction_field_response(field: ExtractedField) -> ExtractionFieldResponse:
 
 def compliance_response(inspection_id: UUID, results: list[ComplianceResult], extracted: list[ExtractedField]) -> ComplianceResponse:
     boxes = {field.field_name: field.source_bboxes for field in extracted}
-    findings = [ComplianceFindingResponse(rule_id=result.rule.rule_code, rule_name=result.rule.description.split(".", 1)[0], status=result.result, severity=result.rule.severity, message=result.explanation, field=result.field_name, value=result.value, confidence=float(result.confidence) if result.confidence is not None else None, evidence=result.evidence, expected=result.rule.description, source_bboxes=boxes.get(result.field_name) if result.field_name else None) for result in results]
-    counts = {name: sum(finding.status == name for finding in findings) for name in ("PASS", "FAIL", "REVIEW")}
-    overall = "FAIL" if counts["FAIL"] else "REVIEW" if counts["REVIEW"] else "PASS"
-    return ComplianceResponse(inspection_id=inspection_id, overall_status=overall, summary=ComplianceSummary(passed=counts["PASS"], failed=counts["FAIL"], review=counts["REVIEW"]), findings=findings)
+    findings = [ComplianceFindingResponse(rule_id=result.rule.rule_code, rule_name=rule_title(result.rule), status=result.result, severity=result.rule.severity, message=result.explanation, field=result.field_name, value=result.value, confidence=float(result.confidence) if result.confidence is not None else None, evidence=result.evidence, expected=rule_expected(result.rule), source_bboxes=boxes.get(result.field_name) if result.field_name and result.result != NOT_APPLICABLE else None, legal_reference=rule_legal_reference(result.rule), recommended_action=rule_action(result.rule, result.result)) for result in results]
+    statuses = [finding.status for finding in findings]
+    counts = {name: statuses.count(name) for name in ("PASS", "FAIL", "REVIEW", NOT_APPLICABLE)}
+    ruleset_id, version, label = results_ruleset(results)
+    return ComplianceResponse(inspection_id=inspection_id, overall_status=overall_status(statuses), verdict=verdict(statuses), summary=ComplianceSummary(passed=counts["PASS"], failed=counts["FAIL"], review=counts["REVIEW"], not_applicable=counts[NOT_APPLICABLE]), findings=findings, ruleset_id=ruleset_id, ruleset_version=version, ruleset_label=label)
+
+
+def persist_compliance(db: Session, engine: ComplianceEngine, inspection_id: UUID, fields: dict[str, FieldEvidence]) -> None:
+    """Evaluate and store one result per enabled rule, replacing this inspection's previous results."""
+    ruleset = engine.ruleset
+    rules = ensure_compliance_rules(db, ruleset)
+    existing = {result.rule_id: result for result in db.scalars(select(ComplianceResult).where(ComplianceResult.inspection_id == inspection_id)).all()}
+    current = set()
+    for finding in engine.evaluate(fields):
+        rule = rules.get(finding.rule_id)
+        if rule is None or not rule.enabled:
+            continue
+        result = existing.get(rule.id)
+        if result is None:
+            result = ComplianceResult(inspection_id=inspection_id, rule_id=rule.id, result=finding.status, explanation=finding.message)
+            db.add(result)
+        result.result, result.explanation, result.field_name = finding.status, finding.message, finding.field
+        result.value, result.confidence, result.evidence = finding.value, finding.confidence, finding.evidence
+        result.ruleset_id, result.ruleset_version = ruleset.ruleset_id, ruleset.version
+        current.add(rule.id)
+    # A result from a rule that is now disabled would mix two rulesets in one run.
+    for rule_id, result in existing.items():
+        if rule_id not in current:
+            db.delete(result)
+    db.commit()
 
 
 class WorkflowError(Exception):
@@ -138,12 +164,7 @@ class InspectionWorkflow:
     def _evaluate(self, inspection: Inspection, ocr_result: OcrResult, extracted: list[ExtractedField]) -> None:
         fields = {field.field_name: field_evidence(field) for field in extracted}
         logger.info("Workflow compliance input inspection_id=%s ocr_result_id=%s fields=%s", inspection.id, ocr_result.id, {name: {"raw": item.value, "normalized": self.compliance._normalized("NET_QUANTITY_FORMAT" if name == "net_quantity" else "MRP_FORMAT" if name == "mrp" else "", item.value)} for name, item in fields.items()})
-        rules = ensure_compliance_rules(self.db)
-        for finding in self.compliance.evaluate(fields):
-            rule = rules.get(finding.rule_id)
-            if rule and rule.enabled:
-                self.db.add(ComplianceResult(inspection_id=inspection.id, rule_id=rule.id, result=finding.status, explanation=finding.message, field_name=finding.field, value=finding.value, confidence=finding.confidence, evidence=finding.evidence))
-        self.db.commit()
+        persist_compliance(self.db, self.compliance, inspection.id, fields)
 
     def reanalyse(self, inspection_id: UUID) -> InspectionSummary:
         """Re-run extraction and compliance on the latest stored OCR result, without new OCR.

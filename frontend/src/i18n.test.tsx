@@ -107,7 +107,7 @@ describe("inspection workflow UI", () => {
     vi.stubGlobal("URL", { createObjectURL: vi.fn(() => "blob:label"), revokeObjectURL: vi.fn() });
     mockAuthenticatedFetch(response({ id: "inspection-1", inspection_number: "INSP-001" }), response({ id: "image-1", original_filename: "label.png" }), response(result));
     renderApp(); await screen.findByText(en.dashboard); fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files: [file()] } });
-    await screen.findByText("MRP Rs 100"); expect(screen.getByText("ABC Foods")).toBeTruthy(); expect(screen.getByText("MRP format — PASS (WARNING)")).toBeTruthy(); expect(screen.getByText("Inspection complete")).toBeTruthy();
+    await screen.findByText("MRP Rs 100"); expect(screen.getByText("ABC Foods")).toBeTruthy(); expect(screen.getByText((_, element) => element?.tagName === "STRONG" && element.textContent === "MRP format — Pass (WARNING)")).toBeTruthy(); expect(screen.getByText("Inspection complete")).toBeTruthy();
   });
   it("downloads an authorized PDF report through the shared credentialed API helper", async () => {
     vi.stubGlobal("URL", { createObjectURL: vi.fn(() => "blob:report"), revokeObjectURL: vi.fn() }); const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
@@ -119,7 +119,7 @@ describe("inspection workflow UI", () => {
     vi.stubGlobal("URL", { createObjectURL: vi.fn(() => "blob:label"), revokeObjectURL: vi.fn() });
     mockAuthenticatedFetch(response({ id: "inspection-1", inspection_number: "INSP-001" }), response({ id: "image-1", original_filename: "label.png" }), response(result));
     renderApp(); await screen.findByText(en.dashboard); fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files: [file()] } });
-    expect(await screen.findByText("0.5 KG")).toBeTruthy(); expect(screen.getByText("500 g")).toBeTruthy(); expect(screen.getByText("Pass")).toBeTruthy();
+    expect(await screen.findByText("0.5 KG")).toBeTruthy(); expect(screen.getByText("500 g")).toBeTruthy(); expect(document.querySelector(".quantity-verification .history-badge.pass")?.textContent).toBe("Pass");
   });
   it("shows a recoverable failure", async () => {
     vi.stubGlobal("URL", { createObjectURL: vi.fn(() => "blob:label"), revokeObjectURL: vi.fn() }); mockAuthenticatedFetch(response({ detail: "Database unavailable." }, false, 500));

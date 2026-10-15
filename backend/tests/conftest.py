@@ -4,6 +4,8 @@ from uuid import UUID
 
 # Tests use fakes; never load real Paddle models from the app lifespan.
 os.environ.setdefault("OCR_WARMUP_ON_STARTUP", "false")
+# Tests use their own databases; never sync rules into the developer database at startup.
+os.environ.setdefault("COMPLIANCE_RULES_SYNC_ON_STARTUP", "false")
 
 import pytest
 

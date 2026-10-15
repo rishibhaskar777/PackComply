@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 from uuid import UUID, uuid4
 
@@ -17,14 +18,18 @@ def evidence(**values: FieldEvidence) -> dict[str, FieldEvidence]:
     return values
 
 
+COMPLETE_LABEL = {
+    "product_name": "Biscuits", "manufacturer": "ABC Foods", "manufacturer_address": "Plot 1, MIDC, Pune - 411026",
+    "packer": "XYZ Pack", "packer_address": "Plot 2, MIDC, Pune - 411026",
+    "importer": "Example Imports", "importer_address": "4 Andheri East, Mumbai - 400069", "country_of_origin": "Thailand",
+    "mrp": "₹100", "mrp_declaration": "present_with_value", "tax_inclusive": "true", "net_quantity": "500 g",
+    "unit_sale_price": "₹0.20 per g", "manufacturing_date": "08/2026", "expiry_date": "12/2026",
+    "consumer_care_email": "care@example.com", "product_category": "food", "fssai_license": "10012022000789",
+}
+
+
 def test_valid_label_rules_pass() -> None:
-    findings = ComplianceEngine().evaluate(evidence(
-        product_name=FieldEvidence("Biscuits", .95), manufacturer=FieldEvidence("ABC Foods", .95),
-        packer=FieldEvidence("XYZ Pack", .95), importer=FieldEvidence("Example Imports", .95),
-        mrp=FieldEvidence("₹100", .97), net_quantity=FieldEvidence("500 g", .96),
-        manufacturing_date=FieldEvidence("08/2026", .94), expiry_date=FieldEvidence("12/2026", .94),
-        consumer_care_email=FieldEvidence("care@example.com", .96),
-    ))
+    findings = ComplianceEngine().evaluate({name: FieldEvidence(value, .95) for name, value in COMPLETE_LABEL.items()}, today=date(2026, 10, 15))
     assert {finding.status for finding in findings} == {"PASS"}
 
 
@@ -83,13 +88,14 @@ def test_compliance_api_persists_and_replaces_deterministically() -> None:
         with sessions() as session:
             ocr = OcrResult(inspection_id=UUID(inspection["id"]), raw_text="label", languages=["en"], detections=[])
             session.add(ocr); session.flush()
-            for name, value in {"product_name": "Biscuits", "manufacturer": "ABC Foods", "packer": "XYZ", "importer": "Imports", "mrp": "₹100", "net_quantity": "500 g", "manufacturing_date": "08/2026", "expiry_date": "12/2026", "consumer_care_email": "care@example.com"}.items():
+            for name, value in COMPLETE_LABEL.items():
                 session.add(ExtractedField(inspection_id=ocr.inspection_id, ocr_result_id=ocr.id, field_name=name, value=value, confidence=Decimal("0.95"), review_status="EXTRACTED"))
             session.commit()
         response = client.post(f"/api/inspections/{inspection['id']}/compliance")
         assert response.status_code == 200
-        assert response.json()["overall_status"] == "PASS"
+        assert response.json()["overall_status"] == "PASS" and response.json()["verdict"] == "COMPLIANT"
         assert response.json()["summary"]["failed"] == 0
+        assert response.json()["ruleset_label"] == "LM(PC) 2011 ruleset v1"
         rerun = client.post(f"/api/inspections/{inspection['id']}/compliance")
         assert rerun.status_code == 200 and rerun.json() == response.json()
         assert client.get(f"/api/inspections/{inspection['id']}/compliance").json() == response.json()

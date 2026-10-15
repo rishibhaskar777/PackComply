@@ -1,0 +1,208 @@
+{
+ "name": "synthetic_wrong_unit_sale_price",
+ "synthetic": true,
+ "description": "Declared unit sale price (₹0.80 per g) inconsistent with MRP ÷ net quantity (₹150 ÷ 250 g = ₹0.60 per g).",
+ "image_width": 640,
+ "image_height": 480,
+ "raw_text": "Morning Glory Tea\nNet Wt. 250 g\nMRP ₹ 150.00 (Incl. of all taxes)\nUnit Sale Price: ₹0.80 per g\nManufactured by: Morning Glory Tea Co.\n14 Tea Estate Road, Jorhat, Assam - 785001\nLic No. 10018018000333\nMfg. Date: 07/2026\nConsumer Care: 1800 345 6789",
+ "detections": [
+  {
+   "text": "Morning Glory Tea",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     20
+    ],
+    [
+     340.5,
+     20
+    ],
+    [
+     340.5,
+     50
+    ],
+    [
+     60,
+     50
+    ]
+   ]
+  },
+  {
+   "text": "Net Wt. 250 g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     70
+    ],
+    [
+     174.4,
+     70
+    ],
+    [
+     174.4,
+     86
+    ],
+    [
+     60,
+     86
+    ]
+   ]
+  },
+  {
+   "text": "MRP ₹ 150.00 (Incl. of all taxes)",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     90
+    ],
+    [
+     350.4,
+     90
+    ],
+    [
+     350.4,
+     106
+    ],
+    [
+     60,
+     106
+    ]
+   ]
+  },
+  {
+   "text": "Unit Sale Price: ₹0.80 per g",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     110
+    ],
+    [
+     306.4,
+     110
+    ],
+    [
+     306.4,
+     126
+    ],
+    [
+     60,
+     126
+    ]
+   ]
+  },
+  {
+   "text": "Manufactured by: Morning Glory Tea Co.",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     130
+    ],
+    [
+     394.4,
+     130
+    ],
+    [
+     394.4,
+     146
+    ],
+    [
+     60,
+     146
+    ]
+   ]
+  },
+  {
+   "text": "14 Tea Estate Road, Jorhat, Assam - 785001",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     150
+    ],
+    [
+     429.6,
+     150
+    ],
+    [
+     429.6,
+     166
+    ],
+    [
+     60,
+     166
+    ]
+   ]
+  },
+  {
+   "text": "Lic No. 10018018000333",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     170
+    ],
+    [
+     253.6,
+     170
+    ],
+    [
+     253.6,
+     186
+    ],
+    [
+     60,
+     186
+    ]
+   ]
+  },
+  {
+   "text": "Mfg. Date: 07/2026",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     190
+    ],
+    [
+     218.4,
+     190
+    ],
+    [
+     218.4,
+     206
+    ],
+    [
+     60,
+     206
+    ]
+   ]
+  },
+  {
+   "text": "Consumer Care: 1800 345 6789",
+   "confidence": 0.98,
+   "bbox": [
+    [
+     60,
+     210
+    ],
+    [
+     306.4,
+     210
+    ],
+    [
+     306.4,
+     226
+    ],
+    [
+     60,
+     226
+    ]
+   ]
+  }
+ ]
+}

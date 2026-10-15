@@ -106,10 +106,13 @@ def test_reanalyse_all_script_processes_completed_inspections(api, monkeypatch, 
 
 
 def test_manufacturer_rule_accepts_the_brand_owner_without_new_rule_codes() -> None:
-    findings = {item.rule_id: item for item in ComplianceEngine().evaluate({"brand_owner": FieldEvidence("Parle Products Pvt Ltd", 0.9, False, "MANUFACTURED FOR: | PARLE PRODUCTS PVT LTD")})}
+    owner = {"brand_owner": FieldEvidence("Parle Products Pvt Ltd", 0.9, False, "MANUFACTURED FOR: | PARLE PRODUCTS PVT LTD"), "brand_owner_address": FieldEvidence("NORTH LEVEL CROSSING, MUMBAI, MH - 400057", 0.82)}
+    findings = {item.rule_id: item for item in ComplianceEngine().evaluate(owner)}
     manufacturer = findings["MANUFACTURER_INFORMATION"]
     assert (manufacturer.status, manufacturer.field, manufacturer.value) == ("PASS", "brand_owner", "Parle Products Pvt Ltd")
-    assert ComplianceEngine().evaluate({})[1].status == "REVIEW"  # still REVIEW with neither present
+    by_rule = lambda fields: {item.rule_id: item.status for item in ComplianceEngine().evaluate(fields)}
+    assert by_rule({"brand_owner": owner["brand_owner"]})["MANUFACTURER_INFORMATION"] == "REVIEW"  # named, no address
+    assert by_rule({})["MANUFACTURER_INFORMATION"] == "FAIL"  # no party at all
     assert {item.rule_id for item in findings.values()} == {item.rule_id for item in ComplianceEngine().evaluate({})}
 
 
@@ -122,7 +125,8 @@ def test_absent_supplementary_fields_are_not_persisted_so_risk_inputs_are_unchan
     rows = build_extracted_fields(ocr.inspection_id, ocr, ExtractionService().extract(ocr.raw_text))
     names = {row.field_name for row in rows}
     assert set(CORE_FIELD_NAMES) <= names  # core fields keep their empty rows
-    assert names - set(CORE_FIELD_NAMES) == {"mrp_declaration"}  # the only supplementary field with a value ("absent")
+    # The only supplementary fields with a value: the "absent" declarations.
+    assert names - set(CORE_FIELD_NAMES) == {"mrp_declaration", "consumer_care_declaration"}
     assert not any(row.value is None and row.field_name not in CORE_FIELD_NAMES for row in rows)
 
 

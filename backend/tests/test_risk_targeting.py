@@ -23,7 +23,7 @@ def test_risk_scoring_is_bounded_explainable_and_repeated() -> None:
         inspections = [Inspection(id=uuid4(), user_id=OFFICIAL.id, inspection_number=f"R-{i}", status="COMPLETED", completed_at=now + timedelta(minutes=i), inspected_at=now) for i in range(3)]
         db.add_all(inspections); db.flush()
         for inspection in inspections:
-            db.add_all([ComplianceResult(inspection_id=inspection.id, rule_id=rule.id, result="FAIL", explanation="Declaration failed"), ExtractedField(inspection_id=inspection.id, field_name="consumer_care_email", value=None, review_status="REVIEW")])
+            db.add_all([ComplianceResult(inspection_id=inspection.id, rule_id=rule.id, result="FAIL", explanation="Declaration failed"), ExtractedField(inspection_id=inspection.id, field_name="declaration", value=None, review_status="REVIEW")])
         db.commit()
         assessment = RiskService(db).for_inspection(inspections[0])
         assert assessment.risk_score == 61 and assessment.risk_level == "HIGH"

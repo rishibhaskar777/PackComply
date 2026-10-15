@@ -23,6 +23,8 @@ dependencies = [
   "reportlab>=4.2,<5.0",
   # HarfBuzz shaping so Devanagari matras and conjuncts render correctly in PDFs.
   "uharfbuzz>=0.39,<1.0",
+  # Versioned compliance rulesets (backend/app/services/compliance/rulesets/*.yaml).
+  "pyyaml>=6.0,<7.0",
 ]
 
 [project.optional-dependencies]
@@ -33,7 +35,7 @@ include = ["backend*"]
 
 [tool.setuptools.package-data]
 # Noto fonts (SIL Open Font License) used by the PDF report.
-"backend.app" = ["assets/fonts/*.ttf", "assets/fonts/OFL.txt"]
+"backend.app" = ["assets/fonts/*.ttf", "assets/fonts/OFL.txt", "services/compliance/rulesets/*.yaml"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

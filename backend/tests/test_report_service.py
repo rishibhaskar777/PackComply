@@ -23,7 +23,7 @@ def test_issue_first_report_uses_persisted_findings_risk_and_no_ocr_dump(monkeyp
     assert report == b""
     rendered = " ".join(flowable.getPlainText() for flowable in captured["story"] if hasattr(flowable, "getPlainText"))
     table_text = " ".join(cell.getPlainText() for flowable in captured["story"] if hasattr(flowable, "_cellvalues") for row in flowable._cellvalues for cell in row if hasattr(cell, "getPlainText"))
-    assert "Important Issues" in rendered and "Quantity Verification" in rendered and "Legal Metrology Compliance" in rendered and "Risk score" in table_text
+    assert "Violations" in rendered and "Needs review" in rendered and "Quantity Verification" in rendered and "Risk score" in table_text and "Verdict" in table_text
     assert "OCR Results" not in rendered and "Extracted Information" not in rendered and "Report generated at" not in rendered
     # A FAIL issue card is a distinct Table with the required red treatment.
     issue_tables = [flowable for flowable in captured["story"] if flowable.__class__.__name__ == "KeepTogether"]

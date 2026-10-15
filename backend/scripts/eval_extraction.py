@@ -31,7 +31,7 @@ CORE_FIELDS = (
     "consumer_care_website", "country_of_origin", "unit_sale_price", "batch_number",
 )
 # Evaluated only where expected.json lists them.
-OPTIONAL_FIELDS = ("manufacturer_address", "brand_owner_address", "packer_address", "importer_address", "manufacturing_units")
+OPTIONAL_FIELDS = ("manufacturer_address", "brand_owner_address", "packer_address", "importer_address", "manufacturing_units", "consumer_care_declaration", "import_declaration", "product_category")
 DATE_FIELDS = {"manufacturing_date", "packing_date", "best_before", "use_by", "expiry_date"}
 _MONTHS = {name: index for index, name in enumerate(("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"), 1)}
 
@@ -74,7 +74,7 @@ def _date(value: str | None) -> str | None:
 
 
 def _canonical(field: str, value: str | None, normalized: str | None = None) -> str | None:
-    if value is None or value == "" or (field == "mrp_declaration" and value == "absent"):
+    if value is None or value == "" or (field in ("mrp_declaration", "consumer_care_declaration") and value == "absent"):
         return None
     if field == "net_quantity":
         return ComplianceEngine.normalize_quantity(normalized or value) or ComplianceEngine.normalize_quantity(value) or _text(value)

@@ -6,17 +6,49 @@
   "Values: text fields compare case/spacing/punctuation-insensitively; a list means any one is accepted;",
   "net_quantity and mrp/unit_sale_price compare after unit/currency normalisation; dates compare as YYYY-MM[-DD]",
   "or an ISO-8601 duration such as P9M for 'N months from manufacture'; phones compare digits only;",
-  "manufacturing_units lists the expected unit codes."
+  "manufacturing_units lists the expected unit codes.",
+  "consumer_care_declaration, import_declaration and product_category are evaluated only where listed.",
+  "'rules' (code -> PASS/FAIL/REVIEW/NOT_APPLICABLE) and 'verdict' are evaluated by backend.scripts.eval_compliance,",
+  "not by eval_extraction; every rule of the current ruleset must be listed."
  ],
  "parle_g_gluco_70g": {
   "product_name": "Parle-G Gluco Biscuits",
   "brand_owner": "Parle Products Pvt Ltd",
-  "manufacturer": ["CF Foods Pvt Ltd", "Koiel Food Proce's", "Elveety Industries Pvt Ltd", "Shashi Sidnal Foods Pvt Ltd"],
-  "manufacturing_units": ["HP", "MY", "H1", "BE"],
+  "manufacturer": [
+   "CF Foods Pvt Ltd",
+   "Koiel Food Proce's",
+   "Elveety Industries Pvt Ltd",
+   "Shashi Sidnal Foods Pvt Ltd"
+  ],
+  "manufacturing_units": [
+   "HP",
+   "MY",
+   "H1",
+   "BE"
+  ],
   "net_quantity": "70 g",
   "mrp_declaration": "present_without_value",
   "tax_inclusive": "true",
-  "fssai_license": "10013022002245"
+  "fssai_license": "10013022002245",
+  "consumer_care_declaration": "present_without_details",
+  "product_category": "food",
+  "verdict": "NEEDS_REVIEW",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "PASS",
+   "MRP_FORMAT": "REVIEW",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "NOT_APPLICABLE",
+   "MANUFACTURE_DATE": "REVIEW",
+   "DATE_CONSISTENCY": "NOT_APPLICABLE",
+   "CONSUMER_CARE_FORMAT": "REVIEW",
+   "FSSAI_LICENSE_PRESENT": "PASS"
+  }
  },
  "synthetic_split_key_value": {
   "product_name": "Sunrise Masala Peanuts",
@@ -28,7 +60,24 @@
   "tax_inclusive": "true",
   "fssai_license": "11521999000123",
   "manufacturing_date": "2026-04",
-  "best_before": "P6M"
+  "best_before": "P6M",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "NOT_APPLICABLE",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "FAIL",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "NOT_APPLICABLE",
+   "CONSUMER_CARE_FORMAT": "FAIL",
+   "FSSAI_LICENSE_PRESENT": "PASS"
+  }
  },
  "synthetic_dairy_mrp_rs_decimal": {
   "product_name": "Ganga Toned Milk",
@@ -41,7 +90,24 @@
   "fssai_license": "10719011000456",
   "packing_date": "2026-03-12",
   "use_by": "2026-03-15",
-  "batch_number": "GD2603A"
+  "batch_number": "GD2603A",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "PASS",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "FAIL",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "PASS",
+   "CONSUMER_CARE_FORMAT": "FAIL",
+   "FSSAI_LICENSE_PRESENT": "PASS"
+  }
  },
  "synthetic_net_content_month_dates": {
   "product_name": "FreshSip Mango Drink",
@@ -52,7 +118,24 @@
   "mrp_declaration": "present_with_value",
   "fssai_license": "10019066000321",
   "manufacturing_date": "2026-03",
-  "best_before": "P9M"
+  "best_before": "P9M",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "PASS",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "PASS",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "FAIL",
+   "UNIT_SALE_PRICE": "FAIL",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "NOT_APPLICABLE",
+   "CONSUMER_CARE_FORMAT": "FAIL",
+   "FSSAI_LICENSE_PRESENT": "PASS"
+  }
  },
  "synthetic_count_exp_text_only": {
   "product_name": "Kidz Choco Wafer Bars",
@@ -64,7 +147,24 @@
   "tax_inclusive": "true",
   "packing_date": "2026-02",
   "expiry_date": "2027-08",
-  "batch_number": "KW2602"
+  "batch_number": "KW2602",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "PASS",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "FAIL",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "PASS",
+   "CONSUMER_CARE_FORMAT": "FAIL",
+   "FSSAI_LICENSE_PRESENT": "NOT_APPLICABLE"
+  }
  },
  "synthetic_marketed_manufactured_packed": {
   "product_name": "Royal Basmati Rice",
@@ -79,7 +179,24 @@
   "mrp_declaration": "present_with_value",
   "tax_inclusive": "true",
   "fssai_license": "10817005000222",
-  "consumer_care_phone": "0184-2261234"
+  "consumer_care_phone": "0184-2261234",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "PASS",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "PASS",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "FAIL",
+   "MANUFACTURE_DATE": "REVIEW",
+   "DATE_CONSISTENCY": "NOT_APPLICABLE",
+   "CONSUMER_CARE_FORMAT": "PASS",
+   "FSSAI_LICENSE_PRESENT": "NOT_APPLICABLE"
+  }
  },
  "synthetic_imported_country_of_origin": {
   "product_name": "Tropical Coconut Water",
@@ -93,7 +210,25 @@
   "fssai_license": "10012022000789",
   "country_of_origin": "Thailand",
   "best_before": "P12M",
-  "packing_date": "2026-01"
+  "packing_date": "2026-01",
+  "import_declaration": "present",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "PASS",
+   "COUNTRY_OF_ORIGIN": "PASS",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "PASS",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "FAIL",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "NOT_APPLICABLE",
+   "CONSUMER_CARE_FORMAT": "FAIL",
+   "FSSAI_LICENSE_PRESENT": "PASS"
+  }
  },
  "synthetic_unit_sale_price": {
   "product_name": "Golden Harvest Atta",
@@ -106,7 +241,24 @@
   "fssai_license": "10017013000555",
   "unit_sale_price": "₹0.25 per g",
   "manufacturing_date": "2026-03",
-  "use_by": "2026-08"
+  "use_by": "2026-08",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "PASS",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "PASS",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "PASS",
+   "CONSUMER_CARE_FORMAT": "FAIL",
+   "FSSAI_LICENSE_PRESENT": "NOT_APPLICABLE"
+  }
  },
  "synthetic_consumer_care_block": {
   "product_name": "Crunchy Oats Cookies",
@@ -120,7 +272,24 @@
   "consumer_care_email": "care@healthybites.co.in",
   "consumer_care_website": "www.healthybites.co.in",
   "manufacturing_date": "2026-05",
-  "expiry_date": "2027-04"
+  "expiry_date": "2027-04",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "PASS",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "FAIL",
+   "UNIT_SALE_PRICE": "FAIL",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "PASS",
+   "CONSUMER_CARE_FORMAT": "PASS",
+   "FSSAI_LICENSE_PRESENT": "NOT_APPLICABLE"
+  }
  },
  "synthetic_hindi_bilingual": {
   "product_name": "Shudh Desi Ghee",
@@ -132,7 +301,24 @@
   "tax_inclusive": "true",
   "fssai_license": "10015051000111",
   "manufacturing_date": "2026-02",
-  "use_by": "2027-01"
+  "use_by": "2027-01",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "NOT_APPLICABLE",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "FAIL",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "PASS",
+   "CONSUMER_CARE_FORMAT": "FAIL",
+   "FSSAI_LICENSE_PRESENT": "PASS"
+  }
  },
  "synthetic_two_column_right_values": {
   "product_name": "Masti Masala Chips",
@@ -145,6 +331,170 @@
   "mrp_declaration": "present_with_value",
   "tax_inclusive": "true",
   "fssai_license": "10813999000777",
-  "packing_date": "2026-03"
+  "packing_date": "2026-03",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "PASS",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "FAIL",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "NOT_APPLICABLE",
+   "CONSUMER_CARE_FORMAT": "FAIL",
+   "FSSAI_LICENSE_PRESENT": "PASS"
+  }
+ },
+ "synthetic_fully_compliant": {
+  "product_name": "Golden Crunch Cookies",
+  "manufacturer": "Golden Crunch Foods Pvt Ltd",
+  "manufacturer_address": "Plot 21, MIDC Ambad, Nashik, MH - 422010",
+  "net_quantity": "200 g",
+  "mrp": "₹50",
+  "mrp_declaration": "present_with_value",
+  "tax_inclusive": "true",
+  "unit_sale_price": "₹0.25 per g",
+  "fssai_license": "10020022000456",
+  "manufacturing_date": "2026-06",
+  "use_by": "2027-03",
+  "consumer_care_phone": "1800 123 4567",
+  "consumer_care_email": "care@goldencrunch.in",
+  "consumer_care_declaration": "present_with_details",
+  "product_category": "food",
+  "verdict": "COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "PASS",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "PASS",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "PASS",
+   "CONSUMER_CARE_FORMAT": "PASS",
+   "FSSAI_LICENSE_PRESENT": "PASS"
+  }
+ },
+ "synthetic_near_empty": {
+  "product_name": "Spice Magic Garam Masala",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "FAIL",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "FAIL",
+   "NET_QUANTITY_UNIT_SUITABILITY": "NOT_APPLICABLE",
+   "MRP_FORMAT": "FAIL",
+   "MRP_TAX_INCLUSIVE": "NOT_APPLICABLE",
+   "UNIT_SALE_PRICE": "NOT_APPLICABLE",
+   "MANUFACTURE_DATE": "REVIEW",
+   "DATE_CONSISTENCY": "NOT_APPLICABLE",
+   "CONSUMER_CARE_FORMAT": "FAIL",
+   "FSSAI_LICENSE_PRESENT": "NOT_APPLICABLE"
+  }
+ },
+ "synthetic_imported_missing_country": {
+  "product_name": "Alpine Swiss Chocolate",
+  "importer": "Euro Gourmet Imports Pvt Ltd",
+  "importer_address": "22 Linking Road, Bandra West, Mumbai - 400050",
+  "net_quantity": "100 g",
+  "mrp": "₹350",
+  "mrp_declaration": "present_with_value",
+  "tax_inclusive": "true",
+  "fssai_license": "10021022000999",
+  "manufacturing_date": "2026-05",
+  "best_before": "P12M",
+  "consumer_care_email": "care@eurogourmet.in",
+  "import_declaration": "present",
+  "product_category": "food",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "PASS",
+   "COUNTRY_OF_ORIGIN": "FAIL",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "NOT_APPLICABLE",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "FAIL",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "NOT_APPLICABLE",
+   "CONSUMER_CARE_FORMAT": "PASS",
+   "FSSAI_LICENSE_PRESENT": "PASS"
+  }
+ },
+ "synthetic_mfg_after_expiry": {
+  "product_name": "Fresh Valley Paneer",
+  "manufacturer": "Fresh Valley Dairy Pvt Ltd",
+  "manufacturer_address": "Plot 5, Dairy Complex, Anand, Gujarat - 388001",
+  "net_quantity": "200 g",
+  "mrp": "₹90",
+  "mrp_declaration": "present_with_value",
+  "tax_inclusive": "true",
+  "unit_sale_price": "₹0.45 per g",
+  "fssai_license": "10719011000777",
+  "manufacturing_date": "2026-09-10",
+  "use_by": "2026-09-05",
+  "consumer_care_phone": "1800 222 3333",
+  "verdict": "NON_COMPLIANT",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "NOT_APPLICABLE",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "PASS",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "FAIL",
+   "CONSUMER_CARE_FORMAT": "PASS",
+   "FSSAI_LICENSE_PRESENT": "PASS"
+  }
+ },
+ "synthetic_wrong_unit_sale_price": {
+  "product_name": "Morning Glory Tea",
+  "manufacturer": "Morning Glory Tea Co.",
+  "manufacturer_address": "14 Tea Estate Road, Jorhat, Assam - 785001",
+  "net_quantity": "250 g",
+  "mrp": "₹150",
+  "mrp_declaration": "present_with_value",
+  "tax_inclusive": "true",
+  "unit_sale_price": "₹0.80 per g",
+  "fssai_license": "10018018000333",
+  "manufacturing_date": "2026-07",
+  "consumer_care_phone": "1800 345 6789",
+  "verdict": "NEEDS_REVIEW",
+  "rules": {
+   "MANUFACTURER_INFORMATION": "PASS",
+   "IMPORTER_INFORMATION": "NOT_APPLICABLE",
+   "COUNTRY_OF_ORIGIN": "NOT_APPLICABLE",
+   "PACKER_INFORMATION": "NOT_APPLICABLE",
+   "PRODUCT_IDENTITY": "PASS",
+   "NET_QUANTITY_FORMAT": "PASS",
+   "NET_QUANTITY_UNIT_SUITABILITY": "NOT_APPLICABLE",
+   "MRP_FORMAT": "PASS",
+   "MRP_TAX_INCLUSIVE": "PASS",
+   "UNIT_SALE_PRICE": "REVIEW",
+   "MANUFACTURE_DATE": "PASS",
+   "DATE_CONSISTENCY": "NOT_APPLICABLE",
+   "CONSUMER_CARE_FORMAT": "PASS",
+   "FSSAI_LICENSE_PRESENT": "NOT_APPLICABLE"
+  }
  }
 }

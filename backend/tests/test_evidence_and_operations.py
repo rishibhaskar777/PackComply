@@ -20,10 +20,11 @@ from backend.app.core.database import get_db
 from backend.app.main import app
 from backend.app.models import Base, ComplianceResult, ComplianceRule, ExtractedField, Inspection, InspectionImage, OcrResult, User
 from backend.app.services.compliance import ensure_compliance_rules
-from backend.app.services.compliance.rule_engine import RULES
+from backend.app.services.compliance.ruleset import default_ruleset
 from backend.app.services.extraction.evidence import field_evidence, source_bboxes
 from backend.app.services.ocr import OcrDetection, PaddleOcrService
 from backend.app.services.report import InspectionReportService
+from backend.app.services.risk import RiskService
 from backend.app.services.uploads import image_dimensions
 from backend.app.services.workflow import latest_image
 from backend.scripts import wait_for_db
@@ -64,6 +65,25 @@ def processed_inspection(client: TestClient, image: bytes | None = None) -> dict
     assert client.post(f"/api/inspections/{inspection['id']}/image", files={"image": ("label.png", image or png(), "image/png")}).status_code == 201
     response = client.post(f"/api/inspections/{inspection['id']}/process"); assert response.status_code == 200
     return response.json()
+
+
+# 0. Repeat patterns count distinct photos -----------------------------------
+
+def test_uploading_the_same_image_twice_does_not_create_a_repeat_pattern(api) -> None:
+    client, sessions, _ = api
+    first, second = processed_inspection(client, png()), processed_inspection(client, png())
+    issues = {finding["rule_id"] for finding in first["compliance"]["findings"] if finding["status"] in ("FAIL", "REVIEW")}
+    assert issues and first["compliance"]["findings"] == second["compliance"]["findings"]
+    # Same photo, two inspections: one occurrence, so no pattern and no repeat risk.
+    assert client.get("/api/patterns").json() == []
+    with sessions() as session:
+        inspection = session.get(Inspection, UUID(second["id"]))
+        assert not any(reason.type == "REPEATED_PATTERN" for reason in RiskService(session).for_inspection(inspection).reasons)
+    # A genuinely different photo with the same issues is a second occurrence.
+    processed_inspection(client, png(5, 5))
+    patterns = {pattern["pattern_key"]: pattern for pattern in client.get("/api/patterns").json()}
+    assert issues <= set(patterns)
+    assert all(patterns[code]["occurrence_count"] == 2 and len(patterns[code]["inspection_ids"]) == 3 for code in issues)
 
 
 # 1. Evidence storage --------------------------------------------------------
@@ -113,9 +133,10 @@ def test_compliance_evidence_falls_back_to_value_for_legacy_rows() -> None:
 def test_rule_registration_is_shared_and_idempotent() -> None:
     engine = create_engine("sqlite://"); Base.metadata.create_all(engine)
     with sessionmaker(bind=engine)() as db:
+        codes = {rule.code for rule in default_ruleset().rules}
         first = ensure_compliance_rules(db); db.commit(); second = ensure_compliance_rules(db)
-        assert set(first) == set(second) == {code for code, *_ in RULES}
-        assert len(db.scalars(select(ComplianceRule)).all()) == len(RULES)
+        assert set(first) == set(second) == codes
+        assert len(db.scalars(select(ComplianceRule)).all()) == len(codes)
     engine.dispose()
 
 
