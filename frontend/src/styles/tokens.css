@@ -44,6 +44,10 @@
   --duration-base: 250ms;
   --duration-slow: 400ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Gradients built from per-theme colour tokens */
+  --cta-gradient: linear-gradient(135deg, var(--cta-from), var(--cta-to));
+  --scan-gradient: linear-gradient(90deg, transparent, var(--scan-from) 20%, var(--scan-to) 80%, transparent);
 }
 
 :root, :root[data-theme="light"] {
@@ -76,7 +80,12 @@
   --brand-gradient: linear-gradient(135deg, #6366F1, #8B5CF6);
   --brand-soft-gradient: linear-gradient(135deg, #EEF2FF, #F5F3FF);
   --brand-glow: 0 0 0 transparent;
+  --brand-mark-shadow: 0 6px 16px -4px rgba(79, 70, 229, 0.28);
   --ring: rgba(79, 70, 229, 0.45);
+  /* Primary call to action on the sign-in page */
+  --cta-from: #4F46E5;
+  --cta-to: #6D28D9;
+  --cta-glow: 0 1px 2px rgba(9, 9, 11, 0.08), 0 8px 20px -8px rgba(79, 70, 229, 0.45);
 
   /* Status: colour is used for status only */
   --violation-bg: #FEF2F2;
@@ -106,21 +115,28 @@
   --shadow-md: 0 8px 24px rgba(9, 9, 11, 0.12);
   --overlay: rgba(9, 9, 11, 0.4);
 
-  /* Translucent chrome over the animated background */
+  /* Translucent chrome over the background */
   --topbar-bg: rgba(255, 255, 255, 0.72);
   --sidebar-bg: rgba(250, 250, 250, 0.92);
   --tabbar-bg: rgba(255, 255, 255, 0.86);
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-border: linear-gradient(135deg, rgba(99, 102, 241, 0.45), rgba(228, 228, 231, 0.6) 40%, rgba(139, 92, 246, 0.4));
 
-  /* Ambient background */
-  --aurora-1: rgba(99, 102, 241, 1);
-  --aurora-2: rgba(139, 92, 246, 1);
-  --aurora-3: rgba(6, 182, 212, 1);
-  --aurora-opacity: 0.10;
-  --aurora-auth-opacity: 0.18;
-  --dot-color: rgba(9, 9, 11, 0.07);
-  --ring-gradient: conic-gradient(from 0deg, rgba(99, 102, 241, 0), rgba(99, 102, 241, 0.55), rgba(139, 92, 246, 0.5), rgba(6, 182, 212, 0.4), rgba(99, 102, 241, 0));
+  /* Measurement background: graph paper (8px minor, 40px major) and rulers */
+  --story-bg: #F7F7FA;
+  --grid-minor: rgba(79, 70, 229, 0.05);
+  --grid-major: rgba(79, 70, 229, 0.10);
+  --ruler-bg: #FBFBFD;
+  --ruler-tick: rgba(79, 70, 229, 0.32);
+  --ruler-tick-major: rgba(79, 70, 229, 0.55);
+  /* Inside the app the grid is fainter than on the sign-in page and fades out after ~400px. */
+  --app-grid-opacity: 0.6;
+  --app-glow: rgba(99, 102, 241, 0.10);
+
+  /* Illustrative back-of-pack label on the sign-in page */
+  --label-card: #FFFFFF;
+  --label-card-shadow: 0 24px 48px -20px rgba(79, 70, 229, 0.25), 0 2px 8px rgba(9, 9, 11, 0.06);
+  --scan-from: #6366F1;
+  --scan-to: #8B5CF6;
+  --scan-glow: rgba(99, 102, 241, 0.45);
 
   /* Interaction effects */
   --spotlight: rgba(99, 102, 241, 0.07);
@@ -164,7 +180,9 @@
   --primary-border: rgba(129, 140, 248, 0.35);
   --brand-soft-gradient: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(139, 92, 246, 0.1));
   --brand-glow: 0 0 24px rgba(99, 102, 241, 0.35);
+  --brand-mark-shadow: 0 0 24px rgba(99, 102, 241, 0.45);
   --ring: rgba(129, 140, 248, 0.6);
+  --cta-glow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 28px rgba(99, 102, 241, 0.45);
 
   --violation-bg: rgba(239, 68, 68, 0.12);
   --violation-text: #F87171;
@@ -192,12 +210,19 @@
   --topbar-bg: rgba(9, 9, 11, 0.66);
   --sidebar-bg: rgba(12, 12, 15, 0.9);
   --tabbar-bg: rgba(17, 17, 20, 0.86);
-  --glass-bg: rgba(17, 17, 20, 0.66);
-  --glass-border: linear-gradient(135deg, rgba(129, 140, 248, 0.55), rgba(39, 39, 42, 0.6) 40%, rgba(139, 92, 246, 0.45));
 
-  --aurora-opacity: 0.18;
-  --aurora-auth-opacity: 0.3;
-  --dot-color: rgba(255, 255, 255, 0.06);
+  --story-bg: #0C0C10;
+  --grid-minor: rgba(129, 140, 248, 0.06);
+  --grid-major: rgba(129, 140, 248, 0.11);
+  --ruler-bg: #0F0F14;
+  --ruler-tick: rgba(129, 140, 248, 0.3);
+  --ruler-tick-major: rgba(129, 140, 248, 0.55);
+  --app-grid-opacity: 0.6;
+  --app-glow: rgba(99, 102, 241, 0.16);
+
+  --label-card: #141418;
+  --label-card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 24px 60px -20px rgba(0, 0, 0, 0.7), 0 0 40px -10px rgba(99, 102, 241, 0.25);
+  --scan-glow: rgba(129, 140, 248, 0.6);
 
   --spotlight: rgba(129, 140, 248, 0.1);
   --card-hover-border: rgba(129, 140, 248, 0.3);

@@ -52,6 +52,8 @@ class Settings(BaseSettings):
     ocr_warmup_on_startup: bool = True
     session_cookie_name: str = "packcomply_session"
     session_ttl_hours: int = 12
+    # Lifetime when "Keep me signed in on this device" is ticked at login.
+    session_remember_days: int = 30
     session_secure: bool = False
     pattern_min_occurrences: int = 2
     # Copy the versioned ruleset YAML into compliance_rules when the API starts.
@@ -59,6 +61,23 @@ class Settings(BaseSettings):
     allow_official_self_registration: bool = False
     login_max_attempts: int = 5
     login_lockout_minutes: int = 15
+    # One-time 6-digit password-reset codes (issued by an administrator, or e-mailed when SMTP is set).
+    password_reset_code_minutes: int = 15
+    password_reset_max_attempts: int = 5
+    # Reset requests allowed per username and per client IP within the window.
+    password_reset_rate_limit: int = 3
+    password_reset_rate_window_minutes: int = 15
+    # Optional e-mail delivery of reset codes (Python smtplib). Disabled while smtp_host is empty.
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+    smtp_starttls: bool = True
+    smtp_ssl: bool = False
+    smtp_timeout_seconds: int = 10
+    # GET /api/system/status caches its checks for this long.
+    system_status_cache_seconds: float = 5.0
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     model_config = SettingsConfigDict(env_file=ROOT_ENV_FILE, env_file_encoding="utf-8", extra="ignore")

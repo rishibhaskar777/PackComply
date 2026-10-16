@@ -19,7 +19,7 @@ PackComply assists inspectors. Its results are not legally binding decisions.
 - Repeat-pattern detection across a user's completed inspections
 - Inspection history with search and filters
 - PDF inspection reports
-- Cookie-based authentication with OFFICIAL and MANUFACTURER roles
+- Cookie-based authentication with OFFICIAL and MANUFACTURER roles, login lockout, "keep me signed in", and an offline password reset (see [Accounts and password reset](#accounts-and-password-reset))
 - 23 UI languages
 
 ## Tech stack
@@ -83,7 +83,7 @@ Windows users without Docker: see [docs/local-setup-windows.md](docs/local-setup
 
 Uploaded images and the downloaded PaddleOCR models are kept in the named volumes `uploads` and `paddlex_cache`, so they survive rebuilds. The first OCR run downloads the models, which needs internet access.
 
-Health checks: `GET http://localhost:8000/api/health` (liveness) and `GET http://localhost:8000/api/health/ready` (readiness: 200 when PostgreSQL answers, 503 otherwise).
+Health checks: `GET http://localhost:8000/api/health` (liveness) and `GET http://localhost:8000/api/health/ready` (readiness: 200 when PostgreSQL answers, 503 otherwise). The sign-in page polls `GET /api/system/status` (public, cached for 5 s): `{"status": "ok"|"degraded"|"down", "database": bool, "ocr": "ready"|"warming_up"|"unavailable", "ruleset_version", "rule_count", "languages"}`. It always answers 200 while the API runs; `status` is `down` without the database and `degraded` when OCR is unavailable.
 
 ### Run locally
 
@@ -175,6 +175,35 @@ Two further fields are evidence for compliance and are not shown as label fields
 The product name is left empty and flagged for review when no candidate clearly stands out: headings (matched fuzzily), instructions, lists, addresses, company names, foreign-language marketing copy and unreadable text are never candidates, and a name needs either a generic commodity word (shampoo, biscuits, liquid, …) or large type. A wrong name would be reported as a fact; an empty one only asks the inspector to look.
 
 After improving extraction, `POST /api/inspections/{inspection_id}/reanalyse` re-runs extraction and compliance on the stored OCR result without repeating OCR; `python -m backend.scripts.reanalyse_all` does this for every completed inspection.
+
+## Accounts and password reset
+
+Create users with `python -m backend.scripts.create_user` (inspector accounts are only created this way unless `ALLOW_OFFICIAL_SELF_REGISTRATION=true`). Passwords must be at least 8 characters, differ from the username, and not be one of the 20 most common passwords.
+
+A sign-in normally lasts `SESSION_TTL_HOURS` (12). Ticking **Keep me signed in on this device** makes it last `SESSION_REMEMBER_DAYS` (30). After `LOGIN_MAX_ATTEMPTS` (5) failed attempts the account is locked for `LOGIN_LOCKOUT_MINUTES` (15).
+
+**Forgot password** works offline: there is no SMS or paid e-mail service. On the sign-in page, *Forgot password?* asks for a username and then for a one-time 6-digit code. The page never says whether a username exists.
+
+The administrator issues the code on the server and hands it over in person:
+
+```powershell
+python -m backend.scripts.reset_password --username inspector
+```
+
+This prints `Reset code for inspector: 123456`. The code is valid for 15 minutes and for one use; any earlier code stops working. Five wrong guesses burn it. Alternatively, set a new password directly (typed twice, not echoed):
+
+```powershell
+python -m backend.scripts.reset_password --username inspector --set-password
+```
+
+Either way, a completed reset signs the user out on every device. A reset through the sign-in page also clears the login lockout. The CLI runs in a separate process and cannot clear that in-memory lock; it expires after `LOGIN_LOCKOUT_MINUTES`.
+
+Optional e-mail delivery uses the Python standard library (`smtplib`) and is off until `SMTP_HOST` is set (see `.env.example`). The code is then e-mailed to the account's address as well. Codes are stored only as scrypt hashes and never written to logs. Reset requests are limited to 3 per username and 3 per IP address per 15 minutes; a further request gets 429.
+
+| Endpoint | Body | Response |
+|---|---|---|
+| `POST /api/auth/password-reset/request` | `{"username"}` | Always `202` with the same message for known and unknown usernames; `429` when rate-limited |
+| `POST /api/auth/password-reset/confirm` | `{"username", "code", "new_password"}` | `200` on success; `400 {"detail": "Invalid or expired code"}` for any code failure; `422` when the new password breaks the policy |
 
 ## UI languages
 

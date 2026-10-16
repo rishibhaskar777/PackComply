@@ -19,7 +19,7 @@ const openUserMenu = async () => fireEvent.click(await screen.findByRole("button
 const go = (hash: string) => window.history.replaceState(null, "", hash);
 
 async function fillRegistration(confirm = "register-password") {
-  fireEvent.click(await screen.findByRole("tab", { name: en.register }));
+  fireEvent.click(await screen.findByRole("button", { name: en.createManufacturerAccount }));
   fireEvent.change(screen.getByRole("textbox", { name: en.username }), { target: { value: "new-user" } });
   fireEvent.change(screen.getByRole("textbox", { name: en.email }), { target: { value: "new@example.invalid" } });
   fireEvent.change(screen.getByLabelText(en.password), { target: { value: "register-password" } });
@@ -53,7 +53,7 @@ describe("inspection workflow UI", () => {
     expect(screen.getByRole("textbox", { name: en.username })).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(`${API}/auth/me`, expect.objectContaining({ credentials: "include" }));
   });
-  it("renders the registration tab and detects a password mismatch", async () => {
+  it("opens registration from the sign-in page and detects a password mismatch", async () => {
     mockApi({ "GET /auth/me": unauthenticated }); renderApp();
     await fillRegistration("different-password");
     expect((await screen.findByRole("alert")).textContent).toBe(en.passwordsDoNotMatch);
@@ -87,7 +87,8 @@ describe("inspection workflow UI", () => {
   });
   it("registers explicitly as a manufacturer and explains why", async () => {
     const fetchMock = mockApi({ "GET /auth/me": [unauthenticated, response({ username: "new-user" })], "POST /auth/register": response({ username: "new-user" }) }); renderApp();
-    fireEvent.click(await screen.findByRole("tab", { name: en.register })); expect(screen.getByText(en.manufacturerRegistrationNote)).toBeTruthy();
+    fireEvent.click(await screen.findByRole("button", { name: en.createManufacturerAccount })); expect(screen.getByText(en.manufacturerRegistrationNote)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: en.backToSignIn })); expect(screen.getByRole("heading", { level: 1, name: en.welcomeBack })).toBeTruthy();
     await fillRegistration();
     await appReady();
     const registerCall = fetchMock.mock.calls.find(call => String(call[0]).endsWith("/auth/register"))!;

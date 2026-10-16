@@ -12,6 +12,7 @@ from backend.app.models.entities import (
     Manufacturer,
     ManufacturerHistory,
     OcrResult,
+    PasswordResetCode,
     Product,
     RiskScore,
     SyncRecord,
@@ -21,5 +22,5 @@ from backend.app.models.entities import (
 __all__ = [
     "Base", "AuthSession", "ComplianceResult", "ComplianceRule", "ExtractedField", "Inspection",
     "InspectionImage", "InspectionIssue", "Manufacturer", "ManufacturerHistory",
-    "OcrResult", "Product", "RiskScore", "SyncRecord", "User",
+    "OcrResult", "PasswordResetCode", "Product", "RiskScore", "SyncRecord", "User",
 ]
