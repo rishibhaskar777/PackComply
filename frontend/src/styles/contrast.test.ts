@@ -54,7 +54,7 @@ function ratio(tokens: Record<string, string>, text: string, background: string,
 // Every text-on-surface pairing the UI actually renders.
 const PAIRS: Array<[text: string, background: string, base?: string]> = [
   ["--foreground", "--background"], ["--foreground", "--surface"], ["--foreground", "--surface-raised"], ["--foreground", "--surface-muted"], ["--foreground", "--muted"],
-  ["--foreground", "--topbar-bg", "--background"], ["--foreground", "--glass-bg", "--background"],
+  ["--foreground", "--topbar-bg", "--background"],
   ["--muted-foreground", "--background"], ["--muted-foreground", "--surface"], ["--muted-foreground", "--surface-raised"], ["--muted-foreground", "--surface-muted"],
   ["--secondary-foreground", "--surface"], ["--secondary-foreground", "--surface-muted"], ["--secondary-foreground", "--muted"],
   ["--tab-foreground", "--muted"],
@@ -63,6 +63,13 @@ const PAIRS: Array<[text: string, background: string, base?: string]> = [
   ["--violation-text", "--violation-bg"], ["--violation-text", "--surface"],
   ["--review-text", "--review-bg"], ["--pass-text", "--pass-bg"],
   ["--critical-text", "--critical-bg"], ["--na-text", "--na-bg"],
+  // Sign-in page: story panel, label card, rulers, CTA gradient ends, and status pills on the page background.
+  ["--foreground", "--story-bg"], ["--muted-foreground", "--story-bg"], ["--muted-foreground", "--ruler-bg"],
+  ["--foreground", "--label-card"], ["--muted-foreground", "--label-card"],
+  ["--pass-text", "--pass-bg", "--label-card"], ["--review-text", "--review-bg", "--label-card"],
+  ["--primary-foreground", "--cta-from"], ["--primary-foreground", "--cta-to"],
+  ["--secondary-foreground", "--background"], ["--primary-strong", "--background"], ["--primary-strong", "--primary-soft", "--background"],
+  ["--pass-text", "--pass-bg", "--background"], ["--review-text", "--review-bg", "--background"], ["--violation-text", "--violation-bg", "--background"],
 ];
 
 describe("design token contrast (WCAG AA, 4.5:1 for body text)", () => {
@@ -74,7 +81,7 @@ describe("design token contrast (WCAG AA, 4.5:1 for body text)", () => {
 
   it("defines every colour token in both themes", () => {
     const dark = block(':root[data-theme="dark"]');
-    for (const name of ["--background", "--surface", "--surface-raised", "--surface-muted", "--muted", "--border", "--foreground", "--muted-foreground", "--primary", "--primary-strong", "--primary-soft", "--primary-border", "--violation-text", "--violation-bg", "--violation-border", "--review-text", "--review-bg", "--review-border", "--pass-text", "--pass-bg", "--pass-border"]) {
+    for (const name of ["--background", "--surface", "--surface-raised", "--surface-muted", "--muted", "--border", "--foreground", "--muted-foreground", "--primary", "--primary-strong", "--primary-soft", "--primary-border", "--violation-text", "--violation-bg", "--violation-border", "--review-text", "--review-bg", "--review-border", "--pass-text", "--pass-bg", "--pass-border", "--story-bg", "--label-card", "--grid-minor", "--grid-major", "--ruler-bg", "--ruler-tick", "--brand-mark-shadow", "--cta-glow", "--app-glow", "--scan-glow"]) {
       expect(light[name], `light ${name}`).toBeTruthy();
       expect(dark[name], `dark ${name}`).toBeTruthy();
     }

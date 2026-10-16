@@ -5,6 +5,7 @@ import "@fontsource-variable/geist-mono/wght.css";
 import "./styles/tokens.css";
 import "./components/ui/ui.css";
 import "./styles/app.css";
+import "./styles/auth.css";
 import App from "./App";
 import { I18nProvider } from "./i18n";
 

@@ -27,6 +27,18 @@ class AuthSession(IdTimestampMixin, Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class PasswordResetCode(IdTimestampMixin, Base):
+    """A one-time password-reset code. Only a scrypt hash of the code is stored."""
+    __tablename__ = "password_reset_codes"
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    code_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    # Set when the code is redeemed, superseded, or burned by too many wrong guesses.
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    requested_ip: Mapped[str | None] = mapped_column(String(64))
+
+
 class Manufacturer(IdTimestampMixin, Base):
     __tablename__ = "manufacturers"
 

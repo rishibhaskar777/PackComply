@@ -1,14 +1,13 @@
 /**
- * Fixed ambient layer behind the app: three soft aurora blobs drifting on long CSS loops (transform only)
- * over a faint dot grid that fades towards the bottom. Paused while the tab is hidden; still under reduced motion.
+ * Fixed ambient layer behind the app, in the sign-in page's measurement language: faint 8px/40px graph paper
+ * that fades out below the first ~400px, and one soft indigo glow drifting at the top centre (transform only).
+ * Paused while the tab is hidden (see src/theme/theme.tsx); still under reduced motion.
  */
-export function Backdrop({ variant = "app" }: { variant?: "app" | "auth" }) {
+export function Backdrop() {
   return (
-    <div className={`backdrop backdrop--${variant}`} aria-hidden="true">
+    <div className="backdrop" aria-hidden="true">
       <span className="backdrop__grid" />
-      <span className="aurora aurora--indigo" />
-      <span className="aurora aurora--violet" />
-      <span className="aurora aurora--cyan" />
+      <span className="backdrop__glow" />
     </div>
   );
 }

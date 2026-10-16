@@ -22,33 +22,30 @@
 .brand-mark {
   display: inline-grid; place-items: center; flex: none;
   border-radius: var(--radius); background: var(--brand-gradient); color: var(--primary-foreground);
-  box-shadow: var(--shadow-xs), var(--brand-glow);
+  box-shadow: var(--brand-mark-shadow);
 }
-.brand-mark--float { animation: float 6s ease-in-out infinite; }
-@keyframes float { 50% { transform: translateY(-4px); } }
 
-/* Ambient background: fixed, behind everything, compositor-only animation */
+/* Ambient background: the sign-in page's graph paper, fainter, fading out below the first ~400px,
+   with one soft glow drifting at the top centre (transform only). Cards and tables sit on solid surfaces. */
 .backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
 .backdrop__grid {
-  position: absolute; inset: 0;
-  background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
-  background-size: 24px 24px;
-  -webkit-mask-image: linear-gradient(to bottom, black, transparent 75%);
-  mask-image: linear-gradient(to bottom, black, transparent 75%);
+  position: absolute; inset: 0 0 auto; height: 520px;
+  opacity: var(--app-grid-opacity);
+  background-image:
+    linear-gradient(var(--grid-major) 1px, transparent 1px), linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(var(--grid-minor) 1px, transparent 1px), linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
+  background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
+  -webkit-mask-image: linear-gradient(to bottom, black, black 120px, transparent 400px);
+  mask-image: linear-gradient(to bottom, black, black 120px, transparent 400px);
 }
-/* Soft-edged blobs drawn with radial gradients (no filter: blur) so each frame is only a transform. */
-.aurora {
-  position: absolute; border-radius: 50%;
-  opacity: var(--aurora-opacity);
+.backdrop__glow {
+  position: absolute; top: -360px; left: 50%; width: 960px; height: 640px; margin-left: -480px;
+  border-radius: 50%; background: radial-gradient(closest-side, var(--app-glow), transparent);
   will-change: transform;
+  animation: glow-drift 30s ease-in-out infinite alternate;
 }
-.aurora--indigo { top: -22vmax; inset-inline-start: -12vmax; width: 60vmax; height: 60vmax; background: radial-gradient(closest-side, var(--aurora-1), transparent); animation: drift-a 34s ease-in-out infinite alternate; }
-.aurora--violet { top: -18vmax; inset-inline-end: -16vmax; width: 52vmax; height: 52vmax; background: radial-gradient(closest-side, var(--aurora-2), transparent); animation: drift-b 40s ease-in-out infinite alternate; }
-.aurora--cyan { top: 28vh; inset-inline-start: 30vw; width: 40vmax; height: 40vmax; background: radial-gradient(closest-side, var(--aurora-3), transparent); opacity: calc(var(--aurora-opacity) * 0.6); animation: drift-c 28s ease-in-out infinite alternate; }
-@keyframes drift-a { to { transform: translate3d(14vw, 10vh, 0) scale(1.1); } }
-@keyframes drift-b { to { transform: translate3d(-12vw, 14vh, 0) scale(0.92); } }
-@keyframes drift-c { to { transform: translate3d(-16vw, -8vh, 0) scale(1.15); } }
-@media (prefers-reduced-motion: reduce) { .aurora, .brand-mark--float, .auth-ring { animation: none !important; } }
+@keyframes glow-drift { 0% { transform: translate3d(-6%, 0, 0); } 100% { transform: translate3d(6%, 40px, 0) scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .backdrop__glow { animation: none !important; } }
 
 /* Shell layout */
 .shell {
@@ -331,53 +328,6 @@
 .finding__reference, .finding__field { color: var(--muted-foreground); font-size: var(--text-xs); }
 .page-footer-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
-/* Login / register */
-.auth-page { position: relative; min-height: 100vh; overflow-x: clip; background: var(--background); }
-.auth-page .aurora { opacity: var(--aurora-auth-opacity); }
-.auth-page .aurora--indigo { top: -10vmax; width: 70vmax; height: 70vmax; }
-.auth-page .aurora--violet { top: 6vmax; width: 60vmax; height: 60vmax; }
-.auth-page .aurora--cyan { opacity: calc(var(--aurora-auth-opacity) * 0.6); }
-.auth-page__controls { position: absolute; top: var(--space-4); inset-inline-end: var(--space-4); z-index: 2; display: flex; align-items: center; gap: var(--space-2); }
-.auth-page__main { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; padding: 96px var(--space-4) var(--space-10); }
-.auth-stage { position: relative; display: grid; place-items: center; width: 100%; max-width: 400px; }
-/* A slow conic ring glowing behind the glass card. */
-.auth-ring {
-  position: absolute; top: 50%; left: 50%; z-index: 0;
-  width: 720px; height: 720px; margin: -360px 0 0 -360px; border-radius: 50%;
-  background: var(--ring-gradient);
-  /* A soft band at ~230-260px radius, so it halos the card instead of hiding behind it. */
-  -webkit-mask: radial-gradient(closest-side, transparent 60%, black 66%, black 70%, transparent 76%);
-  mask: radial-gradient(closest-side, transparent 60%, black 66%, black 70%, transparent 76%);
-  opacity: 0.9; will-change: transform;
-  animation: spin 40s linear infinite;
-}
-.auth-card {
-  position: relative; z-index: 1; width: 100%;
-  border-radius: var(--radius-lg);
-  background: var(--glass-bg); box-shadow: var(--shadow-md);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3); backdrop-filter: blur(16px) saturate(1.3);
-}
-/* 1px gradient border drawn with a mask so the glass stays translucent. */
-.auth-card::before {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
-  background: var(--glass-border);
-  -webkit-mask: linear-gradient(black 0 0) content-box, linear-gradient(black 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-}
-.auth-brand { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); margin-bottom: var(--space-6); text-align: center; }
-.auth-brand__name { font-size: var(--text-lg); font-weight: 600; line-height: 1.2; }
-.auth-brand__caption { color: var(--muted-foreground); font-size: var(--text-sm); }
-.auth-card__body { padding: var(--space-6); }
-.auth-card__heading { margin: var(--space-5) 0 var(--space-4); }
-.auth-card__title { font-size: var(--text-lg); font-weight: 600; }
-.auth-card__description { margin-top: var(--space-1); color: var(--muted-foreground); font-size: var(--text-sm); }
-.auth-form { display: grid; gap: var(--space-4); }
-.auth-form__submit { width: 100%; }
-.password-input { position: relative; display: block; }
-.password-input .input { padding-inline-end: 40px; }
-.password-input__toggle.btn--icon { position: absolute; top: 2px; inset-inline-end: 2px; width: 32px; height: 32px; }
-.auth-page__footnote { max-width: 400px; margin-top: var(--space-4); color: var(--muted-foreground); font-size: var(--text-xs); text-align: center; }
-
 /* Tablet and below: the sidebar becomes an off-canvas drawer */
 @media (max-width: 1023px) {
   .shell, .shell.is-collapsed { grid-template-columns: minmax(0, 1fr); }
@@ -445,8 +395,5 @@
     transition: transform var(--duration-fast) var(--ease-out);
   }
   .tabbar__fab:active { transform: scale(0.94); }
-  .auth-page__main { padding-top: 80px; }
   .page-title { font-size: var(--text-xl); }
-  .auth-ring { width: 540px; height: 540px; margin: -270px 0 0 -270px; }
-  .auth-card__body { padding: var(--space-5); }
 }

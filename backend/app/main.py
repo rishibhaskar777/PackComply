@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 from backend.app.api.health import router as health_router
+from backend.app.api.system import router as system_router
 from backend.app.api.inspections import get_ocr_service, router as inspections_router
 from backend.app.api.auth import router as auth_router
 from backend.app.api.patterns import router as patterns_router
@@ -17,6 +18,7 @@ from backend.app.api.compliance import router as compliance_router
 from backend.app.api.dashboard import router as dashboard_router
 from backend.app.core.config import get_cors_origins, get_settings
 from backend.app.core.database import SessionLocal
+from backend.app.core.ocr_status import set_ocr_state
 from backend.app.services.compliance.registry import sync_compliance_rules
 from backend.app.services.compliance.ruleset import default_ruleset
 
@@ -25,6 +27,7 @@ logger = logging.getLogger("uvicorn.error")
 
 
 def _warm_ocr_models() -> None:
+    set_ocr_state("warming_up")
     try:
         # Resolve through the override map so tests and alternate providers apply.
         factory = app.dependency_overrides.get(get_ocr_service, get_ocr_service)
@@ -32,7 +35,9 @@ def _warm_ocr_models() -> None:
         warm = getattr(service, "warm", None)
         if warm is not None:
             warm()
+        set_ocr_state("ready")
     except Exception:
+        set_ocr_state("unavailable")
         logger.exception("OCR warm-up failed; models will load on the first request instead")
 
 
@@ -54,6 +59,7 @@ async def lifespan(_: FastAPI):
         _sync_compliance_rules()
     # Warm in a daemon thread so the API serves /api/health immediately.
     if get_settings().ocr_warmup_on_startup:
+        set_ocr_state("warming_up")
         Thread(target=_warm_ocr_models, name="ocr-warmup", daemon=True).start()
     yield
     if get_ocr_service.cache_info().currsize:
@@ -96,6 +102,7 @@ async def add_security_headers(request: Request, call_next):
 
 
 app.include_router(health_router, prefix="/api")
+app.include_router(system_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(inspections_router, prefix="/api")
 app.include_router(patterns_router, prefix="/api")

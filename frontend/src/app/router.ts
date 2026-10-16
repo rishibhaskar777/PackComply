@@ -34,6 +34,21 @@ export function navigate(path: string, { replace = false } = {}) {
   }
 }
 
+// Signed-out routes, handled by the sign-in page rather than the workspace.
+export const FORGOT_PASSWORD_PATH = "/forgot-password";
+
+/** The current hash path (e.g. "/forgot-password"), updated on navigation. */
+export function useHashPath(): string {
+  const read = () => window.location.hash.replace(/^#/, "").replace(/\/+$/, "");
+  const [path, setPath] = useState(read);
+  useEffect(() => {
+    const update = () => setPath(read());
+    window.addEventListener("hashchange", update);
+    return () => window.removeEventListener("hashchange", update);
+  }, []);
+  return path;
+}
+
 export function useHashRoute(): Route {
   const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash) ?? { name: "overview" });
   useEffect(() => {

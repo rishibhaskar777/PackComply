@@ -3,7 +3,7 @@ import getpass
 
 from sqlalchemy import select
 
-from backend.app.api.auth import hash_password
+from backend.app.core.security import hash_password
 from backend.app.core.database import SessionLocal
 from backend.app.models import User
 
