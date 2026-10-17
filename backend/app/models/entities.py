@@ -73,6 +73,15 @@ class Inspection(IdTimestampMixin, Base):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     failure_stage: Mapped[str | None] = mapped_column(String(30))
     failure_message: Mapped[str | None] = mapped_column(Text)
+    # Label identity as extracted (and corrected); kept here so lists and search need no join through extracted_fields.
+    product_name: Mapped[str | None] = mapped_column(String(255), index=True)
+    brand_name: Mapped[str | None] = mapped_column(String(255))
+    maker_name: Mapped[str | None] = mapped_column(String(255))
+    # Inspector review: UNREVIEWED until an official verifies; any new correction resets it.
+    review_status: Mapped[str] = mapped_column(String(20), default="UNREVIEWED", server_default="UNREVIEWED", nullable=False)
+    reviewed_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    remarks: Mapped[str | None] = mapped_column(Text)
 
 
 def _next_upload_sequence(context) -> int:
@@ -111,6 +120,8 @@ class OcrResult(IdTimestampMixin, Base):
     languages: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     raw_text: Mapped[str] = mapped_column(Text, nullable=False)
     detections: Mapped[list[dict]] = mapped_column(JSON, default=list, nullable=False)
+    # Wall-clock time of the scan; null for results stored before it was recorded.
+    duration_ms: Mapped[int | None] = mapped_column(Integer)
 
 
 class ExtractedField(IdTimestampMixin, Base):
@@ -128,6 +139,29 @@ class ExtractedField(IdTimestampMixin, Base):
     matched_pattern: Mapped[str | None] = mapped_column(String(100))
     normalized_value: Mapped[str | None] = mapped_column(Text)
     source_bboxes: Mapped[list[list[list[float]]] | None] = mapped_column(JSON)
+
+
+class FieldCorrection(IdTimestampMixin, Base):
+    """An inspector's correction of one extracted field; re-applied on top of every fresh extraction."""
+    __tablename__ = "field_corrections"
+    __table_args__ = (Index("ix_field_corrections_inspection_field", "inspection_id", "field_name"),)
+
+    inspection_id: Mapped[UUID] = mapped_column(ForeignKey("inspections.id", ondelete="CASCADE"), nullable=False)
+    field_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    original_value: Mapped[str | None] = mapped_column(Text)
+    corrected_value: Mapped[str] = mapped_column(Text, nullable=False)
+    reason: Mapped[str | None] = mapped_column(Text)
+    corrected_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+
+
+class InspectionEvent(IdTimestampMixin, Base):
+    """Audit events that cannot be derived from other rows: re-analysis, verification, undone corrections."""
+    __tablename__ = "inspection_events"
+
+    inspection_id: Mapped[UUID] = mapped_column(ForeignKey("inspections.id", ondelete="CASCADE"), index=True, nullable=False)
+    event_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    actor_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    details: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
 
 
 class ComplianceRule(IdTimestampMixin, Base):

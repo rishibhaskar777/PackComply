@@ -52,7 +52,7 @@ export function InspectionsPage({ search, onSearchChange, onExpired }: Inspectio
   }, [page, status, verdict, term]);
 
   const columns: Column<HistoryItem>[] = [
-    { key: "product", header: t("productName"), link: true, className: "cell-grow", render: item => <><span className="cell-primary">{item.product_name ?? item.image_filename ?? t("unknown")}</span><span className="cell-secondary mono">{item.inspection_number}</span></> },
+    { key: "product", header: t("productName"), link: true, className: "cell-grow", render: item => <><span className="cell-primary">{item.product_name ?? t("recUntitled")}</span><span className="cell-secondary mono">{item.inspection_number}</span></> },
     { key: "date", header: t("date"), hideOnMobile: true, render: item => <span className="tabular">{formatDate(item.created_at, true)}</span> },
     { key: "status", header: t("status"), hideOnMobile: true, render: item => <Badge variant={item.status} dot={false} /> },
     { key: "verdict", header: t("verdict"), render: item => item.verdict ?? item.compliance_status ? <Badge variant={item.verdict ?? item.compliance_status} /> : <Badge variant="PENDING" /> },

@@ -285,16 +285,9 @@
 .dropzone__label { font-weight: 500; }
 .upload-note { margin-top: var(--space-3); color: var(--muted-foreground); font-size: var(--text-sm); overflow-wrap: anywhere; }
 .preview-placeholder { display: grid; place-items: center; gap: var(--space-2); min-height: 140px; padding: var(--space-6); border-radius: var(--radius); background: var(--muted-bg); color: var(--muted-foreground); text-align: center; }
-/* Evidence photo: a neutral frame so the photo reads the same in either theme. Markers (Phase 3B)
-   keep a white ring and a dark drop shadow so they stay visible on any photo. */
+/* Evidence photo: a neutral frame so the photo reads the same in either theme (markers: record.css). */
 .evidence { position: relative; border-radius: var(--radius); background: var(--evidence-bg); overflow: hidden; }
 .label-preview { width: 100%; max-height: 360px; object-fit: contain; border-radius: var(--radius); }
-.evidence-marker {
-  position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px;
-  display: grid; place-items: center; border-radius: 50%;
-  border: 2px solid var(--marker-ring); box-shadow: var(--marker-shadow);
-  background: var(--violation-dot); color: var(--critical-text); font-size: 11px; font-weight: 600;
-}
 .summary-pill { display: inline-block; max-width: 100%; padding: 2px var(--space-2); border-radius: 999px; background: var(--muted); color: var(--secondary-foreground); font-size: var(--text-xs); }
 .raw-text {
   max-height: 280px; overflow: auto; margin: 0; padding: var(--space-3);

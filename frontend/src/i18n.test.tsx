@@ -8,9 +8,9 @@ import { API, calledPaths, emptyRiskPage, mockApi, response } from "./test/mockA
 
 function renderApp() { return render(<I18nProvider><App /></I18nProvider>); }
 const file = () => new File(["image"], "label.png", { type: "image/png" });
-const result = { id: "inspection-1", inspection_number: "INSP-001", status: "COMPLETED", image: { id: "image-1", original_filename: "label.png" }, ocr: { raw_text: "MRP Rs 100", languages: ["en", "hi"], results: [] }, extraction: { fields: { manufacturer: { value: "ABC Foods", confidence: .94, needs_review: false }, mrp: { value: "Rs 100", confidence: .97, needs_review: false } } }, compliance: { overall_status: "REVIEW", summary: { passed: 1, failed: 0, review: 1 }, findings: [{ rule_id: "MRP_FORMAT", rule_name: "MRP format", status: "PASS", severity: "WARNING", message: "Valid MRP", field: "mrp", value: "Rs 100" }] }, quantity_verification: { declared_quantity: "0.5 KG", normalized_quantity: "500 g", unit: "g", status: "PASS", reason: "Valid declared quantity.", rule_code: "NET_QUANTITY_FORMAT", severity: "WARNING", evidence: "Net Qty: 0.5 KG", requirement: null } };
+const result = { id: "inspection-1", inspection_number: "INSP-001", status: "COMPLETED", product_name: "Glucose Biscuits", maker_name: "ABC Foods", review: { status: "UNREVIEWED" }, corrections: [], image: { id: "image-1", original_filename: "label.png" }, ocr: { raw_text: "MRP Rs 100", languages: ["en", "hi"], results: [] }, extraction: { fields: { manufacturer: { value: "ABC Foods", confidence: .94, needs_review: false }, mrp: { value: "Rs 100", confidence: .97, needs_review: false } } }, compliance: { overall_status: "REVIEW", summary: { passed: 1, failed: 0, review: 1 }, findings: [{ rule_id: "MRP_FORMAT", rule_name: "MRP format", status: "PASS", severity: "WARNING", message: "Valid MRP", field: "mrp", value: "Rs 100" }] }, quantity_verification: { declared_quantity: "0.5 KG", normalized_quantity: "500 g", unit: "g", status: "PASS", reason: "Valid declared quantity.", rule_code: "NET_QUANTITY_FORMAT", severity: "WARNING", evidence: "Net Qty: 0.5 KG", requirement: null } };
 const unauthenticated = response({ detail: "Not authenticated" }, false, 401);
-const workflow = (process = response(result)) => ({ "POST /inspections": response({ id: "inspection-1", inspection_number: "INSP-001" }), "POST /inspections/inspection-1/image": response({ id: "image-1", original_filename: "label.png" }), "POST /inspections/inspection-1/process": process });
+const workflow = (process = response(result)) => ({ "POST /inspections": response({ id: "inspection-1", inspection_number: "INSP-001" }), "POST /inspections/inspection-1/image": response({ id: "image-1", original_filename: "label.png" }), "POST /inspections/inspection-1/process": process, "GET /inspections/inspection-1": response(result), "GET /inspections/inspection-1/audit": response([]), "GET /inspections/inspection-1/image": response({}) });
 
 // The authenticated workspace is ready once its primary navigation renders.
 const appReady = () => screen.findByRole("navigation", { name: en.primaryNavigation });
@@ -112,32 +112,49 @@ describe("inspection workflow UI", () => {
 
   describe("on the new-inspection route", () => {
     beforeEach(() => { go("#/new"); URL.createObjectURL = vi.fn(() => "blob:label"); URL.revokeObjectURL = vi.fn(); });
-    const upload = async () => { renderApp(); await appReady(); fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files: [file()] } }); };
-    it("uploads and automatically displays the complete persisted workflow", async () => {
-      mockApi({ "GET /auth/me": response({ username: "inspector" }), ...workflow() });
+    const choose = async (candidate = file()) => { renderApp(); await appReady(); fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files: [candidate] } }); };
+    const upload = async () => { await choose(); fireEvent.click(await screen.findByRole("button", { name: en.newStart })); };
+    it("uploads, processes and opens the finished record", async () => {
+      mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }), ...workflow() });
       await upload();
-      await screen.findByText("MRP Rs 100"); expect(screen.getByText("ABC Foods")).toBeTruthy(); expect(screen.getByText((_, element) => element?.tagName === "STRONG" && element.textContent === "MRP format — Pass (WARNING)")).toBeTruthy(); expect(screen.getByText("Inspection complete")).toBeTruthy();
+      expect(await screen.findByRole("heading", { level: 1, name: "Glucose Biscuits" })).toBeTruthy();
       expect(window.location.hash).toBe("#/inspections/inspection-1");
+      expect(screen.getByText("MRP format")).toBeTruthy();
     });
     it("downloads an authorized PDF report through the shared credentialed API helper", async () => {
       const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
-      const fetchMock = mockApi({ "GET /auth/me": response({ username: "inspector" }), ...workflow(), "GET /inspections/inspection-1/report": response({}) });
-      await upload(); await screen.findByText(en.downloadPdfReport); fireEvent.click(screen.getByRole("button", { name: en.downloadPdfReport }));
-      await waitFor(() => expect(click).toHaveBeenCalled()); expect(fetchMock).toHaveBeenLastCalledWith(`${API}/inspections/inspection-1/report`, expect.objectContaining({ credentials: "include" })); click.mockRestore();
+      const fetchMock = mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }), ...workflow(), "GET /inspections/inspection-1/report": response({}) });
+      await upload(); fireEvent.click(await screen.findByRole("button", { name: en.recExportPdf }));
+      await waitFor(() => expect(click).toHaveBeenCalled()); expect(fetchMock).toHaveBeenCalledWith(`${API}/inspections/inspection-1/report`, expect.objectContaining({ credentials: "include" })); click.mockRestore();
     });
-    it("renders declared quantity verification with its normalized value and PASS state", async () => {
-      mockApi({ "GET /auth/me": response({ username: "inspector" }), ...workflow() });
-      await upload();
-      expect(await screen.findByText("0.5 KG")).toBeTruthy(); expect(screen.getByText("500 g")).toBeTruthy(); expect(document.querySelector('.quantity-verification [data-variant="PASS"]')?.textContent).toBe("Pass");
-    });
-    it("shows a recoverable failure", async () => {
-      mockApi({ "GET /auth/me": response({ username: "inspector" }), "POST /inspections": response({ detail: "Database unavailable." }, false, 500) });
+    it("shows a recoverable failure and resumes without creating a second inspection", async () => {
+      const fetchMock = mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }), ...workflow(), "POST /inspections/inspection-1/process": [response({ detail: "Database unavailable." }, false, 500), response(result)] });
       await upload(); expect((await screen.findByRole("alert")).textContent).toContain("500: Database unavailable.");
+      fireEvent.click(screen.getByRole("button", { name: en.tryAgain }));
+      expect(await screen.findByRole("heading", { level: 1, name: "Glucose Biscuits" })).toBeTruthy();
+      expect(fetchMock.mock.calls.filter(call => (call[1] as RequestInit | undefined)?.method === "POST" && String(call[0]).endsWith("/inspections")).length).toBe(1);
     });
-    it("starts a new inspection after completion", async () => {
-      mockApi({ "GET /auth/me": response({ username: "inspector" }), ...workflow() });
-      await upload(); await screen.findByText("Start New Inspection"); fireEvent.click(screen.getByText("Start New Inspection")); await waitFor(() => expect(screen.queryByText("MRP Rs 100")).toBeNull());
-      await waitFor(() => expect(window.location.hash).toBe("#/new"));
+    it("rejects unsupported files before uploading", async () => {
+      const fetchMock = mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }) });
+      await choose(new File(["x"], "notes.txt", { type: "text/plain" }));
+      expect((await screen.findByRole("alert")).textContent).toBe(en.newBadType);
+      expect((screen.getByRole("button", { name: en.newStart }) as HTMLButtonElement).disabled).toBe(true);
+      expect(fetchMock.mock.calls.some(call => (call[1] as RequestInit | undefined)?.method === "POST")).toBe(false);
+    });
+    it("states the backend size limit and rejects larger photos", async () => {
+      mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }), "GET /inspections/config": response({ max_upload_bytes: 1024 * 1024, allowed_types: ["image/png", "image/jpeg"] }) });
+      await choose();
+      expect(await screen.findByText("PNG or JPEG, up to 1 MB.")).toBeTruthy();
+      const big = new File([new Uint8Array(2 * 1024 * 1024)], "big.png", { type: "image/png" });
+      fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files: [big] } });
+      expect((await screen.findByRole("alert")).textContent).toBe("This photo is larger than the 1 MB limit.");
+    });
+    it("accepts a dropped photo and shows its preview", async () => {
+      mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }) });
+      renderApp(); await appReady();
+      fireEvent.drop(document.querySelector(".dropzone")!, { dataTransfer: { files: [file()] } });
+      expect(await screen.findByAltText(en.imagePreview)).toBeTruthy();
+      expect((screen.getByRole("button", { name: en.newStart }) as HTMLButtonElement).disabled).toBe(false);
     });
   });
 });

@@ -7,13 +7,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
 
+from time import perf_counter
+
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, Inspection, InspectionImage, OcrResult
-from backend.app.schemas.inspection import ComplianceFindingResponse, ComplianceResponse, ComplianceSummary, ExtractionFieldResponse, ExtractionResponse, ImageUploaded, InspectionSummary, OcrProcessed, QuantityVerificationResponse
+from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, Inspection, FieldCorrection, InspectionImage, OcrResult, User
+from backend.app.schemas.inspection import ComplianceFindingResponse, ComplianceResponse, ComplianceSummary, ExtractionFieldResponse, ExtractionResponse, FieldCorrectionResponse, ImageUploaded, InspectionSummary, OcrProcessed, QuantityVerificationResponse, ReviewResponse
 from backend.app.services.compliance.registry import ensure_compliance_rules, results_ruleset, rule_action, rule_expected, rule_legal_reference, rule_title
 from backend.app.services.compliance.rule_engine import NOT_APPLICABLE, ComplianceEngine, FieldEvidence, overall_status, verdict
+from backend.app.services.corrections import INSPECTOR_PATTERN, SOURCE_INSPECTOR, SOURCE_OCR, apply_corrections, display_name, sync_label_identity
 from backend.app.services.extraction.evidence import build_extracted_fields, field_evidence
 from backend.app.services.extraction.extraction_service import ExtractionService
 from backend.app.services.quantity_verification import QuantityVerificationService
@@ -44,12 +47,13 @@ def latest_extracted_fields(db: Session, inspection_id: UUID) -> list[ExtractedF
 
 
 def extraction_field_response(field: ExtractedField) -> ExtractionFieldResponse:
-    return ExtractionFieldResponse(value=field.value, confidence=float(field.confidence or 0), needs_review=field.review_status == "REVIEW", source_text=field.source_text, matched_pattern=field.matched_pattern, normalized_value=field.normalized_value, source_bboxes=field.source_bboxes)
+    return ExtractionFieldResponse(value=field.value, confidence=float(field.confidence or 0), needs_review=field.review_status == "REVIEW", source_text=field.source_text, matched_pattern=field.matched_pattern, normalized_value=field.normalized_value, source_bboxes=field.source_bboxes, source=SOURCE_INSPECTOR if field.matched_pattern == INSPECTOR_PATTERN else SOURCE_OCR)
 
 
 def compliance_response(inspection_id: UUID, results: list[ComplianceResult], extracted: list[ExtractedField]) -> ComplianceResponse:
     boxes = {field.field_name: field.source_bboxes for field in extracted}
-    findings = [ComplianceFindingResponse(rule_id=result.rule.rule_code, rule_name=rule_title(result.rule), status=result.result, severity=result.rule.severity, message=result.explanation, field=result.field_name, value=result.value, confidence=float(result.confidence) if result.confidence is not None else None, evidence=result.evidence, expected=rule_expected(result.rule), source_bboxes=boxes.get(result.field_name) if result.field_name and result.result != NOT_APPLICABLE else None, legal_reference=rule_legal_reference(result.rule), recommended_action=rule_action(result.rule, result.result)) for result in results]
+    corrected = {field.field_name for field in extracted if field.matched_pattern == INSPECTOR_PATTERN}
+    findings = [ComplianceFindingResponse(rule_id=result.rule.rule_code, rule_name=rule_title(result.rule), status=result.result, severity=result.rule.severity, message=result.explanation, field=result.field_name, value=result.value, confidence=float(result.confidence) if result.confidence is not None else None, evidence=result.evidence, expected=rule_expected(result.rule), source_bboxes=boxes.get(result.field_name) if result.field_name and result.result != NOT_APPLICABLE else None, legal_reference=rule_legal_reference(result.rule), recommended_action=rule_action(result.rule, result.result), fields=[result.field_name] if result.field_name else [], corrected=result.field_name in corrected) for result in results]
     statuses = [finding.status for finding in findings]
     counts = {name: statuses.count(name) for name in ("PASS", "FAIL", "REVIEW", NOT_APPLICABLE)}
     ruleset_id, version, label = results_ruleset(results)
@@ -79,6 +83,11 @@ def persist_compliance(db: Session, engine: ComplianceEngine, inspection_id: UUI
         if rule_id not in current:
             db.delete(result)
     db.commit()
+
+
+def user_names(db: Session, ids: list[UUID | None]) -> dict[UUID, str]:
+    wanted = {user_id for user_id in ids if user_id}
+    return {user.id: user.full_name for user in db.scalars(select(User).where(User.id.in_(wanted))).all()} if wanted else {}
 
 
 class WorkflowError(Exception):
@@ -124,8 +133,9 @@ class InspectionWorkflow:
                 if path is None:
                     raise FileNotFoundError("Uploaded image is unavailable")
                 validate_image(path.read_bytes(), image.content_type, self.max_upload_bytes)
+                started = perf_counter()
                 document = self.ocr.scan(path)
-                ocr_result = OcrResult(inspection_id=inspection.id, image_id=image.id, engine=document.engine, languages=document.languages, raw_text=document.raw_text, detections=document.as_database_detections())
+                ocr_result = OcrResult(inspection_id=inspection.id, image_id=image.id, engine=document.engine, languages=document.languages, raw_text=document.raw_text, detections=document.as_database_detections(), duration_ms=round((perf_counter() - started) * 1000))
                 self.db.add(ocr_result); self.db.commit(); self.db.refresh(ocr_result)
             except (OcrInitializationError, OcrProcessingError, UploadValidationError, OSError) as error:
                 raise self._fail(inspection, "OCR", error) from error
@@ -159,12 +169,15 @@ class InspectionWorkflow:
         logger.info("Workflow extraction inspection_id=%s ocr_result_id=%s fields=%s", inspection.id, ocr_result.id, {name: {"raw_ocr": value.source_text, "parsed": value.value, "normalized": value.normalized_value} for name, value in values.items() if value.value})
         self.db.add_all(build_extracted_fields(inspection.id, ocr_result, values))
         self.db.commit()
-        return list(self.db.scalars(select(ExtractedField).where(ExtractedField.ocr_result_id == ocr_result.id)).all())
+        extracted = list(self.db.scalars(select(ExtractedField).where(ExtractedField.ocr_result_id == ocr_result.id)).all())
+        # Inspector corrections always sit on top of the latest extraction.
+        return apply_corrections(self.db, inspection.id, ocr_result, extracted)
 
     def _evaluate(self, inspection: Inspection, ocr_result: OcrResult, extracted: list[ExtractedField]) -> None:
         fields = {field.field_name: field_evidence(field) for field in extracted}
         logger.info("Workflow compliance input inspection_id=%s ocr_result_id=%s fields=%s", inspection.id, ocr_result.id, {name: {"raw": item.value, "normalized": self.compliance._normalized("NET_QUANTITY_FORMAT" if name == "net_quantity" else "MRP_FORMAT" if name == "mrp" else "", item.value)} for name, item in fields.items()})
         persist_compliance(self.db, self.compliance, inspection.id, fields)
+        sync_label_identity(self.db, inspection, extracted)
 
     def reanalyse(self, inspection_id: UUID) -> InspectionSummary:
         """Re-run extraction and compliance on the latest stored OCR result, without new OCR.
@@ -214,7 +227,7 @@ class InspectionWorkflow:
         ocr = self.db.scalar(select(OcrResult).where(OcrResult.inspection_id == inspection.id).order_by(OcrResult.created_at.desc()))
         extracted = self.db.scalars(select(ExtractedField).where(ExtractedField.ocr_result_id == ocr.id)).all() if ocr else []
         results = self.db.scalars(select(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id).join(ComplianceRule).order_by(ComplianceRule.rule_code)).all()
-        ocr_response = OcrProcessed(id=ocr.id, inspection_id=ocr.inspection_id, image_id=ocr.image_id, engine=ocr.engine, languages=ocr.languages, processed_at=ocr.created_at, raw_text=ocr.raw_text, results=ocr.detections) if ocr else None
+        ocr_response = OcrProcessed(id=ocr.id, inspection_id=ocr.inspection_id, image_id=ocr.image_id, engine=ocr.engine, languages=ocr.languages, processed_at=ocr.created_at, raw_text=ocr.raw_text, results=ocr.detections, duration_ms=ocr.duration_ms) if ocr else None
         extraction_response = ExtractionResponse(inspection_id=inspection.id, ocr_result_id=ocr.id, fields={field.field_name: extraction_field_response(field) for field in extracted}) if ocr and extracted else None
         compliance = compliance_response(inspection.id, results, extracted) if results else None
         quantity_field = next((field for field in extracted if field.field_name == "net_quantity"), None)
@@ -227,4 +240,8 @@ class InspectionWorkflow:
             evidence=quantity_result.evidence if quantity_result else (quantity_field.value if quantity_field else None),
             requirement=quantity_result.rule.description if quantity_result else None,
         ) if quantity_field or quantity_result else None
-        return InspectionSummary(id=inspection.id, inspection_number=inspection.inspection_number, status=inspection.status, created_at=inspection.created_at, updated_at=inspection.updated_at, completed_at=inspection.completed_at, failure_stage=inspection.failure_stage, failure_message=inspection.failure_message, image=ImageUploaded.model_validate(image) if image else None, ocr=ocr_response, extraction=extraction_response, compliance=compliance, quantity_verification=QuantityVerificationResponse(**quantity.__dict__) if quantity else None)
+        corrections = list(self.db.scalars(select(FieldCorrection).where(FieldCorrection.inspection_id == inspection.id).order_by(FieldCorrection.created_at, FieldCorrection.id)).all())
+        names = user_names(self.db, [row.corrected_by for row in corrections] + [inspection.reviewed_by])
+        correction_responses = [FieldCorrectionResponse(id=row.id, field_name=row.field_name, original_value=row.original_value, corrected_value=row.corrected_value, reason=row.reason, corrected_by=row.corrected_by, corrected_by_name=names.get(row.corrected_by), created_at=row.created_at) for row in corrections]
+        review = ReviewResponse(status=inspection.review_status or "UNREVIEWED", by=names.get(inspection.reviewed_by), at=inspection.reviewed_at, remarks=inspection.remarks)
+        return InspectionSummary(product_name=display_name(inspection), brand_name=inspection.brand_name, maker_name=inspection.maker_name, corrections=correction_responses, review=review, id=inspection.id, inspection_number=inspection.inspection_number, status=inspection.status, created_at=inspection.created_at, updated_at=inspection.updated_at, completed_at=inspection.completed_at, failure_stage=inspection.failure_stage, failure_message=inspection.failure_message, image=ImageUploaded.model_validate(image) if image else None, ocr=ocr_response, extraction=extraction_response, compliance=compliance, quantity_verification=QuantityVerificationResponse(**quantity.__dict__) if quantity else None)

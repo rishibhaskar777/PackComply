@@ -27,6 +27,9 @@ class InspectionHistoryItem(BaseModel):
     created_at: datetime
     updated_at: datetime
     product_name: str | None = None
+    brand_name: str | None = None
+    maker_name: str | None = None
+    review_status: str = "UNREVIEWED"
     compliance_status: str | None = None
     image_filename: str | None = None
     # NON_COMPLIANT / NEEDS_REVIEW / COMPLIANT, derived from compliance_status.
@@ -65,6 +68,8 @@ class ImageUploaded(BaseModel):
     created_at: datetime
     width: int | None = None
     height: int | None = None
+    # SHA-256 of the stored original, recorded as evidence.
+    checksum: str | None = None
 
 
 class OcrDetectionResponse(BaseModel):
@@ -84,6 +89,7 @@ class OcrProcessed(BaseModel):
     processed_at: datetime
     raw_text: str
     results: list[OcrDetectionResponse]
+    duration_ms: int | None = None
 
 
 class ExtractionFieldResponse(BaseModel):
@@ -95,6 +101,8 @@ class ExtractionFieldResponse(BaseModel):
     normalized_value: str | None = None
     # OCR boxes (lists of [x, y] points in original image pixels) for source_text.
     source_bboxes: list[list[list[float]]] | None = None
+    # OCR, or INSPECTOR when an inspector's correction overrides the read value.
+    source: str = "OCR"
 
 
 class ExtractionResponse(BaseModel):
@@ -125,6 +133,10 @@ class ComplianceFindingResponse(BaseModel):
     source_bboxes: list[list[list[float]]] | None = None
     legal_reference: str | None = None
     recommended_action: str | None = None
+    # Fields whose values this finding rests on (their boxes locate the finding on the photo).
+    fields: list[str] = []
+    # True when the value used was entered by an inspector.
+    corrected: bool = False
 
 
 class ComplianceResponse(BaseModel):
@@ -171,6 +183,41 @@ class QuantityVerificationResponse(BaseModel):
     requirement: str | None = None
 
 
+class FieldCorrectionCreate(BaseModel):
+    field_name: str = Field(min_length=1, max_length=100)
+    corrected_value: str = Field(max_length=1000)
+    reason: str | None = Field(default=None, max_length=500)
+
+
+class VerifyRequest(BaseModel):
+    remarks: str | None = Field(default=None, max_length=2000)
+
+
+class FieldCorrectionResponse(BaseModel):
+    id: UUID
+    field_name: str
+    original_value: str | None = None
+    corrected_value: str
+    reason: str | None = None
+    corrected_by: UUID | None = None
+    corrected_by_name: str | None = None
+    created_at: datetime
+
+
+class ReviewResponse(BaseModel):
+    status: str = "UNREVIEWED"
+    by: str | None = None
+    at: datetime | None = None
+    remarks: str | None = None
+
+
+class AuditEvent(BaseModel):
+    type: str
+    at: datetime
+    actor: str | None = None
+    details: dict = {}
+
+
 class InspectionSummary(BaseModel):
     """The persisted, user-facing state of an inspection workflow."""
     id: UUID
@@ -187,6 +234,12 @@ class InspectionSummary(BaseModel):
     compliance: ComplianceResponse | None = None
     quantity_verification: QuantityVerificationResponse | None = None
     risk: RiskAssessmentResponse | None = None
+    # Extracted (or corrected) label identity; product_name falls back to "Untitled label".
+    product_name: str = "Untitled label"
+    brand_name: str | None = None
+    maker_name: str | None = None
+    corrections: list[FieldCorrectionResponse] = []
+    review: ReviewResponse = ReviewResponse()
 
 
 class RiskReasonResponse(BaseModel):

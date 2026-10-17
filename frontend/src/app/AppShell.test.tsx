@@ -6,7 +6,7 @@ import { I18nProvider } from "../i18n";
 import { API, mockApi, response } from "../test/mockApi";
 import { parseHash } from "./router";
 
-const inspection = { id: "abc-123", inspection_number: "PC-20261016-ABC", status: "COMPLETED", compliance: { overall_status: "FAIL", verdict: "NON_COMPLIANT", summary: { passed: 0, failed: 1, review: 0 }, findings: [] } };
+const inspection = { id: "abc-123", inspection_number: "PC-20261016-ABC", status: "COMPLETED", product_name: "Parle-G Gluco", review: { status: "UNREVIEWED" }, corrections: [], compliance: { overall_status: "FAIL", verdict: "NON_COMPLIANT", summary: { passed: 0, failed: 1, review: 0 }, findings: [] } };
 const renderApp = () => render(<I18nProvider><App /></I18nProvider>);
 const nav = async () => within(await screen.findByRole("navigation", { name: en.primaryNavigation }));
 const go = (hash: string) => act(() => { window.location.hash = hash; window.dispatchEvent(new HashChangeEvent("hashchange")); });
@@ -25,12 +25,12 @@ describe("hash routing and app shell", () => {
 
   it("opens an inspection straight from its URL", async () => {
     window.history.replaceState(null, "", "#/inspections/abc-123");
-    const fetchMock = mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }), "GET /inspections/abc-123": response(inspection) });
+    const fetchMock = mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }), "GET /inspections/abc-123": response(inspection), "GET /inspections/abc-123/audit": response([]) });
     renderApp();
-    expect(await screen.findByRole("heading", { level: 1, name: "PC-20261016-ABC" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { level: 1, name: "Parle-G Gluco" })).toBeTruthy();
     expect(fetchMock).toHaveBeenCalledWith(`${API}/inspections/abc-123`, expect.objectContaining({ credentials: "include" }));
     expect((await nav()).getByRole("link", { name: en.inspections }).getAttribute("aria-current")).toBe("page");
-    expect(within(screen.getByRole("navigation", { name: en.breadcrumb })).getByText(en.inspectionDetails)).toBeTruthy();
+    expect(await within(screen.getByRole("navigation", { name: en.breadcrumb })).findByText("PC-20261016-ABC")).toBeTruthy();
   });
 
   it("defaults to the overview and follows navigation, including back", async () => {

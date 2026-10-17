@@ -70,6 +70,8 @@ const PAIRS: Array<[text: string, background: string, base?: string]> = [
   ["--primary-foreground", "--cta-from"], ["--primary-foreground", "--cta-to"],
   ["--secondary-foreground", "--background"], ["--primary-strong", "--background"], ["--primary-strong", "--primary-soft", "--background"],
   ["--pass-text", "--pass-bg", "--background"], ["--review-text", "--review-bg", "--background"], ["--violation-text", "--violation-bg", "--background"],
+  // Inspection record: numbers on the photo markers and finding badges.
+  ["--marker-violation-ink", "--marker-violation"], ["--marker-review-ink", "--marker-review"], ["--marker-pass-ink", "--marker-pass"], ["--marker-selected-ink", "--marker-selected"],
 ];
 
 describe("design token contrast (WCAG AA, 4.5:1 for body text)", () => {

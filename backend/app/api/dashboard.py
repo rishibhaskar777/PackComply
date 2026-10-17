@@ -40,9 +40,11 @@ def _aware(value: datetime) -> datetime:
     return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
 
 
-def _labels(db: Session, inspection_id: UUID) -> tuple[str | None, str | None]:
-    """Product name and maker (brand owner, else manufacturer) as extracted from the label."""
-    fields = {field.field_name: field.value for field in latest_extracted_fields(db, inspection_id)}
+def _labels(db: Session, inspection: Inspection) -> tuple[str | None, str | None]:
+    """Product name and maker (brand owner, else manufacturer), from the inspection; extraction is the fallback before a backfill."""
+    if inspection.product_name or inspection.brand_name or inspection.maker_name:
+        return inspection.product_name, inspection.brand_name or inspection.maker_name
+    fields = {field.field_name: field.value for field in latest_extracted_fields(db, inspection.id)}
     return fields.get("product_name"), fields.get("brand_owner") or fields.get("manufacturer")
 
 
@@ -61,8 +63,8 @@ def _risk_queue(db: Session, user: User, since: datetime | None) -> list[Dashboa
         ranked.sort(key=lambda row: (VERDICT_SEVERITY[row[4]], -_aware(row[0].completed_at or row[0].created_at).timestamp(), str(row[0].id)))
     items = []
     for inspection, product, score, level, verdict_value in ranked[:TOP_RISK_LIMIT]:
-        extracted_product, maker = _labels(db, inspection.id)
-        items.append(DashboardRiskItem(id=inspection.id, inspection_number=inspection.inspection_number, product_name=product or extracted_product, maker=maker, verdict=verdict_value, risk_score=score, risk_level=level))
+        extracted_product, maker = _labels(db, inspection)
+        items.append(DashboardRiskItem(id=inspection.id, inspection_number=inspection.inspection_number, product_name=product or extracted_product or "Untitled label", maker=maker, verdict=verdict_value, risk_score=score, risk_level=level))
     return items
 
 
