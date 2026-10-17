@@ -35,6 +35,7 @@ def build_extracted_fields(inspection_id: UUID, ocr_result: OcrResult, values: d
         ExtractedField(
             inspection_id=inspection_id,
             ocr_result_id=ocr_result.id,
+            image_id=ocr_result.image_id,
             field_name=name,
             value=value.value,
             confidence=value.confidence,

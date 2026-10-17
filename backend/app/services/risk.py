@@ -63,27 +63,35 @@ def risk_missing_fields(results: list[tuple[ComplianceResult, ComplianceRule]], 
 
 
 def photo_keys(db: Session, inspection_ids: list[UUID]) -> dict[UUID, str]:
-    """One key per distinct photo: the latest image's checksum, else the inspection itself.
+    """One key per distinct label: the checksum of the active BACK photo, else of the earliest active photo.
 
     The same label photo uploaded again for another inspection is one
-    occurrence for repeat patterns and risk, not a new repetition.
+    occurrence for repeat patterns and risk, not a new repetition. Active means
+    the newest photo per panel (every OTHER photo counts); replaced photos are ignored.
     """
     keys = {inspection_id: f"inspection:{inspection_id}" for inspection_id in inspection_ids}
     if not inspection_ids:
         return keys
     images = db.execute(
-        select(InspectionImage.inspection_id, InspectionImage.checksum, InspectionImage.created_at, InspectionImage.upload_sequence, InspectionImage.id)
+        select(InspectionImage.inspection_id, InspectionImage.checksum, InspectionImage.created_at, InspectionImage.upload_sequence, InspectionImage.id, InspectionImage.panel)
         .where(InspectionImage.inspection_id.in_(inspection_ids))
     ).all()
-    # Same order as workflow.LATEST_IMAGE_ORDER: newest created_at, then upload_sequence, then id.
-    latest: dict[UUID, tuple] = {}
-    for inspection_id, checksum, created_at, sequence, image_id in images:
-        rank = (created_at, sequence, str(image_id))
-        if inspection_id not in latest or rank > latest[inspection_id][0]:
-            latest[inspection_id] = (rank, checksum)
-    for inspection_id, (_, checksum) in latest.items():
-        if checksum:
-            keys[inspection_id] = f"image:{checksum}"
+    by_inspection: dict[UUID, list[tuple]] = {}
+    for inspection_id, checksum, created_at, sequence, image_id, panel in images:
+        by_inspection.setdefault(inspection_id, []).append(((sequence, created_at, str(image_id)), checksum, panel))
+    for inspection_id, rows in by_inspection.items():
+        rows.sort(key=lambda row: row[0])
+        newest: dict[str, tuple] = {}
+        active = []
+        for row in rows:
+            if row[2] == "OTHER":
+                active.append(row)
+            else:
+                newest[row[2]] = row
+        active = sorted([*newest.values(), *active], key=lambda row: row[0])
+        chosen = newest.get("BACK") or (active[0] if active else None)
+        if chosen and chosen[1]:
+            keys[inspection_id] = f"image:{chosen[1]}"
     return keys
 
 

@@ -26,6 +26,8 @@ from backend.app.services.extraction.extraction_service import FIELD_NAMES
 INSPECTOR_PATTERN = "inspector_correction"
 SOURCE_OCR, SOURCE_INSPECTOR = "OCR", "INSPECTOR"
 REASONS = ("Verified on physical pack", "OCR misread", "Other")
+# "brand_name" is what an inspector sees; it is stored on the brand_owner field.
+FIELD_ALIASES = {"brand_name": "brand_owner"}
 # Evidence and declaration-state fields are produced by the extractor, not read from the label.
 NOT_CORRECTABLE = frozenset({"declaration_status", "ocr_coverage", "mrp_declaration", "consumer_care_declaration", "import_declaration", "product_category"})
 CORRECTABLE_FIELDS = tuple(name for name in FIELD_NAMES if name not in NOT_CORRECTABLE)
@@ -142,7 +144,7 @@ def active_corrections(db: Session, inspection_id: UUID) -> dict[str, FieldCorre
     return {row.field_name: row for row in rows}
 
 
-def apply_corrections(db: Session, inspection_id: UUID, ocr_result: OcrResult, extracted: list[ExtractedField]) -> list[ExtractedField]:
+def apply_corrections(db: Session, inspection_id: UUID, ocr_result: OcrResult | None, extracted: list[ExtractedField]) -> list[ExtractedField]:
     """Overlay active corrections on freshly extracted rows (creating rows for fields the OCR missed)."""
     corrections = active_corrections(db, inspection_id)
     if not corrections:
@@ -155,11 +157,12 @@ def apply_corrections(db: Session, inspection_id: UUID, ocr_result: OcrResult, e
             value, normalized = correction.corrected_value, None
         row = by_name.get(name)
         if row is None:
-            row = ExtractedField(inspection_id=inspection_id, ocr_result_id=ocr_result.id, field_name=name)
+            row = ExtractedField(inspection_id=inspection_id, ocr_result_id=ocr_result.id if ocr_result else None, field_name=name)
             db.add(row)
             by_name[name] = row
         row.value, row.normalized_value = value, normalized
         row.confidence, row.review_status, row.matched_pattern = 1, "EXTRACTED", INSPECTOR_PATTERN
+        row.alternatives = None  # the inspector settled any disagreement between photos
         if row.source_text is None:
             row.source_bboxes = None
     db.commit()
@@ -168,7 +171,11 @@ def apply_corrections(db: Session, inspection_id: UUID, ocr_result: OcrResult, e
 
 def sync_label_identity(db: Session, inspection: Inspection, extracted: list[ExtractedField]) -> None:
     """Store product / brand / maker on the inspection so history and search need no extraction join."""
-    values = {field.field_name: _clean(field.value) for field in extracted if field.value and field.field_name in ("product_name", "brand_owner", "manufacturer")}
+    def shown(field: ExtractedField) -> str:
+        # OCR-read names show their tidied form (the raw value stays on the field); an inspector's text is used as typed.
+        tidy = field.normalized_value if field.field_name == "product_name" and field.matched_pattern != INSPECTOR_PATTERN else None
+        return _clean(tidy or field.value)
+    values = {field.field_name: shown(field) for field in extracted if field.value and field.field_name in ("product_name", "brand_owner", "manufacturer")}
     inspection.product_name = values.get("product_name") or None
     inspection.brand_name = values.get("brand_owner") or None
     inspection.maker_name = values.get("manufacturer") or None

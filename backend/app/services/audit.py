@@ -41,8 +41,11 @@ def build_audit(db: Session, inspection: Inspection) -> list[AuditEvent]:
         events.append((at, _RANK.get(kind, 4) if order is None else order, AuditEvent(type=kind, at=at, actor=actor, details=details)))
 
     add("CREATED", inspection.created_at, names.get(inspection.user_id), {"inspection_number": inspection.inspection_number})
+    # Photos added or replaced after the first have a stored event that carries who and why.
+    logged = {str(row.details.get("image_id")) for row in stored if row.event_type in ("PHOTO_ADDED", "PHOTO_REPLACED")}
     for image in images:
-        add("PHOTO_UPLOADED", image.created_at, names.get(inspection.user_id), {"filename": image.original_filename, "checksum": image.checksum, "byte_size": image.byte_size, "width": image.width, "height": image.height})
+        if str(image.id) not in logged:
+            add("PHOTO_UPLOADED", image.created_at, names.get(inspection.user_id), {"filename": image.original_filename, "checksum": image.checksum, "byte_size": image.byte_size, "width": image.width, "height": image.height, "panel": image.panel})
     for ocr in ocrs:
         add("OCR_COMPLETED", ocr.created_at, None, {"engine": ocr.engine, "languages": ocr.languages, "duration_ms": ocr.duration_ms, "lines": len(ocr.detections or [])})
     if results:

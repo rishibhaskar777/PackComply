@@ -23,3 +23,15 @@ def authenticated_inspection_tests():
     app.dependency_overrides[get_current_user] = lambda: User(id=TEST_USER_ID, username="test", email="test@example.invalid", full_name="Test", password_hash="unused", is_active=True)
     yield
     app.dependency_overrides.clear()
+
+
+def process_and_wait(client, inspection_id: str, timeout: float = 30.0):
+    """POST /process (202), wait for the background run to end, and return (202 response, final summary response)."""
+    from uuid import UUID as _UUID
+
+    from backend.app.services import jobs
+
+    started = client.post(f"/api/inspections/{inspection_id}/process")
+    if started.status_code == 202:
+        jobs.wait_for(_UUID(inspection_id), timeout)
+    return started, client.get(f"/api/inspections/{inspection_id}")

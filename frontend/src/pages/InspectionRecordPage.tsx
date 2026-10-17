@@ -1,20 +1,24 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
-import { BadgeCheck, FileDown, RefreshCw, SearchX, ShieldCheck } from "lucide-react";
-import { api, ApiError, downloadReport, isExpired, isUnavailable } from "../api/client";
+import { BadgeCheck, Camera, FileDown, RefreshCw, SearchX, ShieldCheck } from "lucide-react";
+import { api, ApiError, downloadReport, getJson, isExpired, isUnavailable } from "../api/client";
 import { navigate } from "../app/router";
 import { Alert, Badge, Button, Card, CountUp, Dialog, EmptyState, Input, RiskBar, Skeleton, Tabs, useToast } from "../components/ui";
+import { PANEL_LABEL, ProgressPanel } from "../components/ProgressPanel";
 import { fill, TranslationKey, useI18n } from "../i18n";
 import { buildFindingItems, FindingItem } from "../lib/evidence";
 import { DURATION, EASE, useMediaQuery, useReducedMotion } from "../lib/motion";
-import { AuditEvent, FieldCorrection, Summary } from "../types";
+import { activePhotos, summaryPhotos } from "../lib/panels";
+import { newPhoto, useInspectionRun } from "../lib/useInspectionRun";
+import { usePhotoUrls } from "../lib/usePhotoUrls";
+import { AuditEvent, FieldCorrection, Panel, Progress, Summary } from "../types";
+import { AddPhotoDialog } from "./record/AddPhotoDialog";
 import { AuditTrail, formatDateTime } from "./record/AuditTrail";
 import { EvidencePhoto } from "./record/EvidencePhoto";
 import { CorrectionPayload, FIELD_LABELS, Findings } from "./record/Findings";
 
 const VERDICT_LABEL: Record<string, TranslationKey> = { COMPLIANT: "verdictCompliant", NON_COMPLIANT: "verdictNonCompliant", NEEDS_REVIEW: "verdictNeedsReview" };
 const RISK_LABEL: Record<string, TranslationKey> = { LOW: "low", MEDIUM: "medium", HIGH: "high", CRITICAL: "critical" };
-type PhotoTab = "back" | "front" | "date";
 type Failure = { status?: number; message: string; unavailable: boolean };
 
 type Props = { inspectionId: string; official: boolean; onExpired: () => void; onChanged?: () => void; onTitle?: (title: string | null) => void };
@@ -30,13 +34,14 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [reportBusy, setReportBusy] = useState(false);
-  const [photo, setPhoto] = useState<string | null>(null);
-  const [tab, setTab] = useState<PhotoTab>("back");
+  const [tab, setTab] = useState<string | null>(null);
+  const [photoDialog, setPhotoDialog] = useState<{ panel: Panel; mode: "add" | "retake" } | null>(null);
+  const [uploadLimit, setUploadLimit] = useState(10 * 1024 * 1024);
+  const [preview, setPreview] = useState<{ panel: Panel; url: string }[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [remarks, setRemarks] = useState("");
   const [confirming, setConfirming] = useState(false);
-  const photoUrl = useRef<string | null>(null);
   const isPhone = useMediaQuery("(max-width: 639px)");
   const path = `/inspections/${encodeURIComponent(inspectionId)}`;
 
@@ -60,24 +65,22 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
     finally { setLoading(false); }
   }, [path, loadAudit, fail, t]);
 
-  useEffect(() => { setSelectedId(null); setHoveredId(null); void load(); }, [inspectionId]);
+  const run = useInspectionRun({ onExpired });
+  const running = run.phase === "uploading" || run.phase === "processing";
+  useEffect(() => { setSelectedId(null); setHoveredId(null); setTab(null); void load(); }, [inspectionId]);
+  useEffect(() => { getJson<{ max_upload_bytes: number }>("/inspections/config", "config").then(config => setUploadLimit(config.max_upload_bytes)).catch(() => undefined); }, []);
   useEffect(() => { onTitle?.(summary?.inspection_number ?? null); return () => onTitle?.(null); }, [summary?.inspection_number]);
 
-  // The evidence photo is fetched with the session cookie and shown from an object URL.
-  const hasImage = Boolean(summary?.image);
-  useEffect(() => {
-    if (!hasImage) { setPhoto(null); return; }
-    let cancelled = false;
-    api(`${path}/image`, "image").then(response => response.blob()).then(blob => {
-      if (cancelled) return;
-      if (photoUrl.current) URL.revokeObjectURL(photoUrl.current);
-      photoUrl.current = URL.createObjectURL(blob); setPhoto(photoUrl.current);
-    }).catch(() => { if (!cancelled) setPhoto(null); });
-    return () => { cancelled = true; };
-  }, [hasImage, path, summary?.image?.id]);
-  useEffect(() => () => { if (photoUrl.current) URL.revokeObjectURL(photoUrl.current); }, []);
+  // Every active photo is fetched with the session cookie and shown from an object URL.
+  const photos = useMemo(() => (summary ? summaryPhotos(summary) : []), [summary]);
+  const tabs = useMemo(() => activePhotos(photos), [photos]);
+  const photoUrls = usePhotoUrls(path, tabs.map(photo => photo.id));
+  const currentPhoto = tabs.find(photo => photo.id === tab) ?? tabs.find(photo => photo.id === summary?.image?.id) ?? tabs[0] ?? null;
 
   const items: FindingItem[] = useMemo(() => (summary ? buildFindingItems(summary) : []), [summary]);
+  // Markers only for findings whose evidence is on the photo being shown; their numbers stay in the list.
+  const photoItems = useMemo(() => items.map(item => (item.boxes && item.imageId && item.imageId !== currentPhoto?.id ? { ...item, boxes: null } : item)), [items, currentPhoto?.id]);
+  useEffect(() => () => { preview.forEach(item => URL.revokeObjectURL(item.url)); }, [preview]);
   const verdict = summary?.compliance?.verdict ?? null;
   const verdictText = (value: string | null | undefined) => (value && VERDICT_LABEL[value] ? t(VERDICT_LABEL[value]) : "");
 
@@ -124,11 +127,29 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
       if (result) toast(t("recToastReanalysed"));
     } catch (error) { if (isExpired(error)) onExpired(); else toast(t("recReanalyseError"), "error"); }
   }
-  async function retryProcessing() {
-    setBusy(true);
-    try { setSummary(await (await api(`${path}/process`, "process", { method: "POST" }, 300_000)).json()); void loadAudit(); onChanged?.(); }
-    catch (error) { const next = fail(error, t("historyLoadError")); if (next) setFailure(next); }
-    finally { setBusy(false); }
+  /** Resume processing (finished photos are not read again) and refresh the record when it ends. */
+  async function settle(final: Progress | null) {
+    if (final?.state === "completed") { await load(); onChanged?.(); toast(t("recToastPhotos")); run.reset(); }
+  }
+  async function finishRun(photos: Parameters<typeof run.run>[0]) {
+    setPreview(photos.map(photo => ({ panel: photo.panel, url: photo.url })));
+    await settle(await run.run(photos, inspectionId));
+  }
+  async function retryProcessing() { await finishRun([]); }
+  /** Add or retake a photo: the capture flow on a phone, a dialog on larger screens. */
+  function addPhoto(panel: Panel, action: "add" | "retake") {
+    if (isPhone) navigate(`/capture?add=${encodeURIComponent(inspectionId)}&panel=${panel}`);
+    else setPhotoDialog({ panel, mode: action });
+  }
+  async function submitPhoto(panel: Panel, file: File) {
+    setPhotoDialog(null);
+    await finishRun([newPhoto(panel, file, file.name)]);
+  }
+  function select(id: string | null) {
+    setSelectedId(id);
+    // Evidence on another photo brings that photo's tab forward.
+    const item = id ? items.find(entry => entry.finding.rule_id === id) : undefined;
+    if (item?.imageId && item.imageId !== currentPhoto?.id && tabs.some(photo => photo.id === item.imageId)) setTab(item.imageId);
   }
   async function exportPdf() {
     if (!summary || reportBusy) return;
@@ -165,7 +186,7 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
   const fade = reduced ? { initial: false as const } : { initial: { opacity: 0, y: 4 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -4 }, transition: { duration: DURATION.base, ease: EASE } };
 
   return (
-    <div className="page record-page" aria-busy={busy || undefined}>
+    <div className="page record-page" aria-busy={busy || running || undefined}>
       <header className="record-header">
         <div className="record-header__text">
           <div className="record-header__title-row">
@@ -182,7 +203,8 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
         </div>
         <div className="record-header__side">
           <div className="page-header__actions record-actions">
-            <Button variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={() => void reanalyse()} disabled={busy || !summary.ocr}>{t("recReanalyse")}</Button>
+            {completed && <Button variant="outline" icon={<Camera size={16} aria-hidden="true" />} onClick={() => addPhoto(photos.some(photo => photo.active && photo.panel === "FRONT") ? (photos.some(photo => photo.active && photo.panel === "DATE_STAMP") ? "OTHER" : "DATE_STAMP") : "FRONT", "add")} disabled={busy || running}>{t("recAddPhoto")}</Button>}
+            <Button variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={() => void reanalyse()} disabled={busy || running || !summary.ocr}>{t("recReanalyse")}</Button>
             <Button icon={<FileDown size={16} aria-hidden="true" />} onClick={() => void exportPdf()} loading={reportBusy}>{reportBusy ? t("generatingPdf") : t("recExportPdf")}</Button>
           </div>
           {compliance && (
@@ -198,28 +220,36 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
 
       {!completed && (
         <Alert variant={summary.status === "FAILED" ? "error" : "info"} title={summary.status === "FAILED" ? t("failed") : t("recNotProcessed")}
-          action={summary.image ? <Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={() => void retryProcessing()} loading={busy}>{t("tryAgain")}</Button> : undefined}>
+          action={summary.image ? <Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={() => void retryProcessing()} loading={busy || running}>{t("tryAgain")}</Button> : undefined}>
           {summary.failure_message ?? t("recNotProcessedBody")}
         </Alert>
+      )}
+
+      {run.phase !== "idle" && (
+        <Card className="photo-add-progress" headingLevel={2} title={t("recPhotoProgress")}
+          action={run.phase === "failed" ? <Button size="sm" variant="ghost" onClick={() => { run.reset(); }}>{t("recDismiss")}</Button> : undefined}>
+          <ProgressPanel progress={run.progress} uploading={run.phase === "uploading"} photos={preview} error={run.error} onRetry={() => void run.retry().then(settle)} />
+        </Card>
       )}
 
       <div className="record-grid">
         <Card className="record-photo" headingLevel={2} title={t("recPhotos")}
           action={<span className="mono record-photo__caption">{summary.ocr ? `${summary.ocr.languages.join(" + ")}${summary.ocr.duration_ms ? ` · ${Math.max(1, Math.round(summary.ocr.duration_ms / 1000))} s` : ""}` : ""}</span>}>
-          <Tabs<PhotoTab> label={t("recPhotos")} value={tab} onChange={setTab} items={[
-            { value: "back", label: t("recPhotoBack") },
-            { value: "front", label: t("recPhotoFront"), disabled: true, title: t("recMultiPhoto") },
-            { value: "date", label: t("recPhotoDate"), disabled: true, title: t("recMultiPhoto") },
-          ]} />
-          {summary.image
-            ? <EvidencePhoto src={photo} summary={summary} items={items} selectedId={selectedId} hoveredId={hoveredId} onSelect={setSelectedId} onHover={setHoveredId} />
+          {tabs.length > 0 && (
+            <Tabs<string> label={t("recPhotos")} value={currentPhoto?.id ?? ""} onChange={setTab} items={tabs.map(photo => ({
+              value: photo.id,
+              label: <>{photoUrls[photo.id] && <img className="photo-tab__thumb" src={photoUrls[photo.id]} alt="" />}{t(PANEL_LABEL[photo.panel])}</>,
+            }))} />
+          )}
+          {currentPhoto
+            ? <EvidencePhoto key={currentPhoto.id} src={photoUrls[currentPhoto.id] ?? null} image={currentPhoto} ocr={currentPhoto.id === summary.image?.id ? summary.ocr : undefined} items={photoItems} selectedId={selectedId} hoveredId={hoveredId} onSelect={select} onHover={setHoveredId} />
             : <p className="muted-text">{t("noImage")}</p>}
         </Card>
 
         <Card className="record-findings" headingLevel={2} title={fill(t("recFindingsTitle"), { count: compliance?.findings.length ?? 0 })}
           description={canEdit ? t("recFindingsHint") : official ? undefined : t("recSelfCheckHint")}>
           {compliance
-            ? <Findings summary={summary} items={items} selectedId={selectedId} hoveredId={hoveredId} onSelect={setSelectedId} onHover={setHoveredId} canEdit={canEdit} busy={busy} onCorrect={correct} onUndo={undo} />
+            ? <Findings summary={summary} items={items} selectedId={selectedId} hoveredId={hoveredId} onSelect={select} onHover={setHoveredId} canEdit={canEdit && !running} busy={busy || running} onCorrect={correct} onUndo={undo} onPhoto={completed && !running ? addPhoto : undefined} />
             : <p className="muted-text">{t("noResults")}</p>}
           {official && completed && (
             <footer className="review-footer">
@@ -246,6 +276,9 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
           <Button className="verify-bar__button" icon={<BadgeCheck size={16} aria-hidden="true" />} disabled={busy} onClick={() => (openItems.length ? setConfirming(true) : void verify())}>{verified ? t("recVerifyAgain") : t("recMarkVerified")}</Button>
         </div>
       )}
+
+      <AddPhotoDialog open={photoDialog !== null} mode={photoDialog?.mode ?? "add"} initialPanel={photoDialog?.panel ?? "FRONT"} photos={photos} limit={uploadLimit}
+        onClose={() => setPhotoDialog(null)} onSubmit={(panel, file) => void submitPhoto(panel, file)} />
 
       <Dialog open={confirming} onClose={() => setConfirming(false)} title={t("recConfirmTitle")} description={fill(t("recConfirmBody"), { count: openItems.length })}
         footer={<><Button variant="ghost" onClick={() => setConfirming(false)}>{t("recCancel")}</Button><Button data-autofocus icon={<BadgeCheck size={16} aria-hidden="true" />} onClick={() => void verify()}>{t("recVerifyAnyway")}</Button></>}>

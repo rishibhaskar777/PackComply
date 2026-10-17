@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { lazy, ReactNode, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, LazyMotion, m, MotionConfig } from "motion/react";
 import { api, getJson, isExpired, isUnavailable, ApiError } from "./api/client";
 import { AppShell, routeTitles } from "./app/AppShell";
@@ -17,9 +17,12 @@ import { ReportsPage } from "./pages/ReportsPage";
 import { RiskQueuePage } from "./pages/RiskQueuePage";
 import { RulesetsPage } from "./pages/RulesetsPage";
 import { ThemeProvider } from "./theme/theme";
-import { RiskPageData, User } from "./types";
+import { Panel, RiskPageData, User } from "./types";
 
 export { ComplianceResults, FieldValue, labelFields } from "./pages/InspectionPage";
+
+// The field app is only opened on phones, so it is fetched when first needed.
+const CapturePage = lazy(() => import("./pages/capture/CapturePage").then(module => ({ default: module.CapturePage })));
 
 // Animation and layout features are fetched after first paint; elements render statically until then.
 const loadMotionFeatures = () => import("./lib/motionFeatures").then(module => module.default);
@@ -130,8 +133,20 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
     else document.getElementById("main-content")?.focus({ preventScroll: true });
   }, [route, t]);
 
-  function newInspection() { setNewKey(key => key + 1); navigate("/new"); }
+  // Phones go to the field app; larger screens keep the upload form.
+  function newInspection() {
+    setNewKey(key => key + 1);
+    navigate(typeof window.matchMedia === "function" && window.matchMedia("(max-width: 767px)").matches ? "/capture" : "/new");
+  }
 
+  if (route.name === "capture") {
+    const add = route.add ? { inspectionId: route.add, panel: (route.panel as Panel | undefined) ?? "BACK" } : undefined;
+    return (
+      <Suspense fallback={<div className="boot-screen" role="status">{t("loading")}</div>}>
+        <CapturePage key={`capture-${newKey}-${route.add ?? ""}-${route.panel ?? ""}`} official={official} onExpired={onExpired} onCompleted={loadRiskCount} add={add} />
+      </Suspense>
+    );
+  }
   const pageKey = route.name === "new" ? `new-${newKey}` : route.name === "inspection" ? `inspection-${route.id}` : route.name;
   return (
     <AppShell route={route} pageLabel={route.name === "inspection" ? pageLabel : null} user={user} riskCount={riskCount} search={search} onSearchChange={setSearch} onNewInspection={newInspection} onLogout={onLogout}>
@@ -152,6 +167,7 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
       case "inspections": return <InspectionsPage search={search} onSearchChange={setSearch} onExpired={onExpired} />;
       case "new": return <NewInspectionPage onExpired={onExpired} onCompleted={loadRiskCount} />;
       case "inspection": return <InspectionRecordPage key={current.id} inspectionId={current.id} official={official} onExpired={onExpired} onChanged={loadRiskCount} onTitle={setPageLabel} />;
+      case "capture": return null;
       case "risk": return official ? <RiskQueuePage onExpired={onExpired} /> : null;
       case "patterns": return <PatternsPage onExpired={onExpired} />;
       case "rulesets": return <RulesetsPage onExpired={onExpired} />;

@@ -10,7 +10,8 @@ function renderApp() { return render(<I18nProvider><App /></I18nProvider>); }
 const file = () => new File(["image"], "label.png", { type: "image/png" });
 const result = { id: "inspection-1", inspection_number: "INSP-001", status: "COMPLETED", product_name: "Glucose Biscuits", maker_name: "ABC Foods", review: { status: "UNREVIEWED" }, corrections: [], image: { id: "image-1", original_filename: "label.png" }, ocr: { raw_text: "MRP Rs 100", languages: ["en", "hi"], results: [] }, extraction: { fields: { manufacturer: { value: "ABC Foods", confidence: .94, needs_review: false }, mrp: { value: "Rs 100", confidence: .97, needs_review: false } } }, compliance: { overall_status: "REVIEW", summary: { passed: 1, failed: 0, review: 1 }, findings: [{ rule_id: "MRP_FORMAT", rule_name: "MRP format", status: "PASS", severity: "WARNING", message: "Valid MRP", field: "mrp", value: "Rs 100" }] }, quantity_verification: { declared_quantity: "0.5 KG", normalized_quantity: "500 g", unit: "g", status: "PASS", reason: "Valid declared quantity.", rule_code: "NET_QUANTITY_FORMAT", severity: "WARNING", evidence: "Net Qty: 0.5 KG", requirement: null } };
 const unauthenticated = response({ detail: "Not authenticated" }, false, 401);
-const workflow = (process = response(result)) => ({ "POST /inspections": response({ id: "inspection-1", inspection_number: "INSP-001" }), "POST /inspections/inspection-1/image": response({ id: "image-1", original_filename: "label.png" }), "POST /inspections/inspection-1/process": process, "GET /inspections/inspection-1": response(result), "GET /inspections/inspection-1/audit": response([]), "GET /inspections/inspection-1/image": response({}) });
+const done = { inspection_id: "inspection-1", state: "completed", stage: "COMPLETED", percent: 100, completed_steps: 3, total_steps: 3, started_at: "2026-10-17T09:00:00+00:00", elapsed_ms: 1500, steps: [], error: null, version: 4 };
+const workflow = (process = response(done, true, 202)) => ({ "POST /inspections": response({ id: "inspection-1", inspection_number: "INSP-001" }), "POST /inspections/inspection-1/image": response({ id: "image-1", original_filename: "label.png" }), "POST /inspections/inspection-1/process": process, "GET /inspections/inspection-1": response(result), "GET /inspections/inspection-1/progress": response(done), "GET /inspections/inspection-1/audit": response([]), "GET /inspections/inspection-1/image": response({}), "GET /inspections/inspection-1/images/image-1": response({}) });
 
 // The authenticated workspace is ready once its primary navigation renders.
 const appReady = () => screen.findByRole("navigation", { name: en.primaryNavigation });
@@ -128,7 +129,7 @@ describe("inspection workflow UI", () => {
       await waitFor(() => expect(click).toHaveBeenCalled()); expect(fetchMock).toHaveBeenCalledWith(`${API}/inspections/inspection-1/report`, expect.objectContaining({ credentials: "include" })); click.mockRestore();
     });
     it("shows a recoverable failure and resumes without creating a second inspection", async () => {
-      const fetchMock = mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }), ...workflow(), "POST /inspections/inspection-1/process": [response({ detail: "Database unavailable." }, false, 500), response(result)] });
+      const fetchMock = mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }), ...workflow(), "POST /inspections/inspection-1/process": [response({ detail: "Database unavailable." }, false, 500), response(done, true, 202)] });
       await upload(); expect((await screen.findByRole("alert")).textContent).toContain("500: Database unavailable.");
       fireEvent.click(screen.getByRole("button", { name: en.tryAgain }));
       expect(await screen.findByRole("heading", { level: 1, name: "Glucose Biscuits" })).toBeTruthy();
@@ -153,7 +154,7 @@ describe("inspection workflow UI", () => {
       mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }) });
       renderApp(); await appReady();
       fireEvent.drop(document.querySelector(".dropzone")!, { dataTransfer: { files: [file()] } });
-      expect(await screen.findByAltText(en.imagePreview)).toBeTruthy();
+      expect(await screen.findByAltText(`Preview of the ${en.panelBack} photo`)).toBeTruthy();
       expect((screen.getByRole("button", { name: en.newStart }) as HTMLButtonElement).disabled).toBe(false);
     });
   });

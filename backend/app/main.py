@@ -19,6 +19,7 @@ from backend.app.api.dashboard import router as dashboard_router
 from backend.app.core.config import get_cors_origins, get_settings
 from backend.app.core.database import SessionLocal
 from backend.app.core.ocr_status import set_ocr_state
+from backend.app.services import jobs
 from backend.app.services.compliance.registry import sync_compliance_rules
 from backend.app.services.compliance.ruleset import default_ruleset
 
@@ -62,6 +63,7 @@ async def lifespan(_: FastAPI):
         set_ocr_state("warming_up")
         Thread(target=_warm_ocr_models, name="ocr-warmup", daemon=True).start()
     yield
+    jobs.shutdown()
     if get_ocr_service.cache_info().currsize:
         close = getattr(get_ocr_service(), "close", None)
         if close is not None:

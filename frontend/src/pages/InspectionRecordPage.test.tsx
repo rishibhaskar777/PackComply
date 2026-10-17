@@ -154,20 +154,20 @@ describe("inspection record page", () => {
     fireEvent.click(screen.getByRole("button", { name: en.recFit })); expect(level()).toBe("100%");
   });
 
-  it("disables the other photo tabs with the field-app tooltip", async () => {
+  it("shows one photo tab for the single back panel of an older record", async () => {
     mockApi(routes()); renderRecord(); await ready();
-    const front = screen.getByRole("tab", { name: en.recPhotoFront });
-    expect(front.getAttribute("aria-disabled")).toBe("true"); expect(front.getAttribute("title")).toBe(en.recMultiPhoto);
-    fireEvent.click(front);
-    expect(screen.getByRole("tab", { name: en.recPhotoBack }).getAttribute("aria-selected")).toBe("true");
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.map(tab => tab.textContent)).toEqual([en.panelBack]);
+    expect(tabs[0].getAttribute("aria-selected")).toBe("true");
     expect(screen.getByText(/Original photo kept as evidence/)).toBeTruthy();
   });
 
   it("submits a correction, updates the verdict, counts and risk, and toasts the outcome", async () => {
     const fetchMock = mockApi({ ...routes(), "POST /inspections/i1/corrections": response(corrected()) });
     renderRecord(); await ready();
-    expect(within(row("MRP_FORMAT")).getByRole("button", { name: en.recAddPhoto }).hasAttribute("disabled")).toBe(true);
-    expect(within(row("MRP_FORMAT")).getByRole("button", { name: en.recRetake }).getAttribute("title")).toBe(en.recComingSoon);
+    // The back panel is already photographed, so the row offers a retake rather than a new photo.
+    expect(within(row("MRP_FORMAT")).queryByRole("button", { name: en.recAddPhoto })).toBeNull();
+    expect(within(row("MRP_FORMAT")).getByRole("button", { name: en.recRetake }).hasAttribute("disabled")).toBe(false);
     fireEvent.click(within(row("MRP_FORMAT")).getByRole("button", { name: en.recEnterValue }));
     const form = within(screen.getByRole("form", { name: en.recEnterValue }));
     fireEvent.change(form.getByRole("textbox", { name: en.extractionMrp }), { target: { value: "10" } });

@@ -14,7 +14,7 @@ import re
 import tempfile
 from threading import RLock
 from time import perf_counter
-from typing import Any
+from typing import Any, Callable
 from queue import Empty
 
 from backend.app.services.uploads import image_dimensions
@@ -455,7 +455,15 @@ class PaddleOcrService:
 
     # -------------------------------------------------------------------- scan
 
-    def scan(self, image_path: Path) -> OcrDocument:
+    def scan(self, image_path: Path, progress: Callable[[str, str], None] | None = None) -> OcrDocument:
+        """Read one photo. ``progress(language, "start" | "done" | "skipped")`` reports each language pass as it happens."""
+        def notify(language: str, state: str) -> None:
+            if progress is not None:
+                try:
+                    progress(language, state)
+                except Exception:  # reporting must never break a scan
+                    logger.debug("OCR progress callback failed", exc_info=True)
+
         processed_paths: list[Path] = []
         tickets: list[_SecondaryTicket] = []
         started = perf_counter()
@@ -494,13 +502,16 @@ class PaddleOcrService:
                 except OcrProcessingError as error:
                     logger.warning("OCR secondary language skipped language=%s reason=%s", language, error)
                     skipped_languages.append(language)
+                    notify(language, "skipped")
                     continue
                 tickets.append(ticket)
                 pending.append((language, ticket, language_dimension))
+                notify(language, "start")
 
             primary = self.languages[0]
             inference_started = perf_counter()
             logger.info("OCR inference started language=%s", primary)
+            notify(primary, "start")
             primary_detections = self._predict(primary, processed_path)
             logger.info("OCR inference completed language=%s detections=%d elapsed_seconds=%.3f", primary, len(primary_detections), perf_counter() - inference_started)
             rotation = 0
@@ -525,6 +536,7 @@ class PaddleOcrService:
             primary_detections = self._tag(self._to_original(primary_detections, original_size, self.max_image_dimension, rotation), primary)
             detections.extend(primary_detections)
             completed_languages.append(primary)
+            notify(primary, "done")
             dropped_total = 0
 
             def add_secondary(language: str, language_detections: list[OcrDetection]) -> None:
@@ -537,9 +549,11 @@ class PaddleOcrService:
             if self._engine is not None:
                 # An injected engine serves every language in this process.
                 for language in self.languages[1:]:
+                    notify(language, "start")
                     language_detections = self._predict(language, processed_path)
                     add_secondary(language, self._to_original(language_detections, original_size, self.max_image_dimension, rotation))
                     completed_languages.append(language)
+                    notify(language, "done")
 
             for language, ticket, language_dimension in pending:
                 secondary_started = perf_counter()
@@ -549,10 +563,12 @@ class PaddleOcrService:
                     # A secondary language is best-effort: keep the primary result.
                     logger.warning("OCR secondary language skipped language=%s reason=%s", language, error)
                     skipped_languages.append(language)
+                    notify(language, "skipped")
                     continue
                 logger.info("OCR inference completed language=%s detections=%d wait_seconds=%.3f", language, len(language_detections), perf_counter() - secondary_started)
                 add_secondary(language, self._to_original(language_detections, original_size, language_dimension, rotation))
                 completed_languages.append(language)
+                notify(language, "done")
             parse_started = perf_counter()
             deduplicated = self._deduplicate(detections)
             logger.info("OCR result conversion completed detections=%d elapsed_seconds=%.3f", len(deduplicated), perf_counter() - parse_started)

@@ -7,6 +7,8 @@ import "./components/ui/ui.css";
 import "./styles/app.css";
 import "./styles/record.css";
 import "./styles/auth.css";
+import "./styles/progress.css";
+import "./styles/capture.css";
 import App from "./App";
 import { I18nProvider } from "./i18n";
 

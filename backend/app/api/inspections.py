@@ -1,29 +1,34 @@
+import asyncio
 from datetime import datetime, timezone
 from functools import lru_cache
+import json
 import logging
 from time import perf_counter
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, Response, UploadFile, status
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy import case, delete, func, or_, select
 from sqlalchemy.orm import Session
 
 from backend.app.core.config import get_ocr_languages, get_settings
 from backend.app.core.database import get_db
 from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, FieldCorrection, Inspection, InspectionImage, OcrResult, Product
-from backend.app.schemas.inspection import AuditEvent, ComplianceResponse, FieldCorrectionCreate, VerifyRequest, ExtractionResponse, ImageUploaded, InspectionCreate, InspectionCreated, InspectionHistoryItem, InspectionHistoryPage, InspectionSummary, OcrProcessed, RiskAssessmentResponse, RiskReasonResponse
+from backend.app.schemas.inspection import ImageInfo, AuditEvent, ComplianceResponse, FieldCorrectionCreate, VerifyRequest, ExtractionResponse, ImageUploaded, InspectionCreate, InspectionCreated, InspectionHistoryItem, InspectionHistoryPage, InspectionSummary, OcrProcessed, RiskAssessmentResponse, RiskReasonResponse
 from backend.app.services.compliance import ComplianceEngine
 from backend.app.services.compliance.rule_engine import verdict
 from backend.app.services.extraction import ExtractionService
 from backend.app.services.extraction.evidence import build_extracted_fields, field_evidence
 from backend.app.services.ocr import OcrInitializationError, OcrProcessingError, PaddleOcrService
 from backend.app.services.uploads import UploadValidationError, store_image, validate_image
-from backend.app.services.workflow import LATEST_IMAGE_ORDER, InspectionWorkflow, WorkflowError, compliance_response, extraction_field_response, latest_extracted_fields, latest_image, persist_compliance, resolve_upload_path
+from backend.app.services import jobs
+from backend.app.services.merge import PANELS
+from backend.app.services.progress import AlreadyRunning, progress_store, stored_snapshot
+from backend.app.services.workflow import LATEST_IMAGE_ORDER, MAX_ACTIVE_IMAGES, InspectionWorkflow, WorkflowError, active_images, all_images, compliance_response, extraction_field_response, latest_extracted_fields, persist_compliance, primary_image, resolve_upload_path
 from backend.app.services.report import InspectionReportService
 from backend.app.api.auth import get_current_user, require_official
 from backend.app.services.audit import build_audit, record_event
-from backend.app.services.corrections import CorrectionError, active_corrections, mark_verified, normalise_value, reset_review, sync_label_identity
+from backend.app.services.corrections import FIELD_ALIASES, CorrectionError, active_corrections, mark_verified, normalise_value, reset_review, sync_label_identity
 from backend.app.models import User
 from backend.app.services.risk import RiskService
 
@@ -70,7 +75,7 @@ def get_compliance_engine() -> ComplianceEngine:
 
 def get_workflow(db: Session = Depends(get_db), ocr_service: PaddleOcrService = Depends(get_ocr_service), extraction_service: ExtractionService = Depends(get_extraction_service), compliance_engine: ComplianceEngine = Depends(get_compliance_engine)) -> InspectionWorkflow:
     settings = get_settings()
-    return InspectionWorkflow(db, ocr_service, extraction_service, compliance_engine, settings.upload_dir, settings.max_upload_bytes)
+    return InspectionWorkflow(db, ocr_service, extraction_service, compliance_engine, settings.upload_dir, settings.max_upload_bytes, settings.pattern_min_occurrences)
 
 
 def _overall_compliance_status():
@@ -107,7 +112,12 @@ def create_inspection(payload: InspectionCreate, db: Session = Depends(get_db), 
 @router.get("/config")
 def upload_config() -> dict[str, object]:
     """Upload limits for the new-inspection form (declared before the /{id} routes so it is not read as an id)."""
-    return {"max_upload_bytes": get_settings().max_upload_bytes, "allowed_types": ["image/jpeg", "image/png"]}
+    settings = get_settings()
+    return {
+        "max_upload_bytes": settings.max_upload_bytes, "allowed_types": ["image/jpeg", "image/png"],
+        # The longest side OCR reads; larger photos are shrunk to this before OCR, so clients need not send more.
+        "ocr_max_image_dimension": settings.ocr_max_image_dimension, "max_images": MAX_ACTIVE_IMAGES, "panels": list(PANELS),
+    }
 
 
 @router.get("", response_model=InspectionHistoryPage)
@@ -160,14 +170,31 @@ def download_inspection_report(
     return Response(content=report, media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="{filename}"'})
 
 
+def _panel_or_422(panel: str) -> str:
+    value = (panel or "BACK").strip().upper()
+    if value not in PANELS:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=f"Panel must be one of {', '.join(PANELS)}.")
+    return value
+
+
 @router.post("/{inspection_id}/image", response_model=ImageUploaded, status_code=status.HTTP_201_CREATED)
+@router.post("/{inspection_id}/images", response_model=ImageUploaded, status_code=status.HTTP_201_CREATED)
 async def upload_inspection_image(
     inspection_id: UUID,
     image: UploadFile = File(..., description="Package image in JPG, JPEG, or PNG format."),
+    panel: str = Form("BACK", description="Which part of the pack: BACK, FRONT, DATE_STAMP or OTHER."),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ) -> InspectionImage:
+    """Add a photo. A new photo for a panel that already has one replaces it for processing; the old file stays as evidence."""
     inspection = require_owner(db.get(Inspection, inspection_id), user)
+    panel = _panel_or_422(panel)
+    if progress_store.is_running(inspection.id):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This inspection is being processed. Add the photo when it finishes.")
+    current = active_images(db, inspection.id)
+    replaced = next((item for item in current if item.panel == panel and panel != "OTHER"), None)
+    if replaced is None and len(current) >= MAX_ACTIVE_IMAGES:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"An inspection holds at most {MAX_ACTIVE_IMAGES} photos.")
 
     settings = get_settings()
     content = await image.read(settings.max_upload_bytes + 1)
@@ -178,35 +205,113 @@ async def upload_inspection_image(
     except UploadValidationError as error:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error)) from error
 
-    image_record = InspectionImage(inspection_id=inspection.id, **stored.__dict__)
+    first = not all_images(db, inspection.id)
+    image_record = InspectionImage(inspection_id=inspection.id, panel=panel, **stored.__dict__)
     db.add(image_record)
-    inspection.status = "IMAGE_UPLOADED"
+    if inspection.status == "COMPLETED" and not first:
+        # The record stays readable; the new photo changes its evidence, so a past verification no longer stands.
+        reset_review(inspection)
+    else:
+        inspection.status = "IMAGE_UPLOADED"
     inspection.failure_stage = inspection.failure_message = None
     db.commit()
     db.refresh(image_record)
+    progress_store.discard(inspection.id)
+    if not first:
+        record_event(db, inspection.id, "PHOTO_REPLACED" if replaced else "PHOTO_ADDED", user.id, {"panel": panel, "checksum": image_record.checksum, "filename": image_record.original_filename, "image_id": str(image_record.id), "replaced_image_id": str(replaced.id) if replaced else None})
     return image_record
 
 
-@router.get("/{inspection_id}/image", response_class=FileResponse, responses={200: {"content": {"image/jpeg": {}, "image/png": {}}}})
-def get_inspection_image(inspection_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> FileResponse:
-    """Serve the latest stored package photo to its owner only."""
-    inspection = require_owner(db.get(Inspection, inspection_id), user)
-    image = latest_image(db, inspection.id)
+def _image_file(image: InspectionImage | None) -> FileResponse:
     path = resolve_upload_path(get_settings().upload_dir, image.storage_key) if image else None
     if path is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inspection image not found.")
     return FileResponse(path, media_type=image.content_type, headers={"Cache-Control": "private, max-age=300", "X-Content-Type-Options": "nosniff"})
 
 
-@router.post("/{inspection_id}/process", response_model=InspectionSummary)
-def process_inspection(inspection_id: UUID, workflow: InspectionWorkflow = Depends(get_workflow), user: User = Depends(get_current_user)) -> InspectionSummary:
-    """Run any unfinished stage once; safe to call again after success or failure."""
+@router.get("/{inspection_id}/image", response_class=FileResponse, responses={200: {"content": {"image/jpeg": {}, "image/png": {}}}})
+def get_inspection_image(inspection_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> FileResponse:
+    """Serve the stored package photo older clients know as "the image": the newest BACK panel, else the newest photo."""
+    inspection = require_owner(db.get(Inspection, inspection_id), user)
+    return _image_file(primary_image(db, inspection.id))
+
+
+def _image_info(row: InspectionImage, active: set[UUID]) -> ImageInfo:
+    return ImageInfo(id=row.id, panel=row.panel, width=row.width, height=row.height, checksum=row.checksum, uploaded_at=row.created_at, active=row.id in active, original_filename=row.original_filename, byte_size=row.byte_size, content_type=row.content_type)
+
+
+@router.get("/{inspection_id}/images", response_model=list[ImageInfo])
+def list_inspection_images(inspection_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> list[ImageInfo]:
+    """Every stored photo, oldest first. Photos replaced for their panel are kept as evidence (active=false)."""
+    inspection = require_owner(db.get(Inspection, inspection_id), user)
+    active = {image.id for image in active_images(db, inspection.id)}
+    return [_image_info(row, active) for row in all_images(db, inspection.id)]
+
+
+@router.get("/{inspection_id}/images/{image_id}", response_class=FileResponse, responses={200: {"content": {"image/jpeg": {}, "image/png": {}}}})
+def get_inspection_image_file(inspection_id: UUID, image_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> FileResponse:
+    inspection = require_owner(db.get(Inspection, inspection_id), user)
+    image = db.get(InspectionImage, image_id)
+    return _image_file(image if image is not None and image.inspection_id == inspection.id else None)
+
+
+def _progress(inspection: Inspection) -> dict:
+    job = progress_store.get(inspection.id)
+    return job.snapshot() if job is not None else stored_snapshot(inspection.id, inspection.status, inspection.failure_message)
+
+
+@router.post("/{inspection_id}/process", status_code=status.HTTP_202_ACCEPTED)
+def process_inspection(inspection_id: UUID, workflow: InspectionWorkflow = Depends(get_workflow), user: User = Depends(get_current_user)) -> dict:
+    """Start processing in the background and return at once with the progress snapshot.
+
+    Unread photos are read, everything is merged and checked. Poll ``/progress`` or follow
+    ``/progress/stream``. Calling again after a failure resumes from the photo that failed;
+    a run that is already going answers 409.
+    """
+    inspection = require_owner(workflow.db.get(Inspection, inspection_id), user)
+    if not active_images(workflow.db, inspection.id):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Upload a package-label image before processing.")
+    if inspection.status == "COMPLETED" and not workflow.pending_images(inspection.id) and not progress_store.is_running(inspection.id):
+        return _progress(inspection)
     try:
-        require_owner(workflow.db.get(Inspection, inspection_id), user); return workflow.process(inspection_id)
-    except KeyError as error:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
-    except WorkflowError as error:
-        raise HTTPException(status_code=error.status_code, detail=error.message) from error
+        return jobs.start(workflow, inspection.id).snapshot()
+    except AlreadyRunning as error:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This inspection is already being processed.") from error
+
+
+@router.get("/{inspection_id}/progress")
+def get_inspection_progress(inspection_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> dict:
+    """Step list, percent (completed steps only) and elapsed time; falls back to the stored stage after a restart."""
+    return _progress(require_owner(db.get(Inspection, inspection_id), user))
+
+
+@router.get("/{inspection_id}/progress/stream")
+async def stream_inspection_progress(inspection_id: UUID, request: Request, db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> StreamingResponse:
+    """Server-Sent Events: a ``progress`` event whenever something changes, then ``done``, and the stream closes."""
+    inspection = require_owner(db.get(Inspection, inspection_id), user)
+    fallback = stored_snapshot(inspection.id, inspection.status, inspection.failure_message)
+    key = inspection.id
+
+    async def events():
+        last, quiet = -1, 0.0
+        while True:
+            job = progress_store.get(key)
+            snapshot = job.snapshot() if job is not None else fallback
+            if snapshot["version"] != last:
+                last, quiet = snapshot["version"], 0.0
+                yield f"event: progress\ndata: {json.dumps(snapshot)}\n\n"
+            if job is None or job.terminal:
+                yield "event: done\ndata: {}\n\n"
+                return
+            if await request.is_disconnected():
+                return
+            await asyncio.sleep(0.15)
+            quiet += 0.15
+            if quiet >= 15:
+                quiet = 0.0
+                yield ": keep-alive\n\n"
+
+    return StreamingResponse(events(), media_type="text/event-stream", headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"})
 
 
 @router.post("/{inspection_id}/reanalyse", response_model=InspectionSummary)
@@ -262,20 +367,21 @@ def _re_evaluate(workflow: InspectionWorkflow, inspection: Inspection, user: Use
 def add_correction(inspection_id: UUID, payload: FieldCorrectionCreate, workflow: InspectionWorkflow = Depends(get_workflow), user: User = Depends(require_official)) -> InspectionSummary:
     """Officials override one extracted field; the value is validated like the extractor's own, then compliance and risk are re-evaluated."""
     db = workflow.db
+    field_name = FIELD_ALIASES.get(payload.field_name, payload.field_name)
     inspection = require_owner(db.get(Inspection, inspection_id), user)
     if db.scalar(select(OcrResult.id).where(OcrResult.inspection_id == inspection.id).limit(1)) is None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="OCR must be run before a value can be corrected.")
     try:
-        value, _ = normalise_value(payload.field_name, payload.corrected_value)
+        value, _ = normalise_value(field_name, payload.corrected_value)
     except CorrectionError as error:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(error)) from error
-    previous = active_corrections(db, inspection.id).get(payload.field_name)
+    previous = active_corrections(db, inspection.id).get(field_name)
     if previous is not None:
         original = previous.original_value  # always the OCR-read value, never an earlier correction
     else:
-        current = next((field for field in latest_extracted_fields(db, inspection.id) if field.field_name == payload.field_name), None)
+        current = next((field for field in latest_extracted_fields(db, inspection.id) if field.field_name == field_name), None)
         original = current.value if current else None
-    db.add(FieldCorrection(inspection_id=inspection.id, field_name=payload.field_name, original_value=original, corrected_value=value, reason=(payload.reason or "").strip() or None, corrected_by=user.id))
+    db.add(FieldCorrection(inspection_id=inspection.id, field_name=field_name, original_value=original, corrected_value=value, reason=(payload.reason or "").strip() or None, corrected_by=user.id))
     reset_review(inspection)
     db.commit()
     return _re_evaluate(workflow, inspection, user)
@@ -384,7 +490,7 @@ def extract_inspection_information(
 
     fields = extraction_service.extract(ocr_result.raw_text, ocr_result.detections)
     # Re-running extraction replaces only this interpretation layer, never OCR evidence.
-    db.execute(delete(ExtractedField).where(ExtractedField.ocr_result_id == ocr_result.id))
+    db.execute(delete(ExtractedField).where(ExtractedField.inspection_id == inspection.id))
     # Findings are derived from extraction. Keeping them after a new parse made
     # reports show an old FAIL/REVIEW beside a corrected extracted value.
     invalidated = db.execute(delete(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id)).rowcount
@@ -405,7 +511,7 @@ def run_inspection_compliance(inspection_id: UUID, db: Session = Depends(get_db)
     ocr_result = db.scalar(select(OcrResult).where(OcrResult.inspection_id == inspection.id).order_by(OcrResult.created_at.desc()))
     if ocr_result is None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="OCR must be run before compliance analysis.")
-    extracted = db.scalars(select(ExtractedField).where(ExtractedField.ocr_result_id == ocr_result.id)).all()
+    extracted = latest_extracted_fields(db, inspection.id)
     if not extracted:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Information extraction must be run before compliance analysis.")
     fields = {field.field_name: field_evidence(field) for field in extracted}

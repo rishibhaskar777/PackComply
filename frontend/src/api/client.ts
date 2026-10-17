@@ -2,7 +2,11 @@ export type ApiError = Error & { detail?: string; status?: number; unreachable?:
 
 // SameSite=Lax development cookies must remain same-site.  Deriving the
 // fallback host from the page prevents a localhost UI from calling 127.0.0.1.
-export const API_URL = (import.meta.env.VITE_API_URL ?? `${window.location.protocol}//${window.location.hostname}:8000/api`).replace(/\/$/, "");
+// A page opened by any other host (a phone on the laptop's LAN IP) uses the
+// same-origin "/api" path, which the Vite dev server proxies to the backend.
+const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
+export const API_URL = (import.meta.env.VITE_API_URL
+  ?? (LOCAL_HOSTS.includes(window.location.hostname) ? `${window.location.protocol}//${window.location.hostname}:8000/api` : "/api")).replace(/\/$/, "");
 
 export async function api(path: string, operation: string, options: RequestInit = {}, timeout = 30_000): Promise<Response> {
   const controller = new AbortController();
