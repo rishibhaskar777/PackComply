@@ -1,111 +1,113 @@
 import { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import { ImageUp, RefreshCw, X } from "lucide-react";
-import { api, ApiError, getJson, isExpired } from "../api/client";
+import { getJson } from "../api/client";
 import { navigate } from "../app/router";
 import { Alert, Button, Card, useToast } from "../components/ui";
 import { PageHeader } from "../components/PageHeader";
-import { fill, TranslationKey, useI18n } from "../i18n";
-import { Summary } from "../types";
+import { PANEL_LABEL, ProgressPanel } from "../components/ProgressPanel";
+import { fill, useI18n } from "../i18n";
+import { CAPTURE_PANELS } from "../lib/panels";
+import { CapturedPhoto, newPhoto, releasePhoto, useInspectionRun } from "../lib/useInspectionRun";
+import type { Panel } from "../types";
 
 const ACCEPTED = ["image/png", "image/jpeg"];
 const FALLBACK_LIMIT = 10 * 1024 * 1024;
-const POLL_MS = 1500;
-const STAGE_KEYS: Record<string, TranslationKey> = { IMAGE_UPLOADED: "imageUploadedStatus", OCR_PROCESSING: "ocrProcessing", OCR_COMPLETED: "ocrCompleted", EXTRACTION_PROCESSING: "extractionProcessing", EXTRACTION_COMPLETED: "extractionCompleted", COMPLIANCE_PROCESSING: "complianceProcessing" };
 
 export const formatMegabytes = (bytes: number) => `${Math.round((bytes / (1024 * 1024)) * 10) / 10} MB`;
+const formatSize = (bytes: number) => (bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : formatMegabytes(bytes));
 
 type Props = { onExpired: () => void; onCompleted: () => void };
+type Slots = Partial<Record<Panel, CapturedPhoto>>;
 
-/** #/new: choose or drop a label photo, then upload, read and check it; the finished record opens at #/inspections/:id. */
+/** #/new: add the back panel (required), and optionally the front and date stamp; they are uploaded, read and checked together. */
 export function NewInspectionPage({ onExpired, onCompleted }: Props) {
   const { t } = useI18n();
   const toast = useToast();
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [slots, setSlots] = useState<Slots>({});
   const [limit, setLimit] = useState(FALLBACK_LIMIT);
-  const [dragging, setDragging] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [stage, setStage] = useState<string | null>(null);
-  const [problem, setProblem] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const input = useRef<HTMLInputElement>(null);
-  // Kept across retries so a failed run resumes instead of creating a second inspection.
-  const created = useRef<{ id: string; uploaded: boolean } | null>(null);
+  const [dragging, setDragging] = useState<Panel | null>(null);
+  const [problem, setProblem] = useState<{ panel: Panel; message: string } | null>(null);
+  const slotsRef = useRef(slots);
+  slotsRef.current = slots;
+  const run = useInspectionRun({ onExpired });
+  const busy = run.phase === "uploading" || run.phase === "processing";
 
   useEffect(() => {
     getJson<{ max_upload_bytes: number }>("/inspections/config", "config").then(config => setLimit(config.max_upload_bytes)).catch(() => undefined);
   }, []);
-  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
+  useEffect(() => () => { Object.values(slotsRef.current).forEach(photo => photo && releasePhoto(photo)); }, []);
 
-  function choose(candidate: File | undefined | null) {
-    if (!candidate) return;
-    setError(null); created.current = null;
-    if (!ACCEPTED.includes(candidate.type)) { setProblem(t("newBadType")); return; }
-    if (candidate.size > limit) { setProblem(fill(t("newTooLarge"), { limit: formatMegabytes(limit) })); return; }
-    setProblem(null); setFile(candidate); setPreview(URL.createObjectURL(candidate));
+  // A finished run opens the record.
+  useEffect(() => {
+    if (run.phase === "done" && run.inspectionId) { onCompleted(); toast(t("toastInspectionSaved")); navigate(`/inspections/${run.inspectionId}`); }
+  }, [run.phase, run.inspectionId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function choose(panel: Panel, candidate: File | undefined | null) {
+    if (!candidate || busy) return;
+    if (!ACCEPTED.includes(candidate.type)) { setProblem({ panel, message: t("newBadType") }); return; }
+    if (candidate.size > limit) { setProblem({ panel, message: fill(t("newTooLarge"), { limit: formatMegabytes(limit) }) }); return; }
+    setProblem(null);
+    // A different set of photos is a different inspection.
+    run.reset();
+    setSlots(current => {
+      if (current[panel]) releasePhoto(current[panel]!);
+      return { ...current, [panel]: newPhoto(panel, candidate, candidate.name) };
+    });
   }
-  function clear() { setFile(null); setPreview(null); setProblem(null); setError(null); created.current = null; if (input.current) input.current.value = ""; }
-  function onDrop(event: DragEvent) { event.preventDefault(); setDragging(false); if (!busy) choose(event.dataTransfer.files?.[0]); }
-
-  async function start() {
-    if (!file || busy) return;
-    setBusy(true); setError(null); setStage(null);
-    let timer: number | undefined;
-    try {
-      if (!created.current) created.current = { id: (await (await api("/inspections", "inspection", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })).json()).id, uploaded: false };
-      const id = created.current.id;
-      if (!created.current.uploaded) {
-        const form = new FormData(); form.append("image", file);
-        await api(`/inspections/${id}/image`, "upload", { method: "POST", body: form });
-        created.current.uploaded = true;
-      }
-      // /process blocks until the label is read; the persisted status shows how far it has got.
-      const poll = async () => {
-        try { const current: Summary = await getJson(`/inspections/${id}`, "inspection"); setStage(current.status); } catch { /* the next tick tries again */ }
-        timer = window.setTimeout(poll, POLL_MS);
-      };
-      timer = window.setTimeout(poll, POLL_MS);
-      const result: Summary = await (await api(`/inspections/${id}/process`, "process", { method: "POST" }, 300_000)).json();
-      if (result.status === "COMPLETED") { onCompleted(); toast(t("toastInspectionSaved")); }
-      navigate(`/inspections/${id}`);
-    } catch (e) {
-      if (isExpired(e)) return onExpired();
-      setError((e as ApiError).detail ?? t("newStartError"));
-    } finally { window.clearTimeout(timer); setBusy(false); setStage(null); }
+  function clear(panel: Panel) {
+    run.reset();
+    setSlots(current => { if (current[panel]) releasePhoto(current[panel]!); const { [panel]: _removed, ...rest } = current; return rest; });
   }
+  function onDrop(event: DragEvent, panel: Panel) { event.preventDefault(); setDragging(null); choose(panel, event.dataTransfer.files?.[0]); }
 
-  const stageLabel = stage && STAGE_KEYS[stage] ? t(STAGE_KEYS[stage]) : null;
+  const photos = CAPTURE_PANELS.map(panel => slots[panel]).filter((photo): photo is CapturedPhoto => Boolean(photo));
+  const started = run.phase !== "idle";
+  function start() { if (slots.BACK && !busy) void run.run(photos); }
+
   return (
     <div className="page new-page">
       <PageHeader title={t("newInspection")} subtitle={t("legalNotice")} />
-      {error && <Alert action={<Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={() => void start()} disabled={busy}>{t("tryAgain")}</Button>}>{t("error")}: {error}</Alert>}
-      <Card title={t("uploadImage")} description={fill(t("newDropHint"), { limit: formatMegabytes(limit) })}>
-        <label className={`dropzone dropzone--large${dragging ? " is-dragging" : ""}${busy ? " is-busy" : ""}${preview ? " has-preview" : ""}`}
-          onDragOver={event => { event.preventDefault(); if (!busy) setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={onDrop}>
-          <input ref={input} className="sr-only" type="file" accept="image/png,image/jpeg" disabled={busy} onChange={(event: ChangeEvent<HTMLInputElement>) => choose(event.target.files?.[0])} />
-          {preview
-            ? <img className="dropzone__preview" src={preview} alt={t("imagePreview")} />
-            : <>
-              <span className="dropzone__icon" aria-hidden="true"><ImageUp size={20} /></span>
-              <span className="dropzone__label">{t("newDropTitle")}</span>
-              <span className="dropzone__hint">{t("newBrowse")}</span>
-            </>}
-        </label>
-        {problem && <p className="form-error" role="alert">{problem}</p>}
-        {file && (
-          <div className="new-file">
-            <p className="new-file__name"><span className="mono">{file.name}</span><span className="muted-text mono">{formatMegabytes(file.size)}</span></p>
-            {!busy && <Button size="sm" variant="ghost" icon={<X size={14} aria-hidden="true" />} onClick={clear}>{t("newRemove")}</Button>}
-          </div>
-        )}
-        {busy && (
-          <div className="progress" role="status" aria-live="polite">
-            <p className="progress__label">{stageLabel ?? t("newReading")}</p>
-            <div className="progress-bar progress-bar--indeterminate" aria-hidden="true"><span /></div>
+      {run.error?.unreachable && <Alert action={<Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={() => void run.retry()} disabled={busy}>{t("progRetryUpload")}</Button>}>{t("progUnreachable")}</Alert>}
+      <Card title={t("newPhotosTitle")} description={fill(t("newDropHint"), { limit: formatMegabytes(limit) })}>
+        <div className="new-slots">
+          {CAPTURE_PANELS.map(panel => {
+            const photo = slots[panel];
+            const required = panel === "BACK";
+            return (
+              <div key={panel} className="new-slot">
+                <p className="new-slot__label"><strong>{t(PANEL_LABEL[panel])}</strong> <span className="muted-text">{required ? t("capRequired") : t("capOptional")}</span></p>
+                <label className={`dropzone dropzone--slot${dragging === panel ? " is-dragging" : ""}${busy ? " is-busy" : ""}${photo ? " has-preview" : ""}`}
+                  onDragOver={event => { event.preventDefault(); if (!busy) setDragging(panel); }} onDragLeave={() => setDragging(null)} onDrop={event => onDrop(event, panel)}>
+                  <input className="sr-only" type="file" accept="image/png,image/jpeg" disabled={busy} aria-label={fill(t("newChoosePanel"), { panel: t(PANEL_LABEL[panel]) })}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => { choose(panel, event.target.files?.[0]); event.target.value = ""; }} />
+                  {photo
+                    ? <img className="dropzone__preview" src={photo.url} alt={fill(t("newPreviewAlt"), { panel: t(PANEL_LABEL[panel]) })} />
+                    : <>
+                      <span className="dropzone__icon" aria-hidden="true"><ImageUp size={20} /></span>
+                      <span className="dropzone__label">{t("newDropTitle")}</span>
+                      <span className="dropzone__hint">{t("newBrowse")}</span>
+                    </>}
+                </label>
+                {problem?.panel === panel && <p className="form-error" role="alert">{problem.message}</p>}
+                {photo && (
+                  <div className="new-file">
+                    <p className="new-file__name"><span className="mono">{photo.name}</span><span className="muted-text mono">{formatSize(photo.blob.size)}</span></p>
+                    {!busy && <Button size="sm" variant="ghost" icon={<X size={14} aria-hidden="true" />} onClick={() => clear(panel)} aria-label={fill(t("newRemovePanel"), { panel: t(PANEL_LABEL[panel]) })}>{t("newRemove")}</Button>}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {started && (
+          <div className="new-progress">
+            <ProgressPanel progress={run.progress} uploading={run.phase === "uploading"} photos={photos.map(photo => ({ panel: photo.panel, url: photo.url }))}
+              error={run.error && !run.error.unreachable ? run.error : null} onRetry={() => void run.retry()} />
           </div>
         )}
         <div className="page-footer-actions new-actions">
-          <Button size="lg" icon={<ImageUp size={16} aria-hidden="true" />} onClick={() => void start()} disabled={!file || busy} loading={busy}>{t("newStart")}</Button>
+          <Button size="lg" icon={<ImageUp size={16} aria-hidden="true" />} onClick={start} disabled={!slots.BACK || busy} loading={busy}>{t("newStart")}</Button>
+          {!slots.BACK && <span className="muted-text">{t("newNeedBack")}</span>}
         </div>
       </Card>
     </div>

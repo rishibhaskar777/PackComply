@@ -80,6 +80,8 @@ export type FindingItem = {
   /** 1-based badge number shared with the photo marker; N/A findings have none. */
   number: number | null;
   boxes: BBox[] | null;
+  /** The photo the boxes lie on; null for a finding without evidence, or for records made before photos were tracked. */
+  imageId: string | null;
   /** Value the inspector sees: what the rule read (the corrected one when corrected). */
   read: string | null;
 };
@@ -104,7 +106,8 @@ export function buildFindingItems(summary: Summary): FindingItem[] {
   return ordered.map(({ finding, group }) => {
     const field = finding.field ? fields[finding.field] : undefined;
     const boxes = group === "notApplicable" ? null : (finding.source_bboxes ?? field?.source_bboxes ?? null);
-    return { finding, group, number: group === "notApplicable" ? null : ++counter, boxes: boxes?.length ? boxes : null, read: finding.value ?? field?.value ?? null };
+    const located = boxes?.length ? boxes : null;
+    return { finding, group, number: group === "notApplicable" ? null : ++counter, boxes: located, imageId: located ? (finding.image_id ?? field?.image_id ?? summary.image?.id ?? null) : null, read: finding.value ?? field?.value ?? null };
   });
 }
 

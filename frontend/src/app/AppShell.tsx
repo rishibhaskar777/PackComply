@@ -27,7 +27,7 @@ const RESOURCE_NAV: NavItem[] = [
 export function routeTitles(route: Route): { section: TranslationKey; sectionHref?: string; page: TranslationKey } {
   switch (route.name) {
     case "inspection": return { section: "inspections", sectionHref: "#/inspections", page: "inspectionDetails" };
-    case "new": return { section: "inspections", sectionHref: "#/inspections", page: "newInspection" };
+    case "new": case "capture": return { section: "inspections", sectionHref: "#/inspections", page: "newInspection" };
     case "rulesets": case "reports": return { section: "resources", page: route.name };
     case "risk": return { section: "inspection", page: "riskQueue" };
     case "patterns": return { section: "inspection", page: "repeatIssues" };
@@ -36,7 +36,7 @@ export function routeTitles(route: Route): { section: TranslationKey; sectionHre
 }
 
 function activeNav(route: Route): RouteName {
-  return route.name === "inspection" || route.name === "new" ? "inspections" : route.name;
+  return route.name === "inspection" || route.name === "new" || route.name === "capture" ? "inspections" : route.name;
 }
 
 export function initials(username: string) {

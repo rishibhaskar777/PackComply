@@ -45,6 +45,20 @@
   --duration-slow: 400ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
+  /* Field-app capture surfaces: always dark (a camera viewfinder), whatever the theme. */
+  --cap-bg: #09090B;
+  --cap-surface: #18181B;
+  --cap-surface-2: #27272A;
+  --cap-border: #3F3F46;
+  --cap-fg: #FAFAFA;
+  --cap-muted: #A1A1AA;
+  --cap-scrim: rgba(0, 0, 0, 0.58);
+  --cap-primary: #818CF8;
+  --cap-primary-fg: #09090B;
+  --cap-pass: #34D399;
+  --cap-review: #FBBF24;
+  --cap-violation: #F87171;
+
   /* Gradients built from per-theme colour tokens */
   --cta-gradient: linear-gradient(135deg, var(--cta-from), var(--cta-to));
   --scan-gradient: linear-gradient(90deg, transparent, var(--scan-from) 20%, var(--scan-to) 80%, transparent);

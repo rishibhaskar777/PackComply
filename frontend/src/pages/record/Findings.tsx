@@ -3,7 +3,9 @@ import { Camera, ChevronDown, PenLine, RotateCcw, Undo2, User } from "lucide-rea
 import { Alert, Button, FormField, Input, Select } from "../../components/ui";
 import { fill, TranslationKey, useI18n } from "../../i18n";
 import { FindingItem, Group, GROUP_ORDER, GROUP_TONE, moveSelection } from "../../lib/evidence";
-import { FieldCorrection, Summary } from "../../types";
+import { summaryPhotos } from "../../lib/panels";
+import { photoActionFor } from "../../lib/photoActions";
+import { FieldCorrection, Panel, Summary } from "../../types";
 
 export const FIELD_LABELS: Record<string, TranslationKey> = { product_name: "extractionProductName", manufacturer: "extractionManufacturer", manufacturer_address: "extractionManufacturerAddress", packer: "extractionPacker", packer_address: "extractionPackerAddress", importer: "extractionImporter", importer_address: "extractionImporterAddress", mrp: "extractionMrp", net_quantity: "extractionNetQuantity", manufacturing_date: "extractionManufacturingDate", packing_date: "extractionPackingDate", best_before: "extractionBestBefore", use_by: "extractionUseBy", expiry_date: "extractionExpiryDate", consumer_care_phone: "extractionConsumerCarePhone", consumer_care_email: "extractionConsumerCareEmail", consumer_care_website: "extractionConsumerCareWebsite", brand_owner: "extractionBrandOwner", brand_owner_address: "extractionBrandOwnerAddress", tax_inclusive: "extractionTaxInclusive", fssai_license: "extractionFssaiLicense", country_of_origin: "extractionCountryOfOrigin", unit_sale_price: "extractionUnitSalePrice" };
 
@@ -26,7 +28,7 @@ export const CORRECTABLE: Record<string, string[]> = {
 };
 
 export const REASONS = ["recReasonPhysical", "recReasonMisread", "recReasonOther"] as const;
-const REASON_TEXT: Record<(typeof REASONS)[number], string> = { recReasonPhysical: "Verified on physical pack", recReasonMisread: "OCR misread", recReasonOther: "Other" };
+export const REASON_TEXT: Record<(typeof REASONS)[number], string> = { recReasonPhysical: "Verified on physical pack", recReasonMisread: "OCR misread", recReasonOther: "Other" };
 
 /** The short rule reference for the chip: "Rule 6(1)(e)" out of "LM(PC) Rules 2011, Rule 6(1)(e)". */
 export function ruleChip(reference: string | null | undefined): string | null {
@@ -50,17 +52,20 @@ type FindingsProps = {
   busy: boolean;
   onCorrect: (payload: CorrectionPayload) => Promise<string | null>;
   onUndo: (correction: FieldCorrection) => void;
+  /** Add a photo of a panel, or retake it (the new photo replaces the old one, which stays as evidence). Absent: photo actions are hidden. */
+  onPhoto?: (panel: Panel, action: "add" | "retake") => void;
 };
 
 const GROUP_TITLE: Record<Group, TranslationKey> = { violations: "recGroupViolations", review: "recGroupReview", passed: "recGroupPassed", notApplicable: "notApplicable" };
 
 /** Findings by group; arrow keys move the selection, hover and click stay in sync with the photo markers. */
-export function Findings({ summary, items, selectedId, hoveredId, onSelect, onHover, canEdit, busy, onCorrect, onUndo }: FindingsProps) {
+export function Findings({ summary, items, selectedId, hoveredId, onSelect, onHover, canEdit, busy, onCorrect, onUndo, onPhoto }: FindingsProps) {
   const { t } = useI18n();
   const root = useRef<HTMLDivElement>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [naOpen, setNaOpen] = useState(false);
   const corrections = summary.corrections ?? [];
+  const photos = summaryPhotos(summary);
 
   function onKeyDown(event: KeyboardEvent) {
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
@@ -98,7 +103,9 @@ export function Findings({ summary, items, selectedId, hoveredId, onSelect, onHo
                 const id = item.finding.rule_id;
                 const correction = item.finding.corrected ? [...corrections].reverse().find(entry => item.finding.fields?.includes(entry.field_name) || entry.field_name === item.finding.field) : undefined;
                 const options = CORRECTABLE[id] ?? (item.finding.field ? [item.finding.field] : []);
-                const actionable = canEdit && (item.group === "violations" || item.group === "review") && options.length > 0;
+                const open = item.group === "violations" || item.group === "review";
+                const actionable = canEdit && open && options.length > 0;
+                const photo = onPhoto && open ? photoActionFor(item, photos, options) : null;
                 return (
                   <li key={id} data-finding={id} className={`finding-row finding-row--${GROUP_TONE[group]}${selectedId === id ? " is-selected" : ""}${hoveredId === id ? " is-hovered" : ""}`}
                     onMouseEnter={() => onHover(id)} onMouseLeave={() => onHover(null)}>
@@ -114,11 +121,11 @@ export function Findings({ summary, items, selectedId, hoveredId, onSelect, onHo
                         <span className="finding-row__read mono">{t("recRead")}: {item.read ?? t("notDetected")}</span>
                       </span>
                     </button>
-                    {(actionable || correction) && (
+                    {(actionable || correction || photo?.action) && (
                       <div className="finding-row__actions">
                         {actionable && <Button size="sm" variant="outline" icon={<PenLine size={14} aria-hidden="true" />} aria-expanded={editing === id} onClick={() => { onSelect(id); setEditing(editing === id ? null : id); }} disabled={busy}>{t("recEnterValue")}</Button>}
-                        {actionable && <Button size="sm" variant="ghost" icon={<Camera size={14} aria-hidden="true" />} disabled title={t("recComingSoon")}>{t("recAddPhoto")}</Button>}
-                        {actionable && <Button size="sm" variant="ghost" icon={<RotateCcw size={14} aria-hidden="true" />} disabled title={t("recComingSoon")}>{t("recRetake")}</Button>}
+                        {photo?.action === "add" && <Button size="sm" variant="ghost" icon={<Camera size={14} aria-hidden="true" />} onClick={() => onPhoto!(photo.panel, "add")} disabled={busy}>{t("recAddPhoto")}</Button>}
+                        {photo?.action === "retake" && <Button size="sm" variant="ghost" icon={<RotateCcw size={14} aria-hidden="true" />} onClick={() => onPhoto!(photo.panel, "retake")} disabled={busy}>{t("recRetake")}</Button>}
                         {correction && canEdit && <Button size="sm" variant="ghost" icon={<Undo2 size={14} aria-hidden="true" />} aria-label={fill(t("recUndoLabel"), { field: t(FIELD_LABELS[correction.field_name] ?? "productInformation") })} onClick={() => onUndo(correction)} disabled={busy}>{t("recUndo")}</Button>}
                       </div>
                     )}
@@ -190,7 +197,7 @@ function CorrectionForm({ item, options, busy, onCancel, onSubmit }: FormProps) 
   );
 }
 
-function valueHint(field: string): TranslationKey {
+export function valueHint(field: string): TranslationKey {
   if (field === "mrp") return "recHintMrp";
   if (field === "net_quantity") return "recHintQuantity";
   if (field === "unit_sale_price") return "recHintUnitPrice";

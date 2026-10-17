@@ -21,6 +21,7 @@ from backend.app.main import app
 from backend.app.models import Base, ComplianceResult, ComplianceRule, ExtractedField, Inspection, InspectionImage, OcrResult, User
 from backend.app.services.compliance import ensure_compliance_rules
 from backend.app.services.compliance.ruleset import default_ruleset
+from backend.tests.conftest import process_and_wait
 from backend.app.services.extraction.evidence import field_evidence, source_bboxes
 from backend.app.services.ocr import OcrDetection, PaddleOcrService
 from backend.app.services.report import InspectionReportService
@@ -63,8 +64,8 @@ def api(tmp_path, monkeypatch):
 def processed_inspection(client: TestClient, image: bytes | None = None) -> dict:
     inspection = client.post("/api/inspections", json={}).json()
     assert client.post(f"/api/inspections/{inspection['id']}/image", files={"image": ("label.png", image or png(), "image/png")}).status_code == 201
-    response = client.post(f"/api/inspections/{inspection['id']}/process"); assert response.status_code == 200
-    return response.json()
+    started, summary = process_and_wait(client, inspection["id"]); assert started.status_code == 202 and summary.json()["status"] == "COMPLETED"
+    return summary.json()
 
 
 # 0. Repeat patterns count distinct photos -----------------------------------
@@ -73,7 +74,8 @@ def test_uploading_the_same_image_twice_does_not_create_a_repeat_pattern(api) ->
     client, sessions, _ = api
     first, second = processed_inspection(client, png()), processed_inspection(client, png())
     issues = {finding["rule_id"] for finding in first["compliance"]["findings"] if finding["status"] in ("FAIL", "REVIEW")}
-    assert issues and first["compliance"]["findings"] == second["compliance"]["findings"]
+    strip = lambda findings: [{key: value for key, value in finding.items() if key != "image_id"} for finding in findings]  # each inspection has its own photo id
+    assert issues and strip(first["compliance"]["findings"]) == strip(second["compliance"]["findings"])
     # Same photo, two inspections: one occurrence, so no pattern and no repeat risk.
     assert client.get("/api/patterns").json() == []
     with sessions() as session:

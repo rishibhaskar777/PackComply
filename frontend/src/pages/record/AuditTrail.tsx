@@ -1,12 +1,13 @@
 import { ReactNode } from "react";
 import { BadgeCheck, Camera, FilePlus2, PenLine, RefreshCw, Scale, ScanText, Undo2 } from "lucide-react";
 import { Card, Skeleton } from "../../components/ui";
+import { PANEL_LABEL } from "../../components/ProgressPanel";
 import { fill, TranslationKey, useI18n } from "../../i18n";
 import { AuditEvent } from "../../types";
 import { FIELD_LABELS } from "./Findings";
 
-const ICONS: Record<string, typeof FilePlus2> = { CREATED: FilePlus2, PHOTO_UPLOADED: Camera, OCR_COMPLETED: ScanText, COMPLIANCE_EVALUATED: Scale, CORRECTION: PenLine, CORRECTION_UNDONE: Undo2, REANALYSED: RefreshCw, VERIFIED: BadgeCheck };
-const TITLES: Record<string, TranslationKey> = { CREATED: "recAuditCreated", PHOTO_UPLOADED: "recAuditPhoto", OCR_COMPLETED: "recAuditOcr", COMPLIANCE_EVALUATED: "recAuditCompliance", CORRECTION: "recAuditCorrection", CORRECTION_UNDONE: "recAuditUndone", REANALYSED: "recAuditReanalysed", VERIFIED: "recAuditVerified" };
+const ICONS: Record<string, typeof FilePlus2> = { CREATED: FilePlus2, PHOTO_UPLOADED: Camera, PHOTO_ADDED: Camera, PHOTO_REPLACED: Camera, OCR_COMPLETED: ScanText, COMPLIANCE_EVALUATED: Scale, CORRECTION: PenLine, CORRECTION_UNDONE: Undo2, REANALYSED: RefreshCw, VERIFIED: BadgeCheck };
+const TITLES: Record<string, TranslationKey> = { CREATED: "recAuditCreated", PHOTO_UPLOADED: "recAuditPhoto", PHOTO_ADDED: "recAuditPhotoAdded", PHOTO_REPLACED: "recAuditPhotoReplaced", OCR_COMPLETED: "recAuditOcr", COMPLIANCE_EVALUATED: "recAuditCompliance", CORRECTION: "recAuditCorrection", CORRECTION_UNDONE: "recAuditUndone", REANALYSED: "recAuditReanalysed", VERIFIED: "recAuditVerified" };
 
 const text = (value: unknown) => (value === null || value === undefined || value === "" ? null : String(value));
 
@@ -28,7 +29,7 @@ function Details({ event }: { event: AuditEvent }) {
   const fieldName = (name: unknown) => t(FIELD_LABELS[String(name)] ?? "productInformation");
   const parts: ReactNode[] = [];
   switch (event.type) {
-    case "PHOTO_UPLOADED":
+    case "PHOTO_UPLOADED": case "PHOTO_ADDED": case "PHOTO_REPLACED":
       if (text(d.filename)) parts.push(<span key="f" className="mono">{text(d.filename)}</span>);
       if (text(d.checksum)) parts.push(<span key="c">SHA-256 <span className="mono" title={text(d.checksum)!}>{shortChecksum(text(d.checksum)!)}</span></span>);
       break;
@@ -52,6 +53,15 @@ function Details({ event }: { event: AuditEvent }) {
   return parts.length ? <p className="audit-item__details">{parts.map((part, index) => <span key={index}>{part}</span>)}</p> : null;
 }
 
+const PANELS = new Set(["BACK", "FRONT", "DATE_STAMP", "OTHER"]);
+
+/** "Photo added (Date stamp)": the panel is part of the title for photos added or replaced after the first. */
+function eventTitle(event: AuditEvent, t: (key: TranslationKey) => string): string {
+  const base = t(TITLES[event.type] ?? "recAuditCreated");
+  const panel = String(event.details.panel ?? "");
+  return (event.type === "PHOTO_ADDED" || event.type === "PHOTO_REPLACED") && PANELS.has(panel) ? fill(base, { panel: t(PANEL_LABEL[panel as keyof typeof PANEL_LABEL]) }) : base;
+}
+
 /** Vertical timeline of everything that happened to the record. */
 export function AuditTrail({ events, loading }: { events: AuditEvent[] | null; loading: boolean }) {
   const { t, locale } = useI18n();
@@ -67,7 +77,7 @@ export function AuditTrail({ events, loading }: { events: AuditEvent[] | null; l
               <li key={`${event.type}-${event.at}-${index}`} className={`audit-item audit-item--${event.type.toLowerCase().replace(/_/g, "-")}`} data-event={event.type}>
                 <span className="audit-item__icon" aria-hidden="true"><Icon size={14} /></span>
                 <div className="audit-item__body">
-                  <p className="audit-item__title"><strong>{t(TITLES[event.type] ?? "recAuditCreated")}</strong>{event.actor && <span className="audit-item__actor"> · {event.actor}</span>}</p>
+                  <p className="audit-item__title"><strong>{eventTitle(event, t)}</strong>{event.actor && <span className="audit-item__actor"> · {event.actor}</span>}</p>
                   <Details event={event} />
                 </div>
                 <time className="audit-item__time mono tabular" dateTime={event.at}>{formatDateTime(event.at, locale)}</time>

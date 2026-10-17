@@ -1,10 +1,15 @@
 /** One OCR box: four [x, y] corners in original-photo pixels. */
 export type BBox = number[][];
-export type Field = { value: string | null; confidence: number; needs_review: boolean; source_text?: string | null; source_bboxes?: BBox[] | null; source?: "OCR" | "INSPECTOR" };
+/** Which part of the pack a photo shows. */
+export type Panel = "BACK" | "FRONT" | "DATE_STAMP" | "OTHER";
+export type FieldAlternative = { image_id: string | null; panel: Panel | null; value: string | null; confidence: number };
+export type Field = { value: string | null; confidence: number; needs_review: boolean; source_text?: string | null; source_bboxes?: BBox[] | null; source?: "OCR" | "INSPECTOR"; image_id?: string | null; panel?: Panel | null; alternatives?: FieldAlternative[] };
+/** One stored photo; replaced ones stay listed with active=false as evidence. */
+export type PhotoInfo = { id: string; panel: Panel; width?: number | null; height?: number | null; checksum?: string | null; uploaded_at: string; active: boolean; original_filename?: string | null };
 export type FindingStatus = "PASS" | "FAIL" | "REVIEW" | "NOT_APPLICABLE";
 export type Finding = {
   rule_id: string; rule_name: string; status: FindingStatus; severity: string; message: string; field: string | null; value: string | null;
-  legal_reference?: string | null; source_bboxes?: BBox[] | null; fields?: string[]; corrected?: boolean; recommended_action?: string | null;
+  legal_reference?: string | null; source_bboxes?: BBox[] | null; image_id?: string | null; fields?: string[]; corrected?: boolean; recommended_action?: string | null;
 };
 export type Compliance = { overall_status: string; verdict?: string | null; ruleset_label?: string | null; ruleset_version?: string | null; summary: { passed: number; failed: number; review: number; not_applicable?: number }; findings: Finding[] };
 export type QuantityVerification = { declared_quantity: string | null; normalized_quantity: string | null; unit: string | null; status: "PASS" | "FAIL" | "REVIEW"; reason: string; rule_code: string; severity: string; evidence: string | null; requirement: string | null };
@@ -15,14 +20,23 @@ export type Review = { status: "UNREVIEWED" | "VERIFIED"; by?: string | null; at
 export type OcrLine = { text: string; confidence: number | null; bbox?: BBox | null; language?: string | null };
 export type Summary = {
   id: string; inspection_number: string; status: string; failure_message?: string | null; created_at?: string; completed_at?: string | null;
-  image?: { id: string; original_filename: string; width?: number | null; height?: number | null; checksum?: string | null; byte_size?: number };
-  ocr?: { raw_text: string; languages: string[]; results: OcrLine[]; duration_ms?: number | null };
+  image?: { id: string; original_filename: string; width?: number | null; height?: number | null; checksum?: string | null; byte_size?: number; panel?: Panel };
+  images?: PhotoInfo[];
+  ocr?: { image_id?: string | null; raw_text: string; languages: string[]; results: OcrLine[]; duration_ms?: number | null };
   extraction?: { fields: Record<string, Field> };
   compliance?: Compliance;
   quantity_verification?: QuantityVerification | null;
   risk?: { risk_score: number; risk_level: string; reasons: RiskReason[] } | null;
   product_name?: string; brand_name?: string | null; maker_name?: string | null;
   corrections?: FieldCorrection[]; review?: Review;
+};
+export type ProgressStep = {
+  id: string; kind: "prepare" | "read" | "link" | "rules" | "risk"; label: string; status: "pending" | "running" | "done" | "failed";
+  panel?: Panel | null; language?: string | null; image_id?: string | null; count?: number | null; cached?: boolean; message?: string | null; duration_ms?: number | null;
+};
+export type Progress = {
+  inspection_id: string; state: "idle" | "running" | "completed" | "failed"; stage?: string | null; percent: number; completed_steps: number; total_steps: number;
+  started_at: string | null; elapsed_ms: number; image_id?: string | null; steps: ProgressStep[]; error: { message: string; step_id: string | null; stage?: string | null } | null; version: number;
 };
 export type AuditEvent = { type: string; at: string; actor?: string | null; details: Record<string, unknown> };
 export type User = { username: string; role?: string; full_name?: string };

@@ -109,6 +109,9 @@ class InspectionImage(IdTimestampMixin, Base):
     # Displayed (EXIF-oriented) pixel size; null for rows uploaded before it was recorded.
     width: Mapped[int | None] = mapped_column(Integer)
     height: Mapped[int | None] = mapped_column(Integer)
+    # Which part of the pack this photo shows: BACK | FRONT | DATE_STAMP | OTHER.
+    # The newest upload per panel is the one processed; older ones stay as evidence.
+    panel: Mapped[str] = mapped_column(String(20), default="BACK", server_default="BACK", nullable=False)
 
 
 class OcrResult(IdTimestampMixin, Base):
@@ -139,6 +142,10 @@ class ExtractedField(IdTimestampMixin, Base):
     matched_pattern: Mapped[str | None] = mapped_column(String(100))
     normalized_value: Mapped[str | None] = mapped_column(Text)
     source_bboxes: Mapped[list[list[list[float]]] | None] = mapped_column(JSON)
+    # The photo this value (and source_bboxes, in that photo's pixel space) was read from.
+    image_id: Mapped[UUID | None] = mapped_column(ForeignKey("inspection_images.id", ondelete="SET NULL"), index=True)
+    # Different values for the same field read from other photos: [{image_id, panel, value, confidence}].
+    alternatives: Mapped[list[dict] | None] = mapped_column(JSON)
 
 
 class FieldCorrection(IdTimestampMixin, Base):

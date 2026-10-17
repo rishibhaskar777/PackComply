@@ -60,3 +60,29 @@ def test_manufacturer_cannot_access_risk_targeting() -> None:
         assert TestClient(app).get("/api/risk-targeting").status_code == 403
     finally:
         app.dependency_overrides.clear()
+
+
+def test_photo_key_uses_the_active_back_photo_else_the_earliest_active_photo() -> None:
+    from backend.app.models import InspectionImage
+    from backend.app.services.risk import photo_keys
+
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool); Base.metadata.create_all(engine); Session = sessionmaker(bind=engine)
+    with Session() as db:
+        def make(number: str, photos: list[tuple[str, str]]) -> Inspection:
+            inspection = Inspection(id=uuid4(), user_id=OFFICIAL.id, inspection_number=number, status="COMPLETED")
+            db.add(inspection); db.flush()
+            for panel, checksum in photos:  # upload order
+                db.add(InspectionImage(inspection_id=inspection.id, panel=panel, storage_key=f"{number}-{checksum}", original_filename="p.jpg", content_type="image/jpeg", byte_size=1, checksum=checksum))
+                db.flush()
+            return inspection
+        with_back = make("A", [("FRONT", "front"), ("BACK", "back"), ("DATE_STAMP", "date")])  # latest upload is the date stamp
+        replaced = make("B", [("BACK", "old"), ("BACK", "new"), ("FRONT", "front")])  # the old back photo was replaced
+        no_back = make("C", [("DATE_STAMP", "stamp1"), ("FRONT", "front2"), ("DATE_STAMP", "stamp2")])  # earliest *active*: front2 (stamp1 replaced)
+        none = make("D", [])
+        db.commit()
+        keys = photo_keys(db, [with_back.id, replaced.id, no_back.id, none.id])
+        assert keys[with_back.id] == "image:back"
+        assert keys[replaced.id] == "image:new"
+        assert keys[no_back.id] == "image:front2"
+        assert keys[none.id] == f"inspection:{none.id}"
+    engine.dispose()

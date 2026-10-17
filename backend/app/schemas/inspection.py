@@ -70,6 +70,24 @@ class ImageUploaded(BaseModel):
     height: int | None = None
     # SHA-256 of the stored original, recorded as evidence.
     checksum: str | None = None
+    # BACK | FRONT | DATE_STAMP | OTHER
+    panel: str = "BACK"
+
+
+class ImageInfo(BaseModel):
+    """One stored photo. Photos replaced for their panel stay listed (active=False) as evidence."""
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    panel: str
+    width: int | None = None
+    height: int | None = None
+    checksum: str | None = None
+    uploaded_at: datetime
+    active: bool = True
+    original_filename: str | None = None
+    byte_size: int | None = None
+    content_type: str | None = None
 
 
 class OcrDetectionResponse(BaseModel):
@@ -103,6 +121,11 @@ class ExtractionFieldResponse(BaseModel):
     source_bboxes: list[list[list[float]]] | None = None
     # OCR, or INSPECTOR when an inspector's correction overrides the read value.
     source: str = "OCR"
+    # The photo the value (and source_bboxes, in that photo's pixels) was read from.
+    image_id: UUID | None = None
+    panel: str | None = None
+    # Other values read for this field on other photos: [{image_id, panel, value, confidence}].
+    alternatives: list[dict] = []
 
 
 class ExtractionResponse(BaseModel):
@@ -131,6 +154,8 @@ class ComplianceFindingResponse(BaseModel):
     category: str = "LEGAL_METROLOGY"
     expected: str | None = None
     source_bboxes: list[list[list[float]]] | None = None
+    # The photo source_bboxes lie on.
+    image_id: UUID | None = None
     legal_reference: str | None = None
     recommended_action: str | None = None
     # Fields whose values this finding rests on (their boxes locate the finding on the photo).
@@ -229,6 +254,8 @@ class InspectionSummary(BaseModel):
     failure_stage: str | None = None
     failure_message: str | None = None
     image: ImageUploaded | None = None
+    # Every stored photo, oldest first (replaced ones have active=False).
+    images: list[ImageInfo] = []
     ocr: OcrProcessed | None = None
     extraction: ExtractionResponse | None = None
     compliance: ComplianceResponse | None = None

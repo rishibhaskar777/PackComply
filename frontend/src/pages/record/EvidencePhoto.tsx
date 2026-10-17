@@ -8,7 +8,10 @@ import { BBox, OcrLine, Summary } from "../../types";
 
 type Props = {
   src: string | null;
-  summary: Summary;
+  /** The photo shown: its stored size locates the boxes, its checksum is the evidence caption. */
+  image: { width?: number | null; height?: number | null; checksum?: string | null } | undefined;
+  /** OCR of this photo (only the primary photo's reading is available); the raw-text sheet is hidden without it. */
+  ocr?: Summary["ocr"];
   items: FindingItem[];
   selectedId: string | null;
   hoveredId: string | null;
@@ -21,7 +24,7 @@ const ZOOM_STEP = 1.5;
 const MARKER_FAN = 18;
 
 /** The photo with numbered evidence markers, zoom (buttons, ctrl/pinch wheel, touch pinch), drag-to-pan and the raw OCR text sheet. */
-export function EvidencePhoto({ src, summary, items, selectedId, hoveredId, onSelect, onHover }: Props) {
+export function EvidencePhoto({ src, image, ocr, items, selectedId, hoveredId, onSelect, onHover }: Props) {
   const { t } = useI18n();
   const reduced = useReducedMotion();
   const frame = useRef<HTMLDivElement>(null);
@@ -36,9 +39,9 @@ export function EvidencePhoto({ src, summary, items, selectedId, hoveredId, onSe
   const gesture = useRef<{ distance: number; zoom: number } | null>(null);
   const moved = useRef(false);
 
-  const lines: OcrLine[] = summary.ocr?.results ?? [];
+  const lines: OcrLine[] = ocr?.results ?? [];
   const allBoxes = useMemo(() => [...items.flatMap(item => item.boxes ?? []), ...lines.flatMap(line => (line.bbox ? [line.bbox] : []))], [items, lines]);
-  const source = useMemo(() => sourceSize(summary.image, natural, allBoxes), [summary.image, natural, allBoxes]);
+  const source = useMemo(() => sourceSize(image, natural, allBoxes), [image, natural, allBoxes]);
 
   // The rendered size follows the frame, so markers realign when the window or column is resized.
   useLayoutEffect(() => {
@@ -179,8 +182,8 @@ export function EvidencePhoto({ src, summary, items, selectedId, hoveredId, onSe
           })}
         </div>
       </div>
-      <p className="evidence-caption">{t("recEvidenceCaption")}{summary.image?.checksum ? <> <span className="mono" title={summary.image.checksum}>{summary.image.checksum.slice(0, 8)}…</span></> : null}</p>
-      <Sheet open={ocrOpen} onClose={() => setOcrOpen(false)} title={t("recOcrTitle")} description={summary.ocr ? `${summary.ocr.languages.join(" + ")}${summary.ocr.duration_ms ? ` · ${Math.round(summary.ocr.duration_ms / 1000)} s` : ""}` : undefined}>
+      <p className="evidence-caption">{t("recEvidenceCaption")}{image?.checksum ? <> <span className="mono" title={image.checksum}>{image.checksum.slice(0, 8)}…</span></> : null}</p>
+      <Sheet open={ocrOpen} onClose={() => setOcrOpen(false)} title={t("recOcrTitle")} description={ocr ? `${ocr.languages.join(" + ")}${ocr.duration_ms ? ` · ${Math.round(ocr.duration_ms / 1000)} s` : ""}` : undefined}>
         <ol className="ocr-lines">
           {lines.map((line, index) => (
             <li key={index}>

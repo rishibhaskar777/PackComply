@@ -188,6 +188,23 @@ An inspection's page (`#/inspections/:id`) shows the photo with numbered evidenc
 
 Access stays scoped to the inspection's owner; the role checks above additionally reject manufacturers with 403.
 
+## Multi-photo inspections, live progress and the phone field app
+
+An inspection holds up to four photos, one per panel: `BACK`, `FRONT`, `DATE_STAMP`, `OTHER`. Each photo is read once (OCR results are stored per image and never repeated for the same checksum), extracted on its own, and merged field by field: the highest confidence wins, and a tie goes to the panel that owns the field (product and brand names: front; dates and batch: date stamp; everything else: back). Every field keeps the `image_id` it came from, with its boxes in that photo's pixel space. When photos disagree on a field a rule depends on (for example two net quantities), the rule is marked REVIEW with a note instead of one value being dropped. A new photo for a panel replaces the old one for processing; the old file and checksum stay as evidence.
+
+Processing runs in a background thread pool inside the API (no broker; works on Windows). `POST /api/inspections/{id}/process` returns `202` with a progress snapshot; a second start while one is running returns `409`. Follow it with `GET .../progress` (polling, every second) or `GET .../progress/stream` (Server-Sent Events). Percentages are completed steps over total steps. Steps are kept in memory; after a restart the stored inspection status is used.
+
+### Testing on a real phone (same Wi-Fi)
+
+1. Run the backend as usual: `uvicorn backend.app.main:app --host 127.0.0.1 --port 8000`.
+2. Run the frontend with `npm run dev` in `frontend/` (it uses `vite --host`). The dev server proxies `/api` to `http://127.0.0.1:8000` (override with `VITE_PROXY_TARGET`), so the phone talks to one origin and no CORS change is needed.
+3. Find the laptop's LAN IP (`ipconfig`, the IPv4 address, e.g. `192.168.1.23`) and allow ports 5173 in the Windows firewall for private networks.
+4. On the phone open `http://192.168.1.23:5173`, sign in, tap **New inspection**. On screens narrower than 768px this opens the field app (`#/capture`).
+
+Browsers only allow the live camera preview on HTTPS or `localhost`. Over plain `http://<LAN-IP>` the shutter opens the phone's native camera instead (`<input capture="environment">`); photos are still checked for sharpness, light and glare, then resized to the OCR size before upload. Optional: for a live preview, serve the dev server over HTTPS with a free local certificate tool such as `mkcert` and open `https://<LAN-IP>:5173` (not required).
+
+Uploads are resized in the browser to `ocr_max_image_dimension` (from `GET /api/inspections/config`) with EXIF orientation applied. The resized file is the stored evidence (its SHA-256 is recorded); the original is not kept because OCR never reads more than that size.
+
 ## Accounts and password reset
 
 Create users with `python -m backend.scripts.create_user` (inspector accounts are only created this way unless `ALLOW_OFFICIAL_SELF_REGISTRATION=true`). Passwords must be at least 8 characters, differ from the username, and not be one of the 20 most common passwords.
