@@ -32,7 +32,7 @@ export type Summary = {
 };
 export type ProgressStep = {
   id: string; kind: "prepare" | "read" | "link" | "rules" | "risk"; label: string; status: "pending" | "running" | "done" | "failed";
-  panel?: Panel | null; language?: string | null; image_id?: string | null; count?: number | null; cached?: boolean; message?: string | null; duration_ms?: number | null;
+  panel?: Panel | null; language?: string | null; languages?: string[] | null; image_id?: string | null; count?: number | null; cached?: boolean; message?: string | null; duration_ms?: number | null;
 };
 export type Progress = {
   inspection_id: string; state: "idle" | "running" | "completed" | "failed"; stage?: string | null; percent: number; completed_steps: number; total_steps: number;

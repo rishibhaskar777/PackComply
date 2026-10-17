@@ -455,8 +455,13 @@ class PaddleOcrService:
 
     # -------------------------------------------------------------------- scan
 
-    def scan(self, image_path: Path, progress: Callable[[str, str], None] | None = None) -> OcrDocument:
-        """Read one photo. ``progress(language, "start" | "done" | "skipped")`` reports each language pass as it happens."""
+    def scan(self, image_path: Path, progress: Callable[[str, str], None] | None = None, languages: tuple[str, ...] | None = None) -> OcrDocument:
+        """Read one photo. ``progress(language, "start" | "done" | "skipped")`` reports each language pass as it happens.
+
+        ``languages`` narrows this scan to a subset of the configured languages (e.g. English only for a date stamp);
+        the first of them is the primary pass.
+        """
+        languages = tuple(code for code in (languages or self.languages) if code in self.languages) or self.languages
         def notify(language: str, state: str) -> None:
             if progress is not None:
                 try:
@@ -467,7 +472,7 @@ class PaddleOcrService:
         processed_paths: list[Path] = []
         tickets: list[_SecondaryTicket] = []
         started = perf_counter()
-        logger.info("OCR request started image_path=%s languages=%s", image_path, ",".join(self.languages))
+        logger.info("OCR request started image_path=%s languages=%s", image_path, ",".join(languages))
         try:
             if not image_path.is_absolute() or not image_path.is_file():
                 raise OcrProcessingError("The uploaded image path is unavailable.")
@@ -486,7 +491,7 @@ class PaddleOcrService:
             # Secondary languages run in their own long-lived worker processes;
             # submit them first so they overlap with the primary language.
             pending: list[tuple[str, Any, int]] = []
-            for language in self.languages[1:]:
+            for language in languages[1:]:
                 if self._engine is not None:
                     continue
                 language_image_path = processed_path
@@ -508,7 +513,7 @@ class PaddleOcrService:
                 pending.append((language, ticket, language_dimension))
                 notify(language, "start")
 
-            primary = self.languages[0]
+            primary = languages[0]
             inference_started = perf_counter()
             logger.info("OCR inference started language=%s", primary)
             notify(primary, "start")
@@ -524,7 +529,7 @@ class PaddleOcrService:
                     for _, ticket, _ in pending:
                         ticket.cancel()
                     pending = []
-                    for language in self.languages[1:]:
+                    for language in languages[1:]:
                         if self._engine is not None or language in skipped_languages:
                             continue
                         language_dimension = min(self.secondary_language_max_image_dimension, self.max_image_dimension)
@@ -548,7 +553,7 @@ class PaddleOcrService:
 
             if self._engine is not None:
                 # An injected engine serves every language in this process.
-                for language in self.languages[1:]:
+                for language in languages[1:]:
                     notify(language, "start")
                     language_detections = self._predict(language, processed_path)
                     add_secondary(language, self._to_original(language_detections, original_size, self.max_image_dimension, rotation))

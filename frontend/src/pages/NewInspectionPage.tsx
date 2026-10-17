@@ -47,16 +47,26 @@ export function NewInspectionPage({ onExpired, onCompleted }: Props) {
     if (!ACCEPTED.includes(candidate.type)) { setProblem({ panel, message: t("newBadType") }); return; }
     if (candidate.size > limit) { setProblem({ panel, message: fill(t("newTooLarge"), { limit: formatMegabytes(limit) }) }); return; }
     setProblem(null);
-    // A different set of photos is a different inspection.
-    run.reset();
-    setSlots(current => {
-      if (current[panel]) releasePhoto(current[panel]!);
-      return { ...current, [panel]: newPhoto(panel, candidate, candidate.name) };
-    });
+    const photo = newPhoto(panel, candidate, candidate.name);
+    const before = slotsRef.current;
+    if (before[panel]) releasePhoto(before[panel]!);
+    const next = { ...before, [panel]: photo };
+    setSlots(next);
+    // The photo goes up, and starts being read, as soon as it is chosen. After a finished or failed run a
+    // different set of photos is a different inspection, so everything is staged again.
+    if (run.phase !== "idle") { run.reset(); restage(next, photo); } else run.stage(photo);
+  }
+  function restage(all: Slots, ...first: CapturedPhoto[]) {
+    const rest = CAPTURE_PANELS.map(item => all[item]).filter((item): item is CapturedPhoto => Boolean(item) && !first.includes(item as CapturedPhoto));
+    [...rest, ...first].forEach(item => run.stage(item));
   }
   function clear(panel: Panel) {
+    // A removed photo may already be on the server: start a fresh inspection with the ones that remain.
+    const { [panel]: removed, ...rest } = slotsRef.current;
+    if (removed) releasePhoto(removed);
+    setSlots(rest);
     run.reset();
-    setSlots(current => { if (current[panel]) releasePhoto(current[panel]!); const { [panel]: _removed, ...rest } = current; return rest; });
+    restage(rest);
   }
   function onDrop(event: DragEvent, panel: Panel) { event.preventDefault(); setDragging(null); choose(panel, event.dataTransfer.files?.[0]); }
 

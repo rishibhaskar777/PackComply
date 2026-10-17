@@ -26,7 +26,8 @@ from backend.app.services.corrections import INSPECTOR_PATTERN, SOURCE_INSPECTOR
 from backend.app.services.extraction.evidence import field_evidence
 from backend.app.services.extraction.extraction_service import ExtractionService
 from backend.app.services.merge import DEFAULT_PANEL, PhotoExtraction, build_merged_fields, merge_photos
-from backend.app.services.progress import NullReporter, Reporter, Step, language_name
+from backend.app.core.config import get_ocr_panel_languages, get_settings
+from backend.app.services.progress import DONE, NullReporter, Reporter, Step
 from backend.app.services.quantity_verification import QuantityVerificationService
 from backend.app.services.ocr.ocr_service import OcrInitializationError, OcrProcessingError, PaddleOcrService
 from backend.app.services.risk import RiskService
@@ -207,13 +208,33 @@ class InspectionWorkflow:
         primary = primary_image(self.db, inspection_id)
         return primary is not None and primary.id == image.id and self.db.scalar(select(OcrResult.id).where(OcrResult.inspection_id == inspection_id, OcrResult.image_id.is_(None)).limit(1)) is not None
 
+    def languages_for(self, panel: str | None) -> tuple[str, ...]:
+        """The languages read on a photo of this panel (OCR_PANEL_LANGUAGES), limited to what the engine has."""
+        try:
+            wanted = get_ocr_panel_languages(get_settings()).get(panel or "")
+        except ValueError:
+            wanted = None
+        available = self.languages
+        chosen = tuple(code for code in (wanted or available) if code in available)
+        return chosen or available
+
     def plan(self, inspection_id: UUID) -> list[Step]:
-        """The steps this run will go through, known before it starts."""
+        """The steps this run will go through, known before it starts.
+
+        A photo is one "read" step however many languages run on it (they run in parallel). A photo
+        already read while the inspector was capturing the next panel appears as a finished step.
+        """
         steps: list[Step] = []
-        for image in self.pending_images(inspection_id):
+        pending = {image.id for image in self.pending_images(inspection_id)}
+        for image in active_images(self.db, inspection_id):
             key = str(image.id)
-            steps.append(Step(f"{key}:prepare", "prepare", f"Preparing photo ({_panel_word(image.panel)})", panel=image.panel, image_id=key))
-            steps += [Step(f"{key}:read:{code}", "read", f"Reading {language_name(code)} text", panel=image.panel, language=code, image_id=key) for code in self.languages]
+            languages = list(self.languages_for(image.panel))
+            if image.id in pending:
+                steps.append(Step(f"{key}:prepare", "prepare", f"Preparing photo ({_panel_word(image.panel)})", panel=image.panel, image_id=key))
+                steps.append(Step(f"{key}:read", "read", "Reading text", panel=image.panel, languages=languages, image_id=key))
+                continue
+            ocr = ocr_of_image(self.db, image.id)
+            steps.append(Step(f"{key}:read", "read", "Reading text", status=DONE, panel=image.panel, languages=list(ocr.languages or languages) if ocr else languages, image_id=key, cached=not (ocr and ocr.duration_ms), duration_ms=ocr.duration_ms if ocr else None))
         rules = len(self.compliance.ruleset.enabled_rules)
         return steps + [
             Step("link", "link", "Linking declarations"),
@@ -292,14 +313,41 @@ class InspectionWorkflow:
         reporter.done("risk")
         return self.summary(inspection.id)
 
-    def _scan(self, path: Path, on_language) -> object:
-        if "progress" in inspect.signature(self.ocr.scan).parameters:
-            return self.ocr.scan(path, progress=on_language)
-        return self.ocr.scan(path)
+    def _scan(self, path: Path, on_language, languages: tuple[str, ...]) -> object:
+        parameters = inspect.signature(self.ocr.scan).parameters
+        kwargs = {}
+        if "progress" in parameters:
+            kwargs["progress"] = on_language
+        if "languages" in parameters and tuple(languages) != self.languages:
+            kwargs["languages"] = languages
+        return self.ocr.scan(path, **kwargs)
 
-    def _read_image(self, inspection: Inspection, image: InspectionImage, reporter: Reporter) -> None:
+    def read_ahead(self, inspection_id: UUID, image_id: UUID) -> bool:
+        """Read one photo now, before the inspection is processed. Returns True if OCR was run.
+
+        Only the OCR result is stored: the inspection's status and failure fields are left alone, and a
+        failure here is not final (the later process call reads the photo again).
+        """
+        inspection = self.db.get(Inspection, inspection_id)
+        image = self.db.get(InspectionImage, image_id)
+        if inspection is None or image is None or image.inspection_id != inspection.id:
+            return False
+        if ocr_of_image(self.db, image.id) is not None:
+            return False
+        self._read_image(inspection, image, NullReporter(), persist_failure=False)
+        return True
+
+    def _read_image(self, inspection: Inspection, image: InspectionImage, reporter: Reporter, persist_failure: bool = True) -> None:
         """OCR one photo (or reuse the reading of an identical file), and store it against the photo."""
         key = str(image.id)
+        languages = self.languages_for(image.panel)
+
+        def failure(error: Exception) -> WorkflowError:
+            if persist_failure:
+                return self._fail(inspection, "OCR", error)
+            self.db.rollback()
+            return WorkflowError("OCR", "We couldn't read the text on this photo.", 503 if isinstance(error, OcrInitializationError) else 422)
+
         reporter.current_image(key)
         reporter.start(f"{key}:prepare")
         path = resolve_upload_path(self.upload_dir, image.storage_key)
@@ -310,32 +358,37 @@ class InspectionWorkflow:
             if image.width is None:
                 self._backfill_dimensions(image)
         except (UploadValidationError, OSError) as error:
-            raise self._fail(inspection, "OCR", error) from error
+            raise failure(error) from error
         reporter.done(f"{key}:prepare")
 
         earlier = self._same_checksum_ocr(inspection.id, image)
-        if earlier is not None:
+        if earlier is not None and set(languages) <= set(earlier.languages or languages):
             self.db.add(OcrResult(inspection_id=inspection.id, image_id=image.id, engine=earlier.engine, languages=earlier.languages, raw_text=earlier.raw_text, detections=earlier.detections, duration_ms=0))
             self.db.commit()
-            for code in self.languages:
-                reporter.done(f"{key}:read:{code}", cached=True)
+            reporter.done(f"{key}:read", cached=True)
             return
 
+        # English and Hindi run in parallel: one visible step spans them all.
+        remaining = set(languages)
+
         def on_language(code: str, state: str) -> None:
-            step = f"{key}:read:{code}"
-            reporter.start(step) if state == "start" else reporter.done(step)
+            if state == "start":
+                reporter.start(f"{key}:read")
+            else:
+                remaining.discard(code)
+                if not remaining:
+                    reporter.done(f"{key}:read")
 
         try:
             started = perf_counter()
-            document = self._scan(path, on_language)
+            document = self._scan(path, on_language, languages)
             ocr_result = OcrResult(inspection_id=inspection.id, image_id=image.id, engine=document.engine, languages=document.languages, raw_text=document.raw_text, detections=document.as_database_detections(), duration_ms=round((perf_counter() - started) * 1000))
             self.db.add(ocr_result)
             self.db.commit()
         except (OcrInitializationError, OcrProcessingError, UploadValidationError, OSError) as error:
             self.db.rollback()
-            raise self._fail(inspection, "OCR", error) from error
-        for code in self.languages:
-            reporter.done(f"{key}:read:{code}")
+            raise failure(error) from error
+        reporter.done(f"{key}:read")
 
     def _same_checksum_ocr(self, inspection_id: UUID, image: InspectionImage) -> OcrResult | None:
         if not image.checksum:

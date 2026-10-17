@@ -253,3 +253,23 @@
 .panel-choice:hover { background: var(--muted); }
 .panel-choice.is-active { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-strong); }
 .panel-choice:focus-within { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ---------------------------------------------------------------- field-aware correction input (FieldInput) */
+.fi { display: grid; gap: var(--space-2); min-width: 0; }
+.fi-amount { position: relative; display: flex; align-items: center; gap: var(--space-2); }
+.fi-amount__input { flex: 1; min-width: 0; font-variant-numeric: tabular-nums; }
+.fi-amount__input--prefixed { padding-inline-start: calc(var(--space-3) + 1.1em); }
+.fi-prefix { position: absolute; inset-inline-start: var(--space-3); color: var(--muted-foreground); font-weight: 600; pointer-events: none; }
+.fi-suffix { color: var(--muted-foreground); font-size: var(--text-sm); white-space: nowrap; }
+.fi-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.fi-chip { min-height: 40px; padding: 0 var(--space-3); border: 1px solid var(--border-strong, var(--border)); border-radius: 999px; background: var(--surface-muted, var(--muted)); color: var(--foreground); font: inherit; font-size: var(--text-sm); font-weight: 600; cursor: pointer; white-space: nowrap; }
+.fi-chip:hover { background: var(--muted); }
+.fi-chip.is-selected { border-color: var(--primary); background: var(--primary-soft, var(--muted)); color: var(--primary-strong, var(--foreground)); }
+.fi-date { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--space-2); }
+.fi-preview { margin: 0; color: var(--muted-foreground); font-size: var(--text-sm); }
+.fi-preview strong { color: var(--foreground); font-weight: 600; }
+.fi-hint { margin: 0; color: var(--muted-foreground); font-size: var(--text-sm); }
+.fi-toggle { justify-self: start; padding: var(--space-1) 0; border: 0; background: transparent; color: var(--primary-strong, var(--primary)); font: inherit; font-size: var(--text-sm); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; min-height: 32px; }
+.cap-modal__form .fi-chip { min-height: 44px; }
+.cap-modal__form .fi-toggle { min-height: 44px; }
+.correction-form__value { grid-column: 1 / -1; }

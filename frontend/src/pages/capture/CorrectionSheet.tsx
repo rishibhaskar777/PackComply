@@ -1,18 +1,10 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
-import { Alert, Button, FormField, Input, Select } from "../../components/ui";
+import { Alert, Button, FormField, Select } from "../../components/ui";
 import { fill, useI18n } from "../../i18n";
-import { CorrectionPayload, FIELD_LABELS, REASONS, REASON_TEXT, valueHint } from "../record/Findings";
-import { NumericKeypad } from "./NumericKeypad";
-
-/** Keys beside the digits for each field the number pad serves; other fields use the normal keyboard. */
-export const KEYPAD_FIELDS: Record<string, string[]> = {
-  mrp: ["."], unit_sale_price: ["."], net_quantity: ["."],
-  manufacturing_date: ["/"], packing_date: ["/"], expiry_date: ["/"], best_before: ["/"], use_by: ["/"],
-  consumer_care_phone: ["+"], fssai_license: [],
-};
-const UNITS = ["g", "kg", "mg", "ml", "L"];
+import { CorrectionPayload, FIELD_LABELS, REASONS, REASON_TEXT } from "../record/Findings";
+import { FieldInput } from "../record/FieldInput";
 
 type Props = {
   fields: string[];
@@ -20,7 +12,7 @@ type Props = {
   onClose: () => void;
 };
 
-/** Bottom sheet to enter a value; numeric fields get a large number pad so the phone keyboard stays out of the way. */
+/** Bottom sheet to enter a value with the input that suits the field: number pad for amounts, unit chips, month and year, or the normal keyboard. */
 export function CorrectionSheet({ fields, onSubmit, onClose }: Props) {
   const { t } = useI18n();
   const [field, setField] = useState(fields[0]);
@@ -30,11 +22,10 @@ export function CorrectionSheet({ fields, onSubmit, onClose }: Props) {
   const [busy, setBusy] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
   const previous = useRef<HTMLElement | null>(document.activeElement as HTMLElement | null);
-  const keypad = KEYPAD_FIELDS[field];
 
   useEffect(() => {
     const opener = previous.current;
-    panel.current?.querySelector<HTMLElement>("input")?.focus();
+    panel.current?.querySelector<HTMLElement>("input, select, button.fi-chip")?.focus();
     return () => opener?.focus?.();
   }, []);
 
@@ -65,20 +56,10 @@ export function CorrectionSheet({ fields, onSubmit, onClose }: Props) {
               </Select>
             </FormField>
           )}
-          <FormField label={t("recValueLabel")} htmlFor="cap-value" hint={t(valueHint(field))}>
-            <Input id="cap-value" value={value} onChange={event => setValue(event.target.value)} maxLength={300} autoComplete="off"
-              inputMode={keypad ? "none" : "text"} className="cap-modal__input" />
-          </FormField>
-          {keypad && (
-            <>
-              {field === "net_quantity" && (
-                <div className="cap-units" role="group" aria-label={t("resUnits")}>
-                  {UNITS.map(unit => <button key={unit} type="button" className="cap-unit" onClick={() => setValue(current => `${current.replace(/[^\d.]+$/, "").trim()} ${unit}`.trim())}>{unit}</button>)}
-                </div>
-              )}
-              <NumericKeypad extra={keypad} onKey={key => setValue(current => current + key)} onBackspace={() => setValue(current => current.slice(0, -1))} />
-            </>
-          )}
+          <div className="form-field">
+            <span className="form-field__label">{t("recValueLabel")}</span>
+            <FieldInput key={field} field={field} label={t(FIELD_LABELS[field] ?? "productInformation")} keypad invalid={Boolean(error)} onChange={setValue} />
+          </div>
           <FormField label={t("recReasonLabel")} htmlFor="cap-reason">
             <Select id="cap-reason" value={reason} onChange={event => setReason(event.target.value as (typeof REASONS)[number])}>
               {REASONS.map(key => <option key={key} value={key}>{t(key)}</option>)}

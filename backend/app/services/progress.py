@@ -36,6 +36,7 @@ class Step:
     status: str = PENDING
     panel: str | None = None
     language: str | None = None
+    languages: list[str] | None = None
     image_id: str | None = None
     count: int | None = None
     cached: bool = False
@@ -44,7 +45,7 @@ class Step:
     duration_ms: int | None = None
 
     def as_dict(self) -> dict[str, Any]:
-        return {"id": self.id, "kind": self.kind, "label": self.label, "status": self.status, "panel": self.panel, "language": self.language,
+        return {"id": self.id, "kind": self.kind, "label": self.label, "status": self.status, "panel": self.panel, "language": self.language, "languages": self.languages,
                 "image_id": self.image_id, "count": self.count, "cached": self.cached, "message": self.message, "duration_ms": self.duration_ms}
 
 
@@ -52,6 +53,7 @@ class Reporter(Protocol):
     """What the workflow needs to report; the no-op ``NullReporter`` serves scripts and tests."""
     def start(self, step_id: str) -> None: ...
     def done(self, step_id: str, *, cached: bool = False) -> None: ...
+    def finish(self, step_id: str, duration_ms: int, *, cached: bool = False) -> None: ...
     def fail(self, step_id: str | None, message: str, stage: str | None = None) -> None: ...
     def current_image(self, image_id: str | None) -> None: ...
 
@@ -59,6 +61,7 @@ class Reporter(Protocol):
 class NullReporter:
     def start(self, step_id: str) -> None: ...
     def done(self, step_id: str, *, cached: bool = False) -> None: ...
+    def finish(self, step_id: str, duration_ms: int, *, cached: bool = False) -> None: ...
     def fail(self, step_id: str | None, message: str, stage: str | None = None) -> None: ...
     def current_image(self, image_id: str | None) -> None: ...
 
@@ -98,6 +101,14 @@ class JobProgress:
                     step.started_at = time.monotonic()
                 step.status, step.cached = DONE, cached
                 step.duration_ms = round((time.monotonic() - step.started_at) * 1000)
+                self._bump()
+
+    def finish(self, step_id: str, duration_ms: int, *, cached: bool = False) -> None:
+        """Mark a step done with a duration measured elsewhere (a photo read while the user was still capturing)."""
+        with self._lock:
+            step = self._step(step_id)
+            if step and step.status in (PENDING, RUNNING):
+                step.status, step.cached, step.duration_ms = DONE, cached, duration_ms
                 self._bump()
 
     def fail(self, step_id: str | None, message: str, stage: str | None = None) -> None:

@@ -315,9 +315,9 @@ def test_processing_returns_202_at_once_and_progress_lists_every_step(env) -> No
     body = started.json()
     assert body["state"] == "running" and body["percent"] < 100
     kinds = [step["kind"] for step in body["steps"]]
-    assert kinds == ["prepare", "read", "read", "prepare", "read", "read", "link", "rules", "risk"]
+    assert kinds == ["prepare", "read", "prepare", "read", "link", "rules", "risk"]
     assert [step["label"] for step in body["steps"]][-3:] == ["Linking declarations", "Checking 14 rules", "Scoring risk"]
-    assert [step["language"] for step in body["steps"] if step["kind"] == "read"][:2] == ["en", "hi"]
+    assert [step["languages"] for step in body["steps"] if step["kind"] == "read"] == [["en", "hi"], ["en"]]
     gate.set()
     jobs.wait_for(UUID(inspection_id))
     done = env.client.get(f"/api/inspections/{inspection_id}/progress").json()

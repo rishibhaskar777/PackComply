@@ -33,6 +33,10 @@ function languageName(code: string, locale: string, fallback: string) {
   try { return new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? fallback; } catch { return fallback; }
 }
 
+/** Short names for the languages read on a photo: "EN + हिन्दी", or just "EN" for a date stamp. */
+const SHORT_LANGUAGE: Record<string, string> = { en: "EN", hi: "हिन्दी" };
+export const languageBadge = (codes: string[]) => codes.map(code => SHORT_LANGUAGE[code] ?? code.toUpperCase()).join(" + ");
+
 /** Animated tick: the stroke draws itself once the step is done (static under reduced motion). */
 function StepIcon({ status }: { status: ProgressStep["status"] }) {
   if (status === "running") return <LoaderCircle className="step-icon step-icon--running" size={18} aria-hidden="true" />;
@@ -79,7 +83,10 @@ export function ProgressPanel({ progress, uploading = false, photos, error, onRe
   const label = (step: ProgressStep) => {
     switch (step.kind) {
       case "prepare": return fill(t("progPrepare"), { panel: step.panel ? t(PANEL_LABEL[step.panel]).toLowerCase() : "" });
-      case "read": return fill(t("progRead"), { language: step.language ? languageName(step.language, locale, step.language) : "" });
+      case "read":
+        // One step per photo: the languages run in parallel, so they share one line and one time.
+        if (step.languages?.length) return fill(t("progReadMerged"), { languages: languageBadge(step.languages) });
+        return fill(t("progRead"), { language: step.language ? languageName(step.language, locale, step.language) : "" });
       case "link": return t("progLink");
       case "rules": return fill(t("progRules"), { count: step.count ?? 14 });
       case "risk": return t("progRisk");
@@ -118,7 +125,7 @@ export function ProgressPanel({ progress, uploading = false, photos, error, onRe
           {steps.map(step => (
             <li key={step.id} className={`step-list__item is-${step.status}`} data-step={step.id} data-status={step.status}>
               <StepIcon status={step.status} />
-              <span className="step-list__label">{label(step)}<span className="sr-only"> — {statusText(step.status)}</span></span>
+              <span className="step-list__label">{label(step)}{step.kind === "read" && step.panel && <span className="step-list__panel"> · {t(PANEL_LABEL[step.panel])}</span>}<span className="sr-only"> — {statusText(step.status)}</span></span>
               {step.status === "done" && <span className="step-list__time mono tabular">{step.cached ? t("progCached") : step.duration_ms !== null && step.duration_ms !== undefined ? `${(step.duration_ms / 1000).toFixed(1)} s` : ""}</span>}
             </li>
           ))}

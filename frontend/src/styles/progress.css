@@ -65,3 +65,4 @@
   .step-icon--running { animation: none; }
   .pp-bar__fill { transition: none; }
 }
+.step-list__panel { font-weight: 400; opacity: 0.7; }

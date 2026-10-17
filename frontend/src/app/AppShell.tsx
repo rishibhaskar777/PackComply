@@ -1,8 +1,8 @@
 import { ReactNode, useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
-import { BookOpen, ChevronsUpDown, ClipboardList, Cpu, FileText, LayoutDashboard, LogOut, LucideIcon, PanelLeft, Plus, Repeat2, ShieldAlert, X } from "lucide-react";
+import { BookOpen, ChevronsUpDown, CircleUserRound, ClipboardList, Cpu, FileText, LayoutDashboard, LogOut, LucideIcon, PanelLeft, Plus, Repeat2, ShieldAlert, X } from "lucide-react";
 import { LanguageSelector } from "../components/LanguageSelector";
-import { Button, SearchInput } from "../components/ui";
+import { Button, Dialog, SearchInput } from "../components/ui";
 import { TranslationKey, useI18n } from "../i18n";
 import { DURATION, EASE, SPRING, useReducedMotion } from "../lib/motion";
 import { User } from "../types";
@@ -39,6 +39,10 @@ function activeNav(route: Route): RouteName {
   return route.name === "inspection" || route.name === "new" || route.name === "capture" ? "inspections" : route.name;
 }
 
+function roleLabel(user: User, t: (key: TranslationKey) => string) {
+  return user.role === "OFFICIAL" ? t("roleInspector") : user.role === "MANUFACTURER" ? t("roleManufacturer") : "";
+}
+
 export function initials(username: string) {
   const parts = username.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
   return (parts.length > 1 ? parts[0][0] + parts[1][0] : username.slice(0, 2)).toUpperCase();
@@ -63,11 +67,12 @@ export function AppShell({ pageLabel, route, user, riskCount, search, onSearchCh
   const official = user.role === "OFFICIAL";
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const titles = routeTitles(route);
   const active = activeNav(route);
 
-  useEffect(() => { setDrawerOpen(false); }, [route]);
+  useEffect(() => { setDrawerOpen(false); setAccountOpen(false); }, [route]);
   useEffect(() => { try { localStorage.setItem(COLLAPSE_KEY, collapsed ? "1" : "0"); } catch { /* storage unavailable */ } }, [collapsed]);
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -154,13 +159,28 @@ export function AppShell({ pageLabel, route, user, riskCount, search, onSearchCh
       </div>
 
       <nav className="tabbar" aria-label={t("mobileNavigation")}>
-        <a href="#/overview" className={active === "overview" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "overview" ? "page" : undefined}><LayoutDashboard size={16} aria-hidden="true" /><span>{t("overview")}</span></a>
-        <a href="#/inspections" className={active === "inspections" && route.name !== "new" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "inspections" && route.name !== "new" ? "page" : undefined}><ClipboardList size={16} aria-hidden="true" /><span>{t("inspections")}</span></a>
-        <button type="button" className="tabbar__fab" onClick={onNewInspection} aria-label={t("newInspection")}><Plus size={20} aria-hidden="true" /></button>
+        <a href="#/overview" className={active === "overview" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "overview" ? "page" : undefined}><LayoutDashboard size={20} aria-hidden="true" /><span>{t("overview")}</span></a>
+        <a href="#/inspections" className={active === "inspections" && route.name !== "new" && route.name !== "capture" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "inspections" && route.name !== "new" && route.name !== "capture" ? "page" : undefined}><ClipboardList size={20} aria-hidden="true" /><span>{t("inspections")}</span></a>
+        <div className="tabbar__center"><button type="button" className="tabbar__fab" onClick={onNewInspection} aria-label={t("newInspection")}><Plus size={26} aria-hidden="true" /></button></div>
         {official
-          ? <a href="#/risk" className={active === "risk" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "risk" ? "page" : undefined}><ShieldAlert size={16} aria-hidden="true" /><span>{t("riskQueueShort")}</span></a>
-          : <a href="#/patterns" className={active === "patterns" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "patterns" ? "page" : undefined}><Repeat2 size={16} aria-hidden="true" /><span>{t("repeatIssues")}</span></a>}
+          ? <a href="#/risk" className={active === "risk" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "risk" ? "page" : undefined}><ShieldAlert size={20} aria-hidden="true" /><span>{t("riskQueue")}</span></a>
+          : <a href="#/patterns" className={active === "patterns" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "patterns" ? "page" : undefined}><Repeat2 size={20} aria-hidden="true" /><span>{t("repeatIssues")}</span></a>}
+        <button type="button" className={accountOpen ? "tabbar__item is-active" : "tabbar__item"} aria-haspopup="dialog" aria-expanded={accountOpen} onClick={() => setAccountOpen(true)}><CircleUserRound size={20} aria-hidden="true" /><span>{t("account")}</span></button>
       </nav>
+      <Dialog open={accountOpen} onClose={() => setAccountOpen(false)} title={t("account")} className="account-sheet">
+        <div className="account-sheet__body">
+          <div className="account-sheet__who">
+            <span className="avatar" aria-hidden="true">{initials(user.username)}</span>
+            <span className="account-sheet__text">
+              <span className="account-sheet__name">{user.full_name || user.username}</span>
+              <span className="account-sheet__role">{roleLabel(user, t)}</span>
+            </span>
+          </div>
+          <ThemeSwitcher />
+          <LanguageSelector />
+          <Button variant="outline" className="account-sheet__logout" icon={<LogOut size={16} aria-hidden="true" />} onClick={() => { setAccountOpen(false); onLogout(); }}>{t("logout")}</Button>
+        </div>
+      </Dialog>
     </div>
   );
 }
