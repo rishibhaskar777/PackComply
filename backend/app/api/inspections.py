@@ -11,8 +11,8 @@ from sqlalchemy.orm import Session
 
 from backend.app.core.config import get_ocr_languages, get_settings
 from backend.app.core.database import get_db
-from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, Inspection, InspectionImage, OcrResult, Product
-from backend.app.schemas.inspection import ComplianceResponse, ExtractionResponse, ImageUploaded, InspectionCreate, InspectionCreated, InspectionHistoryItem, InspectionHistoryPage, InspectionSummary, OcrProcessed, RiskAssessmentResponse, RiskReasonResponse
+from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, FieldCorrection, Inspection, InspectionImage, OcrResult, Product
+from backend.app.schemas.inspection import AuditEvent, ComplianceResponse, FieldCorrectionCreate, VerifyRequest, ExtractionResponse, ImageUploaded, InspectionCreate, InspectionCreated, InspectionHistoryItem, InspectionHistoryPage, InspectionSummary, OcrProcessed, RiskAssessmentResponse, RiskReasonResponse
 from backend.app.services.compliance import ComplianceEngine
 from backend.app.services.compliance.rule_engine import verdict
 from backend.app.services.extraction import ExtractionService
@@ -21,7 +21,9 @@ from backend.app.services.ocr import OcrInitializationError, OcrProcessingError,
 from backend.app.services.uploads import UploadValidationError, store_image, validate_image
 from backend.app.services.workflow import LATEST_IMAGE_ORDER, InspectionWorkflow, WorkflowError, compliance_response, extraction_field_response, latest_extracted_fields, latest_image, persist_compliance, resolve_upload_path
 from backend.app.services.report import InspectionReportService
-from backend.app.api.auth import get_current_user
+from backend.app.api.auth import get_current_user, require_official
+from backend.app.services.audit import build_audit, record_event
+from backend.app.services.corrections import CorrectionError, active_corrections, mark_verified, normalise_value, reset_review, sync_label_identity
 from backend.app.models import User
 from backend.app.services.risk import RiskService
 
@@ -102,6 +104,12 @@ def create_inspection(payload: InspectionCreate, db: Session = Depends(get_db), 
     db.refresh(inspection)
     return inspection
 
+@router.get("/config")
+def upload_config() -> dict[str, object]:
+    """Upload limits for the new-inspection form (declared before the /{id} routes so it is not read as an id)."""
+    return {"max_upload_bytes": get_settings().max_upload_bytes, "allowed_types": ["image/jpeg", "image/png"]}
+
+
 @router.get("", response_model=InspectionHistoryPage)
 def list_inspections(
     page: int = Query(1, ge=1),
@@ -115,10 +123,12 @@ def list_inspections(
     """Return a compact, newest-first history owned exclusively by ``user``."""
     latest_filename = select(InspectionImage.original_filename).where(InspectionImage.inspection_id == Inspection.id).order_by(*LATEST_IMAGE_ORDER).limit(1).scalar_subquery()
     overall_compliance = _overall_compliance_status()
-    query = select(Inspection, Product.name, latest_filename, overall_compliance).outerjoin(Product, Product.id == Inspection.product_id).where(Inspection.user_id == user.id)
+    product_name = func.coalesce(Inspection.product_name, Product.name)
+    query = select(Inspection, product_name, latest_filename, overall_compliance).outerjoin(Product, Product.id == Inspection.product_id).where(Inspection.user_id == user.id)
     count_query = select(func.count()).select_from(Inspection).outerjoin(Product, Product.id == Inspection.product_id).where(Inspection.user_id == user.id)
     if search and (term := search.strip()):
-        predicate = or_(Product.name.ilike(f"%{term}%"), Inspection.inspection_number.ilike(f"%{term}%"))
+        pattern = f"%{term}%"
+        predicate = or_(Inspection.product_name.ilike(pattern), Inspection.brand_name.ilike(pattern), Inspection.maker_name.ilike(pattern), Product.name.ilike(pattern), Inspection.inspection_number.ilike(pattern))
         query = query.where(predicate)
         count_query = count_query.where(predicate)
     if status_filter:
@@ -130,7 +140,7 @@ def list_inspections(
         count_query = count_query.where(overall_compliance == normalized_compliance)
     total = db.scalar(count_query) or 0
     rows = db.execute(query.order_by(Inspection.created_at.desc()).offset((page - 1) * page_size).limit(page_size)).all()
-    return InspectionHistoryPage(items=[InspectionHistoryItem(id=i.id, inspection_number=i.inspection_number, status=i.status, created_at=i.created_at, updated_at=i.updated_at, product_name=name, image_filename=image, compliance_status=compliance, verdict=verdict([compliance]) if compliance else None) for i, name, image, compliance in rows], page=page, page_size=page_size, total=total, total_pages=(total + page_size - 1) // page_size)
+    return InspectionHistoryPage(items=[InspectionHistoryItem(id=i.id, inspection_number=i.inspection_number, status=i.status, created_at=i.created_at, updated_at=i.updated_at, product_name=name or "Untitled label", brand_name=i.brand_name, maker_name=i.maker_name, review_status=i.review_status, image_filename=image, compliance_status=compliance, verdict=verdict([compliance]) if compliance else None) for i, name, image, compliance in rows], page=page, page_size=page_size, total=total, total_pages=(total + page_size - 1) // page_size)
 
 
 @router.get("/{inspection_id}/report", response_class=Response, responses={200: {"content": {"application/pdf": {}}}})
@@ -203,25 +213,100 @@ def process_inspection(inspection_id: UUID, workflow: InspectionWorkflow = Depen
 def reanalyse_inspection(inspection_id: UUID, workflow: InspectionWorkflow = Depends(get_workflow), user: User = Depends(get_current_user)) -> InspectionSummary:
     """Re-run extraction and compliance on the stored OCR result; OCR is not repeated."""
     try:
-        require_owner(workflow.db.get(Inspection, inspection_id), user); return workflow.reanalyse(inspection_id)
+        inspection = require_owner(workflow.db.get(Inspection, inspection_id), user)
+        workflow.reanalyse(inspection_id)
+        record_event(workflow.db, inspection.id, "REANALYSED", user.id)
+        workflow.db.refresh(inspection)
+        return summary_with_risk(workflow, inspection, user)
     except KeyError as error:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
     except WorkflowError as error:
         raise HTTPException(status_code=error.status_code, detail=error.message) from error
 
 
+def summary_with_risk(workflow: InspectionWorkflow, inspection: Inspection, user: User) -> InspectionSummary:
+    summary = workflow.summary(inspection.id)
+    # Numerical targeting evidence is an official view; manufacturers retain their existing detail surface.
+    if user.role == "OFFICIAL" and inspection.status == "COMPLETED":
+        assessment = RiskService(workflow.db, get_settings().pattern_min_occurrences).for_inspection(inspection)
+        summary.risk = RiskAssessmentResponse(risk_score=assessment.risk_score, risk_level=assessment.risk_level, reasons=[RiskReasonResponse(**reason.__dict__) for reason in assessment.reasons])
+    return summary
+
+
 @router.get("/{inspection_id}", response_model=InspectionSummary)
 def get_inspection_summary(inspection_id: UUID, workflow: InspectionWorkflow = Depends(get_workflow), user: User = Depends(get_current_user)) -> InspectionSummary:
     try:
         inspection = require_owner(workflow.db.get(Inspection, inspection_id), user)
-        summary = workflow.summary(inspection_id)
-        # Numerical targeting evidence is an official view; manufacturers retain their existing detail surface.
-        if user.role == "OFFICIAL" and inspection.status == "COMPLETED":
-            assessment = RiskService(workflow.db, get_settings().pattern_min_occurrences).for_inspection(inspection)
-            summary.risk = RiskAssessmentResponse(risk_score=assessment.risk_score, risk_level=assessment.risk_level, reasons=[RiskReasonResponse(**reason.__dict__) for reason in assessment.reasons])
-        return summary
+        return summary_with_risk(workflow, inspection, user)
     except KeyError as error:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
+
+
+@router.get("/{inspection_id}/audit", response_model=list[AuditEvent])
+def get_inspection_audit(inspection_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> list[AuditEvent]:
+    """Chronological events: creation, photo (with checksum), OCR, compliance, corrections, re-analysis, verification."""
+    return build_audit(db, require_owner(db.get(Inspection, inspection_id), user))
+
+
+def _re_evaluate(workflow: InspectionWorkflow, inspection: Inspection, user: User) -> InspectionSummary:
+    """Re-run extraction on the stored OCR, re-apply corrections, then compliance and risk; OCR is never repeated."""
+    try:
+        workflow.reanalyse(inspection.id)
+    except WorkflowError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.message) from error
+    workflow.db.refresh(inspection)
+    return summary_with_risk(workflow, inspection, user)
+
+
+@router.post("/{inspection_id}/corrections", response_model=InspectionSummary)
+def add_correction(inspection_id: UUID, payload: FieldCorrectionCreate, workflow: InspectionWorkflow = Depends(get_workflow), user: User = Depends(require_official)) -> InspectionSummary:
+    """Officials override one extracted field; the value is validated like the extractor's own, then compliance and risk are re-evaluated."""
+    db = workflow.db
+    inspection = require_owner(db.get(Inspection, inspection_id), user)
+    if db.scalar(select(OcrResult.id).where(OcrResult.inspection_id == inspection.id).limit(1)) is None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="OCR must be run before a value can be corrected.")
+    try:
+        value, _ = normalise_value(payload.field_name, payload.corrected_value)
+    except CorrectionError as error:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(error)) from error
+    previous = active_corrections(db, inspection.id).get(payload.field_name)
+    if previous is not None:
+        original = previous.original_value  # always the OCR-read value, never an earlier correction
+    else:
+        current = next((field for field in latest_extracted_fields(db, inspection.id) if field.field_name == payload.field_name), None)
+        original = current.value if current else None
+    db.add(FieldCorrection(inspection_id=inspection.id, field_name=payload.field_name, original_value=original, corrected_value=value, reason=(payload.reason or "").strip() or None, corrected_by=user.id))
+    reset_review(inspection)
+    db.commit()
+    return _re_evaluate(workflow, inspection, user)
+
+
+@router.delete("/{inspection_id}/corrections/{correction_id}", response_model=InspectionSummary)
+def undo_correction(inspection_id: UUID, correction_id: UUID, workflow: InspectionWorkflow = Depends(get_workflow), user: User = Depends(require_official)) -> InspectionSummary:
+    db = workflow.db
+    inspection = require_owner(db.get(Inspection, inspection_id), user)
+    correction = db.get(FieldCorrection, correction_id)
+    if correction is None or correction.inspection_id != inspection.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Correction not found.")
+    record_event(db, inspection.id, "CORRECTION_UNDONE", user.id, {"field": correction.field_name, "original": correction.original_value, "corrected": correction.corrected_value})
+    db.delete(correction)
+    reset_review(inspection)
+    db.commit()
+    return _re_evaluate(workflow, inspection, user)
+
+
+@router.post("/{inspection_id}/verify", response_model=InspectionSummary)
+def verify_inspection(inspection_id: UUID, payload: VerifyRequest, workflow: InspectionWorkflow = Depends(get_workflow), user: User = Depends(require_official)) -> InspectionSummary:
+    db = workflow.db
+    inspection = require_owner(db.get(Inspection, inspection_id), user)
+    if inspection.status != "COMPLETED":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Only a completed inspection can be verified.")
+    remarks = (payload.remarks or "").strip() or None
+    mark_verified(inspection, user.id, remarks)
+    db.commit()
+    statuses = [result for (result,) in db.execute(select(ComplianceResult.result).where(ComplianceResult.inspection_id == inspection.id)).all()]
+    record_event(db, inspection.id, "VERIFIED", user.id, {"remarks": remarks, "verdict": verdict(statuses) if statuses else None})
+    return summary_with_risk(workflow, inspection, user)
 
 
 @router.post("/{inspection_id}/images/{image_id}/ocr", response_model=OcrProcessed, status_code=status.HTTP_201_CREATED)
@@ -248,6 +333,7 @@ def process_inspection_image_ocr(
     except UploadValidationError as error:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Stored image is invalid.") from error
 
+    scan_started = perf_counter()
     try:
         document = ocr_service.scan(image_path)
     except OcrInitializationError as error:
@@ -262,6 +348,7 @@ def process_inspection_image_ocr(
         languages=document.languages,
         raw_text=document.raw_text,
         detections=document.as_database_detections(),
+        duration_ms=round((perf_counter() - scan_started) * 1000),
     )
     logger.info("OCR persistence started inspection_id=%s", inspection_id)
     db.add(ocr_result)
@@ -324,6 +411,7 @@ def run_inspection_compliance(inspection_id: UUID, db: Session = Depends(get_db)
     fields = {field.field_name: field_evidence(field) for field in extracted}
     logger.info("Compliance input inspection_id=%s ocr_result_id=%s fields=%s", inspection.id, ocr_result.id, {name: {"raw": item.value, "normalized": compliance_engine._normalized("NET_QUANTITY_FORMAT" if name == "net_quantity" else "MRP_FORMAT" if name == "mrp" else "", item.value)} for name, item in fields.items()})
     persist_compliance(db, compliance_engine, inspection.id, fields)
+    sync_label_identity(db, inspection, list(extracted))
     persisted = db.scalars(select(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id).join(ComplianceRule).order_by(ComplianceRule.rule_code)).all()
     response = compliance_response(inspection.id, persisted, list(extracted))
     logger.info("Compliance persisted inspection_id=%s overall=%s findings=%s", inspection.id, response.overall_status, {finding.rule_id: {"status": finding.status, "reason": finding.message} for finding in response.findings})

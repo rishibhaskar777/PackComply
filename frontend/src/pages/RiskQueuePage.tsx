@@ -38,7 +38,7 @@ export function RiskQueuePage({ onExpired }: { onExpired: () => void }) {
 
   const columns: Column<RiskItem>[] = [
     { key: "priority", header: "#", width: "48px", render: item => <span className="mono muted-text">{item.priority}</span> },
-    { key: "product", header: t("productName"), link: true, className: "cell-grow", render: item => <span className="cell-primary">{item.product_name ?? t("unknown")}</span> },
+    { key: "product", header: t("productName"), link: true, className: "cell-grow", render: item => <span className="cell-primary">{item.product_name ?? t("recUntitled")}</span> },
     { key: "verdict", header: t("verdict"), render: item => <Badge variant={VERDICT_OF[item.compliance_status] ?? item.compliance_status} /> },
     { key: "level", header: t("riskLevel"), hideOnMobile: true, render: item => <Badge variant={item.risk_level} /> },
     { key: "score", header: t("risk"), render: item => <RiskScore score={item.risk_score} /> },

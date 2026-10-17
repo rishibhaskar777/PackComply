@@ -8,8 +8,9 @@ import { useI18n } from "./i18n";
 import { DURATION, EASE, useReducedMotion } from "./lib/motion";
 import { useSpotlight } from "./lib/spotlight";
 import { AuthPage, Registration } from "./pages/AuthPage";
-import { InspectionPage } from "./pages/InspectionPage";
+import { InspectionRecordPage } from "./pages/InspectionRecordPage";
 import { InspectionsPage } from "./pages/InspectionsPage";
+import { NewInspectionPage } from "./pages/NewInspectionPage";
 import { OverviewPage } from "./pages/OverviewPage";
 import { PatternsPage } from "./pages/PatternsPage";
 import { ReportsPage } from "./pages/ReportsPage";
@@ -105,9 +106,10 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
   const route = useHashRoute();
   const official = user.role === "OFFICIAL";
   const [search, setSearch] = useState("");
-  // Bumped by "New inspection" so the inspection page always starts clean.
+  // Bumped by "New inspection" so the upload form always starts clean.
   const [newKey, setNewKey] = useState(0);
   const [riskCount, setRiskCount] = useState<number | null>(null);
+  const [pageLabel, setPageLabel] = useState<string | null>(null);
   const firstRoute = useRef(true);
 
   async function loadRiskCount() {
@@ -130,10 +132,9 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
 
   function newInspection() { setNewKey(key => key + 1); navigate("/new"); }
 
-  // New and saved inspections share one page instance, so creating one does not remount the workflow.
-  const pageKey = route.name === "new" || route.name === "inspection" ? `inspection-${newKey}` : route.name;
+  const pageKey = route.name === "new" ? `new-${newKey}` : route.name === "inspection" ? `inspection-${route.id}` : route.name;
   return (
-    <AppShell route={route} user={user} riskCount={riskCount} search={search} onSearchChange={setSearch} onNewInspection={newInspection} onLogout={onLogout}>
+    <AppShell route={route} pageLabel={route.name === "inspection" ? pageLabel : null} user={user} riskCount={riskCount} search={search} onSearchChange={setSearch} onNewInspection={newInspection} onLogout={onLogout}>
       {reduced
         ? <div key={pageKey}>{renderPage(route)}</div>
         : <AnimatePresence mode="wait" initial={false}>
@@ -149,8 +150,8 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
     switch (current.name) {
       case "overview": return <OverviewPage official={official} onExpired={onExpired} showLive />;
       case "inspections": return <InspectionsPage search={search} onSearchChange={setSearch} onExpired={onExpired} />;
-      case "new": case "inspection":
-        return <InspectionPage inspectionId={current.name === "inspection" ? current.id : undefined} onExpired={onExpired} onCompleted={loadRiskCount} />;
+      case "new": return <NewInspectionPage onExpired={onExpired} onCompleted={loadRiskCount} />;
+      case "inspection": return <InspectionRecordPage key={current.id} inspectionId={current.id} official={official} onExpired={onExpired} onChanged={loadRiskCount} onTitle={setPageLabel} />;
       case "risk": return official ? <RiskQueuePage onExpired={onExpired} /> : null;
       case "patterns": return <PatternsPage onExpired={onExpired} />;
       case "rulesets": return <RulesetsPage onExpired={onExpired} />;

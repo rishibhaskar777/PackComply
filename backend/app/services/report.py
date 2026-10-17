@@ -16,7 +16,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, Inspection, Manufacturer, Product
+from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, FieldCorrection, Inspection, Manufacturer, Product, User
+from backend.app.services.corrections import INSPECTOR_PATTERN
 from backend.app.services.compliance.registry import results_ruleset, rule_action, rule_expected, rule_legal_reference, rule_title
 from backend.app.services.compliance.rule_engine import FAIL, ISSUE_STATUSES, NOT_APPLICABLE, PASS, REVIEW, overall_status, verdict
 from backend.app.services.risk import RiskService
@@ -69,9 +70,9 @@ class InspectionReportService:
     def _table(self, rows: list[tuple[str, object | None]], styles) -> Table:
         cells = [[Paragraph(f"<b>{self._text(key)}</b>", styles["body"]), Paragraph(self._text(value), styles["body"])] for key, value in rows if value not in (None, "")]
         table = Table(cells, colWidths=[4.5 * cm, 12.3 * cm]); table.setStyle(TableStyle([("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#F4F7FB")), ("GRID", (0, 0), (-1, -1), .35, colors.HexColor("#DDE4ED")), ("VALIGN", (0, 0), (-1, -1), "TOP"), ("PADDING", (0, 0), (-1, -1), 6)])); return table
-    def _issue_card(self, result: ComplianceResult, styles, sources: dict[str, str]) -> KeepTogether:
+    def _issue_card(self, result: ComplianceResult, styles, sources: dict[str, str], corrected: frozenset[str] = frozenset()) -> KeepTogether:
         violation = result.result == FAIL
-        rows = [("Finding", result.explanation), ("Rule", f"{result.rule.rule_code} - {rule_title(result.rule)}"), ("Legal reference", rule_legal_reference(result.rule)), ("Status / severity", f"{result.result} / {result.rule.severity}"), ("Extracted value", result.value), ("Expected requirement", rule_expected(result.rule)), ("Evidence", sources.get(result.field_name or "") or result.evidence or "Not found on the label"), ("Recommended action", rule_action(result.rule, result.result) or FALLBACK_ACTIONS[result.result])]
+        rows = [("Finding", result.explanation), ("Rule", f"{result.rule.rule_code} - {rule_title(result.rule)}"), ("Legal reference", rule_legal_reference(result.rule)), ("Status / severity", f"{result.result} / {result.rule.severity}"), ("Extracted value", f"{result.value} (inspector-corrected)" if result.value and result.field_name in corrected else result.value), ("Expected requirement", rule_expected(result.rule)), ("Evidence", sources.get(result.field_name or "") or result.evidence or "Not found on the label"), ("Recommended action", rule_action(result.rule, result.result) or FALLBACK_ACTIONS[result.result])]
         table = self._table(rows, styles); color, border, grid = ("#FDE9E9", "#D95C5C", "#F0CACA") if violation else ("#FFF8E6", "#D9A441", "#F2DFB4")
         table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), colors.HexColor(color)), ("BOX", (0, 0), (-1, -1), 1 if violation else .6, colors.HexColor(border)), ("INNERGRID", (0, 0), (-1, -1), .3, colors.HexColor(grid))])); return KeepTogether([table, Spacer(1, .16 * cm)])
     def _summary_table(self, rows: list[ComplianceResult], styles, last_column: str, value) -> Table:
@@ -79,9 +80,26 @@ class InspectionReportService:
         header = [Paragraph(f"<b>{title}</b>", styles["body"]) for title in ("Rule", "Legal reference", last_column)]
         cells = [header] + [[Paragraph(self._text(f"{row.rule.rule_code} - {rule_title(row.rule)}"), styles["body"]), Paragraph(self._text(rule_legal_reference(row.rule)), styles["body"]), Paragraph(self._text(value(row)), styles["body"])] for row in rows]
         table = Table(cells, colWidths=[5.6 * cm, 4.2 * cm, 7 * cm], repeatRows=1); table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#EAF8F5")), ("GRID", (0, 0), (-1, -1), .35, colors.HexColor("#DDE4ED")), ("VALIGN", (0, 0), (-1, -1), "TOP"), ("PADDING", (0, 0), (-1, -1), 5)])); return table
+    @staticmethod
+    def _when(value) -> str: return value.strftime("%d %b %Y %H:%M UTC") if value else "Not available"
+    def _review_section(self, inspection: Inspection, corrections: list[FieldCorrection], names: dict, styles) -> list:
+        story = self._heading("Inspector review", styles)
+        if inspection.review_status == "VERIFIED":
+            story.append(self._table([("Review status", "Verified by an inspector"), ("Reviewer", names.get(inspection.reviewed_by)), ("Verified at", self._when(inspection.reviewed_at)), ("Remarks", inspection.remarks)], styles))
+        else:
+            story.append(Paragraph("Not yet verified by an inspector." + (" Corrections were entered after the last verification." if corrections else ""), styles["body"]))
+        if corrections:
+            story += [Spacer(1, .18 * cm), Paragraph("<b>Inspector corrections</b>", styles["body"]), Spacer(1, .08 * cm)]
+            header = [Paragraph(f"<b>{title}</b>", styles["body"]) for title in ("Field", "Original → corrected", "Reason", "By / when")]
+            rows = [[Paragraph(self._text(row.field_name.replace("_", " ")), styles["body"]), Paragraph(f"{self._text(row.original_value, 'not read')} → <b>{self._text(row.corrected_value)}</b>", styles["body"]), Paragraph(self._text(row.reason, "-"), styles["body"]), Paragraph(self._text(f"{names.get(row.corrected_by) or 'Inspector'}, {self._when(row.created_at)}"), styles["body"])] for row in corrections]
+            table = Table([header] + rows, colWidths=[3.2 * cm, 5.6 * cm, 3.4 * cm, 4.6 * cm], repeatRows=1); table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#EEF1FB")), ("GRID", (0, 0), (-1, -1), .35, colors.HexColor("#DDE4ED")), ("VALIGN", (0, 0), (-1, -1), "TOP"), ("PADDING", (0, 0), (-1, -1), 5)])); story.append(table)
+        return story
     def generate(self, inspection: Inspection) -> bytes:
         product = self.db.get(Product, inspection.product_id) if inspection.product_id else None; manufacturer = self.db.get(Manufacturer, inspection.manufacturer_id) if inspection.manufacturer_id else None
         fields = self.db.scalars(select(ExtractedField).where(ExtractedField.inspection_id == inspection.id).order_by(ExtractedField.field_name)).all(); findings = self.db.scalars(select(ComplianceResult).where(ComplianceResult.inspection_id == inspection.id).join(ComplianceRule).order_by(ComplianceRule.rule_code)).all()
+        corrections = list(self.db.scalars(select(FieldCorrection).where(FieldCorrection.inspection_id == inspection.id).order_by(FieldCorrection.created_at)).all())
+        names = {user.id: user.full_name for user in self.db.scalars(select(User).where(User.id.in_({row.corrected_by for row in corrections if row.corrected_by} | ({inspection.reviewed_by} if inspection.reviewed_by else set())))).all()}
+        corrected = frozenset(field.field_name for field in fields if field.matched_pattern == INSPECTOR_PATTERN)
         values = {field.field_name: field.value for field in fields if field.value not in (None, "")}; sources = {field.field_name: field.source_text for field in fields if field.source_text}  # Evidence is the OCR line a value came from.
         statuses = [row.result for row in findings]; overall = ("WARNING" if overall_status(statuses) == REVIEW else overall_status(statuses)) if findings else "Not available"; risk = RiskService(self.db).for_inspection(inspection) if inspection.status == "COMPLETED" else None
         _, _, checked_against = results_ruleset(findings)
@@ -96,15 +114,16 @@ class InspectionReportService:
             if shaping: style.shaping = 1
         styles.add(ParagraphStyle(name="titleLG", parent=styles["Title"], alignment=TA_CENTER, textColor=colors.HexColor("#087F70"), fontSize=19, leading=23)); styles.add(ParagraphStyle(name="section", parent=styles["Heading2"], textColor=colors.HexColor("#087F70"), fontSize=13, leading=16)); styles.add(ParagraphStyle(name="body", parent=styles["BodyText"], fontSize=8.7, leading=11.5, wordWrap="CJK")); styles.add(ParagraphStyle(name="positive", parent=styles["BodyText"], textColor=colors.HexColor("#09685D"), fontSize=10, leading=13)); styles.add(ParagraphStyle(name="note", parent=styles["BodyText"], textColor=colors.HexColor("#526176"), fontSize=8, leading=10.5))
         story = [Paragraph("PACKCOMPLY", styles["titleLG"]), Paragraph("Legal Metrology Inspection Report", styles["Heading2"]), Spacer(1, .22 * cm)]
-        story += self._heading("Inspection Summary", styles); story.append(self._table([("Inspection ID", inspection.inspection_number), ("Date / time", inspection.completed_at or inspection.inspected_at), ("Product", values.get("product_name") or (product.name if product else None)), ("Manufacturer / company", values.get("manufacturer") or (manufacturer.name if manufacturer else None)), ("Verdict", VERDICT_TEXT[verdict(statuses)] if findings else None), ("Checked against", checked_against or ("Rules in force before versioned rulesets" if findings else None)), ("Findings", f"{len(groups[FAIL])} violations, {len(groups[REVIEW])} need review, {len(groups[PASS])} passed, {len(groups[NOT_APPLICABLE])} not applicable" if findings else None), ("Overall compliance", overall), ("Risk score", f"{risk.risk_score} / 100" if risk else None), ("Risk level", risk.risk_level if risk else None)], styles))
+        story += self._heading("Inspection Summary", styles); story.append(self._table([("Inspection ID", inspection.inspection_number), ("Date / time", inspection.completed_at or inspection.inspected_at), ("Product", values.get("product_name") or inspection.product_name or (product.name if product else None) or "Untitled label"), ("Manufacturer / company", values.get("manufacturer") or (manufacturer.name if manufacturer else None)), ("Verdict", VERDICT_TEXT[verdict(statuses)] if findings else None), ("Checked against", checked_against or ("Rules in force before versioned rulesets" if findings else None)), ("Findings", f"{len(groups[FAIL])} violations, {len(groups[REVIEW])} need review, {len(groups[PASS])} passed, {len(groups[NOT_APPLICABLE])} not applicable" if findings else None), ("Overall compliance", overall), ("Risk score", f"{risk.risk_score} / 100" if risk else None), ("Risk level", risk.risk_level if risk else None)], styles))
         story.append(Spacer(1, .12 * cm)); story.append(Paragraph(DISCLAIMER, styles["note"]))
         if not findings:
             story += self._heading("Legal Metrology Compliance", styles); story.append(Paragraph("No persisted compliance analysis is available for this inspection.", styles["body"]))
         else:
-            story += self._heading("Violations", styles); story.extend(self._issue_card(row, styles, sources) for row in groups[FAIL]) if groups[FAIL] else story.append(Paragraph("No violations were found on this label.", styles["body"]))
-            story += self._heading("Needs review - cannot be confirmed from this photo", styles); story.extend(self._issue_card(row, styles, sources) for row in groups[REVIEW]) if groups[REVIEW] else story.append(Paragraph("Nothing needs manual review.", styles["body"]))
+            story += self._heading("Violations", styles); story.extend(self._issue_card(row, styles, sources, corrected) for row in groups[FAIL]) if groups[FAIL] else story.append(Paragraph("No violations were found on this label.", styles["body"]))
+            story += self._heading("Needs review - cannot be confirmed from this photo", styles); story.extend(self._issue_card(row, styles, sources, corrected) for row in groups[REVIEW]) if groups[REVIEW] else story.append(Paragraph("Nothing needs manual review.", styles["body"]))
             if not groups[FAIL] and not groups[REVIEW]:
                 story.append(Paragraph("<b>No compliance issues detected.</b> Persisted compliance findings contain no FAIL or REVIEW result.", styles["positive"]))
+        story += self._review_section(inspection, corrections, names, styles)
         story += self._heading("Quantity Verification", styles)
         quantity_rows = [("Verification", "Declared quantity verification — no physical measurement"), ("Declared quantity", quantity.declared_quantity), ("Normalized quantity", quantity.normalized_quantity), ("Status", f"{quantity.status} / {quantity.severity}"), ("Finding", quantity.reason), ("Rule", quantity.rule_code), ("Requirement", quantity.requirement), ("Evidence", quantity.evidence)]
         quantity_table = self._table(quantity_rows, styles)
@@ -112,7 +131,7 @@ class InspectionReportService:
             quantity_table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#FFF4F4")), ("BOX", (0, 0), (-1, -1), .6, colors.HexColor("#E5A3A3"))]))
         story.append(quantity_table)
         if groups[PASS]:
-            story += self._heading("Passed", styles); story.append(self._summary_table(groups[PASS], styles, "Finding", lambda row: row.explanation))
+            story += self._heading("Passed", styles); story.append(self._summary_table(groups[PASS], styles, "Finding", lambda row: row.explanation + (" [Inspector-corrected value]" if row.field_name in corrected else "")))
         if groups[NOT_APPLICABLE]:
             story += self._heading("Not applicable", styles); story.append(self._summary_table(groups[NOT_APPLICABLE], styles, "Why it does not apply", lambda row: row.explanation))
         issues = groups[FAIL] + groups[REVIEW]

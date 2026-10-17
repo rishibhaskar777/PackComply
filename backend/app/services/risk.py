@@ -5,7 +5,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, Inspection, InspectionImage, Product
@@ -159,7 +159,7 @@ class RiskService:
 
     def for_user(self, user_id: UUID) -> list[tuple[Inspection, str | None, RiskAssessment, str]]:
         rows = self.db.execute(
-            select(Inspection, Product.name).outerjoin(Product, Product.id == Inspection.product_id)
+            select(Inspection, func.coalesce(Inspection.product_name, Product.name)).outerjoin(Product, Product.id == Inspection.product_id)
             .where(Inspection.user_id == user_id, Inspection.status == "COMPLETED")
         ).all()
         inspections = [inspection for inspection, _ in rows]

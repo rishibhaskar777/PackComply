@@ -151,6 +151,17 @@
   --marker-ring: #FFFFFF;
   --marker-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.25);
   --evidence-bg: #F4F4F5;
+  /* Numbered badges: fill and the ink on it (AA at 11px bold) for photo markers and the finding rows */
+  --marker-violation: #DC2626;
+  --marker-violation-ink: #FFFFFF;
+  --marker-review: #F59E0B;
+  --marker-review-ink: #1C1204;
+  --marker-pass: #047857;
+  --marker-pass-ink: #FFFFFF;
+  --marker-selected: #4F46E5;
+  --marker-selected-ink: #FFFFFF;
+  --marker-outline: rgba(79, 70, 229, 0.9);
+  --marker-outline-fill: rgba(79, 70, 229, 0.12);
 }
 
 :root[data-theme="dark"] {
@@ -233,6 +244,16 @@
   --selection: rgba(99, 102, 241, 0.32);
 
   --evidence-bg: #18181B;
+  --marker-violation: #F87171;
+  --marker-violation-ink: #1C0505;
+  --marker-review: #FBBF24;
+  --marker-review-ink: #1C1204;
+  --marker-pass: #34D399;
+  --marker-pass-ink: #04180F;
+  --marker-selected: #5B54EA;
+  --marker-selected-ink: #FFFFFF;
+  --marker-outline: rgba(165, 180, 252, 0.95);
+  --marker-outline-fill: rgba(129, 140, 248, 0.16);
 }
 
 *, *::before, *::after { box-sizing: border-box; }

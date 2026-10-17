@@ -11,3 +11,4 @@ export { FormField, Input, SearchInput, Select } from "./Input";
 export { Alert, EmptyState, RiskBar, RiskScore, ScanIllustration, Skeleton, SkeletonRows } from "./Feedback";
 export { ToastProvider, useToast } from "./Toast";
 export type { ToastVariant } from "./Toast";
+export { Dialog, Sheet } from "./Overlay";

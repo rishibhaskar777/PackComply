@@ -176,6 +176,18 @@ The product name is left empty and flagged for review when no candidate clearly 
 
 After improving extraction, `POST /api/inspections/{inspection_id}/reanalyse` re-runs extraction and compliance on the stored OCR result without repeating OCR; `python -m backend.scripts.reanalyse_all` does this for every completed inspection.
 
+## Inspection record, corrections and audit trail
+
+An inspection's page (`#/inspections/:id`) shows the photo with numbered evidence markers, the findings, an inspector-review footer and an audit trail.
+
+- **Label identity.** The extracted product name, brand owner and manufacturer are stored on the inspection (`product_name`, `brand_name`, `maker_name`), so history and search work without joining extraction rows. Search matches product, brand, maker and inspection number case-insensitively; nothing extracted shows as "Untitled label". For inspections that predate this, run `python -m backend.scripts.backfill_product_names` once after `alembic upgrade head` (idempotent; it does not re-run OCR, extraction or compliance).
+- **Corrections** (OFFICIAL only). `POST /api/inspections/{id}/corrections` with `{field_name, corrected_value, reason?}` validates the value with the extractor's own parsers (MRP `10` / `₹10.00` become `₹10.00`; quantities `70 g`; dates `08/2026`), returns 422 with a message when invalid, then re-runs extraction on the stored OCR, re-applies all corrections (confidence 1.0, source `INSPECTOR`), and re-evaluates compliance and risk. OCR is never repeated. `DELETE /api/inspections/{id}/corrections/{correction_id}` undoes one. Corrections survive "Re-analyse".
+- **Verification.** `POST /api/inspections/{id}/verify` with `{remarks}` (OFFICIAL, completed inspections only) records who and when. Any later correction returns the record to `UNREVIEWED`.
+- **Audit.** `GET /api/inspections/{id}/audit` returns creation, photo upload (with SHA-256), OCR (with duration), compliance evaluation (with ruleset version), corrections, re-analysis, undo and verification in time order.
+- The PDF report gains an "Inspector review" section and marks inspector-corrected values.
+
+Access stays scoped to the inspection's owner; the role checks above additionally reject manufacturers with 403.
+
 ## Accounts and password reset
 
 Create users with `python -m backend.scripts.create_user` (inspector accounts are only created this way unless `ALLOW_OFFICIAL_SELF_REGISTRATION=true`). Passwords must be at least 8 characters, differ from the username, and not be one of the 20 most common passwords.

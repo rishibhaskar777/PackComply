@@ -6,7 +6,9 @@ from backend.app.models.entities import (
     ComplianceResult,
     ComplianceRule,
     ExtractedField,
+    FieldCorrection,
     Inspection,
+    InspectionEvent,
     InspectionImage,
     InspectionIssue,
     Manufacturer,
@@ -20,7 +22,7 @@ from backend.app.models.entities import (
 )
 
 __all__ = [
-    "Base", "AuthSession", "ComplianceResult", "ComplianceRule", "ExtractedField", "Inspection",
-    "InspectionImage", "InspectionIssue", "Manufacturer", "ManufacturerHistory",
+    "Base", "AuthSession", "ComplianceResult", "ComplianceRule", "ExtractedField", "FieldCorrection", "Inspection",
+    "InspectionEvent", "InspectionImage", "InspectionIssue", "Manufacturer", "ManufacturerHistory",
     "OcrResult", "PasswordResetCode", "Product", "RiskScore", "SyncRecord", "User",
 ]

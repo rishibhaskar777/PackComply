@@ -51,11 +51,13 @@ const isDrawerViewport = () => typeof window.matchMedia === "function" && window
 function readCollapsed() { try { return localStorage.getItem(COLLAPSE_KEY) === "1"; } catch { return false; } }
 
 type AppShellProps = {
+  /** Replaces the page name in the breadcrumb (e.g. the inspection number). */
+  pageLabel?: string | null;
   route: Route; user: User; riskCount: number | null; search: string;
   onSearchChange: (value: string) => void; onNewInspection: () => void; onLogout: () => void; children: ReactNode;
 };
 
-export function AppShell({ route, user, riskCount, search, onSearchChange, onNewInspection, onLogout, children }: AppShellProps) {
+export function AppShell({ pageLabel, route, user, riskCount, search, onSearchChange, onNewInspection, onLogout, children }: AppShellProps) {
   const { t } = useI18n();
   const reduced = useReducedMotion();
   const official = user.role === "OFFICIAL";
@@ -140,7 +142,7 @@ export function AppShell({ route, user, riskCount, search, onSearchChange, onNew
           <nav className="breadcrumb" aria-label={t("breadcrumb")}>
             <ol>
               <li className="breadcrumb__section">{titles.sectionHref ? <a href={titles.sectionHref}>{t(titles.section)}</a> : t(titles.section)}</li>
-              <li aria-current="page">{t(titles.page)}</li>
+              <li aria-current="page" className={pageLabel ? "mono" : undefined}>{pageLabel ?? t(titles.page)}</li>
             </ol>
           </nav>
           <div className="topbar__spacer" />
