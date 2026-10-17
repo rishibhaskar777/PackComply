@@ -177,7 +177,7 @@ describe("inspection record page", () => {
 
     expect(await screen.findByText("MRP set to ₹10.00 · verdict updated to Compliant")).toBeTruthy();
     const call = fetchMock.mock.calls.find(entry => String(entry[0]).endsWith("/inspections/i1/corrections"))!;
-    expect(JSON.parse((call[1] as RequestInit).body as string)).toEqual({ field_name: "mrp", corrected_value: "10", reason: "OCR misread: stamped in the corner" });
+    expect(JSON.parse((call[1] as RequestInit).body as string)).toEqual({ field_name: "mrp", corrected_value: "₹10", reason: "OCR misread: stamped in the corner" });
     await waitFor(() => expect(document.querySelector(".record-verdict")!.textContent).toContain(en.verdictCompliant));
     const stats = document.querySelector(".stat-strip")!;
     await waitFor(() => expect(within(stats as HTMLElement).getByText(en.recStatPassed).nextElementSibling?.textContent).toBe("2"));
@@ -194,7 +194,7 @@ describe("inspection record page", () => {
     const form = within(screen.getByRole("form", { name: en.recEnterValue }));
     fireEvent.click(form.getByRole("button", { name: en.recSaveValue }));
     expect(await form.findByText(en.recValueRequired)).toBeTruthy(); // empty input never reaches the server
-    fireEvent.change(form.getByRole("textbox", { name: en.extractionMrp }), { target: { value: "free" } });
+    fireEvent.change(form.getByRole("textbox", { name: en.extractionMrp }), { target: { value: "10" } });
     fireEvent.click(form.getByRole("button", { name: en.recSaveValue }));
     expect(await form.findByText(/Enter the MRP as an amount in rupees/)).toBeTruthy();
     expect(screen.getByRole("form", { name: en.recEnterValue })).toBeTruthy();

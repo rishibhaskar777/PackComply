@@ -183,10 +183,16 @@ async def upload_inspection_image(
     inspection_id: UUID,
     image: UploadFile = File(..., description="Package image in JPG, JPEG, or PNG format."),
     panel: str = Form("BACK", description="Which part of the pack: BACK, FRONT, DATE_STAMP or OTHER."),
+    process_now: bool = Query(False, description="Start reading this photo's text in the background right away, so the final process call finds it already read."),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
+    workflow: InspectionWorkflow = Depends(get_workflow),
 ) -> InspectionImage:
-    """Add a photo. A new photo for a panel that already has one replaces it for processing; the old file stays as evidence."""
+    """Add a photo. A new photo for a panel that already has one replaces it for processing; the old file stays as evidence.
+
+    With ``process_now=true`` OCR for this photo alone is queued at once (the inspection is not processed or merged);
+    ``POST /process`` later waits for any such read still running, then merges.
+    """
     inspection = require_owner(db.get(Inspection, inspection_id), user)
     panel = _panel_or_422(panel)
     if progress_store.is_running(inspection.id):
@@ -217,6 +223,8 @@ async def upload_inspection_image(
     db.commit()
     db.refresh(image_record)
     progress_store.discard(inspection.id)
+    if process_now:
+        jobs.start_image_ocr(workflow, inspection.id, image_record.id)
     if not first:
         record_event(db, inspection.id, "PHOTO_REPLACED" if replaced else "PHOTO_ADDED", user.id, {"panel": panel, "checksum": image_record.checksum, "filename": image_record.original_filename, "image_id": str(image_record.id), "replaced_image_id": str(replaced.id) if replaced else None})
     return image_record
@@ -277,6 +285,28 @@ def process_inspection(inspection_id: UUID, workflow: InspectionWorkflow = Depen
         return jobs.start(workflow, inspection.id).snapshot()
     except AlreadyRunning as error:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This inspection is already being processed.") from error
+
+
+@router.delete("/{inspection_id}", status_code=status.HTTP_204_NO_CONTENT)
+def discard_draft(inspection_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> Response:
+    """Throw away an inspection that was started in the field but never processed (photos staged, then abandoned).
+
+    Only a draft can be removed: once an inspection has been processed it is a record and stays.
+    """
+    inspection = require_owner(db.get(Inspection, inspection_id), user)
+    if inspection.status not in ("CREATED", "IMAGE_UPLOADED") or progress_store.is_running(inspection.id) or jobs.image_ocr_in_flight(inspection.id):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Only an unprocessed draft can be discarded.")
+    upload_dir = get_settings().upload_dir
+    paths = [resolve_upload_path(upload_dir, image.storage_key) for image in all_images(db, inspection.id)]
+    db.execute(delete(OcrResult).where(OcrResult.inspection_id == inspection.id))
+    db.execute(delete(InspectionImage).where(InspectionImage.inspection_id == inspection.id))
+    db.delete(inspection)
+    db.commit()
+    progress_store.discard(inspection.id)
+    for path in paths:
+        if path is not None:
+            path.unlink(missing_ok=True)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/{inspection_id}/progress")

@@ -3,7 +3,7 @@ import { Camera, Check, HelpCircle, ImageIcon, SkipForward, X, Zap, ZapOff } fro
 import { Button } from "../../components/ui";
 import { PANEL_LABEL } from "../../components/ProgressPanel";
 import { fill, TranslationKey, useI18n } from "../../i18n";
-import { cameraErrorKind, CameraHandle, liveCameraSupported, openRearCamera } from "../../lib/camera";
+import { cameraErrorKind, cameraPermissionGranted, CameraHandle, liveCameraBlocker, openRearCamera } from "../../lib/camera";
 import { assessSource, QualityReport } from "../../lib/imageQuality";
 import { decodeOriented } from "../../lib/imageResize";
 import { CapturedPhoto, newPhoto } from "../../lib/useInspectionRun";
@@ -14,7 +14,9 @@ const HINTS: Partial<Record<Panel, TranslationKey>> = { BACK: "capHintBack", FRO
 
 export type StepSpec = { panel: Panel; required: boolean };
 type Candidate = { blob: Blob; url: string; quality: QualityReport | null; name: string };
-type CameraState = "starting" | "live" | "fallback" | "denied";
+/** idle: a live preview is possible but not asked for yet (no permission prompt until the user taps). */
+type CameraState = "idle" | "starting" | "live" | "fallback" | "denied";
+type FallbackReason = "insecure" | "unsupported" | "missing" | "error" | null;
 
 type Props = {
   steps: StepSpec[];
@@ -38,7 +40,9 @@ export function CaptureScreen({ steps, current, photos, skipped, title, onStep, 
   const cameraInput = useRef<HTMLInputElement>(null);
   const galleryInput = useRef<HTMLInputElement>(null);
   const sheet = useRef<HTMLDivElement>(null);
-  const [cameraState, setCameraState] = useState<CameraState>(() => (!forceFallback && liveCameraSupported() ? "starting" : "fallback"));
+  const [blocker] = useState(() => (forceFallback ? null : liveCameraBlocker()));
+  const [cameraState, setCameraState] = useState<CameraState>(() => (forceFallback || blocker ? "fallback" : "idle"));
+  const [reason, setReason] = useState<FallbackReason>(() => (forceFallback ? null : blocker));
   const [torch, setTorch] = useState(false);
   const [torchAvailable, setTorchAvailable] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -46,20 +50,31 @@ export function CaptureScreen({ steps, current, photos, skipped, title, onStep, 
   const [checking, setChecking] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [pressed, setPressed] = useState(false);
+  const mounted = useRef(true);
 
-  // Open the rear camera when a live preview is possible; fall back to the native camera otherwise.
-  useEffect(() => {
-    if (forceFallback || !liveCameraSupported()) return;
-    let cancelled = false;
+  const startCamera = useCallback(() => {
+    setCameraState("starting");
     openRearCamera().then(handle => {
-      if (cancelled) { handle.stop(); return; }
+      if (!mounted.current) { handle.stop(); return; }
       camera.current = handle;
       setTorchAvailable(handle.torch);
       if (video.current) { video.current.srcObject = handle.stream; void video.current.play?.().catch(() => undefined); }
       setCameraState("live");
-    }).catch(error => { if (!cancelled) setCameraState(cameraErrorKind(error) === "denied" ? "denied" : "fallback"); });
-    return () => { cancelled = true; camera.current?.stop(); camera.current = null; };
-  }, [forceFallback]);
+    }).catch(error => {
+      if (!mounted.current) return;
+      const kind = cameraErrorKind(error);
+      setReason(kind === "missing" ? "missing" : "error");
+      setCameraState(kind === "denied" ? "denied" : "fallback");
+    });
+  }, []);
+
+  // The camera is never opened on page load: permission is asked when the user taps the shutter or "Enable camera".
+  // If the browser already remembers "allow", the preview simply starts.
+  useEffect(() => {
+    mounted.current = true;
+    if (cameraState === "idle") void cameraPermissionGranted().then(granted => { if (granted && mounted.current) startCamera(); });
+    return () => { mounted.current = false; camera.current?.stop(); camera.current = null; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Review sheet: focus moves into it, and back to the shutter when it closes.
   useEffect(() => { if (candidate) sheet.current?.focus(); }, [candidate]);
@@ -89,10 +104,13 @@ export function CaptureScreen({ steps, current, photos, skipped, title, onStep, 
     const quality = assessSource(canvas, canvas.width, canvas.height);
     canvas.toBlob(blob => { if (blob) void present(blob, `${current.toLowerCase()}.jpg`, quality); }, "image/jpeg", 0.92);
   }
+  /** Must stay synchronous: browsers only open the native camera for a click() made inside the tap itself. */
+  function openNativeCamera() { cameraInput.current?.click(); }
   function shutter() {
     setPressed(true); window.setTimeout(() => setPressed(false), 160);
     if (cameraState === "live") snapFrame();
-    else cameraInput.current?.click();
+    else if (cameraState === "idle") startCamera();
+    else if (cameraState !== "starting") openNativeCamera();
   }
   function onFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -106,6 +124,8 @@ export function CaptureScreen({ steps, current, photos, skipped, title, onStep, 
     onUse(newPhoto(current, candidate.blob, candidate.name));
     setCandidate(null);
   }
+  const fallbackText = cameraState === "idle" ? t("capIdleBody") : cameraState === "denied" ? t("capCameraDenied")
+    : reason === "insecure" ? t("capInsecureHint") : reason === "missing" || reason === "error" ? t("capCameraFailedHint") : t("capFallbackBody");
   const step = steps.find(item => item.panel === current);
   const retakeAdvised = candidate?.quality?.retake ?? false;
   const stepText = (panel: Panel) => t(PANEL_LABEL[panel]);
@@ -145,8 +165,11 @@ export function CaptureScreen({ steps, current, photos, skipped, title, onStep, 
           : (
             <div className="cap-fallback">
               <Camera size={36} aria-hidden="true" />
-              <p className="cap-fallback__title">{t("capFallbackTitle")}</p>
-              <p className="cap-fallback__body">{cameraState === "denied" ? t("capCameraDenied") : t("capFallbackBody")}</p>
+              <p className="cap-fallback__title">{cameraState === "idle" ? t("capIdleTitle") : t("capFallbackTitle")}</p>
+              <p className="cap-fallback__body">{fallbackText}</p>
+              {cameraState === "idle"
+                ? <Button className="cap-btn" onClick={startCamera}>{t("capEnableCamera")}</Button>
+                : <Button className="cap-btn" onClick={openNativeCamera}>{t("capUsePhoneCamera")}</Button>}
             </div>
           )}
         {cameraState === "starting" && <p className="cap-status" role="status">{t("capCameraStarting")}</p>}

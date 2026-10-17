@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../App";
@@ -62,5 +64,63 @@ describe("hash routing and app shell", () => {
     await waitFor(() => expect(window.location.hash).toBe("#/inspections"));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(`${API}/inspections?page=1&page_size=20&search=parle`, expect.anything()));
     expect(await screen.findByText(en.noMatchingInspections)).toBeTruthy();
+  });
+});
+
+describe("mobile tab bar", () => {
+  beforeEach(() => { localStorage.clear(); window.history.replaceState(null, "", "#/overview"); });
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+  const tabbar = async () => within(await screen.findByRole("navigation", { name: en.mobileNavigation }));
+  const slots = (bar: HTMLElement) => Array.from(bar.children).map(child => child.querySelector("button")?.getAttribute("aria-label") ?? child.textContent ?? "");
+
+  it("has five slots with the + exactly in the middle one (inspector: Overview, Inspections, +, Risk queue, Account)", async () => {
+    mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }) });
+    renderApp();
+    const bar = (await tabbar()).getByRole("link", { name: en.overview }).parentElement!;
+    expect(Array.from(bar.children)).toHaveLength(5);
+    expect(slots(bar)).toEqual([en.overview, en.inspections, en.newInspection, en.riskQueue, en.account]);
+    const middle = bar.children[2];
+    expect(middle.className).toBe("tabbar__center");
+    expect(within(middle as HTMLElement).getByRole("button", { name: en.newInspection }).className).toBe("tabbar__fab");
+  });
+
+  it("manufacturers have no risk queue: Repeat issues takes its place", async () => {
+    mockApi({ "GET /auth/me": response({ username: "maker", role: "MANUFACTURER" }) });
+    renderApp();
+    const bar = (await tabbar()).getByRole("link", { name: en.overview }).parentElement!;
+    expect(slots(bar)).toEqual([en.overview, en.inspections, en.newInspection, en.repeatIssues, en.account]);
+  });
+
+  it("the + starts a new inspection", async () => {
+    mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }) });
+    renderApp();
+    fireEvent.click((await tabbar()).getByRole("button", { name: en.newInspection }));
+    await waitFor(() => expect(window.location.hash).toMatch(/#\/(new|capture)/));
+  });
+
+  it("Account opens a sheet with the user's name and role, the theme picker, the language and Log out", async () => {
+    const fetchMock = mockApi({ "GET /auth/me": response({ username: "rishi.bhaskar", full_name: "Rishi Bhaskar", role: "OFFICIAL" }), "POST /auth/logout": response({}) });
+    renderApp();
+    fireEvent.click((await tabbar()).getByRole("button", { name: en.account }));
+    const sheet = within(await screen.findByRole("dialog", { name: en.account }));
+    expect(sheet.getByText("Rishi Bhaskar")).toBeTruthy();
+    expect(sheet.getByText(en.roleInspector)).toBeTruthy();
+    expect(sheet.getAllByRole("radio").map(radio => radio.textContent)).toEqual([en.themeLight, en.themeDark, en.themeSystem]);
+    fireEvent.click(sheet.getByRole("radio", { name: en.themeDark }));
+    expect(localStorage.getItem("packcomply-theme")).toBe("dark");
+    expect(sheet.getByRole("combobox", { name: new RegExp(en.language) })).toBeTruthy();
+    fireEvent.click(sheet.getByRole("button", { name: en.logout }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(`${API}/auth/logout`, expect.objectContaining({ method: "POST" })));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: en.account })).toBeNull());
+  });
+
+  it("is laid out as five equal columns with a 56px circular + raised above the bar, labels on one line and the safe area respected", () => {
+    const css = readFileSync(resolve(__dirname, "../styles/app.css"), "utf8");
+    const mobile = css.slice(css.indexOf("@media (max-width: 1023px)"));
+    expect(mobile).toMatch(/\.tabbar \{[^}]*grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/);
+    expect(mobile).toMatch(/\.tabbar \{[^}]*env\(safe-area-inset-bottom\)/);
+    expect(mobile).toMatch(/\.tabbar__fab \{[^}]*width: 56px; height: 56px; margin-top: -22px;[^}]*border-radius: 50%/);
+    expect(mobile).toMatch(/\.tabbar__item span \{[^}]*white-space: nowrap/);
+    expect(mobile).toMatch(/\.tabbar__center \{[^}]*place-items: start center/);
   });
 });

@@ -80,11 +80,11 @@ describe("result screen", () => {
     const sheet = await screen.findByRole("dialog", { name: "Enter MRP" });
     const pad = within(within(sheet).getByRole("group", { name: en.resKeypad }));
     for (const key of ["1", "2", ".", "5", "0"]) fireEvent.click(pad.getByRole("button", { name: key }));
-    expect((within(sheet).getByRole("textbox", { name: en.recValueLabel }) as HTMLInputElement).value).toBe("12.50");
+    expect((within(sheet).getByRole("textbox", { name: en.extractionMrp }) as HTMLInputElement).value).toBe("12.50");
     fireEvent.click(pad.getByRole("button", { name: en.resKeypadDelete }));
-    expect((within(sheet).getByRole("textbox", { name: en.recValueLabel }) as HTMLInputElement).value).toBe("12.5");
+    expect((within(sheet).getByRole("textbox", { name: en.extractionMrp }) as HTMLInputElement).value).toBe("12.5");
     fireEvent.click(within(sheet).getByRole("button", { name: en.recSaveValue }));
-    await waitFor(() => expect(onCorrect).toHaveBeenCalledWith({ field_name: "mrp", corrected_value: "12.5", reason: "Verified on physical pack" }));
+    await waitFor(() => expect(onCorrect).toHaveBeenCalledWith({ field_name: "mrp", corrected_value: "₹12.5", reason: "Verified on physical pack" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 

@@ -96,3 +96,39 @@ describe("progress panel", () => {
     expect(formatElapsed(65_900)).toBe("1:05");
   });
 });
+
+describe("one reading step per photo", () => {
+  afterEach(cleanup);
+  const MERGED = [
+    step("a:prepare", "prepare", "done", { panel: "BACK", duration_ms: 200 }),
+    step("a:read", "read", "done", { panel: "BACK", languages: ["en", "hi"], duration_ms: 24300 }),
+    step("c:read", "read", "done", { panel: "DATE_STAMP", languages: ["en"], duration_ms: 4100 }),
+    step("link", "link", "running"),
+    step("rules", "rules", "pending", { count: 14 }),
+    step("risk", "risk", "pending"),
+  ];
+
+  it("shows 'Reading text · EN + हिन्दी' once per photo with its real duration, and 'EN' alone for a date stamp", () => {
+    mount({ progress: progress(MERGED) });
+    const reads = screen.getAllByRole("listitem").filter(item => item.getAttribute("data-step")?.endsWith(":read"));
+    expect(reads).toHaveLength(2);
+    expect(reads[0].textContent).toContain("Reading text · EN + हिन्दी");
+    expect(reads[0].textContent).toContain("24.3 s");
+    expect(reads[1].textContent).toContain("Reading text · EN");
+    expect(reads[1].textContent).not.toContain("हिन्दी");
+    expect(reads[1].textContent).toContain("4.1 s");
+  });
+
+  it("no longer lists the same time twice for English and Hindi", () => {
+    mount({ progress: progress(MERGED) });
+    expect(screen.queryByText(/Reading English text/)).toBeNull();
+    expect(screen.queryByText(/Reading Hindi text/)).toBeNull();
+  });
+
+  it("names which photo each reading step belongs to", () => {
+    mount({ progress: progress(MERGED) });
+    const reads = screen.getAllByRole("listitem").filter(item => item.getAttribute("data-step")?.endsWith(":read"));
+    expect(reads[0].textContent).toContain(en.panelBack);
+    expect(reads[1].textContent).toContain(en.panelDate);
+  });
+});

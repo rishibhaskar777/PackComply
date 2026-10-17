@@ -5,6 +5,7 @@ import { fill, TranslationKey, useI18n } from "../../i18n";
 import { FindingItem, Group, GROUP_ORDER, GROUP_TONE, moveSelection } from "../../lib/evidence";
 import { summaryPhotos } from "../../lib/panels";
 import { photoActionFor } from "../../lib/photoActions";
+import { FieldInput } from "./FieldInput";
 import { FieldCorrection, Panel, Summary } from "../../types";
 
 export const FIELD_LABELS: Record<string, TranslationKey> = { product_name: "extractionProductName", manufacturer: "extractionManufacturer", manufacturer_address: "extractionManufacturerAddress", packer: "extractionPacker", packer_address: "extractionPackerAddress", importer: "extractionImporter", importer_address: "extractionImporterAddress", mrp: "extractionMrp", net_quantity: "extractionNetQuantity", manufacturing_date: "extractionManufacturingDate", packing_date: "extractionPackingDate", best_before: "extractionBestBefore", use_by: "extractionUseBy", expiry_date: "extractionExpiryDate", consumer_care_phone: "extractionConsumerCarePhone", consumer_care_email: "extractionConsumerCareEmail", consumer_care_website: "extractionConsumerCareWebsite", brand_owner: "extractionBrandOwner", brand_owner_address: "extractionBrandOwnerAddress", tax_inclusive: "extractionTaxInclusive", fssai_license: "extractionFssaiLicense", country_of_origin: "extractionCountryOfOrigin", unit_sale_price: "extractionUnitSalePrice" };
@@ -156,8 +157,6 @@ function CorrectionForm({ item, options, busy, onCancel, onSubmit }: FormProps) 
   const [reason, setReason] = useState<(typeof REASONS)[number]>("recReasonPhysical");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const input = useRef<HTMLInputElement>(null);
-  useEffect(() => { input.current?.focus(); }, []);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -172,14 +171,15 @@ function CorrectionForm({ item, options, busy, onCancel, onSubmit }: FormProps) 
       <div className="correction-form__grid">
         {options.length > 1 && (
           <FormField label={t("recFieldLabel")} htmlFor={`${id}-field`}>
-            <Select id={`${id}-field`} value={field} onChange={event => setField(event.target.value)}>
+            <Select id={`${id}-field`} value={field} onChange={event => { setField(event.target.value); setValue(""); }}>
               {options.map(name => <option key={name} value={name}>{t(FIELD_LABELS[name] ?? "productInformation")}</option>)}
             </Select>
           </FormField>
         )}
-        <FormField label={options.length > 1 ? t("recValueLabel") : t(FIELD_LABELS[field] ?? "productInformation")} htmlFor={`${id}-value`} hint={t(valueHint(field))}>
-          <Input id={`${id}-value`} ref={input} value={value} onChange={event => setValue(event.target.value)} maxLength={300} autoComplete="off" />
-        </FormField>
+        <div className="form-field correction-form__value">
+          <span className="form-field__label">{options.length > 1 ? t("recValueLabel") : t(FIELD_LABELS[field] ?? "productInformation")}</span>
+          <FieldInput key={field} field={field} label={t(FIELD_LABELS[field] ?? "productInformation")} autoFocus invalid={Boolean(error)} onChange={setValue} />
+        </div>
         <FormField label={t("recReasonLabel")} htmlFor={`${id}-reason`}>
           <Select id={`${id}-reason`} value={reason} onChange={event => setReason(event.target.value as (typeof REASONS)[number])}>
             {REASONS.map(key => <option key={key} value={key}>{t(key)}</option>)}

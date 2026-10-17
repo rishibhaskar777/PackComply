@@ -94,6 +94,8 @@ class _Party:
 # --------------------------------------------------------------- vocabulary
 
 _CURRENCY = r"(?:₹|rs\.?|inr|रु\.?|रू\.?)"
+# OCR's readings of "₹" ("MRP R 480.00", "%480.00", "?480.00"); accepted only beside a price key or a per-unit price.
+_OCR_CURRENCY = r"(?:₹|rs\.?|inr|रु\.?|रू\.?|R|%|\?|T|z|Z|२|र)"
 _AMOUNT = r"(\d{1,3}(?:,\d{2,3})+(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)(?![\d%A-Za-z])"
 _NUMBER = r"([0-9OoIl]*\d[0-9OoIl]*(?:[.,]\d+)?)"
 _LATIN_UNITS = (
@@ -122,6 +124,11 @@ _BATCH_KEY = r"batch\s*(?:no|number|code)?\.?|b\.?\s*no\.?|lot\s*(?:no|number)?\
 _COUNTRY_KEY = r"country\s*of\s*origin|made\s*in|मूल\s*देश|उत्पत्ति\s*का\s*देश"
 _USP_KEY = r"unit\s*sale\s*price|u\.\s*s\.\s*p\.?|usp"
 _USP_UNIT = r"(kg|g|gm|ml|l|ltr|units?|pcs?|pieces?|nos?|n)(?![A-Za-z])"
+# "MRP ₹ / USP ₹", "MRP/USP", "M.R.P. & U.S.P.": one key line naming both prices, whose values follow in the same order.
+_COMBINED_PRICE_KEY = re.compile(rf"(?i)(?:{_MRP_KEY})\W{{0,6}}(?:₹|rs\.?|R|%|\?)?\W{{0,6}}(?:/|&|and|,|\+)\W{{0,6}}(?:{_USP_KEY})\W{{0,6}}(?:₹|rs\.?|R|%|\?)?")
+# Dot-matrix inkjet prints "480.00 ₹0.48/ml" so tightly that OCR drops the ₹ and glues the numbers: "480.000.48/ml".
+_GLUED_PRICES = re.compile(r"(?<![0-9.,])([0-9]+\.[0-9]{2})(?=[0-9]+(?:\.[0-9]{1,2})?\s*(?:/|per))")
+_LOOSE_PRICE = re.compile(rf"(?<![0-9.,/])(?:{_OCR_CURRENCY}\s*)?([0-9]{{1,3}}(?:,[0-9]{{2,3}})+(?:\.[0-9]{{1,2}})?|[0-9]+(?:\.[0-9]{{1,2}})?)(?![0-9]|[.,][0-9]|\s*(?:/|per|%|[A-Za-z]))")
 
 _DATE_VALUE = (
     r"(\d{1,2}\s*[/.\-]\s*\d{1,2}\s*[/.\-]\s*(?:\d{4}|\d{2})(?!\d)"
@@ -291,6 +298,7 @@ class ExtractionService:
         results["fssai_license"] = self._fssai(layout)
         results["country_of_origin"] = self._country(layout)
         results["unit_sale_price"] = self._unit_sale_price(layout)
+        self._combined_price_key(layout, results)
         results["batch_number"] = self._batch(layout)
         results["import_declaration"] = self._first_line(layout, _key(_ROLE_KEYS["importer"]), "present", "import_declaration:key")
         matching = value_first.match(layout, self._claimed(layout, results))
@@ -495,8 +503,8 @@ class ExtractionService:
             value = f"₹{match.group(1).replace(',', '')}"
             return (value, ComplianceEngine.normalize_mrp(value)) if ComplianceEngine.normalize_mrp(value) else None
 
-        price = rf"(?:\([^)]*\)\s*)?(?:{_CURRENCY})?\s*{_AMOUNT}\s*(?:/-|/)?"
-        mrp = self._choose("mrp", self._keyed(layout, _MRP_KEY, price, build, rf"(?:{_CURRENCY})?\s*{_AMOUNT}\s*(?:/-)?(?:\s*\([^)]*\))?"))
+        price = rf"(?:\([^)]*\)\s*)?(?:{_OCR_CURRENCY})?\s*{_AMOUNT}\s*(?:/-|/)?"
+        mrp = self._choose("mrp", self._keyed(layout, _MRP_KEY, price, build, rf"(?:{_OCR_CURRENCY})?\s*{_AMOUNT}\s*(?:/-)?(?:\s*\([^)]*\))?"))
         key_re = _key(_MRP_KEY)
         key_lines = [line for line in layout.lines if key_re.search(line.text)]
         if mrp.value:
@@ -516,14 +524,74 @@ class ExtractionService:
             amount, per, unit = match.group(1).replace(",", ""), (match.group(2) or "").strip(), match.group(3).lower()
             return f"₹{amount} per {per}{' ' if per else ''}{unit}", f"₹{amount}/{per}{unit}"
 
-        price = rf"(?:{_CURRENCY})?\s*{_AMOUNT}\s*(?:per|/)\s*(\d+\s*)?{_USP_UNIT}"
+        price = rf"(?:{_OCR_CURRENCY})?\s*{_AMOUNT}\s*(?:per|/)\s*(\d+\s*)?{_USP_UNIT}"
         found = self._keyed(layout, _USP_KEY, price, build)
         if not found:
             # Unlabelled "₹0.25 per g": the currency and a per-unit are mandatory.
-            keyless = re.compile(rf"(?i)(?:{_CURRENCY})\s*{_AMOUNT}\s*(?:per|/)\s*(\d+\s*)?{_USP_UNIT}")
+            keyless = re.compile(rf"(?i)(?:{_OCR_CURRENCY})\s*{_AMOUNT}\s*(?:per|/)\s*(\d+\s*)?{_USP_UNIT}")
             mrp_key = _key(_MRP_KEY)
             found = [_Found(*build(match), (line,), "below_key") for line in layout.lines if not mrp_key.search(line.text) and (match := keyless.search(line.text))]
         return self._choose("unit_sale_price", found)
+
+    def _combined_price_key(self, layout: Layout, results: dict[str, ExtractedValue]) -> None:
+        """"MRP ₹ / USP ₹ (incl. of all taxes)" followed by two values: the first is the MRP, the second the unit sale price.
+
+        Fills only what the key-first pass left empty. A second value whose "/unit" OCR dropped is accepted
+        only when it is consistent with the MRP and the net quantity, and is flagged for review.
+        """
+        if results["mrp"].value and results["unit_sale_price"].value:
+            return
+        for line in layout.lines:
+            key = _COMBINED_PRICE_KEY.search(line.text)
+            if not key:
+                continue
+            region = [(line, line.text[key.end():])]
+            region += [(following, following.text) for following in layout.lines[line.index + 1:line.index + 4] if len(following.text) <= 40 and not _COMBINED_PRICE_KEY.search(following.text)]
+            region = [(source, _GLUED_PRICES.sub(lambda match: match.group(1) + " ", text)) for source, text in region]
+            usp_tokens, price_tokens = [], []
+            for source, text in region:
+                usp_matches = list(value_first._USP.finditer(text))
+                usp_tokens += [(source, match) for match in usp_matches]
+                for match in _LOOSE_PRICE.finditer(text):
+                    if not any(match.start() < other.end() and match.end() > other.start() for other in usp_matches):
+                        price_tokens.append((source, match, text))
+            if not price_tokens and not usp_tokens:
+                continue
+            mrp_line = None
+            if not results["mrp"].value and price_tokens:
+                source, match, _ = price_tokens[0]
+                amount = match.group(1).replace(",", "")
+                if ComplianceEngine.normalize_mrp(f"₹{amount}"):
+                    mrp_line = source
+                    results["mrp"] = ExtractedValue(f"₹{amount}", 0.85, False, _source([line, source] if source is not line else [line]), "mrp:combined_key", ComplianceEngine.normalize_mrp(f"₹{amount}"), _boxes([line, source] if source is not line else [line]))
+            if not results["unit_sale_price"].value:
+                built, review = None, False
+                if usp_tokens:
+                    source, match = usp_tokens[0]
+                    built = value_first._usp_value(match)
+                elif len(price_tokens) >= 2:
+                    source, match, _ = price_tokens[1]
+                    built, review = self._inferred_unit_price(match.group(1).replace(",", ""), results), True
+                if built:
+                    lines = [line, source] if source is not line else [line]
+                    results["unit_sale_price"] = ExtractedValue(built[0], 0.7 if review else 0.85, review, _source(lines), "unit_sale_price:combined_key", built[1], _boxes(lines))
+            return
+
+    @staticmethod
+    def _inferred_unit_price(amount: str, results: dict[str, ExtractedValue]) -> tuple[str, str] | None:
+        """"0.48" with its "/ml" unread: the unit comes from the net quantity, and only if amount x quantity matches the MRP."""
+        quantity, mrp = ComplianceEngine.normalize_quantity(results["net_quantity"].value or ""), ComplianceEngine.normalize_mrp(results["mrp"].value or "")
+        parsed = re.fullmatch(r"([0-9.]+)\s*(g|ml)", quantity or "")
+        if not parsed or not mrp:
+            return None
+        try:
+            expected = float(mrp.lstrip("₹")) / float(parsed.group(1))
+            declared = float(amount)
+        except ValueError:
+            return None
+        if expected <= 0 or abs(declared - expected) / expected > 0.05:
+            return None
+        return f"₹{amount} per {parsed.group(2)}", f"₹{amount}/{parsed.group(2)}"
 
     # -------------------------------------------------------------- dates
 

@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     ocr_recognition_batch_size: int = 8
     # Each extra language adds processing time; "en,hi" is the sensible default.
     ocr_languages: str = "en,hi"
+    # Languages read per photo panel, as PANEL=lang+lang pairs separated by ";". A date stamp is Latin
+    # digits and codes, so skipping Hindi there saves a whole pass. Panels not listed use OCR_LANGUAGES.
+    ocr_panel_languages: str = "DATE_STAMP=en;BACK=en+hi;FRONT=en+hi;OTHER=en+hi"
     # Optional PaddleOCR model names (e.g. PP-OCRv5_mobile_det); empty keeps defaults.
     ocr_detection_model: str = ""
     ocr_recognition_model: str = ""
@@ -107,3 +110,19 @@ def get_ocr_languages(settings: Settings | None = None) -> tuple[str, ...]:
             f"{', '.join(sorted(SUPPORTED_PADDLE_OCR_LANGUAGES))}."
         )
     return languages
+
+
+def get_ocr_panel_languages(settings: Settings | None = None) -> dict[str, tuple[str, ...]]:
+    """Parse OCR_PANEL_LANGUAGES ("DATE_STAMP=en;BACK=en+hi") into {panel: languages}; bad entries are rejected."""
+    configured = (settings or get_settings()).ocr_panel_languages
+    result: dict[str, tuple[str, ...]] = {}
+    for entry in configured.split(";"):
+        if not entry.strip():
+            continue
+        panel, _, codes = entry.partition("=")
+        languages = tuple(dict.fromkeys(code.strip().lower() for code in codes.replace(",", "+").split("+") if code.strip()))
+        unsupported = sorted(set(languages) - SUPPORTED_PADDLE_OCR_LANGUAGES)
+        if not panel.strip() or not languages or unsupported:
+            raise ValueError(f"OCR_PANEL_LANGUAGES entry {entry!r} is invalid; expected PANEL=lang+lang with supported language codes.")
+        result[panel.strip().upper()] = languages
+    return result

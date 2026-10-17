@@ -86,6 +86,8 @@ export function CapturePage({ official, onExpired, onCompleted, add, forceFallba
     if (replaced) releasePhoto(replaced);
     const next = { ...photos, [photo.panel]: photo };
     setPhotos(next);
+    // Upload and start reading this photo now, while the inspector frames the next panel.
+    if (!adding) run.stage(photo);
     const nextSkipped = new Set(skipped); nextSkipped.delete(photo.panel); setSkipped(nextSkipped);
     advance(next, nextSkipped);
   }

@@ -48,8 +48,10 @@ _WEAK_PRICE = re.compile(rf"(?<![A-Za-z0-9])(?:{_WEAK_CURRENCY})\s?(?:([0-9]+\.[
 _OFFER = re.compile(r"(?i)(?:@|\bat\b|\bonly\b|\bworth\b|\bsave\b|\boffers?\b|\bfree\b|\bavailable\b|\bup\s*to\b|\bupto\b)\W*$")
 _LEADING_AMOUNT = re.compile(r"^\W{0,2}([0-9]{1,5}(?:\.[0-9]{2})?)(?![0-9%/A-Za-z]|\.[0-9])")
 _AFTER_KEY_AMOUNT = re.compile(rf"^[\s:.\-=(\[]*(?:{_WEAK_CURRENCY})?\s?([0-9]{{1,5}}(?:\.[0-9]{{1,2}})?)(?![0-9%/])")
-_USP_UNIT = r"kg|g|gm|gms|ml|l|ltr|units?|pcs?|pieces?|nos?|n|m[nk1i]|9"
-_USP = re.compile(rf"(?i)(?:(?:{_STRONG_CURRENCY}|{_WEAK_CURRENCY})\s*)?(?<![0-9])(?<![0-9]\.)([0-9]+(?:[.,][0-9]{{1,2}})?)\s*(?:per|/)\s*([0-9]+\s*)?({_USP_UNIT})(?![A-Za-z0-9])")
+_USP_UNIT = r"kg|gms?|grams?|g|ml|millilit(?:re|er)s?|ltr|lit(?:re|er)s?|l|units?|pcs?|pieces?|nos?|n|m[nk1i]|9"
+# A unit price is recognised by its "/unit" shape, so OCR's wilder readings of "₹" ("R0.48/ml", "%0.48/ml") are safe here.
+_USP_CURRENCY = rf"{_STRONG_CURRENCY}|{_WEAK_CURRENCY}|R|%"
+_USP = re.compile(rf"(?i)(?:(?:{_USP_CURRENCY})\s*)?(?<![0-9])(?<![0-9]\.)([0-9]+(?:[.,][0-9]{{1,2}})?)\s*(?:per|/)\s*([0-9]+\s*)?({_USP_UNIT})(?![A-Za-z0-9])")
 _QUANTITY_UNIT = r"kgs?|g|gms?|grams?|ml|m\s?l|l|ltrs?|litres?|liters?|cl|cc|n|nos?|pcs?|pieces?|units?"
 _HINDI_UNITS = {r"किलोग्राम|किग्रा": "kg", r"ग्राम|ग्रा\.?": "g", r"मिलीलीटर|मि\.\s*ली\.?|मिली": "ml", r"लीटर": "l"}
 _QUANTITY = re.compile(rf"(?i)(?<![0-9A-Za-z.,])([0-9]+(?:[.,][0-9]+)?)\s*({_QUANTITY_UNIT}|{'|'.join(_HINDI_UNITS)})(?:(?![A-Za-z0-9])|(?=nett?(?![A-Za-z])))")
@@ -229,7 +231,7 @@ def _usp_value(match: re.Match[str]) -> tuple[str, str] | None:
     amount, per, unit = match.group(1).replace(",", "."), (match.group(2) or "").strip(), match.group(3).lower()
     if unit == "9" and "." not in amount:
         return None  # "/9" is read as "/g" only for a paise-shaped amount ("0.36/9")
-    unit = "ml" if re.fullmatch(r"m[nk1i]", unit) else "g" if unit == "9" else unit
+    unit = "ml" if re.fullmatch(r"m[nk1i]|millilit(?:re|er)s?", unit) else "g" if unit == "9" or re.fullmatch(r"grams?", unit) else "l" if re.fullmatch(r"lit(?:re|er)s?", unit) else unit
     return f"₹{amount} per {per}{' ' if per else ''}{unit}", f"₹{amount}/{per}{unit}"
 
 

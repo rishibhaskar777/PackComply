@@ -60,15 +60,42 @@ describe("field-app capture flow", () => {
     // Screen B, then screen C.
     expect(await screen.findByRole("heading", { name: en.capProcessing })).toBeTruthy();
     expect(await screen.findByRole("heading", { level: 2, name: "Gluco Biscuits" })).toBeTruthy();
-    const uploads = fetchMock.mock.calls.filter(call => String(call[0]).endsWith("/inspections/n1/image")).map(call => ((call[1] as RequestInit).body as FormData).get("panel"));
+    const uploads = fetchMock.mock.calls.filter(call => (call[1] as RequestInit | undefined)?.method === "POST" && String(call[0]).includes("/inspections/n1/image")).map(call => ((call[1] as RequestInit).body as FormData).get("panel"));
     expect(uploads).toEqual(["BACK", "DATE_STAMP"]);
     const paths = calledPaths(fetchMock);
     expect(paths.filter(path => path === "/inspections")).toHaveLength(1);
-    expect(paths.indexOf("/inspections/n1/process")).toBeGreaterThan(paths.lastIndexOf("/inspections/n1/image"));
+    expect(paths.indexOf("/inspections/n1/process")).toBeGreaterThan(paths.lastIndexOf("/inspections/n1/image?process_now=true"));
     expect(paths).toContain("/inspections/n1/progress");
 
     fireEvent.click(screen.getByRole("button", { name: en.resSave }));
     expect(window.location.hash).toBe("#/inspections/n1");
+  });
+
+  it("creates the inspection and uploads each photo, asking for its text to be read, as soon as it is accepted", async () => {
+    const fetchMock = mockApi(routes());
+    mount();
+    await takeAndUse("back.jpg");
+    // Still capturing: no processing has been asked for, but the photo is already up and being read.
+    await waitFor(() => expect(calledPaths(fetchMock)).toContain("/inspections/n1/image?process_now=true"));
+    expect(calledPaths(fetchMock)).not.toContain("/inspections/n1/process");
+    expect(calledPaths(fetchMock).filter(path => path === "/inspections")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.capSkip) }));
+    await takeAndUse("date.jpg");
+    await screen.findByRole("heading", { level: 2, name: "Gluco Biscuits" });
+    const paths = calledPaths(fetchMock);
+    // The final step only starts processing: every photo was uploaded before it, with its panel, once.
+    expect(paths.filter(path => path === "/inspections/n1/image?process_now=true")).toHaveLength(2);
+    expect(paths.filter(path => path === "/inspections/n1/process")).toHaveLength(1);
+    expect(paths.indexOf("/inspections/n1/process")).toBeGreaterThan(paths.lastIndexOf("/inspections/n1/image?process_now=true"));
+  });
+
+  it("discards the draft when the camera is closed before processing starts", async () => {
+    const fetchMock = mockApi({ ...routes(), "DELETE /inspections/n1": response({}, true, 204) });
+    const view = mount();
+    await takeAndUse("back.jpg");
+    await waitFor(() => expect(calledPaths(fetchMock)).toContain("/inspections/n1/image?process_now=true"));
+    view.unmount();
+    await waitFor(() => expect(fetchMock.mock.calls.some(call => (call[1] as RequestInit | undefined)?.method === "DELETE" && String(call[0]).endsWith("/inspections/n1"))).toBe(true));
   });
 
   it("will not start without the back panel: finishing with the back panel missing returns to it", async () => {
@@ -83,7 +110,8 @@ describe("field-app capture flow", () => {
 
   it("keeps the photos and offers Retry upload when the server cannot be reached, then resumes", async () => {
     const unreachable = () => Promise.reject(new TypeError("Failed to fetch"));
-    const fetchMock = mockApi({ ...routes(), "POST /inspections": [unreachable as never, response({ id: "n1" }, true, 201)] });
+    // The first failure is the background upload while capturing, the second is the final run; the third attempt is the retry.
+    const fetchMock = mockApi({ ...routes(), "POST /inspections": [unreachable as never, unreachable as never, response({ id: "n1" }, true, 201)] });
     mount();
     await takeAndUse("back.jpg");
     fireEvent.click(screen.getByRole("button", { name: new RegExp(en.capSkip) }));
@@ -93,7 +121,7 @@ describe("field-app capture flow", () => {
     expect(screen.getAllByRole("img").some(image => image.getAttribute("src") === "blob:photo")).toBe(true); // the preview of the held photo
     fireEvent.click(screen.getByRole("button", { name: en.progRetryUpload }));
     expect(await screen.findByRole("heading", { level: 2, name: "Gluco Biscuits" })).toBeTruthy();
-    expect(calledPaths(fetchMock).filter(path => path === "/inspections/n1/image")).toHaveLength(1);
+    expect(calledPaths(fetchMock).filter(path => path.split("?")[0] === "/inspections/n1/image")).toHaveLength(1);
   });
 
   it("goes back to the camera for one panel from a result action and adds the photo to the same inspection", async () => {
@@ -111,7 +139,7 @@ describe("field-app capture flow", () => {
     await screen.findByRole("heading", { level: 2, name: "Gluco Biscuits" });
     const calls = calledPaths(fetchMock);
     expect(calls.filter(path => path === "/inspections")).toHaveLength(1); // the same inspection
-    expect(calls.filter(path => path === "/inspections/n1/image")).toHaveLength(2);
+    expect(calls.filter(path => path.split("?")[0] === "/inspections/n1/image")).toHaveLength(2);
     expect(calls.filter(path => path === "/inspections/n1/process")).toHaveLength(2);
   });
 
@@ -124,7 +152,7 @@ describe("field-app capture flow", () => {
     await screen.findByRole("heading", { level: 2, name: "Gluco Biscuits" });
     const calls = calledPaths(fetchMock);
     expect(calls).not.toContain("/inspections");
-    const upload = fetchMock.mock.calls.find(call => String(call[0]).endsWith("/inspections/n1/image"))!;
+    const upload = fetchMock.mock.calls.find(call => (call[1] as RequestInit | undefined)?.method === "POST" && String(call[0]).includes("/inspections/n1/image"))!;
     expect(((upload[1] as RequestInit).body as FormData).get("panel")).toBe("DATE_STAMP");
     await waitFor(() => expect(calls).toContain("/inspections/n1/process"));
   });

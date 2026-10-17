@@ -201,7 +201,22 @@ Processing runs in a background thread pool inside the API (no broker; works on 
 3. Find the laptop's LAN IP (`ipconfig`, the IPv4 address, e.g. `192.168.1.23`) and allow ports 5173 in the Windows firewall for private networks.
 4. On the phone open `http://192.168.1.23:5173`, sign in, tap **New inspection**. On screens narrower than 768px this opens the field app (`#/capture`).
 
-Browsers only allow the live camera preview on HTTPS or `localhost`. Over plain `http://<LAN-IP>` the shutter opens the phone's native camera instead (`<input capture="environment">`); photos are still checked for sharpness, light and glare, then resized to the OCR size before upload. Optional: for a live preview, serve the dev server over HTTPS with a free local certificate tool such as `mkcert` and open `https://<LAN-IP>:5173` (not required).
+#### Live camera preview on a phone (HTTPS dev mode)
+
+Browsers only allow the live camera preview on HTTPS or `localhost`, and a phone opening `http://<LAN-IP>:5173` is neither. For the live rear-camera preview run the dev server over HTTPS with a local self-signed certificate (the free `@vitejs/plugin-basic-ssl`; nothing is downloaded or sent anywhere at runtime):
+
+1. In `frontend/` run `npm run dev:https` (instead of `npm run dev`; plain `npm run dev` is unchanged). The `/api` proxy keeps working: the browser speaks HTTPS to Vite, Vite speaks HTTP to the API on the laptop.
+2. On the phone open `https://<laptop-IP>:5173`, for example `https://192.168.1.23:5173`.
+3. The browser warns that the certificate is not trusted (it is self-signed). Choose **Advanced → Proceed to 192.168.1.23 (unsafe)** once.
+4. Sign in, tap **New inspection**, then tap the shutter (or **Enable camera**) and allow the camera. The live rear-camera preview, torch toggle (where the phone supports it) and the 1080p capture now work.
+
+The camera is never opened when the page loads: the browser's permission prompt appears only after you tap the shutter or **Enable camera**. If the camera cannot be used (plain `http://`, permission refused, no camera found), the screen says why in one line and the shutter opens the phone's own camera app instead (`<input type="file" accept="image/*" capture="environment">`, opened synchronously inside the tap, which is what mobile browsers require); **Gallery** is a separate picker. Photos are checked for sharpness, light and glare, then resized to the OCR size before upload.
+
+#### Why results are fast: photos are read while you capture
+
+The field app (and `#/new`) creates the inspection when the first photo is accepted and uploads each photo as soon as **Use photo** is tapped, with `POST /api/inspections/{id}/images?process_now=true`. That queues OCR for that one photo only (inspection status, merge and rules are not touched), so it is read while you frame the next panel. The final **Done** / **Start** calls `POST /process`, which waits for any photo still being read, then merges, checks the rules and scores risk. A photo is never read twice (an in-flight read is shared, a stored OCR result is reused, and identical files reuse the earlier reading by checksum). If a read-ahead fails, the final `POST /process` simply reads that photo again. An inspection that is abandoned before processing (closed camera, a removed photo) is deleted with `DELETE /api/inspections/{id}`, which only ever removes unprocessed drafts.
+
+Languages are chosen per panel with `OCR_PANEL_LANGUAGES` (`PANEL=lang+lang` pairs separated by `;`). The default is `DATE_STAMP=en;BACK=en+hi;FRONT=en+hi;OTHER=en+hi`: dates and batch codes are Latin, so a date stamp skips the Hindi pass. Panels not listed use `OCR_LANGUAGES`; languages that are not loaded are ignored. English and Hindi run in parallel, so the progress list shows one *Reading text · EN + हिन्दी* step per photo with its real duration. Models, image size and recognition settings are unchanged.
 
 Uploads are resized in the browser to `ocr_max_image_dimension` (from `GET /api/inspections/config`) with EXIF orientation applied. The resized file is the stored evidence (its SHA-256 is recorded); the original is not kept because OCR never reads more than that size.
 
