@@ -1,5 +1,7 @@
 import { resolveApiUrl } from "./apiUrl";
 
+export const UNAUTHORIZED_EVENT = "packcomply:unauthorized";
+
 export type ApiError = Error & { detail?: string; status?: number; unreachable?: boolean };
 
 // Without VITE_API_URL the app calls the same-origin "/api" path, which the Vite dev/preview server proxies to the
@@ -16,6 +18,8 @@ export async function api(path: string, operation: string, options: RequestInit 
       const error = new Error(operation) as ApiError;
       error.detail = `${response.status}${body.detail ? `: ${body.detail}` : ""}`;
       error.status = response.status;
+      // A 401 anywhere (an expired session) is announced once, so the app can return to sign-in; sign-in itself is excluded.
+      if (response.status === 401 && !path.startsWith("/auth/")) window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
       throw error;
     }
     return response;

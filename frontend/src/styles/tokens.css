@@ -4,6 +4,9 @@
    Dark is designed, not inverted: raised surfaces get lighter, shadows become inner highlights. */
 
 :root {
+  /* QR codes stay black on white in every theme, or phone cameras cannot read them. */
+  --qr-light: #ffffff;
+  --qr-dark: #000000;
   /* Type */
   --font-sans: "Geist Variable", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Consolas, monospace;

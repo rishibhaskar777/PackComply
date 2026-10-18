@@ -68,3 +68,32 @@ def test_startup_summary_survives_an_unreachable_database(monkeypatch, caplog) -
     with caplog.at_level(logging.INFO, logger="uvicorn.error"):
         log_startup_summary()
     assert any("DB UNREACHABLE" in record.getMessage() for record in caplog.records)
+
+
+# ------------------------------------------------------------ evaluation report endpoint
+
+def test_evaluation_endpoint_serves_the_report_file(monkeypatch, tmp_path) -> None:
+    report = tmp_path / "report.json"
+    report.write_text('{"schema": 1, "runs": [{"label": "unseen-test", "kind": "unseen"}]}', encoding="utf-8")
+    monkeypatch.setenv("EVALUATION_REPORT_PATH", str(report))
+    assert TestClient(app).get("/api/system/evaluation").json()["runs"][0]["label"] == "unseen-test"
+
+
+def test_evaluation_endpoint_without_or_with_a_broken_file_reports_no_runs(monkeypatch, tmp_path) -> None:
+    client = TestClient(app)
+    monkeypatch.setenv("EVALUATION_REPORT_PATH", str(tmp_path / "missing.json"))
+    assert client.get("/api/system/evaluation").json() == {"schema": 1, "runs": []}
+    broken = tmp_path / "broken.json"
+    broken.write_text("{not json", encoding="utf-8")
+    monkeypatch.setenv("EVALUATION_REPORT_PATH", str(broken))
+    get_settings.cache_clear()
+    assert client.get("/api/system/evaluation").json() == {"schema": 1, "runs": []}
+
+
+def test_the_committed_report_is_valid_and_labelled() -> None:
+    from backend.app.core.config import Settings
+
+    report = __import__("json").loads(Settings().evaluation_report_path.read_text(encoding="utf-8"))
+    run = report["runs"][0]
+    assert run["kind"] in ("development", "unseen") and run["label"] and run["generated_at"]
+    assert run["groups"] and all(group["photos"] > 0 for group in run["groups"])

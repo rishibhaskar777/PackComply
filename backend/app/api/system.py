@@ -1,4 +1,6 @@
 """Public system status for the sign-in page: no authentication, nothing sensitive."""
+import json
+import logging
 from threading import Lock
 from time import monotonic
 from typing import Literal
@@ -86,3 +88,25 @@ def network_info(request: Request) -> NetworkInfo:
     scheme = request.headers.get("x-forwarded-proto") or request.url.scheme
     port = request.headers.get("x-forwarded-port")
     return NetworkInfo(lan_ip=detect_lan_ip(), phone_url=phone_url(scheme, port))
+
+
+logger = logging.getLogger("uvicorn.error")
+
+
+@router.get("/evaluation", summary="Measured accuracy of the pipeline, from the evaluation report file", dependencies=[Depends(get_current_user)])
+def evaluation_report() -> dict:
+    """The JSON written by ``batch_evaluate --report-json`` (``{"schema": 1, "runs": [...]}``); no runs when no report exists.
+
+    Nothing is computed here: the page shows exactly what the evaluation script measured, with its dataset and date.
+    """
+    path = get_settings().evaluation_report_path
+    try:
+        report = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(report, dict) and isinstance(report.get("runs"), list):
+            return report
+        logger.warning("Evaluation report %s has no 'runs' list; ignoring it", path)
+    except FileNotFoundError:
+        pass
+    except (OSError, ValueError):
+        logger.warning("Evaluation report %s could not be read", path, exc_info=True)
+    return {"schema": 1, "runs": []}

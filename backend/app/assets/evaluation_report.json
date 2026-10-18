@@ -1,0 +1,905 @@
+{
+ "schema": 1,
+ "runs": [
+  {
+   "label": "development-2026-10",
+   "kind": "development",
+   "generated_at": "2026-10-18T06:52:11+00:00",
+   "ruleset": {
+    "id": "LM_PC_2011",
+    "version": "2",
+    "rules": 14
+   },
+   "note": "23 labelled real photos: 9 catalogue/phone photos plus 14 phone photos retired from hold-out to DEV on 2026-10-16. These are development scores, not unseen.",
+   "dataset_sizes": {
+    "dev": 23,
+    "phone_holdout_retired_to_dev": 14,
+    "unseen": 0,
+    "total": 23
+   },
+   "processing_seconds": {
+    "median": 23.62,
+    "max": 105.18,
+    "photos": 23
+   },
+   "groups": [
+    {
+     "name": "DEV",
+     "photos": 23,
+     "fields_scored": 438,
+     "precision": 0.9675675675675676,
+     "recall": 0.8248847926267281,
+     "per_field": {
+      "product_name": {
+       "tp": 9,
+       "fp": 2,
+       "fn": 10,
+       "precision": 0.8181818181818182,
+       "recall": 0.47368421052631576
+      },
+      "brand_owner": {
+       "tp": 14,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.9333333333333333
+      },
+      "manufacturer": {
+       "tp": 15,
+       "fp": 1,
+       "fn": 3,
+       "precision": 0.9375,
+       "recall": 0.8333333333333334
+      },
+      "packer": {
+       "tp": 2,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "importer": {
+       "tp": 2,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "net_quantity": {
+       "tp": 17,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8947368421052632
+      },
+      "mrp": {
+       "tp": 9,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.9
+      },
+      "mrp_declaration": {
+       "tp": 19,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.95,
+       "recall": 0.95
+      },
+      "tax_inclusive": {
+       "tp": 14,
+       "fp": 0,
+       "fn": 5,
+       "precision": 1.0,
+       "recall": 0.7368421052631579
+      },
+      "manufacturing_date": {
+       "tp": 7,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.7777777777777778
+      },
+      "packing_date": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.0
+      },
+      "best_before_or_expiry": {
+       "tp": 11,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8461538461538461
+      },
+      "consumer_care_phone": {
+       "tp": 17,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8947368421052632
+      },
+      "consumer_care_email": {
+       "tp": 16,
+       "fp": 2,
+       "fn": 3,
+       "precision": 0.8888888888888888,
+       "recall": 0.8421052631578947
+      },
+      "consumer_care_website": {
+       "tp": 5,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.8333333333333334
+      },
+      "fssai_license": {
+       "tp": 5,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.8333333333333334
+      },
+      "country_of_origin": {
+       "tp": 7,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "unit_sale_price": {
+       "tp": 3,
+       "fp": 0,
+       "fn": 3,
+       "precision": 1.0,
+       "recall": 0.5
+      },
+      "product_category": {
+       "tp": 6,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      }
+     },
+     "rule_agreement": {
+      "agree": 289,
+      "total": 322
+     },
+     "per_rule": {
+      "MANUFACTURER_INFORMATION": {
+       "agree": 20,
+       "total": 23
+      },
+      "IMPORTER_INFORMATION": {
+       "agree": 23,
+       "total": 23
+      },
+      "COUNTRY_OF_ORIGIN": {
+       "agree": 23,
+       "total": 23
+      },
+      "PACKER_INFORMATION": {
+       "agree": 23,
+       "total": 23
+      },
+      "PRODUCT_IDENTITY": {
+       "agree": 15,
+       "total": 23
+      },
+      "NET_QUANTITY_FORMAT": {
+       "agree": 20,
+       "total": 23
+      },
+      "NET_QUANTITY_UNIT_SUITABILITY": {
+       "agree": 23,
+       "total": 23
+      },
+      "MRP_FORMAT": {
+       "agree": 22,
+       "total": 23
+      },
+      "MRP_TAX_INCLUSIVE": {
+       "agree": 18,
+       "total": 23
+      },
+      "UNIT_SALE_PRICE": {
+       "agree": 18,
+       "total": 23
+      },
+      "MANUFACTURE_DATE": {
+       "agree": 20,
+       "total": 23
+      },
+      "DATE_CONSISTENCY": {
+       "agree": 20,
+       "total": 23
+      },
+      "CONSUMER_CARE_FORMAT": {
+       "agree": 22,
+       "total": 23
+      },
+      "FSSAI_LICENSE_PRESENT": {
+       "agree": 22,
+       "total": 23
+      }
+     },
+     "verdict_confusion": {
+      "NEEDS_REVIEW": {
+       "NEEDS_REVIEW": 8
+      },
+      "NON_COMPLIANT": {
+       "NON_COMPLIANT": 8
+      },
+      "COMPLIANT": {
+       "COMPLIANT": 1,
+       "NEEDS_REVIEW": 6
+      }
+     },
+     "verdicts_correct": 17,
+     "false_non_compliant": 0,
+     "false_pass_mandatory": 2
+    },
+    {
+     "name": "PHONE_HOLDOUT_2026_10",
+     "photos": 14,
+     "fields_scored": 266,
+     "precision": 0.9444444444444444,
+     "recall": 0.75,
+     "per_field": {
+      "product_name": {
+       "tp": 5,
+       "fp": 2,
+       "fn": 6,
+       "precision": 0.7142857142857143,
+       "recall": 0.45454545454545453
+      },
+      "brand_owner": {
+       "tp": 8,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.8888888888888888
+      },
+      "manufacturer": {
+       "tp": 8,
+       "fp": 1,
+       "fn": 3,
+       "precision": 0.8888888888888888,
+       "recall": 0.7272727272727273
+      },
+      "packer": {
+       "tp": 1,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "importer": {
+       "tp": 1,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "net_quantity": {
+       "tp": 10,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8333333333333334
+      },
+      "mrp": {
+       "tp": 8,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.8888888888888888
+      },
+      "mrp_declaration": {
+       "tp": 11,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.9166666666666666,
+       "recall": 0.9166666666666666
+      },
+      "tax_inclusive": {
+       "tp": 6,
+       "fp": 0,
+       "fn": 5,
+       "precision": 1.0,
+       "recall": 0.5454545454545454
+      },
+      "manufacturing_date": {
+       "tp": 7,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.7777777777777778
+      },
+      "packing_date": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.0
+      },
+      "best_before_or_expiry": {
+       "tp": 6,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.75
+      },
+      "consumer_care_phone": {
+       "tp": 9,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8181818181818182
+      },
+      "consumer_care_email": {
+       "tp": 8,
+       "fp": 2,
+       "fn": 3,
+       "precision": 0.8,
+       "recall": 0.7272727272727273
+      },
+      "consumer_care_website": {
+       "tp": 2,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.6666666666666666
+      },
+      "fssai_license": {
+       "tp": 1,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.5
+      },
+      "country_of_origin": {
+       "tp": 6,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "unit_sale_price": {
+       "tp": 3,
+       "fp": 0,
+       "fn": 3,
+       "precision": 1.0,
+       "recall": 0.5
+      },
+      "product_category": {
+       "tp": 2,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      }
+     },
+     "rule_agreement": {
+      "agree": 167,
+      "total": 196
+     },
+     "per_rule": {
+      "MANUFACTURER_INFORMATION": {
+       "agree": 11,
+       "total": 14
+      },
+      "IMPORTER_INFORMATION": {
+       "agree": 14,
+       "total": 14
+      },
+      "COUNTRY_OF_ORIGIN": {
+       "agree": 14,
+       "total": 14
+      },
+      "PACKER_INFORMATION": {
+       "agree": 14,
+       "total": 14
+      },
+      "PRODUCT_IDENTITY": {
+       "agree": 10,
+       "total": 14
+      },
+      "NET_QUANTITY_FORMAT": {
+       "agree": 11,
+       "total": 14
+      },
+      "NET_QUANTITY_UNIT_SUITABILITY": {
+       "agree": 14,
+       "total": 14
+      },
+      "MRP_FORMAT": {
+       "agree": 13,
+       "total": 14
+      },
+      "MRP_TAX_INCLUSIVE": {
+       "agree": 9,
+       "total": 14
+      },
+      "UNIT_SALE_PRICE": {
+       "agree": 9,
+       "total": 14
+      },
+      "MANUFACTURE_DATE": {
+       "agree": 11,
+       "total": 14
+      },
+      "DATE_CONSISTENCY": {
+       "agree": 11,
+       "total": 14
+      },
+      "CONSUMER_CARE_FORMAT": {
+       "agree": 13,
+       "total": 14
+      },
+      "FSSAI_LICENSE_PRESENT": {
+       "agree": 13,
+       "total": 14
+      }
+     },
+     "verdict_confusion": {
+      "COMPLIANT": {
+       "COMPLIANT": 1,
+       "NEEDS_REVIEW": 6
+      },
+      "NON_COMPLIANT": {
+       "NON_COMPLIANT": 5
+      },
+      "NEEDS_REVIEW": {
+       "NEEDS_REVIEW": 2
+      }
+     },
+     "verdicts_correct": 8,
+     "false_non_compliant": 0,
+     "false_pass_mandatory": 2
+    },
+    {
+     "name": "REAL PHOTOS",
+     "photos": 16,
+     "fields_scored": 305,
+     "precision": 0.952755905511811,
+     "recall": 0.7806451612903226,
+     "per_field": {
+      "product_name": {
+       "tp": 7,
+       "fp": 2,
+       "fn": 6,
+       "precision": 0.7777777777777778,
+       "recall": 0.5384615384615384
+      },
+      "brand_owner": {
+       "tp": 9,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.9
+      },
+      "manufacturer": {
+       "tp": 10,
+       "fp": 1,
+       "fn": 3,
+       "precision": 0.9090909090909091,
+       "recall": 0.7692307692307693
+      },
+      "packer": {
+       "tp": 1,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "importer": {
+       "tp": 1,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "net_quantity": {
+       "tp": 12,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8571428571428571
+      },
+      "mrp": {
+       "tp": 9,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.9
+      },
+      "mrp_declaration": {
+       "tp": 13,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.9285714285714286,
+       "recall": 0.9285714285714286
+      },
+      "tax_inclusive": {
+       "tp": 8,
+       "fp": 0,
+       "fn": 5,
+       "precision": 1.0,
+       "recall": 0.6153846153846154
+      },
+      "manufacturing_date": {
+       "tp": 7,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.7777777777777778
+      },
+      "packing_date": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.0
+      },
+      "best_before_or_expiry": {
+       "tp": 7,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.7777777777777778
+      },
+      "consumer_care_phone": {
+       "tp": 10,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8333333333333334
+      },
+      "consumer_care_email": {
+       "tp": 9,
+       "fp": 2,
+       "fn": 3,
+       "precision": 0.8181818181818182,
+       "recall": 0.75
+      },
+      "consumer_care_website": {
+       "tp": 3,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.75
+      },
+      "fssai_license": {
+       "tp": 2,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.6666666666666666
+      },
+      "country_of_origin": {
+       "tp": 6,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "unit_sale_price": {
+       "tp": 3,
+       "fp": 0,
+       "fn": 3,
+       "precision": 1.0,
+       "recall": 0.5
+      },
+      "product_category": {
+       "tp": 3,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      }
+     },
+     "rule_agreement": {
+      "agree": 195,
+      "total": 224
+     },
+     "per_rule": {
+      "MANUFACTURER_INFORMATION": {
+       "agree": 13,
+       "total": 16
+      },
+      "IMPORTER_INFORMATION": {
+       "agree": 16,
+       "total": 16
+      },
+      "COUNTRY_OF_ORIGIN": {
+       "agree": 16,
+       "total": 16
+      },
+      "PACKER_INFORMATION": {
+       "agree": 16,
+       "total": 16
+      },
+      "PRODUCT_IDENTITY": {
+       "agree": 12,
+       "total": 16
+      },
+      "NET_QUANTITY_FORMAT": {
+       "agree": 13,
+       "total": 16
+      },
+      "NET_QUANTITY_UNIT_SUITABILITY": {
+       "agree": 16,
+       "total": 16
+      },
+      "MRP_FORMAT": {
+       "agree": 15,
+       "total": 16
+      },
+      "MRP_TAX_INCLUSIVE": {
+       "agree": 11,
+       "total": 16
+      },
+      "UNIT_SALE_PRICE": {
+       "agree": 11,
+       "total": 16
+      },
+      "MANUFACTURE_DATE": {
+       "agree": 13,
+       "total": 16
+      },
+      "DATE_CONSISTENCY": {
+       "agree": 13,
+       "total": 16
+      },
+      "CONSUMER_CARE_FORMAT": {
+       "agree": 15,
+       "total": 16
+      },
+      "FSSAI_LICENSE_PRESENT": {
+       "agree": 15,
+       "total": 16
+      }
+     },
+     "verdict_confusion": {
+      "NEEDS_REVIEW": {
+       "NEEDS_REVIEW": 3
+      },
+      "NON_COMPLIANT": {
+       "NON_COMPLIANT": 6
+      },
+      "COMPLIANT": {
+       "COMPLIANT": 1,
+       "NEEDS_REVIEW": 6
+      }
+     },
+     "verdicts_correct": 10,
+     "false_non_compliant": 0,
+     "false_pass_mandatory": 2
+    },
+    {
+     "name": "ALL",
+     "photos": 23,
+     "fields_scored": 438,
+     "precision": 0.9675675675675676,
+     "recall": 0.8248847926267281,
+     "per_field": {
+      "product_name": {
+       "tp": 9,
+       "fp": 2,
+       "fn": 10,
+       "precision": 0.8181818181818182,
+       "recall": 0.47368421052631576
+      },
+      "brand_owner": {
+       "tp": 14,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.9333333333333333
+      },
+      "manufacturer": {
+       "tp": 15,
+       "fp": 1,
+       "fn": 3,
+       "precision": 0.9375,
+       "recall": 0.8333333333333334
+      },
+      "packer": {
+       "tp": 2,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "importer": {
+       "tp": 2,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "net_quantity": {
+       "tp": 17,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8947368421052632
+      },
+      "mrp": {
+       "tp": 9,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.9
+      },
+      "mrp_declaration": {
+       "tp": 19,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.95,
+       "recall": 0.95
+      },
+      "tax_inclusive": {
+       "tp": 14,
+       "fp": 0,
+       "fn": 5,
+       "precision": 1.0,
+       "recall": 0.7368421052631579
+      },
+      "manufacturing_date": {
+       "tp": 7,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.7777777777777778
+      },
+      "packing_date": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.0
+      },
+      "best_before_or_expiry": {
+       "tp": 11,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8461538461538461
+      },
+      "consumer_care_phone": {
+       "tp": 17,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8947368421052632
+      },
+      "consumer_care_email": {
+       "tp": 16,
+       "fp": 2,
+       "fn": 3,
+       "precision": 0.8888888888888888,
+       "recall": 0.8421052631578947
+      },
+      "consumer_care_website": {
+       "tp": 5,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.8333333333333334
+      },
+      "fssai_license": {
+       "tp": 5,
+       "fp": 0,
+       "fn": 1,
+       "precision": 1.0,
+       "recall": 0.8333333333333334
+      },
+      "country_of_origin": {
+       "tp": 7,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      },
+      "unit_sale_price": {
+       "tp": 3,
+       "fp": 0,
+       "fn": 3,
+       "precision": 1.0,
+       "recall": 0.5
+      },
+      "product_category": {
+       "tp": 6,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0
+      }
+     },
+     "rule_agreement": {
+      "agree": 289,
+      "total": 322
+     },
+     "per_rule": {
+      "MANUFACTURER_INFORMATION": {
+       "agree": 20,
+       "total": 23
+      },
+      "IMPORTER_INFORMATION": {
+       "agree": 23,
+       "total": 23
+      },
+      "COUNTRY_OF_ORIGIN": {
+       "agree": 23,
+       "total": 23
+      },
+      "PACKER_INFORMATION": {
+       "agree": 23,
+       "total": 23
+      },
+      "PRODUCT_IDENTITY": {
+       "agree": 15,
+       "total": 23
+      },
+      "NET_QUANTITY_FORMAT": {
+       "agree": 20,
+       "total": 23
+      },
+      "NET_QUANTITY_UNIT_SUITABILITY": {
+       "agree": 23,
+       "total": 23
+      },
+      "MRP_FORMAT": {
+       "agree": 22,
+       "total": 23
+      },
+      "MRP_TAX_INCLUSIVE": {
+       "agree": 18,
+       "total": 23
+      },
+      "UNIT_SALE_PRICE": {
+       "agree": 18,
+       "total": 23
+      },
+      "MANUFACTURE_DATE": {
+       "agree": 20,
+       "total": 23
+      },
+      "DATE_CONSISTENCY": {
+       "agree": 20,
+       "total": 23
+      },
+      "CONSUMER_CARE_FORMAT": {
+       "agree": 22,
+       "total": 23
+      },
+      "FSSAI_LICENSE_PRESENT": {
+       "agree": 22,
+       "total": 23
+      }
+     },
+     "verdict_confusion": {
+      "NEEDS_REVIEW": {
+       "NEEDS_REVIEW": 8
+      },
+      "NON_COMPLIANT": {
+       "NON_COMPLIANT": 8
+      },
+      "COMPLIANT": {
+       "COMPLIANT": 1,
+       "NEEDS_REVIEW": 6
+      }
+     },
+     "verdicts_correct": 17,
+     "false_non_compliant": 0,
+     "false_pass_mandatory": 2
+    }
+   ]
+  }
+ ]
+}

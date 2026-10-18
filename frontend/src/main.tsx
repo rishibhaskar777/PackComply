@@ -10,10 +10,11 @@ import "./styles/auth.css";
 import "./styles/progress.css";
 import "./styles/capture.css";
 import App from "./App";
+import { ErrorBoundary } from "./app/ErrorBoundary";
 import { I18nProvider } from "./i18n";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <I18nProvider><App /></I18nProvider>
+    <I18nProvider><ErrorBoundary><App /></ErrorBoundary></I18nProvider>
   </StrictMode>,
 );

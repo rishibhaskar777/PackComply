@@ -1,6 +1,6 @@
-import { ReactNode, useEffect, useId, useRef, useState } from "react";
+import { lazy, ReactNode, Suspense, useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
-import { BookOpen, ChevronsUpDown, CircleUserRound, ClipboardList, Cpu, FileText, LayoutDashboard, LogOut, LucideIcon, PanelLeft, Plus, Repeat2, ShieldAlert, X } from "lucide-react";
+import { BookOpen, ChevronsUpDown, CircleUserRound, ClipboardList, Cpu, FileText, Info, LayoutDashboard, LogOut, LucideIcon, PanelLeft, Plus, Repeat2, ShieldAlert, Smartphone, X } from "lucide-react";
 import { LanguageSelector } from "../components/LanguageSelector";
 import { Button, Dialog, SearchInput } from "../components/ui";
 import { TranslationKey, useI18n } from "../i18n";
@@ -21,7 +21,11 @@ const INSPECTION_NAV: NavItem[] = [
 const RESOURCE_NAV: NavItem[] = [
   { name: "rulesets", label: "rulesets", icon: BookOpen },
   { name: "reports", label: "reports", icon: FileText },
+  { name: "about", label: "aboutAccuracy", icon: Info },
 ];
+
+// The QR code library is only fetched when someone asks for the phone address.
+const PhoneDialog = lazy(() => import("./PhoneDialog"));
 
 /** Section and page names for the breadcrumb and document title. */
 export function routeTitles(route: Route): { section: TranslationKey; sectionHref?: string; page: TranslationKey } {
@@ -29,6 +33,7 @@ export function routeTitles(route: Route): { section: TranslationKey; sectionHre
     case "inspection": return { section: "inspections", sectionHref: "#/inspections", page: "inspectionDetails" };
     case "new": case "capture": return { section: "inspections", sectionHref: "#/inspections", page: "newInspection" };
     case "rulesets": case "reports": return { section: "resources", page: route.name };
+    case "about": return { section: "resources", page: "aboutAccuracy" };
     case "risk": return { section: "inspection", page: "riskQueue" };
     case "patterns": return { section: "inspection", page: "repeatIssues" };
     default: return { section: "inspection", page: route.name };
@@ -58,16 +63,17 @@ type AppShellProps = {
   /** Replaces the page name in the breadcrumb (e.g. the inspection number). */
   pageLabel?: string | null;
   route: Route; user: User; riskCount: number | null; search: string;
-  onSearchChange: (value: string) => void; onNewInspection: () => void; onLogout: () => void; children: ReactNode;
+  onSearchChange: (value: string) => void; onNewInspection: () => void; onLogout: () => void; onExpired?: () => void; children: ReactNode;
 };
 
-export function AppShell({ pageLabel, route, user, riskCount, search, onSearchChange, onNewInspection, onLogout, children }: AppShellProps) {
+export function AppShell({ pageLabel, route, user, riskCount, search, onSearchChange, onNewInspection, onLogout, onExpired = () => undefined, children }: AppShellProps) {
   const { t } = useI18n();
   const reduced = useReducedMotion();
   const official = user.role === "OFFICIAL";
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [phoneOpen, setPhoneOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const titles = routeTitles(route);
   const active = activeNav(route);
@@ -152,11 +158,14 @@ export function AppShell({ pageLabel, route, user, riskCount, search, onSearchCh
           </nav>
           <div className="topbar__spacer" />
           <ThemeToggle />
+          <Button variant="outline" className="topbar__phone" icon={<Smartphone size={16} aria-hidden="true" />} onClick={() => setPhoneOpen(true)}>{t("phoneOpenButton")}</Button>
           <SearchInput ref={searchRef} className="topbar__search" aria-label={t("searchInspections")} placeholder={t("searchPlaceholder")} hint="Ctrl K" value={search} onChange={event => onSearch(event.target.value)} />
           <Button className="topbar__new" icon={<Plus size={16} aria-hidden="true" />} onClick={onNewInspection}>{t("newInspection")}</Button>
         </header>
         <main id="main-content" className="shell__content" tabIndex={-1}>{children}</main>
       </div>
+
+      {phoneOpen && <Suspense fallback={null}><PhoneDialog open onClose={() => setPhoneOpen(false)} onExpired={onExpired} /></Suspense>}
 
       <nav className="tabbar" aria-label={t("mobileNavigation")}>
         <a href="#/overview" className={active === "overview" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "overview" ? "page" : undefined}><LayoutDashboard size={20} aria-hidden="true" /><span>{t("overview")}</span></a>

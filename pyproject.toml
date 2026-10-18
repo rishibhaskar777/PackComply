@@ -25,6 +25,8 @@ dependencies = [
   "uharfbuzz>=0.39,<1.0",
   # Versioned compliance rulesets (backend/app/services/compliance/rulesets/*.yaml).
   "pyyaml>=6.0,<7.0",
+  # Draws the phone-URL QR code in the terminal (scripts/start-demo.ps1). Pure Python, no network.
+  "qrcode>=7.4,<9.0",
 ]
 
 [project.optional-dependencies]
@@ -35,7 +37,7 @@ include = ["backend*"]
 
 [tool.setuptools.package-data]
 # Noto fonts (SIL Open Font License) used by the PDF report.
-"backend.app" = ["assets/fonts/*.ttf", "assets/fonts/OFL.txt", "services/compliance/rulesets/*.yaml"]
+"backend.app" = ["assets/fonts/*.ttf", "assets/fonts/OFL.txt", "assets/evaluation_report.json", "services/compliance/rulesets/*.yaml"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

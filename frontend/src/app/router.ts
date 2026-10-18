@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 
 // Minimal hash routing: #/overview, #/inspections, #/inspections/:id, #/new,
 // #/capture (the mobile field app; ?add=<inspection id>&panel=DATE_STAMP adds a photo to a record),
-// #/risk, #/patterns, #/rulesets, #/reports.  Each navigation is a history
+// #/risk, #/patterns, #/rulesets, #/reports, #/about.  Each navigation is a history
 // entry, so the browser back button works without a router library.
 export type Route =
   | { name: "overview" } | { name: "inspections" } | { name: "inspection"; id: string } | { name: "new" } | { name: "capture"; add?: string; panel?: string }
-  | { name: "risk" } | { name: "patterns" } | { name: "rulesets" } | { name: "reports" };
+  | { name: "risk" } | { name: "patterns" } | { name: "rulesets" } | { name: "reports" } | { name: "about" };
 export type RouteName = Route["name"];
 
-const SIMPLE: RouteName[] = ["overview", "inspections", "new", "risk", "patterns", "rulesets", "reports"];
+const SIMPLE: RouteName[] = ["overview", "inspections", "new", "risk", "patterns", "rulesets", "reports", "about"];
 export const DEFAULT_PATH = "/overview";
 
 export function parseHash(hash: string): Route | null {

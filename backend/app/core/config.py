@@ -85,6 +85,8 @@ class Settings(BaseSettings):
     # The laptop's Wi-Fi/LAN IPv4 and the full phone URL; scripts/start-demo.ps1 sets them. Empty = detect.
     lan_ip: str = ""
     phone_url: str = ""
+    # Measured accuracy shown on "About & accuracy"; written by `batch_evaluate --report-json`.
+    evaluation_report_path: Path = Path(__file__).resolve().parents[1] / "assets" / "evaluation_report.json"
 
     model_config = SettingsConfigDict(env_file=ROOT_ENV_FILE, env_file_encoding="utf-8", extra="ignore")
 

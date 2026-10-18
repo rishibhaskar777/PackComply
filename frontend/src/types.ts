@@ -61,3 +61,20 @@ export type DashboardSummary = {
 
 export type ComplianceRule = { code: string; title: string; description: string; legal_reference: string | null; severity: string; applies_when?: string | null };
 export type Ruleset = { ruleset_id: string; version: string; label: string; title: string; disclaimer?: string | null; rules: ComplianceRule[] };
+
+/** The evaluation report written by `batch_evaluate --report-json` (GET /api/system/evaluation). */
+export type EvalGroup = {
+  name: string; photos: number; fields_scored: number; precision: number; recall: number;
+  per_field: Record<string, { tp: number; fp: number; fn: number; precision: number; recall: number }>;
+  rule_agreement: { agree: number; total: number };
+  verdict_confusion: Record<string, Record<string, number>>;
+  verdicts_correct: number; false_non_compliant: number; false_pass_mandatory: number;
+};
+export type EvalRun = {
+  label: string; kind: "development" | "unseen"; generated_at: string; note?: string;
+  ruleset: { id: string; version: string; rules: number };
+  dataset_sizes: { dev: number; phone_holdout_retired_to_dev: number; unseen: number; total: number };
+  processing_seconds: { median: number; max: number; photos: number } | null;
+  groups: EvalGroup[];
+};
+export type EvalReport = { schema: number; runs: EvalRun[] };
