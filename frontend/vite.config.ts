@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
     preview: { proxy: { "/api": { target: apiTarget, changeOrigin: false } } },
     test: {
       environment: "jsdom",
+      setupFiles: ["./src/test/setup.ts"],
+      // Tests mock fetch by absolute URL; production/dev builds without VITE_API_URL use the relative "/api" proxy path.
+      env: { VITE_API_URL: "http://localhost:8000/api" },
     },
   };
 });

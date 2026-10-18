@@ -83,3 +83,44 @@ describe("fitWithin", () => {
     expect(fitWithin(800, 600, 1280)).toEqual({ width: 800, height: 600 });
   });
 });
+
+describe("blur gate on label-like images", () => {
+  const W = 240, H = 320;
+  /** Label-like text: rows of 2px dark strokes (a hashed glyph grid), as seen at the 320px quality size: moderate contrast. */
+  const labelGrey = () => {
+    const grey = new Float32Array(W * H).fill(205);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const row = Math.floor(y / 16), col = Math.floor(x / 8), inRow = y % 16, inCol = x % 8;
+      if (inRow < 3 || inRow > 11 || inCol > 5) continue;
+      const bits = (row * 7919 + col * 104729 + 13) % 16;
+      const stroke = (inCol < 2 && bits & 1) || (inCol > 3 && bits & 2) || (inRow < 5 && bits & 4) || (inRow > 8 && inRow < 11 && bits & 8);
+      if (stroke) grey[y * W + x] = 95;
+    }
+    return grey;
+  };
+  const asPixels = (grey: Float32Array) => ({ data: Uint8ClampedArray.from({ length: W * H * 4 }, (_, i) => (i % 4 === 3 ? 255 : grey[Math.floor(i / 4)])), width: W, height: H });
+  /** Average each pixel over the given offsets: a box (defocus) or a diagonal streak (hand motion). */
+  const smear = (grey: Float32Array, offsets: Array<[number, number]>) => {
+    const out = new Float32Array(grey.length);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      let total = 0;
+      for (const [dx, dy] of offsets) total += grey[Math.min(H - 1, Math.max(0, y + dy)) * W + Math.min(W - 1, Math.max(0, x + dx))];
+      out[y * W + x] = total / offsets.length;
+    }
+    return out;
+  };
+  const box = (radius: number) => { const out: Array<[number, number]> = []; for (let dy = -radius; dy <= radius; dy++) for (let dx = -radius; dx <= radius; dx++) out.push([dx, dy]); return out; };
+  const streak = (length: number) => Array.from({ length }, (_, i): [number, number] => [i - (length >> 1), i - (length >> 1)]);
+  const score = (grey: Float32Array) => assessPixels(asPixels(grey));
+
+
+  it("passes a sharp label image, and one with the slight softness of a normal phone photo", () => {
+    expect(score(labelGrey()).sharp).toBe(true);
+    expect(score(smear(labelGrey(), box(1))).sharp).toBe(true);
+  });
+
+  it("fails heavy focus blur and heavy motion blur of the same label", () => {
+    expect(score(smear(labelGrey(), box(3))).sharp).toBe(false);
+    expect(score(smear(labelGrey(), streak(41))).sharp).toBe(false);
+  });
+});

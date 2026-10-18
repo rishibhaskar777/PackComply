@@ -46,7 +46,7 @@
 .cap-stage { position: relative; flex: 1; min-height: 0; margin: 0 var(--space-3); border-radius: 20px; overflow: hidden; background: var(--cap-surface); isolation: isolate; }
 .cap-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .cap-guide { position: absolute; inset: 0; pointer-events: none; }
-.cap-guide span { position: absolute; inset: 5% 6% 22%; border: 2px solid var(--cap-fg); border-radius: 20px; box-shadow: 0 0 0 100vmax var(--cap-scrim); }
+.cap-guide span { position: absolute; border: 2px solid var(--cap-fg); border-radius: 20px; box-shadow: 0 0 0 100vmax var(--cap-scrim); }
 .cap-hint { position: absolute; inset: auto var(--space-4) var(--space-3); margin: 0; padding: var(--space-2) var(--space-3); border-radius: var(--radius-lg); background: var(--cap-scrim); color: var(--cap-fg); font-size: var(--text-sm); text-align: center; }
 .cap-status { position: absolute; inset: var(--space-3) var(--space-3) auto; margin: 0; padding: var(--space-2) var(--space-3); border-radius: 999px; background: var(--cap-scrim); color: var(--cap-fg); font-size: var(--text-sm); text-align: center; }
 .cap-status--problem { background: var(--cap-surface); border: 1px solid var(--cap-violation); }
@@ -166,3 +166,26 @@
 @media (prefers-reduced-motion: reduce) {
   .bottom-sheet, .cap-review, .cap-modal__panel, .cap-shutter span, .res-passed__toggle svg { transition: none; animation: none; }
 }
+
+/* Live camera controls: lens, zoom, tap-to-focus ring, options row, crop box, diagnostics. */
+.cap-video { touch-action: none; }
+.cap-status--ready { background: var(--cap-pass); color: var(--cap-primary-fg); }
+.cap-focus-ring { position: absolute; width: 72px; height: 72px; margin: -36px 0 0 -36px; border: 2px solid var(--cap-primary); border-radius: 50%; pointer-events: none; animation: cap-focus 900ms var(--ease-out) forwards; }
+@keyframes cap-focus { from { transform: scale(1.5); opacity: 0.2; } 25% { opacity: 1; } to { transform: scale(1); opacity: 0; } }
+.cap-lens { position: absolute; inset: auto var(--space-3) 84px auto; z-index: 2; display: grid; justify-items: end; gap: var(--space-2); }
+.cap-zoom { display: flex; align-items: center; gap: var(--space-1); }
+.cap-zoom__value { min-width: 3ch; text-align: center; padding: 2px var(--space-2); border-radius: 999px; background: var(--cap-scrim); color: var(--cap-fg); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.cap-pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 var(--space-3); border: 1px solid var(--cap-border); border-radius: 999px; background: var(--cap-scrim); color: var(--cap-fg); font-size: var(--text-sm); cursor: pointer; }
+.cap-pill--icon { width: 40px; padding: 0; }
+.cap-options { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); margin: var(--space-2) var(--space-3) 0; }
+.cap-toggle { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 40px; font-size: var(--text-sm); color: var(--cap-muted); cursor: pointer; }
+.cap-toggle input { width: 20px; height: 20px; accent-color: var(--cap-primary); }
+.cap-debug { position: absolute; inset: 56px var(--space-3) var(--space-3); z-index: 4; margin: 0; padding: var(--space-3); overflow: auto; border-radius: var(--radius-lg); background: var(--cap-surface); border: 1px solid var(--cap-border); color: var(--cap-fg); font: 11px/1.4 var(--font-mono, monospace); white-space: pre-wrap; word-break: break-all; user-select: text; }
+.cap-review__frame { position: relative; justify-self: center; max-width: 100%; line-height: 0; }
+.cap-review__frame .cap-review__photo { display: block; width: auto; height: auto; max-width: 100%; max-height: 42vh; }
+.cap-crop { position: absolute; inset: 0; touch-action: none; }
+.cap-crop__box { position: absolute; border: 2px solid var(--cap-primary); box-shadow: 0 0 0 100vmax var(--cap-scrim); cursor: move; }
+.cap-crop__handle { position: absolute; width: 28px; height: 28px; background: var(--cap-primary); border: 2px solid var(--cap-fg); border-radius: 50%; }
+.cap-crop__handle--nw { inset: -14px auto auto -14px; } .cap-crop__handle--ne { inset: -14px -14px auto auto; }
+.cap-crop__handle--sw { inset: auto auto -14px -14px; } .cap-crop__handle--se { inset: auto -14px -14px auto; }
+@media (prefers-reduced-motion: reduce) { .cap-focus-ring { animation-duration: 1ms; } }

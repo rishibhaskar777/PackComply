@@ -205,7 +205,7 @@ Processing runs in a background thread pool inside the API (no broker; works on 
 
 Browsers only allow the live camera preview on HTTPS or `localhost`, and a phone opening `http://<LAN-IP>:5173` is neither. For the live rear-camera preview run the dev server over HTTPS with a local self-signed certificate (the free `@vitejs/plugin-basic-ssl`; nothing is downloaded or sent anywhere at runtime):
 
-1. In `frontend/` run `npm run dev:https` (instead of `npm run dev`; plain `npm run dev` is unchanged). The `/api` proxy keeps working: the browser speaks HTTPS to Vite, Vite speaks HTTP to the API on the laptop.
+1. In `frontend/` run `npm run dev:https` (instead of `npm run dev`; plain `npm run dev` is unchanged). The `/api` proxy keeps working: the browser speaks HTTPS to Vite, Vite speaks HTTP to the API on the laptop. The frontend calls the relative `/api` path whenever `VITE_API_URL` is unset (localhost or LAN, http or https), so it never builds `https://localhost:8000` (uvicorn serves plain HTTP). Leave `VITE_API_URL` out of `frontend/.env` for local dev; in dev an `http://` value on an https page is ignored with a console warning. See `frontend/.env.example`.
 2. On the phone open `https://<laptop-IP>:5173`, for example `https://192.168.1.23:5173`.
 3. The browser warns that the certificate is not trusted (it is self-signed). Choose **Advanced → Proceed to 192.168.1.23 (unsafe)** once.
 4. Sign in, tap **New inspection**, then tap the shutter (or **Enable camera**) and allow the camera. The live rear-camera preview, torch toggle (where the phone supports it) and the 1080p capture now work.

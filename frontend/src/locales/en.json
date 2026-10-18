@@ -357,5 +357,22 @@
   "fiMonthsFromManufacture": "months from manufacture",
   "fiMonthsCount": "{count} months from manufacture",
   "fiYes": "Yes",
-  "fiNo": "No"
+  "fiNo": "No",
+  "capPhoneCameraBest": "Phone camera (best quality)",
+  "capTryLive": "Try live preview",
+  "capNoStillHint": "Live preview can't take full-quality photos in this browser. Your phone camera gives the sharpest label photos.",
+  "capNoFocusHint": "This camera can't focus by itself, so live photos come out blurry. Use your phone camera for a sharp label.",
+  "capHoldSteady": "Hold steady · focusing…",
+  "capInFocus": "In focus",
+  "capHoldGuidance": "Hold 15–25 cm away · tap the label to focus",
+  "capAutoCapture": "Auto-capture when sharp",
+  "capLens": "Lens",
+  "capZoom": "Zoom",
+  "capZoomIn": "Zoom in",
+  "capZoomOut": "Zoom out",
+  "capPhotoBlurry": "Photo is blurry: retake",
+  "capCrop": "Crop",
+  "capNoCrop": "No crop",
+  "capCropBox": "Crop area",
+  "capDebugTitle": "Camera diagnostics"
 }

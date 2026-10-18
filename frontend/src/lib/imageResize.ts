@@ -25,7 +25,7 @@ export async function decodeOriented(blob: Blob): Promise<Decoded> {
   } finally { URL.revokeObjectURL(url); }
 }
 
-function toBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> {
+export function toBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> {
   return new Promise((resolve, reject) => canvas.toBlob(blob => (blob ? resolve(blob) : reject(new Error("encode"))), type, quality));
 }
 
@@ -51,4 +51,15 @@ export async function prepareForUpload(blob: Blob, maxDimension: number): Promis
     context.drawImage(decoded.source, 0, 0, width, height);
     return { blob: await toBlob(canvas, "image/jpeg", JPEG_QUALITY), width, height, resized: true };
   } finally { decoded.release(); }
+}
+
+/** Copy `rect` (pixels of `source`) into a new canvas at full resolution. Null where canvas is unavailable. */
+export function cropToCanvas(source: CanvasImageSource, rect: { x: number; y: number; w: number; h: number }): HTMLCanvasElement | null {
+  if (typeof document === "undefined") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(rect.w)); canvas.height = Math.max(1, Math.round(rect.h));
+  const context = canvas.getContext("2d");
+  if (!context) return null;
+  context.drawImage(source, rect.x, rect.y, rect.w, rect.h, 0, 0, canvas.width, canvas.height);
+  return canvas;
 }

@@ -26,6 +26,8 @@ describe("capture screen", () => {
     report = good;
     URL.createObjectURL = vi.fn(() => "blob:photo"); URL.revokeObjectURL = vi.fn();
     Object.defineProperty(window, "isSecureContext", { value: true, configurable: true });
+    vi.stubGlobal("ImageCapture", class { takePhoto = vi.fn(); grabFrame = vi.fn(); });
+    try { localStorage.clear(); } catch { /* ignore */ }
   });
   afterEach(() => { cleanup(); vi.unstubAllGlobals(); Reflect.deleteProperty(navigator, "mediaDevices"); });
 
@@ -81,7 +83,7 @@ describe("capture screen", () => {
     expect(screen.getByText(en.capFallbackTitle)).toBeTruthy();
   });
 
-  const liveStream = (capabilities: Record<string, unknown> = {}) => {
+  const liveStream = (capabilities: Record<string, unknown> = { focusMode: ["continuous"] }) => {
     const applyConstraints = vi.fn(async () => undefined);
     const track = { stop: vi.fn(), getCapabilities: () => capabilities, applyConstraints };
     return { track, stream: { getTracks: () => [track], getVideoTracks: () => [track] } };
@@ -102,13 +104,13 @@ describe("capture screen", () => {
     expect(screen.getByRole("button", { name: en.capEnableCamera })).toBeTruthy();
   });
 
-  it("opens a live rear-camera preview (1920px ideal) when the shutter is tapped in a secure context, and releases it on leaving", async () => {
+  it("opens a live rear-camera preview (4K ideal) when the shutter is tapped in a secure context, and releases it on leaving", async () => {
     const { stream, track } = liveStream();
     const getUserMedia = stubCamera(async () => stream);
     const { unmount } = mount();
     fireEvent.click(screen.getByRole("button", { name: /Take photo/ }));
     await waitFor(() => expect(getUserMedia).toHaveBeenCalledTimes(1));
-    expect(getUserMedia.mock.calls[0][0]).toMatchObject({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 } } });
+    expect(getUserMedia.mock.calls[0][0]).toMatchObject({ video: { facingMode: { ideal: "environment" }, width: { ideal: 3840 } } });
     await waitFor(() => expect(screen.queryByText(en.capCameraStarting)).toBeNull());
     expect(document.querySelector("video")).toBeTruthy();
     expect(document.querySelector(".cap-guide")).toBeTruthy();
@@ -133,7 +135,7 @@ describe("capture screen", () => {
   });
 
   it("offers the torch only when the camera supports it, and switches it on the track", async () => {
-    const { stream, track } = liveStream({ torch: true });
+    const { stream, track } = liveStream({ torch: true, focusMode: ["continuous"] });
     stubCamera(async () => stream);
     mount();
     fireEvent.click(screen.getByRole("button", { name: en.capEnableCamera }));
@@ -144,7 +146,7 @@ describe("capture screen", () => {
   });
 
   it("does not show a torch button when the camera has none", async () => {
-    stubCamera(async () => liveStream({}).stream);
+    stubCamera(async () => liveStream().stream);
     mount();
     fireEvent.click(screen.getByRole("button", { name: en.capEnableCamera }));
     await waitFor(() => expect(document.querySelector("video")).toBeTruthy());
@@ -226,7 +228,8 @@ describe("capture screen", () => {
     pick("gallery-input");
     const review = await screen.findByRole("dialog");
     expect(within(review).getAllByRole("listitem").map(chip => [chip.textContent, chip.getAttribute("data-ok")])).toEqual([[en.capBlurry, "false"], [en.capLightDark, "false"], [en.capGlare, "false"]]);
-    expect(within(review).getByText(en.capRetakeRecommended)).toBeTruthy();
+    expect(within(review).getByText(en.capPhotoBlurry)).toBeTruthy();
+    expect(within(review).getByRole("button", { name: en.capRetake }).className).toContain("btn--primary");
     fireEvent.click(within(review).getByRole("button", { name: en.capRetake }));
     expect(props.onUse).not.toHaveBeenCalled();
     expect(screen.queryByRole("dialog")).toBeNull();

@@ -5,8 +5,8 @@
 
 /** Longest side of the copy the checks run on. */
 export const QUALITY_SIZE = 320;
-/** Variance of the Laplacian below this reads as blurry (measured on a QUALITY_SIZE copy). */
-export const SHARPNESS_MIN = 60;
+/** Variance of the Laplacian below this reads as blurry (measured on a QUALITY_SIZE copy). Synthetic label text: sharp ~7000, slightly soft ~600, 5x5 defocus ~170, 7x7 defocus ~80; tune with the camera debug panel on real phones. */
+export const SHARPNESS_MIN = 150;
 /** Mean luma (0-255) below this reads as too dark. */
 export const BRIGHTNESS_MIN = 70;
 /** A pixel counts as glare when every channel is at least this bright. */
@@ -88,4 +88,17 @@ export function assessSource(source: CanvasImageSource, width: number, height: n
   if (!context) return null;
   context.drawImage(source, 0, 0, size.width, size.height);
   return assessPixels(context.getImageData(0, 0, size.width, size.height));
+}
+
+/** Sharpness (variance of the Laplacian on a QUALITY_SIZE copy) of one region of a drawable, e.g. the guide box of a live video frame. Null where canvas is unavailable. */
+export function sharpnessOfRegion(source: CanvasImageSource, region: { x: number; y: number; w: number; h: number }, canvas?: HTMLCanvasElement): number | null {
+  if (typeof document === "undefined" || region.w < 1 || region.h < 1) return null;
+  const size = fitWithin(region.w, region.h, QUALITY_SIZE);
+  const target = canvas ?? document.createElement("canvas");
+  target.width = size.width; target.height = size.height;
+  const context = target.getContext("2d", { willReadFrequently: true });
+  if (!context) return null;
+  context.drawImage(source, region.x, region.y, region.w, region.h, 0, 0, size.width, size.height);
+  const pixels = context.getImageData(0, 0, size.width, size.height);
+  return laplacianVariance(toGray(pixels), pixels.width, pixels.height);
 }
