@@ -56,10 +56,14 @@ export function useHashPath(): string {
   return path;
 }
 
+const sameRoute = (a: Route, b: Route) => JSON.stringify(a) === JSON.stringify(b);
+
 export function useHashRoute(): Route {
   const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash) ?? { name: "overview" });
   useEffect(() => {
-    const update = () => setRoute(parseHash(window.location.hash) ?? { name: "overview" });
+    // A hashchange to the page already shown (a late or duplicate event) keeps the same route object, so nothing that
+    // depends on the route (closing the menu, moving focus) fires for it.
+    const update = () => setRoute(current => { const next = parseHash(window.location.hash) ?? { name: "overview" }; return sameRoute(current, next) ? current : next; });
     if (!parseHash(window.location.hash)) navigate(DEFAULT_PATH, { replace: true });
     window.addEventListener("hashchange", update);
     return () => window.removeEventListener("hashchange", update);

@@ -36,6 +36,9 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: "jsdom",
       setupFiles: ["./src/test/setup.ts"],
+      // Pages and languages are separate chunks that vite-node compiles on first use; in a full parallel run a cold worker
+      // can need longer than the 5 s default for the first test that opens a route. Passing tests still finish immediately.
+      testTimeout: 20_000,
       // Tests mock fetch by absolute URL; production/dev builds without VITE_API_URL use the relative "/api" proxy path.
       env: { VITE_API_URL: "http://localhost:8000/api" },
     },

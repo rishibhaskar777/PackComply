@@ -20,7 +20,8 @@ PackComply assists inspectors. Its results are not legally binding decisions.
 - Inspection history with search and filters
 - PDF inspection reports
 - Cookie-based authentication with OFFICIAL and MANUFACTURER roles, login lockout, "keep me signed in", and an offline password reset (see [Accounts and password reset](#accounts-and-password-reset))
-- 23 UI languages
+- 23 UI languages (loaded on demand)
+- One-command Windows demo start with a phone QR code, seeded demo data and an "About & accuracy" page showing measured results (see [Demo day](#demo-day-windows-no-docker))
 
 ## Tech stack
 
@@ -66,7 +67,7 @@ docker-compose.yml
 
 ## Getting started
 
-Windows users without Docker: see [docs/local-setup-windows.md](docs/local-setup-windows.md).
+Windows users without Docker: see [docs/local-setup-windows.md](docs/local-setup-windows.md), and for a demo [Demo day](#demo-day-windows-no-docker): `scripts\start-demo.ps1` does the rest.
 
 ### Prerequisites
 
@@ -109,6 +110,112 @@ alembic -c backend/alembic.ini upgrade head
 ```
 
 Do not commit `.env`; it may contain credentials.
+
+## Demo day (Windows, no Docker)
+
+Everything runs on the laptop: PostgreSQL, the API, the web app and OCR. No paid APIs, no API keys, no cloud calls while it runs.
+
+### One-command start
+
+Prerequisites, once: the Python venv (`python -m venv .venv`, then `pip install -e ".[dev]"`, which also installs the `qrcode` package used for the terminal QR), `npm install` in `frontend/`, the OCR models downloaded (`python -m backend.scripts.warm_ocr`), and PostgreSQL initialised.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\start-demo.ps1      # add -NoBrowser to skip opening the browser
+powershell -ExecutionPolicy Bypass -File scripts\stop-demo.ps1       # -StopPostgres to stop the database too
+```
+
+`start-demo.ps1` (the two PostgreSQL paths are variables at the top of the script, default `D:\Development\PGSQL\pgsql\bin` and `D:\Development\PGSQL\data`):
+
+1. checks the venv, `npm` and `frontend\node_modules` (and offers `npm install` if it is missing) and that ports 8000 and 5173 are free;
+2. starts PostgreSQL with `pg_ctl` if port 5432 is not already answering (an already-running server is left alone);
+3. runs `alembic -c backend/alembic.ini upgrade head`;
+4. detects the laptop's Wi-Fi/LAN IPv4 (the adapter with a default gateway; Hyper-V, WSL, VMware, VirtualBox, VPN and similar virtual adapters are ignored);
+5. starts uvicorn (`127.0.0.1:8000`) and the HTTPS Vite dev server (`:5173`) in two separate windows;
+6. waits for `/api/health/ready`, for the web port and for the OCR warm-up (`/api/system/status` → `ocr: ready`), with a live timer;
+7. prints the laptop URL, the phone URL and a **QR code for the phone URL**:
+
+```text
+ Laptop : https://localhost:5173/#/overview
+ Phone  : https://192.168.1.105:5173/#/capture   (same Wi-Fi as this laptop)
+ <QR code>
+```
+
+Failures stop with one clear message and the fix: PostgreSQL does not start (log path and the stale `postmaster.pid` hint), port 8000/5173 busy (who owns it, and `scripts\stop-demo.ps1`), venv or `alembic` missing (the exact commands), `node_modules` missing (offers `npm install`; `-Yes` accepts), and a missing firewall rule: if Windows Firewall has no rule for port 5173 the script prints the exact command to run once in an **Administrator** PowerShell:
+
+```powershell
+New-NetFirewallRule -DisplayName "PackComply Demo (5173)" -Direction Inbound -Protocol TCP -LocalPort 5173 -Action Allow -Profile Any
+```
+
+The API logs one summary line when it is ready, for example `PackComply ready | DB ok | ruleset LM_PC_2011 v2 (14 rules) | OCR en+hi ready (warm-up 13.2 s) | LAN https://192.168.1.105:5173/#/capture`.
+
+On a desktop screen the top bar has an **Open on phone** button: it shows the same phone URL as a QR code, drawn in the browser (`GET /api/system/network` returns the address; no image service is involved). `LAN_IP` / `PHONE_URL` in `.env` override the detected address.
+
+### Demo data
+
+```powershell
+.\.venv\Scripts\python.exe -m backend.scripts.seed_demo                       # sample folders next to the repository, if present
+.\.venv\Scripts\python.exe -m backend.scripts.seed_demo D:\photos\labels      # or any folder(s) of JPG/PNG/WebP photos
+.\.venv\Scripts\python.exe -m backend.scripts.seed_demo --inspector-password "..." --maker-password "..."
+.\.venv\Scripts\python.exe -m backend.scripts.seed_demo --reset-demo          # remove only what the seed created
+```
+
+- Creates **`demo_inspector`** (OFFICIAL, owns most records and sees the risk queue) and **`demo_maker`** (MANUFACTURER, owns a few). Passwords are printed once, when an account is created (random `demo-NNNNNN`), or set with the flags. Re-running never changes an existing password unless you pass the flag.
+- Imports one inspection per photo through the real workflow (extraction → rules → risk → repeat patterns). A photo whose OCR is already stored in `backend/tests/fixtures/labels/real/` reuses it (about 10 s for all 23 sample photos, and the record shows the OCR time that photo really took); other photos are read with PaddleOCR (`--no-ocr` skips them).
+- Dates are spread over the last four weeks; the three lowest-risk records of the inspector are verified; the highest-risk record is left unreviewed for the live correction.
+- Idempotent: an inspection is identified by its photo's file name (`DEMO-<hash>`), so a second run adds nothing. Seeded rows carry a `demo_seed` tag (migration `20261019_0012`), so `--reset-demo` deletes only tagged inspections, their photo files and the two demo accounts. Your own accounts and records are never touched.
+
+### 5-minute judge demo
+
+Have the laptop on Wi-Fi (or a phone hotspot), the phone on the same network, `start-demo.ps1` finished and `seed_demo` run once. Open the laptop URL; on the phone, accept the certificate warning once beforehand and keep the page open.
+
+1. **Log in** as `demo_inspector`. Say: everything runs on this laptop, nothing leaves it (the "Runs offline" card in the sidebar).
+2. **Overview**: verdict mix, the risk queue and the repeat issues are already populated from real photos.
+3. **Open the highest-risk record** (top of the risk queue, score 100). The photo shows numbered evidence markers; the findings list shows each failed rule with its legal reference.
+4. **Click a finding**: the matching evidence box lights up on the photo, with the exact text OCR read.
+5. **Make a correction** on a finding that is a mis-read, not a violation (for example the MRP or the net quantity): enter the value, give a reason, save. The verdict and risk update at once; the audit trail records who changed what.
+6. **Show a hidden violation**: a finding that a casual look would miss (for example no consumer-care contact details, or an unit sale price that does not match MRP ÷ net quantity). Point at its legal reference and recommended action.
+7. **Verify** the record (inspector review), then **download the PDF**.
+8. **Phone capture of a new pack**: on the laptop click **Open on phone** and scan the QR (or open the phone URL), sign in as `demo_inspector` on the phone, tap **New inspection** (the field app), and photograph the back of a real pack; add the front or the date stamp if time allows. Each photo is uploaded and read while you frame the next one.
+9. **Live progress**: *Done* shows the real step list (reading text EN + हिन्दी per photo, linking, rules, risk) with true durations, no fake percentages.
+10. **Result**: the phone shows the verdict; open the record on the laptop. It has three photo tabs (back, front, date) with their own evidence boxes.
+11. **Audit trail**: scroll to it: creation, each photo with its SHA-256, OCR time, ruleset version, correction, verification.
+12. If asked about accuracy, open **About & accuracy** (sidebar → Resources): precision, recall, rule agreement and the verdict confusion matrix measured by the evaluation script, labelled development or unseen, with the date.
+
+Fallbacks:
+
+- **Wi-Fi fails or the phone cannot reach the laptop**: turn on the phone's hotspot, connect the laptop to it, run `scripts\stop-demo.ps1` then `scripts\start-demo.ps1` again (a new LAN address is detected) and re-scan the QR. Or skip the phone: on the laptop use **New inspection** (`#/new`), drop the same photos onto the upload form and follow the same progress and result screens.
+- **Phone says "can't connect"**: the firewall rule above is the usual cause; the script prints the command whenever it is missing. Check that both devices are on the same network and that the phone URL begins with `https://`.
+- **Camera preview does not open on the phone**: the page must be `https://`; if the browser still blocks it, the shutter opens the phone's own camera app instead.
+- **One photo cannot be read** (OCR crash or timeout): the inspection still completes with the other photos. Rules that depend on the unread photo are marked REVIEW with a note ("The date stamp photo could not be read…"), never PASS or FAIL, the progress list shows the failed step, and **Retry photo** (on the record) reads only that photo.
+- **A screen crashes**: the global error screen offers **Reload**; saved inspections are unaffected. If a session expires, any request returning 401 sends you back to sign-in with a notice.
+
+### About & accuracy and honest metrics
+
+`#/about` shows what the 14 rules check (loaded from the ruleset API, each with its legal reference), a diagram of the pipeline, the privacy statement, and the **measured** accuracy: precision and recall per field, rule agreement, the verdict confusion matrix, the count of false NON_COMPLIANT verdicts and of false PASS findings on mandatory rules, dataset sizes (development / phone hold-out retired to development / unseen) and the median OCR time. All numbers come from the JSON written by the evaluation script (`backend/app/assets/evaluation_report.json`, served by `GET /api/system/evaluation`); nothing is typed into the page. Each run is labelled **Development score** (extraction was tuned while looking at those photos, so the numbers are optimistic) or **Unseen score**, with its dataset name and date.
+
+Refresh the development report from the stored OCR fixtures (no photos needed):
+
+```powershell
+.\.venv\Scripts\python.exe -m backend.scripts.eval_real --report-json backend/app/assets/evaluation_report.json --run-label development-2026-10 --run-note "23 labelled photos, development"
+```
+
+#### Adding a fresh UNSEEN set
+
+1. Put the new phone photos in one folder, for example `D:\unseen-photos` (only photos nobody has run through the pipeline or tuned on).
+2. Generate the ground-truth template, a separate fixture folder keeps this set apart from the development photos: `python -m backend.scripts.make_ground_truth_template D:\unseen-photos` (writes `backend/tests/fixtures/labels/unseen/expected_real.json` and `split.json`; add `--fixture-dir` and `--group` to choose another folder or batch name). Every field is `null` and every photo is marked `"filled": false`; every photo is HOLD-OUT.
+3. **Before running the pipeline on them**, read each photo yourself and fill the expected values by hand (the format is described at the top of `backend/tests/fixtures/labels/real/expected_real.json`; omit or leave `null` what the photo does not show), then set `"filled": true` for each finished photo. Unfilled photos are not scored.
+4. Evaluate once, without tuning:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m backend.scripts.batch_evaluate D:\unseen-photos --fixture-dir backend\tests\fixtures\labels\unseen --report-json backend\app\assets\evaluation_report.json --run-label unseen-2026-10-29 --run-note "N new phone photos, labelled by hand before the run"
+   ```
+
+   This runs the real OCR, extraction and rules, prints the scores and **adds** the run to the report file (runs with other labels are kept, so development and unseen results sit side by side on the page). Do not change extraction or rule code in response to the numbers and then re-run: that turns the unseen set into a development set. Commit the updated `evaluation_report.json` if you want it in the repository.
+
+### Speed and reliability notes
+
+- The first screen loads only English plus the app shell: other UI languages are separate chunks fetched when selected (and cached), and every page is its own route chunk behind a skeleton. Initial JavaScript is about 110 kB gzip (it was 394 kB); the two Geist font files are preloaded.
+- If OCR crashes or times out for one photo of a multi-photo inspection, the inspection completes with the others (see the fallbacks above). If no photo at all can be read, the run fails with a clear message and **Try again** resumes it.
 
 ## Running tests
 

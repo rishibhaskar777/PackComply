@@ -19,6 +19,8 @@ const VERDICTS = ["COMPLIANT", "NEEDS_REVIEW", "NON_COMPLIANT"] as const;
 const VERDICT_LABEL: Record<string, TranslationKey> = { COMPLIANT: "verdictCompliant", NON_COMPLIANT: "verdictNonCompliant", NEEDS_REVIEW: "verdictNeedsReview" };
 const GROUP_LABEL: Record<string, TranslationKey> = { DEV: "aboutGroupDev", "HOLD-OUT": "aboutGroupUnseen", "REAL PHOTOS": "aboutGroupPhone", ALL: "aboutGroupAll" };
 
+/** "PHONE_HOLDOUT_2026_10" -> "Phone holdout 2026 10". */
+const sentence = (name: string) => { const words = name.replace(/_/g, " ").toLowerCase(); return words.charAt(0).toUpperCase() + words.slice(1); };
 const percent = (value: number) => `${(value * 100).toFixed(1)}%`;
 
 function useLoaded<T>(path: string, operation: string, onExpired: () => void) {
@@ -55,13 +57,6 @@ export function AboutPage({ onExpired }: { onExpired: () => void }) {
     <div className="page about">
       <PageHeader title={t("aboutAccuracy")} subtitle={t("aboutSubtitle")} />
 
-      <Card title={t("aboutChecksTitle")} description={rules.data ? fill(t("aboutChecksBody"), { count: rules.data.rules.length, ruleset: rules.data.label }) : undefined} flush>
-        {rules.failure
-          ? <Alert title={t("rulesetsLoadError")} action={<Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={rules.retry}>{t("tryAgain")}</Button>} />
-          : rules.data === null ? <div className="about__loading"><Skeleton width="60%" /><Skeleton width="80%" /><Skeleton width="50%" /></div>
-          : <Table caption={rules.data.label} columns={columns} rows={rules.data.rules} rowKey={rule => rule.code} />}
-      </Card>
-
       <Card title={t("aboutHowTitle")}>
         <ol className="about-flow" aria-label={t("aboutHowTitle")}>
           {STEPS.map(({ icon: Icon, title, caption }, index) => (
@@ -74,17 +69,24 @@ export function AboutPage({ onExpired }: { onExpired: () => void }) {
         </ol>
       </Card>
 
-      <Card title={t("aboutPrivacyTitle")} action={<WifiOff size={16} aria-hidden="true" />}>
-        <p className="about__text">{t("aboutPrivacyBody")}</p>
-        <p className="about__text about__text--muted"><ShieldCheck size={14} aria-hidden="true" /> {t("aboutDisclaimer")}</p>
-      </Card>
-
       <Card title={t("aboutEvalTitle")} description={t("aboutEvalIntro")}>
         {report.failure
           ? <Alert title={t("aboutEvalLoadError")} action={<Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={report.retry}>{t("tryAgain")}</Button>} />
           : report.data === null ? <div className="about__loading"><Skeleton width="40%" height={24} /><Skeleton height={160} /></div>
           : !run ? <p className="about__text">{t("aboutEvalNone")}</p>
           : <EvaluationRun key={run.label} run={run} runs={report.data.runs} selected={selected} onSelect={setSelected} date={date} />}
+      </Card>
+
+      <Card title={t("aboutChecksTitle")} description={rules.data ? fill(t("aboutChecksBody"), { count: rules.data.rules.length, ruleset: rules.data.label }) : undefined} flush>
+        {rules.failure
+          ? <Alert title={t("rulesetsLoadError")} action={<Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={rules.retry}>{t("tryAgain")}</Button>} />
+          : rules.data === null ? <div className="about__loading"><Skeleton width="60%" /><Skeleton width="80%" /><Skeleton width="50%" /></div>
+          : <Table caption={rules.data.label} columns={columns} rows={rules.data.rules} rowKey={rule => rule.code} />}
+      </Card>
+
+      <Card title={t("aboutPrivacyTitle")} action={<WifiOff size={16} aria-hidden="true" />}>
+        <p className="about__text">{t("aboutPrivacyBody")}</p>
+        <p className="about__text about__text--muted"><ShieldCheck size={14} aria-hidden="true" /> {t("aboutDisclaimer")}</p>
       </Card>
     </div>
   );
@@ -95,7 +97,7 @@ function EvaluationRun({ run, runs, selected, onSelect, date }: { run: EvalRun; 
   const groups = useMemo(() => run.groups, [run]);
   const [groupName, setGroupName] = useState(() => groups.find(group => group.name === "ALL")?.name ?? groups[groups.length - 1]?.name ?? "");
   const group = groups.find(item => item.name === groupName) ?? groups[0];
-  const groupLabel = (name: string) => (GROUP_LABEL[name] ? t(GROUP_LABEL[name]) : name.replace(/_/g, " ").toLowerCase());
+  const groupLabel = (name: string) => (GROUP_LABEL[name] ? t(GROUP_LABEL[name]) : sentence(name));
   const sizes = run.dataset_sizes;
 
   return (
@@ -160,7 +162,7 @@ function GroupResults({ group }: { group: EvalGroup }) {
               <tbody>
                 {fields.map(([name, value]) => (
                   <tr key={name}>
-                    <th scope="row">{FIELD_LABELS[name] ? t(FIELD_LABELS[name]) : name.replace(/_/g, " ")}</th>
+                    <th scope="row">{FIELD_LABELS[name] ? t(FIELD_LABELS[name]) : sentence(name)}</th>
                     <td className="num tabular">{percent(value.precision)}</td><td className="num tabular">{percent(value.recall)}</td>
                     <td className="num tabular mono">{value.tp} / {value.fp} / {value.fn}</td>
                   </tr>

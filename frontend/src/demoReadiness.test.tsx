@@ -214,3 +214,18 @@ describe("unreadable photo in the progress panel", () => {
     expect(document.querySelector('[data-step="a:read"] button')).toBeNull();
   });
 });
+
+describe("routing", () => {
+  beforeEach(() => { localStorage.clear(); window.history.replaceState(null, "", "#/overview"); });
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+
+  it("ignores a duplicate hashchange for the page already shown, so an open sheet stays open", async () => {
+    mockApi({ "GET /auth/me": response({ username: "inspector", full_name: "Rishi Bhaskar", role: "OFFICIAL" }) });
+    render(<I18nProvider><App /></I18nProvider>);
+    const bar = within(await screen.findByRole("navigation", { name: en.mobileNavigation }));
+    fireEvent.click(bar.getByRole("button", { name: en.account }));
+    await screen.findByRole("dialog", { name: en.account });
+    act(() => { window.dispatchEvent(new HashChangeEvent("hashchange")); });
+    expect(screen.getByRole("dialog", { name: en.account })).toBeTruthy();
+  });
+});

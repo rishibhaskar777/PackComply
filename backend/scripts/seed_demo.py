@@ -212,6 +212,13 @@ def seed(db: Session, folders: list[Path], upload_dir: Path, *, fixture_dir: Pat
             report.skipped_failed.append((photo.name, str(error) or type(error).__name__))
             log(f"  skipped {photo.name}: {error}")
             continue
+        if cached is not None:
+            # The photo was really read in `ocr_seconds` when its OCR was stored, so the record shows that processing time
+            # (a cached run finishes in under a second, which would make the dashboard's median time look absurd).
+            ocr = db.scalar(select(OcrResult).where(OcrResult.inspection_id == inspection.id))
+            if ocr is not None and ocr.duration_ms:
+                inspection.completed_at = image.created_at + timedelta(milliseconds=ocr.duration_ms + 900)
+                db.commit()
         days_ago = 1 + round(index * SPREAD_DAYS / max(total - 1, 1))
         _backdate(db, inspection, now - timedelta(days=days_ago, hours=(index * 7) % 9, minutes=(index * 13) % 50))
         created.append(inspection)

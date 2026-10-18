@@ -24,3 +24,6 @@ frontend/vite.config.d.ts
 # Batch evaluation reports (embed label photos) and local sample photos
 reports/
 PackComply-samples/
+
+# Demo runtime state written by scripts/start-demo.ps1
+.demo/

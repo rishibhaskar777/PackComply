@@ -2,6 +2,8 @@
 
 This guide runs the backend, frontend and PostgreSQL directly on Windows using PowerShell.
 
+> Once everything below is installed once, `scripts\start-demo.ps1` starts PostgreSQL, migrations, the API and the HTTPS web app in one command and prints a QR code for the phone. See "Demo day" in the README.
+
 ## Prerequisites
 
 - **Python 3.11 – 3.13** (3.12 recommended). PaddlePaddle does not publish wheels for newer Python releases, so check `python --version` or use `py -3.12`.
