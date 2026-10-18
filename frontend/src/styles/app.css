@@ -399,3 +399,9 @@
   .account-sheet .overlay__body { padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom)); }
   .page-title { font-size: var(--text-xl); }
 }
+
+/* Route-code loading placeholder: reserves the page's rough height so the swap to real content does not shift the layout. */
+.page-skeleton { display: grid; gap: var(--space-3); min-height: 70vh; align-content: start; }
+.page-skeleton > .skeleton { display: block; }
+.page-skeleton__cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-3); }
+.page-skeleton__card, .page-skeleton__block { width: 100%; border-radius: var(--radius-md); }

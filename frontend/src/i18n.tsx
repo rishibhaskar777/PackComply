@@ -1,27 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import en from "./locales/en.json";
-import hi from "./locales/hi.json";
-import as from "./locales/as.json";
-import bn from "./locales/bn.json";
-import brx from "./locales/brx.json";
-import doi from "./locales/doi.json";
-import gu from "./locales/gu.json";
-import kn from "./locales/kn.json";
-import ks from "./locales/ks.json";
-import kok from "./locales/kok.json";
-import mai from "./locales/mai.json";
-import ml from "./locales/ml.json";
-import mni from "./locales/mni.json";
-import mr from "./locales/mr.json";
-import ne from "./locales/ne.json";
-import or from "./locales/or.json";
-import pa from "./locales/pa.json";
-import sa from "./locales/sa.json";
-import sat from "./locales/sat.json";
-import sd from "./locales/sd.json";
-import ta from "./locales/ta.json";
-import te from "./locales/te.json";
-import ur from "./locales/ur.json";
 
 export const UI_LANGUAGES = [
   { code: "en", nativeName: "English", englishName: "English" }, { code: "hi", nativeName: "हिन्दी", englishName: "Hindi" }, { code: "as", nativeName: "অসমীয়া", englishName: "Assamese" }, { code: "bn", nativeName: "বাংলা", englishName: "Bengali" }, { code: "brx", nativeName: "बड़ो", englishName: "Bodo" }, { code: "doi", nativeName: "डोगरी", englishName: "Dogri" }, { code: "gu", nativeName: "ગુજરાતી", englishName: "Gujarati" }, { code: "kn", nativeName: "ಕನ್ನಡ", englishName: "Kannada" }, { code: "ks", nativeName: "کٲشُر", englishName: "Kashmiri" }, { code: "kok", nativeName: "कोंकणी", englishName: "Konkani" }, { code: "mai", nativeName: "मैथिली", englishName: "Maithili" }, { code: "ml", nativeName: "മലയാളം", englishName: "Malayalam" }, { code: "mni", nativeName: "মৈতৈলোন্", englishName: "Manipuri (Meitei)" }, { code: "mr", nativeName: "मराठी", englishName: "Marathi" }, { code: "ne", nativeName: "नेपाली", englishName: "Nepali" }, { code: "or", nativeName: "ଓଡ଼ିଆ", englishName: "Odia" }, { code: "pa", nativeName: "ਪੰਜਾਬੀ", englishName: "Punjabi" }, { code: "sa", nativeName: "संस्कृतम्", englishName: "Sanskrit" }, { code: "sat", nativeName: "ᱥᱟᱱᱛᱟᱲᱤ", englishName: "Santali" }, { code: "sd", nativeName: "سنڌي", englishName: "Sindhi" }, { code: "ta", nativeName: "தமிழ்", englishName: "Tamil" }, { code: "te", nativeName: "తెలుగు", englishName: "Telugu" }, { code: "ur", nativeName: "اردو", englishName: "Urdu" },
@@ -32,7 +10,6 @@ export const LANGUAGE_STORAGE_KEY = "packcomply-language";
 export type TranslationKey = keyof typeof en;
 type LocaleTranslations = Record<TranslationKey, string>;
 
-
 function defineLocale(locale: Record<string, string>): LocaleTranslations {
   const englishKeys = Object.keys(en).sort();
   const localeKeys = Object.keys(locale).sort();
@@ -42,19 +19,28 @@ function defineLocale(locale: Record<string, string>): LocaleTranslations {
   return locale as LocaleTranslations;
 }
 
-// A selected locale is never merged with English: all UI values must come
-// directly from the selected locale's complete, reviewed translation file.
-const translations: Record<Locale, LocaleTranslations> = {
-  en: defineLocale(en), hi: defineLocale(hi), as: defineLocale(as), bn: defineLocale(bn),
-  brx: defineLocale(brx), doi: defineLocale(doi), gu: defineLocale(gu), kn: defineLocale(kn),
-  ks: defineLocale(ks), kok: defineLocale(kok), mai: defineLocale(mai), ml: defineLocale(ml),
-  mni: defineLocale(mni), mr: defineLocale(mr), ne: defineLocale(ne), or: defineLocale(or),
-  pa: defineLocale(pa), sa: defineLocale(sa), sat: defineLocale(sat), sd: defineLocale(sd),
-  ta: defineLocale(ta), te: defineLocale(te), ur: defineLocale(ur),
-};
-export { translations };
+// Only English ships in the entry bundle. Every other language is its own chunk, fetched the first time it is selected and
+// cached afterwards. A selected locale is never merged with English: all UI values come directly from that locale's complete,
+// reviewed translation file.
+const localeLoaders = import.meta.glob<{ default: Record<string, string> }>(["./locales/*.json", "!./locales/en.json"]);
+const loaded = new Map<Locale, LocaleTranslations>([["en", defineLocale(en)]]);
+
+/** The translations for a locale if they are already in memory (English always is). */
+export function getLoadedLocale(locale: Locale): LocaleTranslations | undefined { return loaded.get(locale); }
+
+/** Fetch (once) and validate a locale's translations. */
+export async function loadLocale(locale: Locale): Promise<LocaleTranslations> {
+  const cached = loaded.get(locale);
+  if (cached) return cached;
+  const loader = localeLoaders[`./locales/${locale}.json`];
+  if (!loader) throw new Error(`Unknown locale: ${locale}`);
+  const translations = defineLocale((await loader()).default);
+  loaded.set(locale, translations);
+  return translations;
+}
 
 type I18nValue = {
+  /** The language the user chose; strings switch to it as soon as its file has loaded. */
   locale: Locale;
   setLocale: (locale: Locale) => void;
   t: (key: TranslationKey) => string;
@@ -63,25 +49,44 @@ type I18nValue = {
 const I18nContext = createContext<I18nValue | null>(null);
 
 function initialLocale(): Locale {
-  const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  let saved: string | null = null;
+  try { saved = localStorage.getItem(LANGUAGE_STORAGE_KEY); } catch { /* storage blocked */ }
   return UI_LANGUAGES.some(({ code }) => code === saved) ? saved as Locale : "en";
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>(initialLocale);
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
+  // The dictionary in use. It trails `locale` by the time it takes to fetch the language file, so the screen never
+  // shows a half-translated mixture; English is the fallback if a file cannot be fetched.
+  const [translations, setTranslations] = useState<LocaleTranslations | undefined>(() => getLoadedLocale(locale));
+  const [applied, setApplied] = useState<Locale>(translations ? locale : "en");
 
   useEffect(() => {
-    localStorage.setItem(LANGUAGE_STORAGE_KEY, locale);
-    document.documentElement.lang = locale;
-    document.documentElement.dir = ["ks", "sd", "ur"].includes(locale) ? "rtl" : "ltr";
+    try { localStorage.setItem(LANGUAGE_STORAGE_KEY, locale); } catch { /* storage blocked */ }
   }, [locale]);
 
-  const value = useMemo<I18nValue>(() => ({
-    locale,
-    setLocale,
-    t: (key) => translations[locale][key],
-  }), [locale]);
+  useEffect(() => {
+    let current = true;
+    const ready = getLoadedLocale(locale);
+    if (ready) { setTranslations(ready); setApplied(locale); return; }
+    loadLocale(locale)
+      .then(next => { if (current) { setTranslations(next); setApplied(locale); } })
+      .catch(() => { if (current) { setTranslations(getLoadedLocale("en")); setApplied("en"); } });
+    return () => { current = false; };
+  }, [locale]);
 
+  useEffect(() => {
+    document.documentElement.lang = applied;
+    document.documentElement.dir = ["ks", "sd", "ur"].includes(applied) ? "rtl" : "ltr";
+  }, [applied]);
+
+  const value = useMemo<I18nValue>(() => {
+    const dictionary = translations ?? loaded.get("en")!;
+    return { locale, setLocale: setLocaleState, t: key => dictionary[key] };
+  }, [locale, translations]);
+
+  // A saved non-English language is fetched before the first paint of the UI, so it never flashes English.
+  if (!translations) return null;
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
