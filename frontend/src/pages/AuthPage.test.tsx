@@ -69,9 +69,12 @@ describe("sign-in page", () => {
 
   it("falls back to 14 rules and shows skeletons until the status arrives", async () => {
     let answer: (value: ReturnType<typeof response>) => void = () => undefined;
-    mockApi({ "GET /auth/me": unauthenticated, "GET /system/status": () => new Promise(resolve => { answer = resolve; }) });
+    let asked = false;
+    mockApi({ "GET /auth/me": unauthenticated, "GET /system/status": () => new Promise(resolve => { asked = true; answer = resolve; }) });
     renderApp();
     await screen.findByRole("heading", { level: 1, name: en.welcomeBack });
+    // The status request is made by a mount effect, which can run just after the heading is visible.
+    await waitFor(() => expect(asked).toBe(true));
     expect(pill().textContent).toContain(en.statusChecking);
     expect(document.querySelector(".status-strip")?.getAttribute("aria-busy")).toBe("true");
     expect(document.querySelectorAll(".status-strip .skeleton")).toHaveLength(3);
@@ -148,7 +151,7 @@ describe("forgot password", () => {
     const { fetchMock, heading } = await requestCode();
     expect(lastBody(fetchMock, "/auth/password-reset/request")).toEqual({ username: "inspector" });
     // Focus moves to each new step's heading.
-    expect(document.activeElement).toBe(heading);
+    await waitFor(() => expect(document.activeElement).toBe(heading));
     expect(screen.getByText("Code for inspector · valid for 15 minutes")).toBeTruthy();
     const group = screen.getByRole("group", { name: en.resetCodeLabel });
     expect(within(group).getAllByRole("textbox")).toHaveLength(6);
@@ -161,7 +164,7 @@ describe("forgot password", () => {
     fireEvent.click(screen.getByRole("button", { name: en.setNewPassword }));
 
     const done = await screen.findByRole("heading", { level: 1, name: en.passwordUpdated });
-    expect(document.activeElement).toBe(done);
+    await waitFor(() => expect(document.activeElement).toBe(done));
     expect(screen.getByText(en.signedOutEverywhere)).toBeTruthy();
     expect(lastBody(fetchMock, "/auth/password-reset/confirm")).toEqual({ username: "inspector", code: "482913", new_password: "Fresh-Passphrase-42" });
 
@@ -213,7 +216,7 @@ describe("forgot password", () => {
     fireEvent.click(await screen.findByRole("link", { name: en.forgotPassword }));
     act(() => { window.dispatchEvent(new HashChangeEvent("hashchange")); });
     const heading = await screen.findByRole("heading", { level: 1, name: en.resetTitle });
-    expect(document.activeElement).toBe(heading);
+    await waitFor(() => expect(document.activeElement).toBe(heading));
     fireEvent.click(screen.getByRole("button", { name: en.backToSignIn }));
     expect(await screen.findByRole("heading", { level: 1, name: en.welcomeBack })).toBeTruthy();
     expect(window.location.hash).toBe("#/overview");

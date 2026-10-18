@@ -78,7 +78,14 @@ export function AppShell({ pageLabel, route, user, riskCount, search, onSearchCh
   const titles = routeTitles(route);
   const active = activeNav(route);
 
-  useEffect(() => { setDrawerOpen(false); setAccountOpen(false); }, [route]);
+  // Close the drawer and the account sheet when the page changes. Not on mount: that effect can run after an early tap
+  // on the tab bar and would close the sheet the tap just opened.
+  const shownRoute = useRef(route);
+  useEffect(() => {
+    if (shownRoute.current === route) return;
+    shownRoute.current = route;
+    setDrawerOpen(false); setAccountOpen(false);
+  }, [route]);
   useEffect(() => { try { localStorage.setItem(COLLAPSE_KEY, collapsed ? "1" : "0"); } catch { /* storage unavailable */ } }, [collapsed]);
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
