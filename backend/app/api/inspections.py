@@ -245,7 +245,7 @@ def get_inspection_image(inspection_id: UUID, db: Session = Depends(get_db), use
 
 
 def _image_info(row: InspectionImage, active: set[UUID]) -> ImageInfo:
-    return ImageInfo(id=row.id, panel=row.panel, width=row.width, height=row.height, checksum=row.checksum, uploaded_at=row.created_at, active=row.id in active, original_filename=row.original_filename, byte_size=row.byte_size, content_type=row.content_type)
+    return ImageInfo(id=row.id, panel=row.panel, width=row.width, height=row.height, checksum=row.checksum, uploaded_at=row.created_at, active=row.id in active, original_filename=row.original_filename, byte_size=row.byte_size, content_type=row.content_type, read_error=row.read_error)
 
 
 @router.get("/{inspection_id}/images", response_model=list[ImageInfo])

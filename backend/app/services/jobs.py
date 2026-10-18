@@ -128,7 +128,7 @@ def _run(inspection_id: UUID, job: JobProgress, factory: sessionmaker, workflow_
                 workflow.process(inspection_id, job)
             except WorkflowError as error:
                 db.rollback()
-                job.fail(None, friendly_message(error), error.stage)
+                job.fail(error.step_id, friendly_message(error), error.stage)
                 return
             except Exception:  # noqa: BLE001 - the run must always end in a terminal state
                 db.rollback()

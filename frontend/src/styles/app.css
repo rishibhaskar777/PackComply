@@ -351,7 +351,7 @@
 @media (max-width: 639px) {
   .hide-mobile { display: none; }
   .topbar { gap: var(--space-2); }
-  .topbar__search, .topbar__new { display: none; }
+  .topbar__search, .topbar__new, .topbar__phone { display: none; }
   .breadcrumb__section { display: none; }
   .breadcrumb li + li::before { content: none; }
   .shell__content { padding: var(--space-4) var(--space-4) calc(var(--tabbar-height) + var(--space-6) + env(safe-area-inset-bottom)); }
@@ -399,3 +399,60 @@
   .account-sheet .overlay__body { padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom)); }
   .page-title { font-size: var(--text-xl); }
 }
+
+/* Route-code loading placeholder: reserves the page's rough height so the swap to real content does not shift the layout. */
+.page-skeleton { display: grid; gap: var(--space-3); min-height: 70vh; align-content: start; }
+.page-skeleton > .skeleton { display: block; }
+.page-skeleton__cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-3); }
+.page-skeleton__card, .page-skeleton__block { width: 100%; border-radius: var(--radius-md); }
+
+/* Error screen (global error boundary) */
+.error-screen { padding: var(--space-6); }
+.error-screen__card { display: grid; gap: var(--space-3); justify-items: center; text-align: center; max-width: 420px; color: var(--foreground); }
+.error-screen__card h1 { font-size: var(--text-xl); }
+.error-screen__card p { color: var(--muted-foreground); }
+
+/* Open on phone */
+.phone-dialog__body { display: grid; justify-items: center; gap: var(--space-3); text-align: center; min-height: 260px; align-content: center; }
+.qr { width: min(260px, 70vw); height: auto; border-radius: var(--radius); border: 1px solid var(--border); background: var(--qr-light); }
+.qr__light { fill: var(--qr-light); }
+.qr__dark { fill: var(--qr-dark); }
+.phone-dialog__url { font-size: var(--text-sm); word-break: break-all; }
+.phone-dialog__hint { font-size: var(--text-sm); color: var(--muted-foreground); }
+
+/* About & accuracy */
+.about__text { color: var(--secondary-foreground); display: flex; gap: var(--space-2); align-items: flex-start; }
+.about__text--muted { color: var(--muted-foreground); font-size: var(--text-sm); margin-top: var(--space-2); }
+.about__subtitle { font-size: var(--text-md); margin-bottom: var(--space-2); }
+.about__loading { display: grid; gap: var(--space-3); padding: var(--space-4); }
+.about__loading > .skeleton { display: block; }
+.about-flow { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: stretch; }
+.about-flow__step { display: flex; align-items: center; gap: var(--space-3); flex: 1 1 160px; min-width: 0; }
+.about-flow__node { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: var(--radius); background: var(--primary-soft); color: var(--primary); }
+.about-flow__text { display: grid; gap: 2px; min-width: 0; font-size: var(--text-sm); }
+.about-flow__text span { color: var(--muted-foreground); }
+.about-flow__arrow { flex: none; color: var(--subtle-foreground); }
+[dir="rtl"] .about-flow__arrow { transform: scaleX(-1); }
+@media (max-width: 1023px) { .about-flow { flex-direction: column; } .about-flow__arrow { display: none; } }
+.about-eval { display: grid; gap: var(--space-4); }
+.about-eval__meta { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; font-size: var(--text-sm); color: var(--secondary-foreground); }
+.about-eval__runs { display: inline-flex; gap: var(--space-2); align-items: center; margin-inline-start: auto; }
+.about-eval__runs select { font: inherit; padding: 4px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--foreground); }
+.about-sizes { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-3); }
+.about-sizes > div, .about-stats__item { padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-muted); }
+.about-sizes dt, .about-stats dt { font-size: var(--text-xs); color: var(--muted-foreground); }
+.about-sizes dd, .about-stats dd { font-size: var(--text-xl); font-weight: 600; margin: 2px 0 0; }
+.about-eval__group { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.about-chip { font: inherit; font-size: var(--text-sm); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--secondary-foreground); cursor: pointer; }
+.about-chip.is-active { border-color: var(--primary-border); background: var(--primary-soft); color: var(--primary-strong); }
+.about-results { display: grid; gap: var(--space-4); }
+.about-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-3); }
+.about-tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6); align-items: start; }
+.about-table-scroll { overflow-x: auto; }
+.about-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.about-table th, .about-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: start; }
+.about-table thead th { color: var(--muted-foreground); font-weight: 500; }
+.about-table th[scope="row"] { font-weight: 500; }
+.about-table .num { text-align: end; }
+.about-confusion .is-diagonal { background: var(--pass-bg); color: var(--pass-text); font-weight: 600; }
+.about-confusion .is-miss { background: var(--review-bg); color: var(--review-text); font-weight: 600; }

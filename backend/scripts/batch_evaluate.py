@@ -271,6 +271,9 @@ def main() -> int:
     parser.add_argument("--pin-dev", action="append", default=[], help="photo file name that must be in DEV (already used for tuning)")
     parser.add_argument("--only", help="only process photos whose file name contains this text")
     parser.add_argument("--failures", action="store_true", help="also list failing DEV rows (HOLD-OUT failures stay hidden)")
+    parser.add_argument("--report-json", type=Path, help="write the measured results to this JSON file (the About & accuracy page reads backend/app/assets/evaluation_report.json); an existing file keeps its other runs")
+    parser.add_argument("--run-label", default="development", help="name of this run in the report; a run with the same label is replaced")
+    parser.add_argument("--run-note", default="", help="one line describing the photos, shown beside the numbers (e.g. '20 new phone photos, 2026-10-29')")
     args = parser.parse_args()
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -319,11 +322,17 @@ def main() -> int:
 
         records = evaluate(fixture_dir, {result["fixture"]: result for result in results})
         print_report(records, failures=args.failures)
+        if args.report_json:
+            from backend.scripts.eval_real import build_run, write_report
+
+            write_report(args.report_json, build_run(records, args.run_label, fixture_dir, args.run_note))
         unlabelled = [result["file"] for result in results if result["fixture"] not in {record["fixture"] for record in records}]
         if unlabelled:
             print(f"\n{len(unlabelled)} photo(s) have no ground truth in expected_real.json and are not scored: {', '.join(unlabelled)}")
     else:
         print(f"no {fixture_dir / 'expected_real.json'}: write ground truth there to get DEV / HOLD-OUT scores")
+        if args.report_json:
+            print("no report written: a report needs ground truth")
     return 0
 
 

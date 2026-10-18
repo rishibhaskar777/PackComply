@@ -130,11 +130,13 @@ def _panel_word(panel: str | None) -> str:
     return {"BACK": "back", "FRONT": "front", "DATE_STAMP": "date stamp", "OTHER": "other photo"}.get(panel or "", "photo")
 
 
-def persist_compliance(db: Session, engine: ComplianceEngine, inspection_id: UUID, fields: dict[str, FieldEvidence], conflicts: dict[str, str] | None = None) -> None:
+def persist_compliance(db: Session, engine: ComplianceEngine, inspection_id: UUID, fields: dict[str, FieldEvidence], conflicts: dict[str, str] | None = None, unread: list[str] | None = None) -> None:
     """Evaluate and store one result per enabled rule, replacing this inspection's previous results.
 
     ``conflicts`` maps a field read differently on different photos to a note: a rule that depends on
     it never passes silently (PASS becomes REVIEW); a FAIL or REVIEW keeps its status and gains the note.
+    ``unread`` names photos whose text could not be read. A declaration missing from the photos that were read may be
+    on one of them, so a FAIL for "not found" becomes REVIEW; a violation visible in a value that was read stays FAIL.
     """
     ruleset = engine.ruleset
     rules = ensure_compliance_rules(db, ruleset)
@@ -154,6 +156,13 @@ def persist_compliance(db: Session, engine: ComplianceEngine, inspection_id: UUI
         if notes:
             status = REVIEW if status == "PASS" else status
             message = f"{message} {' '.join(notes)}".strip()
+        if unread and status != NOT_APPLICABLE:
+            note = f"The {' and '.join(unread)} photo could not be read, so this could not be confirmed. Retry that photo."
+            missing = all(not (fields.get(name) and fields[name].value) for name in targets.get(finding.rule_id, ()))
+            if status == "FAIL" and missing:
+                status, message = REVIEW, f"{message} {note}".strip()
+            elif status == REVIEW:
+                message = f"{message} {note}".strip()
         result.result, result.explanation, result.field_name = status, message, finding.field
         result.value, result.confidence, result.evidence = finding.value, finding.confidence, finding.evidence
         result.ruleset_id, result.ruleset_version = ruleset.ruleset_id, ruleset.version
@@ -171,8 +180,8 @@ def user_names(db: Session, ids: list[UUID | None]) -> dict[UUID, str]:
 
 
 class WorkflowError(Exception):
-    def __init__(self, stage: str, message: str, status_code: int = 422):
-        self.stage, self.message, self.status_code = stage, message, status_code
+    def __init__(self, stage: str, message: str, status_code: int = 422, step_id: str | None = None):
+        self.stage, self.message, self.status_code, self.step_id = stage, message, status_code, step_id
         super().__init__(message)
 
 
@@ -273,9 +282,33 @@ class InspectionWorkflow:
 
         if pending:
             self._set_status(inspection, "OCR_PROCESSING")
+        unreadable: list[tuple[InspectionImage, Exception, str]] = []
         for image in pending:
-            self._read_image(inspection, image, reporter)
+            try:
+                self._read_image(inspection, image, reporter, persist_failure=False)
+            except Exception as error:  # noqa: BLE001 - one photo that cannot be read must not stop the others
+                self.db.rollback()
+                message = "The text-reading engine was not ready." if isinstance(error, OcrInitializationError) or getattr(error, "status_code", None) == 503 else "The text on this photo could not be read."
+                if not isinstance(error, WorkflowError):
+                    logger.exception("Reading a photo failed inspection_id=%s image_id=%s", inspection.id, image.id)
+                image.read_error = message
+                self.db.commit()
+                for step_id in (f"{image.id}:prepare", f"{image.id}:read"):
+                    reporter.skip(step_id, message)
+                unreadable.append((image, error, message))
+            else:
+                if image.read_error:
+                    image.read_error = None
+                    self.db.commit()
         reporter.current_image(None)
+        if unreadable and not photo_ocr_pairs(self.db, inspection.id):
+            # Nothing at all could be read: there is no honest result to show, so the run stops here and can be retried.
+            image, error, _ = unreadable[-1]
+            failed = self._fail(inspection, "OCR", error)
+            failed.step_id = f"{image.id}:read"
+            if getattr(error, "status_code", None) == 503:
+                failed.status_code = 503
+            raise failed
         self._set_status(inspection, "OCR_COMPLETED")
 
         reporter.start("link")
@@ -418,7 +451,8 @@ class InspectionWorkflow:
         logger.info("Workflow compliance input inspection_id=%s fields=%s", inspection.id, {name: {"raw": item.value, "normalized": self.compliance._normalized("NET_QUANTITY_FORMAT" if name == "net_quantity" else "MRP_FORMAT" if name == "mrp" else "", item.value)} for name, item in fields.items()})
         panels = {image.id: image.panel for image in all_images(self.db, inspection.id)}
         conflicts = {field.field_name: _conflict_note(field.alternatives, field.value, panels.get(field.image_id)) for field in extracted if field.alternatives and field.matched_pattern != INSPECTOR_PATTERN}
-        persist_compliance(self.db, self.compliance, inspection.id, fields, conflicts)
+        unread = [_panel_word(image.panel) for image in active_images(self.db, inspection.id) if image.read_error and ocr_of_image(self.db, image.id) is None]
+        persist_compliance(self.db, self.compliance, inspection.id, fields, conflicts, unread)
         sync_label_identity(self.db, inspection, extracted)
 
     def reanalyse(self, inspection_id: UUID) -> InspectionSummary:
@@ -490,5 +524,5 @@ class InspectionWorkflow:
         names = user_names(self.db, [row.corrected_by for row in corrections] + [inspection.reviewed_by])
         correction_responses = [FieldCorrectionResponse(id=row.id, field_name=row.field_name, original_value=row.original_value, corrected_value=row.corrected_value, reason=row.reason, corrected_by=row.corrected_by, corrected_by_name=names.get(row.corrected_by), created_at=row.created_at) for row in corrections]
         review = ReviewResponse(status=inspection.review_status or "UNREVIEWED", by=names.get(inspection.reviewed_by), at=inspection.reviewed_at, remarks=inspection.remarks)
-        images = [ImageInfo(id=row.id, panel=row.panel, width=row.width, height=row.height, checksum=row.checksum, uploaded_at=row.created_at, active=row.id in active, original_filename=row.original_filename, byte_size=row.byte_size, content_type=row.content_type) for row in stored]
+        images = [ImageInfo(id=row.id, panel=row.panel, width=row.width, height=row.height, checksum=row.checksum, uploaded_at=row.created_at, active=row.id in active, original_filename=row.original_filename, byte_size=row.byte_size, content_type=row.content_type, read_error=row.read_error) for row in stored]
         return InspectionSummary(product_name=display_name(inspection), brand_name=inspection.brand_name, maker_name=inspection.maker_name, corrections=correction_responses, review=review, id=inspection.id, inspection_number=inspection.inspection_number, status=inspection.status, created_at=inspection.created_at, updated_at=inspection.updated_at, completed_at=inspection.completed_at, failure_stage=inspection.failure_stage, failure_message=inspection.failure_message, image=ImageUploaded.model_validate(image) if image else None, images=images, ocr=ocr_response, extraction=extraction_response, compliance=compliance, quantity_verification=QuantityVerificationResponse(**quantity.__dict__) if quantity else None)

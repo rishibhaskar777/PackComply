@@ -19,6 +19,8 @@ type Props = {
   error?: { message: string; unreachable: boolean; stage?: string | null } | null;
   onRetry?: () => void;
   retryLabel?: string;
+  /** Offered beside a photo whose text could not be read while the rest of the run went on. */
+  onRetryPhoto?: () => void;
   /** Dark field-app styling. */
   dark?: boolean;
   className?: string;
@@ -56,7 +58,7 @@ function StepIcon({ status }: { status: ProgressStep["status"] }) {
  * Live processing progress: a vertical step list, a thin overall bar, elapsed time and the photo being
  * read with a scan line while OCR runs. Percentages are the server's, counted from finished steps only.
  */
-export function ProgressPanel({ progress, uploading = false, photos, error, onRetry, retryLabel, dark = false, className = "" }: Props) {
+export function ProgressPanel({ progress, uploading = false, photos, error, onRetry, retryLabel, onRetryPhoto, dark = false, className = "" }: Props) {
   const { t, locale } = useI18n();
   const reduced = useReducedMotion();
   // The server says how long the run has taken; between snapshots the clock only counts real time forward.
@@ -126,6 +128,7 @@ export function ProgressPanel({ progress, uploading = false, photos, error, onRe
             <li key={step.id} className={`step-list__item is-${step.status}`} data-step={step.id} data-status={step.status}>
               <StepIcon status={step.status} />
               <span className="step-list__label">{label(step)}{step.kind === "read" && step.panel && <span className="step-list__panel"> · {t(PANEL_LABEL[step.panel])}</span>}<span className="sr-only"> — {statusText(step.status)}</span></span>
+              {step.status === "failed" && step.kind === "read" && !error && <span className="step-list__time">{step.message && <span className="sr-only">{step.message} </span>}{onRetryPhoto && progress?.state !== "running" && <Button size="sm" variant="ghost" icon={<RefreshCw size={14} aria-hidden="true" />} onClick={onRetryPhoto}>{t("progRetryPhoto")}</Button>}</span>}
               {step.status === "done" && <span className="step-list__time mono tabular">{step.cached ? t("progCached") : step.duration_ms !== null && step.duration_ms !== undefined ? `${(step.duration_ms / 1000).toFixed(1)} s` : ""}</span>}
             </li>
           ))}

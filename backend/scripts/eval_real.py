@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import re
@@ -184,6 +185,8 @@ def evaluate(fixture_dir: Path = REAL_FIXTURE_DIR, results: dict[str, dict[str, 
         path = fixture_dir / f"{name}.json"
         if not path.exists():
             continue
+        if truth.get("_meta", {}).get("filled") is False:
+            continue  # a template nobody has filled in yet must not produce numbers
         fixture = json.loads(path.read_text(encoding="utf-8"))
         analysis = (results or {}).get(name) or analyse(fixture)
         got_rules = {finding["rule_id"]: finding["status"] for finding in analysis["findings"]}
@@ -309,12 +312,100 @@ def print_report(records: list[dict[str, Any]], failures: bool = False, show_hol
                     print(f"  {record['fixture']:36} rule {rule:28} truth={want} got={got}")
 
 
+# ------------------------------------------------------------------ JSON report (shown on the app's "About & accuracy" page)
+
+REPORT_SCHEMA = 1
+
+
+def _group_report(label: str, members: list[dict[str, Any]]) -> dict[str, Any]:
+    rows = [row for record in members for row in record["rows"]]
+    pairs = [pair for record in members for pair in record["rules"].values()]
+    confusion: dict[str, dict[str, int]] = {}
+    for record in members:
+        want, got = record["verdict"]
+        confusion.setdefault(want, {}).setdefault(got, 0)
+        confusion[want][got] += 1
+    per_field = {}
+    for field in FIELDS:
+        result = metrics([row for row in rows if row.field == field])
+        per_field[field] = {key: result[key] for key in ("tp", "fp", "fn", "precision", "recall")}
+    per_rule: dict[str, dict[str, int]] = {}
+    for record in members:
+        for rule, (want, got) in record["rules"].items():
+            entry = per_rule.setdefault(rule, {"agree": 0, "total": 0})
+            entry["total"] += 1
+            entry["agree"] += int(want == got)
+    overall = metrics(rows)
+    return {
+        "name": label,
+        "photos": len(members),
+        "fields_scored": overall["fields"],
+        "precision": overall["precision"],
+        "recall": overall["recall"],
+        "per_field": per_field,
+        "rule_agreement": {"agree": sum(want == got for want, got in pairs), "total": len(pairs)},
+        "per_rule": per_rule,
+        "verdict_confusion": confusion,
+        "verdicts_correct": sum(record["verdict"][0] == record["verdict"][1] for record in members),
+        "false_non_compliant": sum(false_non_compliant(record) for record in members),
+        "false_pass_mandatory": sum(len(false_passes(record)) for record in members),
+    }
+
+
+def build_run(records: list[dict[str, Any]], label: str, fixture_dir: Path, note: str = "") -> dict[str, Any]:
+    """Everything the About page shows for one evaluation run. Every number is measured here; none is typed in.
+
+    ``kind`` is "unseen" only when every scored photo is a hold-out photo nobody has tuned on; otherwise it is a
+    development score and is labelled that way.
+    """
+    from backend.app.services.compliance.ruleset import default_ruleset
+
+    split_path = fixture_dir / "split.json"
+    split_info = json.loads(split_path.read_text(encoding="utf-8")) if split_path.exists() else {}
+    retired = {name for batch in split_info.get("retired_holdouts", []) for name in batch.get("photos", [])}
+    unseen = [record for record in records if record["split"] == "holdout"]
+    kind = "unseen" if records and len(unseen) == len(records) else "development"
+    times = sorted(record["ocr_seconds"] for record in records if record["ocr_seconds"])
+    ruleset = default_ruleset()
+    return {
+        "label": label,
+        "kind": kind,
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "ruleset": {"id": ruleset.ruleset_id, "version": ruleset.version, "rules": len(ruleset.enabled_rules)},
+        "note": note,
+        "dataset_sizes": {
+            "dev": sum(record["split"] == "dev" for record in records),
+            "phone_holdout_retired_to_dev": sum(record["fixture"] in retired and record["real_photo"] for record in records),
+            "unseen": len(unseen),
+            "total": len(records),
+        },
+        "processing_seconds": {"median": median(times), "max": max(times), "photos": len(times)} if times else None,
+        "groups": [_group_report(group, members) for group, members in _groups(records)],
+    }
+
+
+def write_report(path: Path, run: dict[str, Any]) -> None:
+    """Add (or replace, by label) one run in the report file, keeping the runs already there."""
+    runs: list[dict[str, Any]] = []
+    if path.exists():
+        try:
+            runs = [item for item in json.loads(path.read_text(encoding="utf-8")).get("runs", []) if item.get("label") != run["label"]]
+        except (ValueError, OSError):
+            runs = []
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"schema": REPORT_SCHEMA, "runs": [run, *runs]}, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"evaluation report written: {path} (run '{run['label']}', {run['kind']})")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--fixture-dir", type=Path, default=REAL_FIXTURE_DIR)
     parser.add_argument("--failures", action="store_true", help="list failing DEV rows")
     parser.add_argument("--show-holdout", action="store_true", help="also list failing HOLD-OUT rows (measurement only — do not tune on them)")
     parser.add_argument("--json", type=Path, help="also write the overall numbers per group to this file")
+    parser.add_argument("--report-json", type=Path, help="write/merge the evaluation report the About page shows (see batch_evaluate --report-json)")
+    parser.add_argument("--run-label", default="development", help="name of this run in the report (a run with the same label is replaced)")
+    parser.add_argument("--run-note", default="", help="one line about the dataset, shown beside the numbers")
     args = parser.parse_args()
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -322,6 +413,8 @@ def main() -> int:
     print_report(records, args.failures, args.show_holdout)
     if args.json:
         args.json.write_text(json.dumps(summary(records), indent=1) + "\n", encoding="utf-8")
+    if args.report_json:
+        write_report(args.report_json, build_run(records, args.run_label, args.fixture_dir.resolve(), args.run_note))
     return 0
 
 

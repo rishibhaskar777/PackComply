@@ -5,7 +5,7 @@ export type Panel = "BACK" | "FRONT" | "DATE_STAMP" | "OTHER";
 export type FieldAlternative = { image_id: string | null; panel: Panel | null; value: string | null; confidence: number };
 export type Field = { value: string | null; confidence: number; needs_review: boolean; source_text?: string | null; source_bboxes?: BBox[] | null; source?: "OCR" | "INSPECTOR"; image_id?: string | null; panel?: Panel | null; alternatives?: FieldAlternative[] };
 /** One stored photo; replaced ones stay listed with active=false as evidence. */
-export type PhotoInfo = { id: string; panel: Panel; width?: number | null; height?: number | null; checksum?: string | null; uploaded_at: string; active: boolean; original_filename?: string | null };
+export type PhotoInfo = { id: string; panel: Panel; width?: number | null; height?: number | null; checksum?: string | null; uploaded_at: string; active: boolean; original_filename?: string | null; read_error?: string | null };
 export type FindingStatus = "PASS" | "FAIL" | "REVIEW" | "NOT_APPLICABLE";
 export type Finding = {
   rule_id: string; rule_name: string; status: FindingStatus; severity: string; message: string; field: string | null; value: string | null;
@@ -61,3 +61,20 @@ export type DashboardSummary = {
 
 export type ComplianceRule = { code: string; title: string; description: string; legal_reference: string | null; severity: string; applies_when?: string | null };
 export type Ruleset = { ruleset_id: string; version: string; label: string; title: string; disclaimer?: string | null; rules: ComplianceRule[] };
+
+/** The evaluation report written by `batch_evaluate --report-json` (GET /api/system/evaluation). */
+export type EvalGroup = {
+  name: string; photos: number; fields_scored: number; precision: number; recall: number;
+  per_field: Record<string, { tp: number; fp: number; fn: number; precision: number; recall: number }>;
+  rule_agreement: { agree: number; total: number };
+  verdict_confusion: Record<string, Record<string, number>>;
+  verdicts_correct: number; false_non_compliant: number; false_pass_mandatory: number;
+};
+export type EvalRun = {
+  label: string; kind: "development" | "unseen"; generated_at: string; note?: string;
+  ruleset: { id: string; version: string; rules: number };
+  dataset_sizes: { dev: number; phone_holdout_retired_to_dev: number; unseen: number; total: number };
+  processing_seconds: { median: number; max: number; photos: number } | null;
+  groups: EvalGroup[];
+};
+export type EvalReport = { schema: number; runs: EvalRun[] };

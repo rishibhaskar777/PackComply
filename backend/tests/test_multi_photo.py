@@ -353,21 +353,47 @@ def test_a_second_start_while_running_is_a_conflict(env) -> None:
     assert env.client.get(f"/api/inspections/{inspection_id}").json()["status"] == "COMPLETED"
 
 
-def test_failure_marks_the_step_and_try_again_resumes_from_the_failed_photo(env) -> None:
+def test_one_unreadable_photo_does_not_stop_the_others_and_retry_reads_only_it(env) -> None:
+    env.ocr.fail_widths = {DATE}
+    inspection_id = create(env)
+    for width, panel in ((BACK, "BACK"), (DATE, "DATE_STAMP")):
+        upload(env, inspection_id, width, panel)
+    _, finished = process_and_wait(env.client, inspection_id)
+    summary = finished.json()
+    assert summary["status"] == "COMPLETED"
+    broken = next(image for image in summary["images"] if image["panel"] == "DATE_STAMP")
+    assert broken["read_error"] and next(image for image in summary["images"] if image["panel"] == "BACK")["read_error"] is None
+    # The date declarations are on the unread photo: they are REVIEW with a note, never a fake PASS or FAIL.
+    findings = {item["rule_id"]: item for item in summary["compliance"]["findings"]}
+    dated = [item for item in findings.values() if item["field"] in ("manufacturing_date", "expiry_date")]
+    assert dated and all(item["status"] == "REVIEW" and "could not be read" in item["message"] for item in dated), dated
+    assert summary["compliance"]["verdict"] != "COMPLIANT"
+    progress = env.client.get(f"/api/inspections/{inspection_id}/progress").json()
+    failed = [step for step in progress["steps"] if step["status"] == "failed"]
+    assert progress["state"] == "completed" and failed and all(step["panel"] == "DATE_STAMP" for step in failed)
+    env.ocr.scanned.clear()
+    env.ocr.fail_widths = set()
+    _, resumed = process_and_wait(env.client, inspection_id)
+    after = resumed.json()
+    assert after["status"] == "COMPLETED" and env.ocr.scanned == [DATE]  # the back panel's reading was kept
+    assert all(image["read_error"] is None for image in after["images"])
+    assert any(item["status"] == "PASS" for item in after["compliance"]["findings"] if item["field"] in ("manufacturing_date", "expiry_date"))
+
+
+def test_failure_marks_the_step_and_try_again_resumes_when_no_photo_can_be_read(env) -> None:
     env.ocr.fail_widths = {FRONT}
     inspection_id = create(env)
-    upload(env, inspection_id, BACK, "BACK")
     upload(env, inspection_id, FRONT, "FRONT")
     _, failed = process_and_wait(env.client, inspection_id)
     assert failed.json()["status"] == "FAILED"
     progress = env.client.get(f"/api/inspections/{inspection_id}/progress").json()
-    broken = next(step for step in progress["steps"] if step["status"] == "failed")
+    broken = next(step for step in progress["steps"] if step["status"] == "failed" and step["kind"] == "read")
     assert progress["state"] == "failed" and broken["panel"] == "FRONT" and broken["message"] and progress["error"]["step_id"] == broken["id"]
-    assert progress["percent"] < 100 and any(step["status"] == "done" and step["panel"] == "BACK" for step in progress["steps"])
+    assert progress["percent"] < 100
     env.ocr.scanned.clear()
     env.ocr.fail_widths = set()
     _, resumed = process_and_wait(env.client, inspection_id)
-    assert resumed.json()["status"] == "COMPLETED" and env.ocr.scanned == [FRONT]  # the back panel's reading was kept
+    assert resumed.json()["status"] == "COMPLETED" and env.ocr.scanned == [FRONT]
     with env.sessions() as session:
         assert session.scalar(select(func.count()).select_from(Inspection)) == 1
 

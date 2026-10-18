@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
 import { ArrowLeft, ArrowRight, Lock, Mail, ShieldCheck, User, WifiOff } from "lucide-react";
 import { BrandMark } from "../app/BrandMark";
@@ -9,10 +9,13 @@ import { LanguageSelector } from "../components/LanguageSelector";
 import { Alert, Button, Input } from "../components/ui";
 import { fill, useI18n } from "../i18n";
 import { DURATION, EASE, useReducedMotion } from "../lib/motion";
-import { ForgotPassword, IconField, PasswordToggle } from "./auth/ForgotPassword";
+import { IconField, PasswordToggle } from "./auth/fields";
 import { RuleStrip } from "./auth/LabelCard";
 import { StoryPanel } from "./auth/StoryPanel";
 import { StatusPill, StatusStrip } from "./auth/SystemStatus";
+
+// The password-reset flow is only fetched when someone opens it.
+const ForgotPassword = lazy(() => import("./auth/ForgotPassword").then(module => ({ default: module.ForgotPassword })));
 
 export type Registration = { username: string; email: string; password: string; confirmPassword: string };
 type AuthPageProps = { loading: boolean; error: string; onLogin: (username: string, password: string, remember: boolean) => void; onRegister: (data: Registration) => void };
@@ -40,7 +43,7 @@ export function AuthPage({ loading, error, onLogin, onRegister }: AuthPageProps)
   function backFromForgot() { navigated.current = true; setMode("login"); navigate(returnPath.current); }
 
   const panel = view === "forgot"
-    ? <ForgotPassword onBack={backFromForgot} reduced={reduced} />
+    ? <Suspense fallback={<div className="boot-screen" role="status">{t("loading")}</div>}><ForgotPassword onBack={backFromForgot} reduced={reduced} /></Suspense>
     : <AccountForms mode={view} focusHeading={navigated.current} loading={loading} error={error} onLogin={onLogin} onRegister={onRegister} onShow={show} />;
 
   return (

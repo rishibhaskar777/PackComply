@@ -45,7 +45,7 @@ describe("inspection workflow UI", () => {
   it("does not show risk-queue navigation to manufacturers", async () => {
     mockApi({ "GET /auth/me": response({ username: "manufacturer", role: "MANUFACTURER" }) }); renderApp(); await appReady(); expect(sidebar().queryByRole("link", { name: en.riskQueue })).toBeNull();
   });
-  it("persists a language choice", async () => { renderApp(); await appReady(); await openUserMenu(); fireEvent.change(screen.getByRole("combobox"), { target: { value: "hi" } }); expect(within(screen.getByRole("navigation", { name: hi.primaryNavigation })).getByText(hi.overview)).toBeTruthy(); expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe("hi"); });
+  it("persists a language choice", async () => { renderApp(); await appReady(); await openUserMenu(); fireEvent.change(screen.getByRole("combobox"), { target: { value: "hi" } }); expect(within(await screen.findByRole("navigation", { name: hi.primaryNavigation })).getByText(hi.overview)).toBeTruthy(); expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe("hi"); });
   it("has complete locale key sets", async () => { for (const language of UI_LANGUAGES) { const locale = await import(`./locales/${language.code}.json`); expect(Object.keys(locale.default).sort()).toEqual(Object.keys(en).sort()); } });
   it("shows the unauthenticated state after a 401 startup check", async () => {
     const fetchMock = mockApi({ "GET /auth/me": unauthenticated });
@@ -113,7 +113,7 @@ describe("inspection workflow UI", () => {
 
   describe("on the new-inspection route", () => {
     beforeEach(() => { go("#/new"); URL.createObjectURL = vi.fn(() => "blob:label"); URL.revokeObjectURL = vi.fn(); });
-    const choose = async (candidate = file()) => { renderApp(); await appReady(); fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files: [candidate] } }); };
+    const choose = async (candidate = file()) => { renderApp(); await appReady(); await waitFor(() => expect(document.querySelector('input[type="file"]')).toBeTruthy()); fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files: [candidate] } }); };
     const upload = async () => { await choose(); fireEvent.click(await screen.findByRole("button", { name: en.newStart })); };
     it("uploads, processes and opens the finished record", async () => {
       mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }), ...workflow() });

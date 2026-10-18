@@ -1,15 +1,19 @@
 """Public system status for the sign-in page: no authentication, nothing sensitive."""
+import json
+import logging
 from threading import Lock
 from time import monotonic
 from typing import Literal
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from backend.app.api.health import database_ready
+from backend.app.api.auth import get_current_user
 from backend.app.core.config import get_ocr_languages, get_settings
 from backend.app.core.database import get_db
+from backend.app.core.network import detect_lan_ip, phone_url
 from backend.app.core.ocr_status import OcrState, get_ocr_state
 from backend.app.services.compliance.ruleset import default_ruleset
 
@@ -71,3 +75,38 @@ def system_status(db: Session = Depends(get_db)) -> SystemStatus:
     value = _build_status(db)
     status_cache.put(value)
     return value
+
+
+class NetworkInfo(BaseModel):
+    lan_ip: str | None
+    phone_url: str | None
+
+
+@router.get("/network", response_model=NetworkInfo, summary="Where a phone on the same Wi-Fi opens the app", dependencies=[Depends(get_current_user)])
+def network_info(request: Request) -> NetworkInfo:
+    """The laptop's LAN address and the phone URL (for the "Open on phone" QR code). Signed-in users only."""
+    scheme = request.headers.get("x-forwarded-proto") or request.url.scheme
+    port = request.headers.get("x-forwarded-port")
+    return NetworkInfo(lan_ip=detect_lan_ip(), phone_url=phone_url(scheme, port))
+
+
+logger = logging.getLogger("uvicorn.error")
+
+
+@router.get("/evaluation", summary="Measured accuracy of the pipeline, from the evaluation report file", dependencies=[Depends(get_current_user)])
+def evaluation_report() -> dict:
+    """The JSON written by ``batch_evaluate --report-json`` (``{"schema": 1, "runs": [...]}``); no runs when no report exists.
+
+    Nothing is computed here: the page shows exactly what the evaluation script measured, with its dataset and date.
+    """
+    path = get_settings().evaluation_report_path
+    try:
+        report = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(report, dict) and isinstance(report.get("runs"), list):
+            return report
+        logger.warning("Evaluation report %s has no 'runs' list; ignoring it", path)
+    except FileNotFoundError:
+        pass
+    except (OSError, ValueError):
+        logger.warning("Evaluation report %s could not be read", path, exc_info=True)
+    return {"schema": 1, "runs": []}

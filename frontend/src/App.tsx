@@ -1,28 +1,30 @@
 import { lazy, ReactNode, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, LazyMotion, m, MotionConfig } from "motion/react";
-import { api, getJson, isExpired, isUnavailable, ApiError } from "./api/client";
+import { api, getJson, isExpired, isUnavailable, ApiError, UNAUTHORIZED_EVENT } from "./api/client";
 import { AppShell, routeTitles } from "./app/AppShell";
 import { navigate, Route, useHashRoute } from "./app/router";
-import { ToastProvider } from "./components/ui";
+import { PageSkeleton } from "./components/PageSkeleton";
+import { ToastProvider, useToast } from "./components/ui";
 import { useI18n } from "./i18n";
 import { DURATION, EASE, useReducedMotion } from "./lib/motion";
 import { useSpotlight } from "./lib/spotlight";
 import { AuthPage, Registration } from "./pages/AuthPage";
-import { InspectionRecordPage } from "./pages/InspectionRecordPage";
-import { InspectionsPage } from "./pages/InspectionsPage";
-import { NewInspectionPage } from "./pages/NewInspectionPage";
-import { OverviewPage } from "./pages/OverviewPage";
-import { PatternsPage } from "./pages/PatternsPage";
-import { ReportsPage } from "./pages/ReportsPage";
-import { RiskQueuePage } from "./pages/RiskQueuePage";
-import { RulesetsPage } from "./pages/RulesetsPage";
 import { ThemeProvider } from "./theme/theme";
 import { Panel, RiskPageData, User } from "./types";
 
 export { ComplianceResults, FieldValue, labelFields } from "./pages/InspectionPage";
 
-// The field app is only opened on phones, so it is fetched when first needed.
+// Every page is its own chunk, fetched when its route is first opened. The field app is only opened on phones.
 const CapturePage = lazy(() => import("./pages/capture/CapturePage").then(module => ({ default: module.CapturePage })));
+const OverviewPage = lazy(() => import("./pages/OverviewPage").then(module => ({ default: module.OverviewPage })));
+const InspectionsPage = lazy(() => import("./pages/InspectionsPage").then(module => ({ default: module.InspectionsPage })));
+const NewInspectionPage = lazy(() => import("./pages/NewInspectionPage").then(module => ({ default: module.NewInspectionPage })));
+const InspectionRecordPage = lazy(() => import("./pages/InspectionRecordPage").then(module => ({ default: module.InspectionRecordPage })));
+const RiskQueuePage = lazy(() => import("./pages/RiskQueuePage").then(module => ({ default: module.RiskQueuePage })));
+const PatternsPage = lazy(() => import("./pages/PatternsPage").then(module => ({ default: module.PatternsPage })));
+const RulesetsPage = lazy(() => import("./pages/RulesetsPage").then(module => ({ default: module.RulesetsPage })));
+const AboutPage = lazy(() => import("./pages/AboutPage").then(module => ({ default: module.AboutPage })));
+const ReportsPage = lazy(() => import("./pages/ReportsPage").then(module => ({ default: module.ReportsPage })));
 
 // Animation and layout features are fetched after first paint; elements render statically until then.
 const loadMotionFeatures = () => import("./lib/motionFeatures").then(module => module.default);
@@ -98,6 +100,21 @@ function AppContent() {
   }
   function expired() { setUser(null); setAuthError(t("sessionExpired")); }
 
+  // Any request answered 401 (the session ended while the app was open) returns to sign-in with a notice, once.
+  const toast = useToast();
+  const signedIn = useRef(false);
+  signedIn.current = user !== null;
+  useEffect(() => {
+    function onUnauthorized() {
+      if (!signedIn.current) return;
+      signedIn.current = false;
+      setUser(null); setAuthError(t("sessionExpired")); toast(t("sessionExpired"), "error");
+      navigate("/overview", { replace: true });
+    }
+    window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+  }, [t, toast]);
+
   if (authLoading) return <div className="boot-screen" role="status">{t("authenticationLoading")}</div>;
   if (!user) return <AuthPage loading={authBusy} error={authError} onLogin={login} onRegister={register} />;
   return <Workspace user={user} onLogout={logout} onExpired={expired} />;
@@ -149,13 +166,13 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
   }
   const pageKey = route.name === "new" ? `new-${newKey}` : route.name === "inspection" ? `inspection-${route.id}` : route.name;
   return (
-    <AppShell route={route} pageLabel={route.name === "inspection" ? pageLabel : null} user={user} riskCount={riskCount} search={search} onSearchChange={setSearch} onNewInspection={newInspection} onLogout={onLogout}>
+    <AppShell route={route} pageLabel={route.name === "inspection" ? pageLabel : null} user={user} riskCount={riskCount} search={search} onSearchChange={setSearch} onNewInspection={newInspection} onLogout={onLogout} onExpired={onExpired}>
       {reduced
-        ? <div key={pageKey}>{renderPage(route)}</div>
+        ? <div key={pageKey}><Suspense fallback={<PageSkeleton />}>{renderPage(route)}</Suspense></div>
         : <AnimatePresence mode="wait" initial={false}>
           <m.div key={pageKey} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { duration: DURATION.slow, ease: EASE } }}
             exit={{ opacity: 0, transition: { duration: DURATION.fast, ease: EASE } }}>
-            {renderPage(route)}
+            <Suspense fallback={<PageSkeleton />}>{renderPage(route)}</Suspense>
           </m.div>
         </AnimatePresence>}
     </AppShell>
@@ -172,6 +189,7 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
       case "patterns": return <PatternsPage onExpired={onExpired} />;
       case "rulesets": return <RulesetsPage onExpired={onExpired} />;
       case "reports": return <ReportsPage onExpired={onExpired} />;
+      case "about": return <AboutPage onExpired={onExpired} />;
     }
   }
 }

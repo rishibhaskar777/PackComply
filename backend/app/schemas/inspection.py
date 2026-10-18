@@ -88,6 +88,8 @@ class ImageInfo(BaseModel):
     original_filename: str | None = None
     byte_size: int | None = None
     content_type: str | None = None
+    # Set when the text on this photo could not be read; the inspection then finished without it.
+    read_error: str | None = None
 
 
 class OcrDetectionResponse(BaseModel):

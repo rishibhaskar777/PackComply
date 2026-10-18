@@ -6,6 +6,7 @@ import { Alert, Button, Input } from "../../components/ui";
 import { fill, TranslationKey, useI18n } from "../../i18n";
 import { DURATION, EASE } from "../../lib/motion";
 import { OTP_LENGTH, OtpInput } from "./OtpInput";
+import { IconField, PasswordToggle } from "./fields";
 import { PasswordStrength } from "./PasswordStrength";
 
 export const RESET_CODE_MINUTES = 15;
@@ -134,29 +135,5 @@ export function ForgotPassword({ onBack, reduced }: { onBack: () => void; reduce
         {content}
       </m.div>
     </AnimatePresence>
-  );
-}
-
-/** Label above an input that carries a leading icon. */
-export function IconField({ icon, label, id, labelAside, children }: { icon: ReactNode; label: ReactNode; id: string; labelAside?: ReactNode; children: ReactNode }) {
-  return (
-    <div className="form-field">
-      <div className="form-field__row">
-        <label className="form-field__label" htmlFor={id}>{label}</label>
-        {labelAside}
-      </div>
-      <span className="icon-input">
-        <span className="icon-input__icon" aria-hidden="true">{icon}</span>
-        {children}
-      </span>
-    </div>
-  );
-}
-
-export function PasswordToggle({ shown, onToggle }: { shown: boolean; onToggle: () => void }) {
-  const { t } = useI18n();
-  return (
-    <Button variant="ghost" size="icon" className="icon-input__toggle" aria-label={shown ? t("hidePassword") : t("showPassword")} aria-pressed={shown} onClick={onToggle}
-      icon={shown ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />} />
   );
 }
