@@ -5,7 +5,7 @@ export type Panel = "BACK" | "FRONT" | "DATE_STAMP" | "OTHER";
 export type FieldAlternative = { image_id: string | null; panel: Panel | null; value: string | null; confidence: number };
 export type Field = { value: string | null; confidence: number; needs_review: boolean; source_text?: string | null; source_bboxes?: BBox[] | null; source?: "OCR" | "INSPECTOR"; image_id?: string | null; panel?: Panel | null; alternatives?: FieldAlternative[] };
 /** One stored photo; replaced ones stay listed with active=false as evidence. */
-export type PhotoInfo = { id: string; panel: Panel; width?: number | null; height?: number | null; checksum?: string | null; uploaded_at: string; active: boolean; original_filename?: string | null };
+export type PhotoInfo = { id: string; panel: Panel; width?: number | null; height?: number | null; checksum?: string | null; uploaded_at: string; active: boolean; original_filename?: string | null; read_error?: string | null };
 export type FindingStatus = "PASS" | "FAIL" | "REVIEW" | "NOT_APPLICABLE";
 export type Finding = {
   rule_id: string; rule_name: string; status: FindingStatus; severity: string; message: string; field: string | null; value: string | null;

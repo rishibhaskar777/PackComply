@@ -82,6 +82,9 @@ class Settings(BaseSettings):
     # GET /api/system/status caches its checks for this long.
     system_status_cache_seconds: float = 5.0
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    # The laptop's Wi-Fi/LAN IPv4 and the full phone URL; scripts/start-demo.ps1 sets them. Empty = detect.
+    lan_ip: str = ""
+    phone_url: str = ""
 
     model_config = SettingsConfigDict(env_file=ROOT_ENV_FILE, env_file_encoding="utf-8", extra="ignore")
 

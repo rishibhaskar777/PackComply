@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 import logging
 from threading import Thread
+from time import perf_counter
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,6 +20,7 @@ from backend.app.api.dashboard import router as dashboard_router
 from backend.app.core.config import get_cors_origins, get_settings
 from backend.app.core.database import SessionLocal
 from backend.app.core.ocr_status import set_ocr_state
+from backend.app.core.startup import log_startup_summary
 from backend.app.services import jobs
 from backend.app.services.compliance.registry import sync_compliance_rules
 from backend.app.services.compliance.ruleset import default_ruleset
@@ -29,6 +31,7 @@ logger = logging.getLogger("uvicorn.error")
 
 def _warm_ocr_models() -> None:
     set_ocr_state("warming_up")
+    started = perf_counter()
     try:
         # Resolve through the override map so tests and alternate providers apply.
         factory = app.dependency_overrides.get(get_ocr_service, get_ocr_service)
@@ -40,6 +43,7 @@ def _warm_ocr_models() -> None:
     except Exception:
         set_ocr_state("unavailable")
         logger.exception("OCR warm-up failed; models will load on the first request instead")
+    log_startup_summary(started)
 
 
 def _sync_compliance_rules() -> None:
@@ -62,6 +66,8 @@ async def lifespan(_: FastAPI):
     if get_settings().ocr_warmup_on_startup:
         set_ocr_state("warming_up")
         Thread(target=_warm_ocr_models, name="ocr-warmup", daemon=True).start()
+    else:
+        log_startup_summary()
     yield
     jobs.shutdown()
     if get_ocr_service.cache_info().currsize:

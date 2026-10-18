@@ -77,6 +77,9 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
   const photoUrls = usePhotoUrls(path, tabs.map(photo => photo.id));
   const currentPhoto = tabs.find(photo => photo.id === tab) ?? tabs.find(photo => photo.id === summary?.image?.id) ?? tabs[0] ?? null;
 
+  // Photos whose text could not be read: the record is complete without them, with the affected rules in Needs review.
+  const unreadPhotos = useMemo(() => (summary?.images ?? []).filter(photo => photo.active && photo.read_error), [summary]);
+
   const items: FindingItem[] = useMemo(() => (summary ? buildFindingItems(summary) : []), [summary]);
   // Markers only for findings whose evidence is on the photo being shown; their numbers stay in the list.
   const photoItems = useMemo(() => items.map(item => (item.boxes && item.imageId && item.imageId !== currentPhoto?.id ? { ...item, boxes: null } : item)), [items, currentPhoto?.id]);
@@ -222,6 +225,13 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
         <Alert variant={summary.status === "FAILED" ? "error" : "info"} title={summary.status === "FAILED" ? t("failed") : t("recNotProcessed")}
           action={summary.image ? <Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={() => void retryProcessing()} loading={busy || running}>{t("tryAgain")}</Button> : undefined}>
           {summary.failure_message ?? t("recNotProcessedBody")}
+        </Alert>
+      )}
+
+      {unreadPhotos.length > 0 && run.phase === "idle" && (
+        <Alert variant="info" title={t("recPhotoUnreadTitle")}
+          action={<Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={() => void retryProcessing()} loading={busy || running}>{t("progRetryPhoto")}</Button>}>
+          {fill(t("recPhotoUnreadBody"), { panels: unreadPhotos.map(photo => t(PANEL_LABEL[photo.panel]).toLowerCase()).join(", ") })}
         </Alert>
       )}
 

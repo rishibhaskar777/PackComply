@@ -31,8 +31,8 @@ export default defineConfig(({ mode }) => {
   const https = mode === "https" || process.env.VITE_DEV_HTTPS === "1";
   return {
     plugins: [react(), preloadFonts(), ...(https ? [basicSsl()] : [])],
-    server: { proxy: { "/api": { target: apiTarget, changeOrigin: false } } },
-    preview: { proxy: { "/api": { target: apiTarget, changeOrigin: false } } },
+    server: { proxy: { "/api": { target: apiTarget, changeOrigin: false, xfwd: true } } },
+    preview: { proxy: { "/api": { target: apiTarget, changeOrigin: false, xfwd: true } } },
     test: {
       environment: "jsdom",
       setupFiles: ["./src/test/setup.ts"],

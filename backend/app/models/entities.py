@@ -18,6 +18,8 @@ class User(IdTimestampMixin, Base):
     role: Mapped[str] = mapped_column(String(50), default="OFFICIAL", nullable=False)
     organization: Mapped[str | None] = mapped_column(String(200))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Created by backend.scripts.seed_demo; --reset-demo removes only rows carrying this tag.
+    demo_seed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
 
 
 class AuthSession(IdTimestampMixin, Base):
@@ -82,6 +84,7 @@ class Inspection(IdTimestampMixin, Base):
     reviewed_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     remarks: Mapped[str | None] = mapped_column(Text)
+    demo_seed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
 
 
 def _next_upload_sequence(context) -> int:
@@ -112,6 +115,8 @@ class InspectionImage(IdTimestampMixin, Base):
     # Which part of the pack this photo shows: BACK | FRONT | DATE_STAMP | OTHER.
     # The newest upload per panel is the one processed; older ones stay as evidence.
     panel: Mapped[str] = mapped_column(String(20), default="BACK", server_default="BACK", nullable=False)
+    # Why the last attempt to read this photo failed; null when it was read (or has not been tried).
+    read_error: Mapped[str | None] = mapped_column(String(255))
 
 
 class OcrResult(IdTimestampMixin, Base):
