@@ -4,13 +4,42 @@ import { useEffect, useState } from "react";
 // #/capture (the mobile field app; ?add=<inspection id>&panel=DATE_STAMP adds a photo to a record),
 // #/risk, #/patterns, #/rulesets, #/reports, #/about.  Each navigation is a history
 // entry, so the browser back button works without a router library.
+// Manufacturer portal: #/products (home), #/products/:id (self-check result), #/check (?previous=<id> uploads a corrected
+// label for that product), #/fixes, #/rules-guide; #/reports and #/about are shared and render per role.
 export type Route =
   | { name: "overview" } | { name: "inspections" } | { name: "inspection"; id: string } | { name: "new" } | { name: "capture"; add?: string; panel?: string }
-  | { name: "risk" } | { name: "patterns" } | { name: "rulesets" } | { name: "reports" } | { name: "about" };
+  | { name: "risk" } | { name: "patterns" } | { name: "rulesets" } | { name: "reports" } | { name: "about" }
+  | { name: "products" } | { name: "product"; id: string } | { name: "check"; previous?: string } | { name: "fixes" } | { name: "guide" };
 export type RouteName = Route["name"];
 
-const SIMPLE: RouteName[] = ["overview", "inspections", "new", "risk", "patterns", "rulesets", "reports", "about"];
+const SIMPLE: RouteName[] = ["overview", "inspections", "new", "risk", "patterns", "rulesets", "reports", "about", "products", "fixes"];
 export const DEFAULT_PATH = "/overview";
+export type Role = "OFFICIAL" | "MANUFACTURER";
+
+/** Where each role lands after signing in. */
+export const homePath = (role?: string) => (role === "MANUFACTURER" ? "/products" : "/overview");
+
+const INSPECTOR_ONLY: RouteName[] = ["overview", "inspections", "inspection", "new", "risk", "patterns", "rulesets"];
+const MANUFACTURER_ONLY: RouteName[] = ["products", "product", "check", "fixes", "guide"];
+
+/**
+ * The route a signed-in user is sent to instead, or null when they may stay. A manufacturer opening an inspector page
+ * lands on its manufacturer equivalent (a deep link to a record becomes the product result); an inspector opening a
+ * manufacturer page lands on the overview.
+ */
+export function redirectFor(route: Route, role?: string): string | null {
+  if (role === "MANUFACTURER" && INSPECTOR_ONLY.includes(route.name)) {
+    switch (route.name) {
+      case "inspection": return `/products/${encodeURIComponent(route.id)}`;
+      case "new": return "/check";
+      case "patterns": return "/fixes";
+      case "rulesets": return "/rules-guide";
+      default: return "/products";
+    }
+  }
+  if (role !== "MANUFACTURER" && MANUFACTURER_ONLY.includes(route.name)) return "/overview";
+  return null;
+}
 
 export function parseHash(hash: string): Route | null {
   const [rawPath, query = ""] = hash.replace(/^#/, "").split("?");
@@ -19,14 +48,21 @@ export function parseHash(hash: string): Route | null {
     const params = new URLSearchParams(query);
     return { name: "capture", add: params.get("add") ?? undefined, panel: params.get("panel") ?? undefined };
   }
+  if (path === "/check") return { name: "check", previous: new URLSearchParams(query).get("previous") ?? undefined };
+  if (path === "/rules-guide") return { name: "guide" };
   const detail = /^\/inspections\/([^/]+)$/.exec(path);
   if (detail) return { name: "inspection", id: decodeURIComponent(detail[1]) };
+  const product = /^\/products\/([^/]+)$/.exec(path);
+  if (product) return { name: "product", id: decodeURIComponent(product[1]) };
   const name = path.slice(1) as RouteName;
   return SIMPLE.includes(name) ? { name } as Route : null;
 }
 
 export function href(route: Route): string {
   if (route.name === "capture") return `#/capture${route.add ? `?add=${encodeURIComponent(route.add)}${route.panel ? `&panel=${encodeURIComponent(route.panel)}` : ""}` : ""}`;
+  if (route.name === "check") return `#/check${route.previous ? `?previous=${encodeURIComponent(route.previous)}` : ""}`;
+  if (route.name === "guide") return "#/rules-guide";
+  if (route.name === "product") return `#/products/${encodeURIComponent(route.id)}`;
   return route.name === "inspection" ? `#/inspections/${encodeURIComponent(route.id)}` : `#/${route.name}`;
 }
 

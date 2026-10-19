@@ -51,7 +51,7 @@ export function PatternsPage({ onExpired }: { onExpired: () => void }) {
           <Card title={t("repeatedIssues")} description={t("patternsTableDescription")} flush>
             {patterns === null ? <SkeletonRows label={t("loading")} />
               : !items.length ? <EmptyState icon={<Repeat2 size={16} />} title={t("noRepeatedPatterns")} description={t("patternsEmptyDescription")} />
-              : <Table caption={t("repeatedIssues")} columns={columns} rows={items} rowKey={pattern => pattern.pattern_key} />}
+              : <Table caption={t("repeatedIssues")} columns={columns} rows={items} rowKey={pattern => `${pattern.pattern_type}:${pattern.pattern_key}`} />}
           </Card>
         </>}
     </div>

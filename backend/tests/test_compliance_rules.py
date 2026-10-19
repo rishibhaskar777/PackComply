@@ -239,6 +239,9 @@ def test_date_consistency(changes, status) -> None:
 @pytest.mark.parametrize(("changes", "status"), [
     ({}, "PASS"),
     ({"consumer_care_email": None}, "PASS"),
+    # One contact detail with no consumer-care heading found around it cannot confirm the declaration.
+    ({"consumer_care_email": None, "consumer_care_declaration": "absent"}, "REVIEW"),
+    ({"consumer_care_phone": None, "consumer_care_declaration": "absent"}, "REVIEW"),
     ({"consumer_care_phone": "12345"}, "REVIEW"),
     ({"consumer_care_email": "not-an-email"}, "REVIEW"),
     ({"consumer_care_phone": None, "consumer_care_email": None, "consumer_care_website": "www.goldencrunch.in"}, "REVIEW"),

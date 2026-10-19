@@ -9,6 +9,10 @@ from pydantic import BaseModel, ConfigDict, Field
 class InspectionCreate(BaseModel):
     manufacturer_id: UUID | None = None
     product_id: UUID | None = None
+    # A corrected label: the earlier self-check of the same product (must be owned by the caller).
+    previous_inspection_id: UUID | None = None
+    # A corrected label: the earlier self-check of the same product (must be owned by the caller).
+    previous_inspection_id: UUID | None = None
     notes: str | None = Field(default=None, max_length=5000)
 
 
@@ -164,6 +168,18 @@ class ComplianceFindingResponse(BaseModel):
     fields: list[str] = []
     # True when the value used was entered by an inspector.
     corrected: bool = False
+    # Plain-language remediation from the catalogue (remediation_v1.yaml): shown to manufacturers, a hint for officials.
+    fix_title: str | None = None
+    fix_steps: list[str] = []
+    example: str | None = None
+    pass_text: str | None = None
+    rule_chip: str | None = None
+    # Plain-language remediation from the catalogue (remediation_v1.yaml): shown to manufacturers, a hint for officials.
+    fix_title: str | None = None
+    fix_steps: list[str] = []
+    example: str | None = None
+    pass_text: str | None = None
+    rule_chip: str | None = None
 
 
 class ComplianceResponse(BaseModel):
@@ -186,6 +202,13 @@ class ComplianceRuleResponse(BaseModel):
     legal_reference: str | None = None
     severity: str
     applies_when: str | None = None
+    # Plain-language guide (rules guide for manufacturers): what must be printed, how to fix it, a compliant example.
+    expected: str | None = None
+    rule_chip: str | None = None
+    fix_title: str | None = None
+    fix_steps: list[str] = []
+    example: str | None = None
+    pass_text: str | None = None
 
 
 class ComplianceRulesetResponse(BaseModel):
@@ -269,6 +292,8 @@ class InspectionSummary(BaseModel):
     maker_name: str | None = None
     corrections: list[FieldCorrectionResponse] = []
     review: ReviewResponse = ReviewResponse()
+    previous_inspection_id: UUID | None = None
+    previous_inspection_id: UUID | None = None
 
 
 class RiskReasonResponse(BaseModel):
@@ -325,6 +350,14 @@ class DashboardRepeatIssue(BaseModel):
     label_count: int
 
 
+class DashboardRuleCount(BaseModel):
+    rule_id: str
+    title: str
+    legal_reference: str | None = None
+    violations: int
+    review: int
+
+
 class DashboardSummary(BaseModel):
     period: str
     total_inspections: int
@@ -333,3 +366,135 @@ class DashboardSummary(BaseModel):
     repeat_issues: list[DashboardRepeatIssue]
     median_processing_seconds: float | None = None
     ruleset_version: str
+    # Top five rules by violations (distinct label photos), for the "Violations by rule" chart.
+    rule_counts: list[DashboardRuleCount] = []
+
+
+class ProductCheck(BaseModel):
+    inspection_id: UUID
+    checked_at: datetime
+    fixes: int
+    review: int
+    status: str
+
+
+class ProductCard(BaseModel):
+    """One product of a manufacturer: its latest self-check, with the history behind it."""
+    product_key: str
+    inspection_id: UUID
+    product_name: str
+    net_quantity: str | None = None
+    checked_at: datetime
+    checks: int
+    # READY (no FAIL, no REVIEW) / FIX (any FAIL) / CHECK (only REVIEW)
+    status: str
+    fixes: int
+    review: int
+    passed: int
+    rules_total: int
+    has_photo: bool = True
+    image_id: UUID | None = None
+    previous_fixes: int | None = None
+    improved: bool = False
+    history: list[ProductCheck] = []
+
+
+class ProductsSummary(BaseModel):
+    total: int
+    ready: int
+    fix: int
+    check: int
+    readiness_percent: int
+    open_fixes: int
+    labels_to_fix: int
+    products: list[ProductCard]
+
+
+class FixLabel(BaseModel):
+    inspection_id: UUID
+    product_name: str
+    status: str
+
+
+class FixGroup(BaseModel):
+    rule_id: str
+    title: str
+    rule_name: str
+    legal_reference: str | None = None
+    rule_chip: str | None = None
+    severity: str
+    status: str
+    product_count: int
+    fix_steps: list[str] = []
+    example: str | None = None
+    products: list[FixLabel]
+
+
+class FixesResponse(BaseModel):
+    total_items: int
+    groups: list[FixGroup]
+
+
+class ProductCheck(BaseModel):
+    inspection_id: UUID
+    checked_at: datetime
+    fixes: int
+    review: int
+    status: str
+
+
+class ProductCard(BaseModel):
+    """One product of a manufacturer: its latest self-check, with the history behind it."""
+    product_key: str
+    inspection_id: UUID
+    product_name: str
+    net_quantity: str | None = None
+    checked_at: datetime
+    checks: int
+    # READY (no FAIL, no REVIEW) / FIX (any FAIL) / CHECK (only REVIEW)
+    status: str
+    fixes: int
+    review: int
+    passed: int
+    rules_total: int
+    has_photo: bool = True
+    image_id: UUID | None = None
+    previous_fixes: int | None = None
+    improved: bool = False
+    history: list[ProductCheck] = []
+
+
+class ProductsSummary(BaseModel):
+    total: int
+    ready: int
+    fix: int
+    check: int
+    readiness_percent: int
+    open_fixes: int
+    labels_to_fix: int
+    products: list[ProductCard]
+
+
+class FixLabel(BaseModel):
+    inspection_id: UUID
+    product_name: str
+    status: str
+
+
+class FixGroup(BaseModel):
+    rule_id: str
+    title: str
+    rule_name: str
+    legal_reference: str | None = None
+    rule_chip: str | None = None
+    severity: str
+    status: str
+    product_count: int
+    fix_steps: list[str] = []
+    example: str | None = None
+    products: list[FixLabel]
+
+
+class FixesResponse(BaseModel):
+    total_items: int
+    groups: list[FixGroup]

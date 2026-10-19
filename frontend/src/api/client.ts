@@ -57,3 +57,16 @@ export async function downloadReport(id: string, inspectionNumber: string) {
   link.remove();
   URL.revokeObjectURL(objectUrl);
 }
+
+/** Download the manufacturer's pre-market self-check PDF for one of their own checks. */
+export async function downloadSelfCheckReport(id: string, inspectionNumber: string) {
+  const blob = await (await api(`/inspections/${id}/self-check-report`, "self-check report", {}, 60_000)).blob();
+  const link = document.createElement("a");
+  const objectUrl = URL.createObjectURL(blob);
+  link.href = objectUrl;
+  link.download = `self_check_${inspectionNumber}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(objectUrl);
+}

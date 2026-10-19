@@ -2,15 +2,16 @@ import { lazy, ReactNode, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, LazyMotion, m, MotionConfig } from "motion/react";
 import { api, getJson, isExpired, isUnavailable, ApiError, UNAUTHORIZED_EVENT } from "./api/client";
 import { AppShell, routeTitles } from "./app/AppShell";
-import { navigate, Route, useHashRoute } from "./app/router";
+import { homePath, navigate, redirectFor, Route, useHashRoute } from "./app/router";
 import { PageSkeleton } from "./components/PageSkeleton";
 import { ToastProvider, useToast } from "./components/ui";
 import { useI18n } from "./i18n";
 import { DURATION, EASE, useReducedMotion } from "./lib/motion";
+import { usePortalAttribute } from "./lib/portal";
 import { useSpotlight } from "./lib/spotlight";
 import { AuthPage, Registration } from "./pages/AuthPage";
 import { ThemeProvider } from "./theme/theme";
-import { Panel, RiskPageData, User } from "./types";
+import { FixesResponse, Panel, RiskPageData, User } from "./types";
 
 export { ComplianceResults, FieldValue, labelFields } from "./pages/InspectionPage";
 
@@ -24,6 +25,11 @@ const RiskQueuePage = lazy(() => import("./pages/RiskQueuePage").then(module => 
 const PatternsPage = lazy(() => import("./pages/PatternsPage").then(module => ({ default: module.PatternsPage })));
 const RulesetsPage = lazy(() => import("./pages/RulesetsPage").then(module => ({ default: module.RulesetsPage })));
 const AboutPage = lazy(() => import("./pages/AboutPage").then(module => ({ default: module.AboutPage })));
+const ProductsPage = lazy(() => import("./pages/maker/ProductsPage").then(module => ({ default: module.ProductsPage })));
+const ProductResultPage = lazy(() => import("./pages/maker/ProductResultPage").then(module => ({ default: module.ProductResultPage })));
+const FixListPage = lazy(() => import("./pages/maker/FixListPage").then(module => ({ default: module.FixListPage })));
+const SelfCheckReportsPage = lazy(() => import("./pages/maker/SelfCheckReportsPage").then(module => ({ default: module.SelfCheckReportsPage })));
+const RulesGuidePage = lazy(() => import("./pages/maker/RulesGuidePage").then(module => ({ default: module.RulesGuidePage })));
 const ReportsPage = lazy(() => import("./pages/ReportsPage").then(module => ({ default: module.ReportsPage })));
 
 // Animation and layout features are fetched after first paint; elements render statically until then.
@@ -55,6 +61,8 @@ function AppContent() {
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState("");
   const authRequest = useRef(0);
+  // The portal theme follows the signed-in role and is cleared on sign-out.
+  usePortalAttribute(user?.role, user !== null);
 
   async function loadUser() {
     const request = ++authRequest.current;
@@ -129,6 +137,7 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
   // Bumped by "New inspection" so the upload form always starts clean.
   const [newKey, setNewKey] = useState(0);
   const [riskCount, setRiskCount] = useState<number | null>(null);
+  const [fixCount, setFixCount] = useState<number | null>(null);
   const [pageLabel, setPageLabel] = useState<string | null>(null);
   const firstRoute = useRef(true);
 
@@ -140,10 +149,18 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
     } catch { setRiskCount(null); }
   }
   useEffect(() => { loadRiskCount(); }, [official]);
-  // The risk queue is an official view; manufacturers land on the overview instead.
-  useEffect(() => { if (route.name === "risk" && !official) navigate("/overview", { replace: true }); }, [route, official]);
+  // The number on the Fix list nav item: open fixes across the manufacturer's latest self-checks.
+  async function loadFixCount() {
+    if (official) return;
+    try { setFixCount((await getJson<FixesResponse>("/fixes", "fix count")).total_items); }
+    catch { setFixCount(null); }
+  }
+  useEffect(() => { void loadFixCount(); }, [official]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Each role has its own pages: an inspector page opened by a manufacturer (or the reverse) is replaced by its equivalent.
+  const redirect = redirectFor(route, user.role);
+  useEffect(() => { if (redirect) navigate(redirect, { replace: true }); }, [redirect]);
   useEffect(() => {
-    const titles = routeTitles(route);
+    const titles = routeTitles(route, user.role);
     document.title = `${t(titles.page)} · ${t("appName")}`;
     // Move focus to the new page for keyboard and screen-reader users (not on first load).
     if (firstRoute.current) firstRoute.current = false;
@@ -153,20 +170,22 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
   // Phones go to the field app; larger screens keep the upload form.
   function newInspection() {
     setNewKey(key => key + 1);
-    navigate(typeof window.matchMedia === "function" && window.matchMedia("(max-width: 767px)").matches ? "/capture" : "/new");
+    const phone = typeof window.matchMedia === "function" && window.matchMedia("(max-width: 767px)").matches;
+    navigate(phone ? "/capture" : official ? "/new" : "/check");
   }
+  const onCompleted = () => { void loadRiskCount(); void loadFixCount(); };
 
   if (route.name === "capture") {
     const add = route.add ? { inspectionId: route.add, panel: (route.panel as Panel | undefined) ?? "BACK" } : undefined;
     return (
       <Suspense fallback={<div className="boot-screen" role="status">{t("loading")}</div>}>
-        <CapturePage key={`capture-${newKey}-${route.add ?? ""}-${route.panel ?? ""}`} official={official} onExpired={onExpired} onCompleted={loadRiskCount} add={add} />
+        <CapturePage key={`capture-${newKey}-${route.add ?? ""}-${route.panel ?? ""}`} official={official} onExpired={onExpired} onCompleted={onCompleted} add={add} />
       </Suspense>
     );
   }
-  const pageKey = route.name === "new" ? `new-${newKey}` : route.name === "inspection" ? `inspection-${route.id}` : route.name;
+  const pageKey = route.name === "new" || route.name === "check" ? `${route.name}-${newKey}-${route.name === "check" ? route.previous ?? "" : ""}` : route.name === "inspection" || route.name === "product" ? `${route.name}-${route.id}` : route.name;
   return (
-    <AppShell route={route} pageLabel={route.name === "inspection" ? pageLabel : null} user={user} riskCount={riskCount} search={search} onSearchChange={setSearch} onNewInspection={newInspection} onLogout={onLogout} onExpired={onExpired}>
+    <AppShell route={route} pageLabel={route.name === "inspection" || route.name === "product" ? pageLabel : null} user={user} riskCount={riskCount} fixCount={fixCount} search={search} onSearchChange={setSearch} onNewInspection={newInspection} onLogout={onLogout} onExpired={onExpired}>
       {reduced
         ? <div key={pageKey}><Suspense fallback={<PageSkeleton />}>{renderPage(route)}</Suspense></div>
         : <AnimatePresence mode="wait" initial={false}>
@@ -179,16 +198,23 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
   );
 
   function renderPage(current: Route) {
+    // A page for the other role is never rendered (nor its data requested) while the redirect happens.
+    if (redirectFor(current, user.role)) return null;
     switch (current.name) {
       case "overview": return <OverviewPage official={official} onExpired={onExpired} showLive />;
       case "inspections": return <InspectionsPage search={search} onSearchChange={setSearch} onExpired={onExpired} />;
-      case "new": return <NewInspectionPage onExpired={onExpired} onCompleted={loadRiskCount} />;
-      case "inspection": return <InspectionRecordPage key={current.id} inspectionId={current.id} official={official} onExpired={onExpired} onChanged={loadRiskCount} onTitle={setPageLabel} />;
+      case "new": return <NewInspectionPage onExpired={onExpired} onCompleted={onCompleted} />;
+      case "check": return <NewInspectionPage maker previousId={current.previous} onExpired={onExpired} onCompleted={onCompleted} />;
+      case "products": return <ProductsPage onExpired={onExpired} />;
+      case "product": return <ProductResultPage key={current.id} inspectionId={current.id} onExpired={onExpired} onTitle={setPageLabel} />;
+      case "fixes": return <FixListPage onExpired={onExpired} />;
+      case "guide": return <RulesGuidePage onExpired={onExpired} />;
+      case "inspection": return <InspectionRecordPage key={current.id} inspectionId={current.id} official={official} inspectorName={user.full_name || user.username} onExpired={onExpired} onChanged={onCompleted} onTitle={setPageLabel} />;
       case "capture": return null;
-      case "risk": return official ? <RiskQueuePage onExpired={onExpired} /> : null;
+      case "risk": return <RiskQueuePage onExpired={onExpired} />;
       case "patterns": return <PatternsPage onExpired={onExpired} />;
       case "rulesets": return <RulesetsPage onExpired={onExpired} />;
-      case "reports": return <ReportsPage onExpired={onExpired} />;
+      case "reports": return official ? <ReportsPage onExpired={onExpired} /> : <SelfCheckReportsPage onExpired={onExpired} />;
       case "about": return <AboutPage onExpired={onExpired} />;
     }
   }

@@ -48,7 +48,8 @@ describe("hash routing and app shell", () => {
     expect(sidebar.getByRole("link", { name: en.rulesets }).getAttribute("aria-current")).toBe("page");
     expect(sidebar.getByRole("link", { name: en.overview }).getAttribute("aria-current")).toBeNull();
     go("/overview");
-    expect(await screen.findByRole("heading", { level: 1, name: en.overview })).toBeTruthy();
+    // The nav item stays "Overview"; the page itself is headed with the day's priorities.
+    expect(await screen.findByRole("heading", { level: 1, name: en.todaysPriorities })).toBeTruthy();
     // The user button shows initials and the role label.
     const account = screen.getByRole("button", { name: new RegExp(en.accountMenu) });
     expect(account.textContent).toContain("RB");
@@ -56,7 +57,7 @@ describe("hash routing and app shell", () => {
   });
 
   it("sends the top-bar search to the inspections list", async () => {
-    const fetchMock = mockApi({ "GET /auth/me": response({ username: "maker", role: "MANUFACTURER" }), "GET /inspections": response({ items: [], page: 1, page_size: 20, total: 0, total_pages: 0 }) });
+    const fetchMock = mockApi({ "GET /auth/me": response({ username: "inspector", role: "OFFICIAL" }), "GET /inspections": response({ items: [], page: 1, page_size: 20, total: 0, total_pages: 0 }) });
     renderApp();
     await nav();
     const search = screen.getAllByRole("searchbox", { name: en.searchInspections })[0];
@@ -84,11 +85,14 @@ describe("mobile tab bar", () => {
     expect(within(middle as HTMLElement).getByRole("button", { name: en.newInspection }).className).toBe("tabbar__fab");
   });
 
-  it("manufacturers have no risk queue: Repeat issues takes its place", async () => {
-    mockApi({ "GET /auth/me": response({ username: "maker", role: "MANUFACTURER" }) });
+  it("manufacturers get their own five slots: Products, Fixes, + Check, Reports, Account (no risk queue)", async () => {
+    mockApi({ "GET /auth/me": response({ username: "maker", role: "MANUFACTURER" }), "GET /products": response({ total: 0, ready: 0, fix: 0, check: 0, readiness_percent: 0, open_fixes: 0, labels_to_fix: 0, products: [] }), "GET /fixes": response({ total_items: 0, groups: [] }) });
     renderApp();
-    const bar = (await tabbar()).getByRole("link", { name: en.overview }).parentElement!;
-    expect(slots(bar)).toEqual([en.overview, en.inspections, en.newInspection, en.repeatIssues, en.account]);
+    const bar = (await tabbar()).getByRole("link", { name: en.tabProducts }).parentElement!;
+    expect(Array.from(bar.children)).toHaveLength(5);
+    expect(slots(bar)).toEqual([en.tabProducts, en.tabFixes, en.checkALabel, en.tabReports, en.account]);
+    expect(bar.children[2].className).toBe("tabbar__center");
+    expect(screen.queryByRole("link", { name: en.riskQueue })).toBeNull();
   });
 
   it("the + starts a new inspection", async () => {

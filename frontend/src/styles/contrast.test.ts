@@ -12,8 +12,14 @@ function block(selector: string): Record<string, string> {
   return Object.fromEntries([...body.matchAll(/(--[\w-]+):\s*([^;]+);/g)].map(match => [match[1], match[2].trim()]));
 }
 
-const light = block(':root, :root[data-theme="light"]');
-const themes = { light, dark: { ...light, ...block(':root[data-theme="dark"]') } };
+// Theme-independent tokens (the field app's always-dark camera surfaces) live in the first plain :root block.
+const base = block(":root");
+const light = { ...base, ...block(':root, :root[data-theme="light"]') };
+const dark = { ...light, ...block(':root[data-theme="dark"]') };
+// The manufacturer portal re-points the brand tokens; its dark block sits on top of both the dark theme and the light portal block.
+const makerLight = block(':root[data-portal="manufacturer"]');
+const makerDark = block(':root[data-theme="dark"][data-portal="manufacturer"]');
+const themes = { light, dark, "manufacturer light": { ...light, ...makerLight }, "manufacturer dark": { ...dark, ...makerLight, ...makerDark } };
 
 type RGBA = [number, number, number, number];
 
@@ -72,6 +78,13 @@ const PAIRS: Array<[text: string, background: string, base?: string]> = [
   ["--pass-text", "--pass-bg", "--background"], ["--review-text", "--review-bg", "--background"], ["--violation-text", "--violation-bg", "--background"],
   // Inspection record: numbers on the photo markers and finding badges.
   ["--marker-violation-ink", "--marker-violation"], ["--marker-review-ink", "--marker-review"], ["--marker-pass-ink", "--marker-pass"], ["--marker-selected-ink", "--marker-selected"],
+  // Portal pages: readiness banner and counters (status text on its tint, over a card), the improvement line, the hero and rule chips.
+  ["--pass-text", "--surface"], ["--review-text", "--surface"], ["--violation-text", "--surface"],
+  ["--secondary-foreground", "--pass-bg"], ["--secondary-foreground", "--violation-bg"], ["--secondary-foreground", "--review-bg"],
+  ["--foreground", "--primary-soft"], ["--secondary-foreground", "--primary-soft"], ["--primary-strong", "--primary-soft", "--surface"],
+  ["--primary-strong", "--surface-muted"], ["--primary-strong", "--sidebar-bg", "--background"], ["--foreground", "--sidebar-bg", "--background"], ["--muted-foreground", "--sidebar-bg", "--background"],
+  // The field app's always-dark camera surfaces take the portal accent.
+  ["--cap-primary-fg", "--cap-primary"], ["--cap-primary", "--cap-bg"], ["--cap-fg", "--cap-surface"],
 ];
 
 describe("design token contrast (WCAG AA, 4.5:1 for body text)", () => {
@@ -80,6 +93,28 @@ describe("design token contrast (WCAG AA, 4.5:1 for body text)", () => {
       expect(ratio(tokens, text, background, base)).toBeGreaterThanOrEqual(4.5);
     });
   }
+
+  it("the dark manufacturer block sets everything the light one does, so no indigo leaks through in the dark theme", () => {
+    // Capture accents are theme-independent (the camera UI is always dark).
+    const themeFree = new Set(["--cap-primary", "--cap-primary-fg"]);
+    const missing = Object.keys(makerLight).filter(name => !themeFree.has(name) && !(name in makerDark));
+    expect(missing).toEqual([]);
+  });
+
+  it("re-points the brand to teal in the manufacturer portal and leaves the status colours alone", () => {
+    expect(makerLight["--primary"]).toBe("#0D9488");
+    expect(makerLight["--primary-strong"]).toBe("#0F766E");
+    expect(makerLight["--primary-soft"]).toBe("#F0FDFA");
+    expect(makerLight["--primary-border"]).toBe("#99F6E4");
+    expect(makerLight["--sidebar-bg"]).toBe("#F7FDFC");
+    expect(makerLight["--brand-gradient"]).toBe("linear-gradient(135deg, #14B8A6, #10B981)");
+    expect(makerDark["--primary-strong"]).toBe("#5EEAD4");
+    expect(makerDark["--primary-soft"]).toBe("rgba(20, 184, 166, 0.14)");
+    expect(makerDark["--primary-border"]).toBe("rgba(45, 212, 191, 0.3)");
+    for (const name of Object.keys({ ...makerLight, ...makerDark })) expect(name, "status colours are semantic").not.toMatch(/^--(violation|review|pass|critical)-/);
+    expect(light["--primary"]).toBe("#4F46E5");
+    expect(light["--brand-gradient"]).toBe("linear-gradient(135deg, #6366F1, #8B5CF6)");
+  });
 
   it("defines every colour token in both themes", () => {
     const dark = block(':root[data-theme="dark"]');

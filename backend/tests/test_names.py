@@ -33,3 +33,13 @@ def test_it_is_idempotent_and_leaves_other_scripts_alone() -> None:
 def test_unsplittable_run_together_words_are_left_alone() -> None:
     assert normalise_display_name("XYZQWERTYUIOP") == "Xyzqwertyuiop"  # recased, not guessed at
     assert normalise_display_name("BABYSHAMPOOZ") == "Babyshampooz"
+
+
+def test_label_title_prefers_the_product_then_the_company_and_never_a_file_name() -> None:
+    from backend.app.services.corrections import label_title
+
+    assert label_title("Gluco Biscuits", "Parle Products", "Parle") == "Gluco Biscuits"
+    assert label_title(None, "Britannia Industries Ltd.", "Contract Packer") == "Britannia Industries Ltd."
+    assert label_title("  ", None, "Nestlé India Limited") == "Nestlé India Limited"
+    assert label_title(None, None, None) == "Untitled label"
+    assert label_title("", "", "") == "Untitled label"

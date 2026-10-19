@@ -4,13 +4,13 @@
   {
    "label": "development-2026-10",
    "kind": "development",
-   "generated_at": "2026-10-18T06:52:11+00:00",
+   "generated_at": "2026-10-19T18:06:27+00:00",
    "ruleset": {
     "id": "LM_PC_2011",
     "version": "2",
     "rules": 14
    },
-   "note": "23 labelled real photos: 9 catalogue/phone photos plus 14 phone photos retired from hold-out to DEV on 2026-10-16. These are development scores, not unseen.",
+   "note": "23 labelled real photos: 9 catalogue/phone photos plus 14 phone photos retired from hold-out to DEV on 2026-10-16. These are development scores, not unseen. Re-run on 2026-10-19 after the verdict-safety fixes.",
    "dataset_sizes": {
     "dev": 23,
     "phone_holdout_retired_to_dev": 14,
@@ -27,8 +27,8 @@
      "name": "DEV",
      "photos": 23,
      "fields_scored": 438,
-     "precision": 0.9675675675675676,
-     "recall": 0.8248847926267281,
+     "precision": 0.9627659574468085,
+     "recall": 0.8341013824884793,
      "per_field": {
       "product_name": {
        "tp": 9,
@@ -45,11 +45,11 @@
        "recall": 0.9333333333333333
       },
       "manufacturer": {
-       "tp": 15,
-       "fp": 1,
-       "fn": 3,
-       "precision": 0.9375,
-       "recall": 0.8333333333333334
+       "tp": 16,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8888888888888888
       },
       "packer": {
        "tp": 2,
@@ -66,11 +66,11 @@
        "recall": 1.0
       },
       "net_quantity": {
-       "tp": 17,
+       "tp": 18,
        "fp": 0,
-       "fn": 2,
+       "fn": 1,
        "precision": 1.0,
-       "recall": 0.8947368421052632
+       "recall": 0.9473684210526315
       },
       "mrp": {
        "tp": 9,
@@ -87,18 +87,18 @@
        "recall": 0.95
       },
       "tax_inclusive": {
-       "tp": 14,
+       "tp": 15,
        "fp": 0,
-       "fn": 5,
+       "fn": 4,
        "precision": 1.0,
-       "recall": 0.7368421052631579
+       "recall": 0.7894736842105263
       },
       "manufacturing_date": {
-       "tp": 7,
+       "tp": 6,
        "fp": 0,
-       "fn": 2,
+       "fn": 3,
        "precision": 1.0,
-       "recall": 0.7777777777777778
+       "recall": 0.6666666666666666
       },
       "packing_date": {
        "tp": 0,
@@ -108,18 +108,18 @@
        "recall": 0.0
       },
       "best_before_or_expiry": {
-       "tp": 11,
-       "fp": 0,
-       "fn": 2,
-       "precision": 1.0,
-       "recall": 0.8461538461538461
+       "tp": 10,
+       "fp": 1,
+       "fn": 3,
+       "precision": 0.9090909090909091,
+       "recall": 0.7692307692307693
       },
       "consumer_care_phone": {
-       "tp": 17,
+       "tp": 18,
        "fp": 0,
-       "fn": 2,
+       "fn": 1,
        "precision": 1.0,
-       "recall": 0.8947368421052632
+       "recall": 0.9473684210526315
       },
       "consumer_care_email": {
        "tp": 16,
@@ -130,9 +130,9 @@
       },
       "consumer_care_website": {
        "tp": 5,
-       "fp": 0,
+       "fp": 1,
        "fn": 1,
-       "precision": 1.0,
+       "precision": 0.8333333333333334,
        "recall": 0.8333333333333334
       },
       "fssai_license": {
@@ -165,7 +165,7 @@
       }
      },
      "rule_agreement": {
-      "agree": 289,
+      "agree": 290,
       "total": 322
      },
      "per_rule": {
@@ -190,7 +190,7 @@
        "total": 23
       },
       "NET_QUANTITY_FORMAT": {
-       "agree": 20,
+       "agree": 21,
        "total": 23
       },
       "NET_QUANTITY_UNIT_SUITABILITY": {
@@ -202,19 +202,19 @@
        "total": 23
       },
       "MRP_TAX_INCLUSIVE": {
-       "agree": 18,
+       "agree": 19,
        "total": 23
       },
       "UNIT_SALE_PRICE": {
-       "agree": 18,
+       "agree": 19,
        "total": 23
       },
       "MANUFACTURE_DATE": {
-       "agree": 20,
+       "agree": 19,
        "total": 23
       },
       "DATE_CONSISTENCY": {
-       "agree": 20,
+       "agree": 19,
        "total": 23
       },
       "CONSUMER_CARE_FORMAT": {
@@ -240,14 +240,14 @@
      },
      "verdicts_correct": 17,
      "false_non_compliant": 0,
-     "false_pass_mandatory": 2
+     "false_pass_mandatory": 0
     },
     {
      "name": "PHONE_HOLDOUT_2026_10",
      "photos": 14,
      "fields_scored": 266,
-     "precision": 0.9444444444444444,
-     "recall": 0.75,
+     "precision": 0.9369369369369369,
+     "recall": 0.7647058823529411,
      "per_field": {
       "product_name": {
        "tp": 5,
@@ -264,11 +264,11 @@
        "recall": 0.8888888888888888
       },
       "manufacturer": {
-       "tp": 8,
-       "fp": 1,
-       "fn": 3,
-       "precision": 0.8888888888888888,
-       "recall": 0.7272727272727273
+       "tp": 9,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8181818181818182
       },
       "packer": {
        "tp": 1,
@@ -285,11 +285,11 @@
        "recall": 1.0
       },
       "net_quantity": {
-       "tp": 10,
+       "tp": 11,
        "fp": 0,
-       "fn": 2,
+       "fn": 1,
        "precision": 1.0,
-       "recall": 0.8333333333333334
+       "recall": 0.9166666666666666
       },
       "mrp": {
        "tp": 8,
@@ -306,18 +306,18 @@
        "recall": 0.9166666666666666
       },
       "tax_inclusive": {
-       "tp": 6,
-       "fp": 0,
-       "fn": 5,
-       "precision": 1.0,
-       "recall": 0.5454545454545454
-      },
-      "manufacturing_date": {
        "tp": 7,
        "fp": 0,
-       "fn": 2,
+       "fn": 4,
        "precision": 1.0,
-       "recall": 0.7777777777777778
+       "recall": 0.6363636363636364
+      },
+      "manufacturing_date": {
+       "tp": 6,
+       "fp": 0,
+       "fn": 3,
+       "precision": 1.0,
+       "recall": 0.6666666666666666
       },
       "packing_date": {
        "tp": 0,
@@ -327,18 +327,18 @@
        "recall": 0.0
       },
       "best_before_or_expiry": {
-       "tp": 6,
-       "fp": 0,
-       "fn": 2,
-       "precision": 1.0,
-       "recall": 0.75
+       "tp": 5,
+       "fp": 1,
+       "fn": 3,
+       "precision": 0.8333333333333334,
+       "recall": 0.625
       },
       "consumer_care_phone": {
-       "tp": 9,
+       "tp": 10,
        "fp": 0,
-       "fn": 2,
+       "fn": 1,
        "precision": 1.0,
-       "recall": 0.8181818181818182
+       "recall": 0.9090909090909091
       },
       "consumer_care_email": {
        "tp": 8,
@@ -349,9 +349,9 @@
       },
       "consumer_care_website": {
        "tp": 2,
-       "fp": 0,
+       "fp": 1,
        "fn": 1,
-       "precision": 1.0,
+       "precision": 0.6666666666666666,
        "recall": 0.6666666666666666
       },
       "fssai_license": {
@@ -384,7 +384,7 @@
       }
      },
      "rule_agreement": {
-      "agree": 167,
+      "agree": 168,
       "total": 196
      },
      "per_rule": {
@@ -409,7 +409,7 @@
        "total": 14
       },
       "NET_QUANTITY_FORMAT": {
-       "agree": 11,
+       "agree": 12,
        "total": 14
       },
       "NET_QUANTITY_UNIT_SUITABILITY": {
@@ -421,19 +421,19 @@
        "total": 14
       },
       "MRP_TAX_INCLUSIVE": {
-       "agree": 9,
+       "agree": 10,
        "total": 14
       },
       "UNIT_SALE_PRICE": {
-       "agree": 9,
+       "agree": 10,
        "total": 14
       },
       "MANUFACTURE_DATE": {
-       "agree": 11,
+       "agree": 10,
        "total": 14
       },
       "DATE_CONSISTENCY": {
-       "agree": 11,
+       "agree": 10,
        "total": 14
       },
       "CONSUMER_CARE_FORMAT": {
@@ -459,14 +459,14 @@
      },
      "verdicts_correct": 8,
      "false_non_compliant": 0,
-     "false_pass_mandatory": 2
+     "false_pass_mandatory": 0
     },
     {
      "name": "REAL PHOTOS",
      "photos": 16,
      "fields_scored": 305,
-     "precision": 0.952755905511811,
-     "recall": 0.7806451612903226,
+     "precision": 0.9461538461538461,
+     "recall": 0.7935483870967742,
      "per_field": {
       "product_name": {
        "tp": 7,
@@ -483,11 +483,11 @@
        "recall": 0.9
       },
       "manufacturer": {
-       "tp": 10,
-       "fp": 1,
-       "fn": 3,
-       "precision": 0.9090909090909091,
-       "recall": 0.7692307692307693
+       "tp": 11,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8461538461538461
       },
       "packer": {
        "tp": 1,
@@ -504,11 +504,11 @@
        "recall": 1.0
       },
       "net_quantity": {
-       "tp": 12,
+       "tp": 13,
        "fp": 0,
-       "fn": 2,
+       "fn": 1,
        "precision": 1.0,
-       "recall": 0.8571428571428571
+       "recall": 0.9285714285714286
       },
       "mrp": {
        "tp": 9,
@@ -525,18 +525,18 @@
        "recall": 0.9285714285714286
       },
       "tax_inclusive": {
-       "tp": 8,
+       "tp": 9,
        "fp": 0,
-       "fn": 5,
+       "fn": 4,
        "precision": 1.0,
-       "recall": 0.6153846153846154
+       "recall": 0.6923076923076923
       },
       "manufacturing_date": {
-       "tp": 7,
+       "tp": 6,
        "fp": 0,
-       "fn": 2,
+       "fn": 3,
        "precision": 1.0,
-       "recall": 0.7777777777777778
+       "recall": 0.6666666666666666
       },
       "packing_date": {
        "tp": 0,
@@ -546,18 +546,18 @@
        "recall": 0.0
       },
       "best_before_or_expiry": {
-       "tp": 7,
-       "fp": 0,
-       "fn": 2,
-       "precision": 1.0,
-       "recall": 0.7777777777777778
+       "tp": 6,
+       "fp": 1,
+       "fn": 3,
+       "precision": 0.8571428571428571,
+       "recall": 0.6666666666666666
       },
       "consumer_care_phone": {
-       "tp": 10,
+       "tp": 11,
        "fp": 0,
-       "fn": 2,
+       "fn": 1,
        "precision": 1.0,
-       "recall": 0.8333333333333334
+       "recall": 0.9166666666666666
       },
       "consumer_care_email": {
        "tp": 9,
@@ -568,9 +568,9 @@
       },
       "consumer_care_website": {
        "tp": 3,
-       "fp": 0,
+       "fp": 1,
        "fn": 1,
-       "precision": 1.0,
+       "precision": 0.75,
        "recall": 0.75
       },
       "fssai_license": {
@@ -603,7 +603,7 @@
       }
      },
      "rule_agreement": {
-      "agree": 195,
+      "agree": 196,
       "total": 224
      },
      "per_rule": {
@@ -628,7 +628,7 @@
        "total": 16
       },
       "NET_QUANTITY_FORMAT": {
-       "agree": 13,
+       "agree": 14,
        "total": 16
       },
       "NET_QUANTITY_UNIT_SUITABILITY": {
@@ -640,19 +640,19 @@
        "total": 16
       },
       "MRP_TAX_INCLUSIVE": {
-       "agree": 11,
+       "agree": 12,
        "total": 16
       },
       "UNIT_SALE_PRICE": {
-       "agree": 11,
+       "agree": 12,
        "total": 16
       },
       "MANUFACTURE_DATE": {
-       "agree": 13,
+       "agree": 12,
        "total": 16
       },
       "DATE_CONSISTENCY": {
-       "agree": 13,
+       "agree": 12,
        "total": 16
       },
       "CONSUMER_CARE_FORMAT": {
@@ -678,14 +678,14 @@
      },
      "verdicts_correct": 10,
      "false_non_compliant": 0,
-     "false_pass_mandatory": 2
+     "false_pass_mandatory": 0
     },
     {
      "name": "ALL",
      "photos": 23,
      "fields_scored": 438,
-     "precision": 0.9675675675675676,
-     "recall": 0.8248847926267281,
+     "precision": 0.9627659574468085,
+     "recall": 0.8341013824884793,
      "per_field": {
       "product_name": {
        "tp": 9,
@@ -702,11 +702,11 @@
        "recall": 0.9333333333333333
       },
       "manufacturer": {
-       "tp": 15,
-       "fp": 1,
-       "fn": 3,
-       "precision": 0.9375,
-       "recall": 0.8333333333333334
+       "tp": 16,
+       "fp": 0,
+       "fn": 2,
+       "precision": 1.0,
+       "recall": 0.8888888888888888
       },
       "packer": {
        "tp": 2,
@@ -723,11 +723,11 @@
        "recall": 1.0
       },
       "net_quantity": {
-       "tp": 17,
+       "tp": 18,
        "fp": 0,
-       "fn": 2,
+       "fn": 1,
        "precision": 1.0,
-       "recall": 0.8947368421052632
+       "recall": 0.9473684210526315
       },
       "mrp": {
        "tp": 9,
@@ -744,18 +744,18 @@
        "recall": 0.95
       },
       "tax_inclusive": {
-       "tp": 14,
+       "tp": 15,
        "fp": 0,
-       "fn": 5,
+       "fn": 4,
        "precision": 1.0,
-       "recall": 0.7368421052631579
+       "recall": 0.7894736842105263
       },
       "manufacturing_date": {
-       "tp": 7,
+       "tp": 6,
        "fp": 0,
-       "fn": 2,
+       "fn": 3,
        "precision": 1.0,
-       "recall": 0.7777777777777778
+       "recall": 0.6666666666666666
       },
       "packing_date": {
        "tp": 0,
@@ -765,18 +765,18 @@
        "recall": 0.0
       },
       "best_before_or_expiry": {
-       "tp": 11,
-       "fp": 0,
-       "fn": 2,
-       "precision": 1.0,
-       "recall": 0.8461538461538461
+       "tp": 10,
+       "fp": 1,
+       "fn": 3,
+       "precision": 0.9090909090909091,
+       "recall": 0.7692307692307693
       },
       "consumer_care_phone": {
-       "tp": 17,
+       "tp": 18,
        "fp": 0,
-       "fn": 2,
+       "fn": 1,
        "precision": 1.0,
-       "recall": 0.8947368421052632
+       "recall": 0.9473684210526315
       },
       "consumer_care_email": {
        "tp": 16,
@@ -787,9 +787,9 @@
       },
       "consumer_care_website": {
        "tp": 5,
-       "fp": 0,
+       "fp": 1,
        "fn": 1,
-       "precision": 1.0,
+       "precision": 0.8333333333333334,
        "recall": 0.8333333333333334
       },
       "fssai_license": {
@@ -822,7 +822,7 @@
       }
      },
      "rule_agreement": {
-      "agree": 289,
+      "agree": 290,
       "total": 322
      },
      "per_rule": {
@@ -847,7 +847,7 @@
        "total": 23
       },
       "NET_QUANTITY_FORMAT": {
-       "agree": 20,
+       "agree": 21,
        "total": 23
       },
       "NET_QUANTITY_UNIT_SUITABILITY": {
@@ -859,19 +859,19 @@
        "total": 23
       },
       "MRP_TAX_INCLUSIVE": {
-       "agree": 18,
+       "agree": 19,
        "total": 23
       },
       "UNIT_SALE_PRICE": {
-       "agree": 18,
+       "agree": 19,
        "total": 23
       },
       "MANUFACTURE_DATE": {
-       "agree": 20,
+       "agree": 19,
        "total": 23
       },
       "DATE_CONSISTENCY": {
-       "agree": 20,
+       "agree": 19,
        "total": 23
       },
       "CONSUMER_CARE_FORMAT": {
@@ -897,7 +897,7 @@
      },
      "verdicts_correct": 17,
      "false_non_compliant": 0,
-     "false_pass_mandatory": 2
+     "false_pass_mandatory": 0
     }
    ]
   }

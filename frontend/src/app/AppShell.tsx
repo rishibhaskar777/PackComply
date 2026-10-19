@@ -1,6 +1,6 @@
 import { lazy, ReactNode, Suspense, useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
-import { BookOpen, ChevronsUpDown, CircleUserRound, ClipboardList, Cpu, FileText, Info, LayoutDashboard, LogOut, LucideIcon, PanelLeft, Plus, Repeat2, ShieldAlert, Smartphone, X } from "lucide-react";
+import { BookOpen, Boxes, ChevronsUpDown, CircleUserRound, ClipboardCheck, ClipboardList, Cpu, Factory, FileText, Info, LayoutDashboard, ListChecks, LogOut, LucideIcon, PanelLeft, Plus, Repeat2, ScanSearch, ShieldAlert, ShieldCheck, Smartphone, X } from "lucide-react";
 import { LanguageSelector } from "../components/LanguageSelector";
 import { Button, Dialog, SearchInput } from "../components/ui";
 import { TranslationKey, useI18n } from "../i18n";
@@ -9,26 +9,49 @@ import { User } from "../types";
 import { Backdrop } from "./Backdrop";
 import { BrandMark } from "./BrandMark";
 import { ThemeSwitcher, ThemeToggle } from "./ThemeControls";
+import { portalOf } from "../lib/portal";
 import { Route, RouteName } from "./router";
 
-type NavItem = { name: RouteName; label: TranslationKey; icon: LucideIcon; officialOnly?: boolean };
+type NavItem = { name: RouteName; path: string; label: TranslationKey; icon: LucideIcon };
 const INSPECTION_NAV: NavItem[] = [
-  { name: "overview", label: "overview", icon: LayoutDashboard },
-  { name: "inspections", label: "inspections", icon: ClipboardList },
-  { name: "risk", label: "riskQueue", icon: ShieldAlert, officialOnly: true },
-  { name: "patterns", label: "repeatIssues", icon: Repeat2 },
+  { name: "overview", path: "/overview", label: "overview", icon: LayoutDashboard },
+  { name: "inspections", path: "/inspections", label: "inspections", icon: ClipboardList },
+  { name: "risk", path: "/risk", label: "riskQueue", icon: ShieldAlert },
+  { name: "patterns", path: "/patterns", label: "repeatIssues", icon: Repeat2 },
 ];
 const RESOURCE_NAV: NavItem[] = [
-  { name: "rulesets", label: "rulesets", icon: BookOpen },
-  { name: "reports", label: "reports", icon: FileText },
-  { name: "about", label: "aboutAccuracy", icon: Info },
+  { name: "rulesets", path: "/rulesets", label: "rulesets", icon: BookOpen },
+  { name: "reports", path: "/reports", label: "reports", icon: FileText },
+  { name: "about", path: "/about", label: "aboutAccuracy", icon: Info },
+];
+// Manufacturer portal: its own pages, not the inspector pages with parts hidden.
+const MAKER_NAV: NavItem[] = [
+  { name: "products", path: "/products", label: "myProducts", icon: Boxes },
+  { name: "check", path: "/check", label: "checkALabel", icon: ScanSearch },
+  { name: "fixes", path: "/fixes", label: "fixList", icon: ListChecks },
+  { name: "reports", path: "/reports", label: "selfCheckReports", icon: FileText },
+];
+const MAKER_RESOURCE_NAV: NavItem[] = [
+  { name: "guide", path: "/rules-guide", label: "rulesGuide", icon: BookOpen },
+  { name: "about", path: "/about", label: "aboutAccuracy", icon: Info },
 ];
 
 // The QR code library is only fetched when someone asks for the phone address.
 const PhoneDialog = lazy(() => import("./PhoneDialog"));
 
 /** Section and page names for the breadcrumb and document title. */
-export function routeTitles(route: Route): { section: TranslationKey; sectionHref?: string; page: TranslationKey } {
+export function routeTitles(route: Route, role?: string): { section: TranslationKey; sectionHref?: string; page: TranslationKey } {
+  if (role === "MANUFACTURER") {
+    switch (route.name) {
+      case "product": return { section: "myProducts", sectionHref: "#/products", page: "selfCheckResult" };
+      case "check": case "new": case "capture": return { section: "myProducts", sectionHref: "#/products", page: "checkALabel" };
+      case "fixes": return { section: "labelSelfCheck", page: "fixList" };
+      case "reports": return { section: "labelSelfCheck", page: "selfCheckReports" };
+      case "guide": return { section: "resources", page: "rulesGuide" };
+      case "about": return { section: "resources", page: "aboutAccuracy" };
+      default: return { section: "labelSelfCheck", page: "myProducts" };
+    }
+  }
   switch (route.name) {
     case "inspection": return { section: "inspections", sectionHref: "#/inspections", page: "inspectionDetails" };
     case "new": case "capture": return { section: "inspections", sectionHref: "#/inspections", page: "newInspection" };
@@ -36,11 +59,13 @@ export function routeTitles(route: Route): { section: TranslationKey; sectionHre
     case "about": return { section: "resources", page: "aboutAccuracy" };
     case "risk": return { section: "inspection", page: "riskQueue" };
     case "patterns": return { section: "inspection", page: "repeatIssues" };
-    default: return { section: "inspection", page: route.name };
+    case "inspections": return { section: "inspection", page: "inspections" };
+    default: return { section: "inspection", page: "overview" };
   }
 }
 
 function activeNav(route: Route): RouteName {
+  if (route.name === "product") return "products";
   return route.name === "inspection" || route.name === "new" || route.name === "capture" ? "inspections" : route.name;
 }
 
@@ -62,20 +87,21 @@ function readCollapsed() { try { return localStorage.getItem(COLLAPSE_KEY) === "
 type AppShellProps = {
   /** Replaces the page name in the breadcrumb (e.g. the inspection number). */
   pageLabel?: string | null;
-  route: Route; user: User; riskCount: number | null; search: string;
+  route: Route; user: User; riskCount: number | null; fixCount?: number | null; search: string;
   onSearchChange: (value: string) => void; onNewInspection: () => void; onLogout: () => void; onExpired?: () => void; children: ReactNode;
 };
 
-export function AppShell({ pageLabel, route, user, riskCount, search, onSearchChange, onNewInspection, onLogout, onExpired = () => undefined, children }: AppShellProps) {
+export function AppShell({ pageLabel, route, user, riskCount, fixCount = null, search, onSearchChange, onNewInspection, onLogout, onExpired = () => undefined, children }: AppShellProps) {
   const { t } = useI18n();
   const reduced = useReducedMotion();
-  const official = user.role === "OFFICIAL";
+  const maker = user.role === "MANUFACTURER";
+  const portal = portalOf(user.role);
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [phoneOpen, setPhoneOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
-  const titles = routeTitles(route);
+  const titles = routeTitles(route, user.role);
   const active = activeNav(route);
 
   // Close the drawer and the account sheet when the page changes. Not on mount: that effect can run after an early tap
@@ -104,16 +130,17 @@ export function AppShell({ pageLabel, route, user, riskCount, search, onSearchCh
 
   const navList = (items: NavItem[]) => (
     <ul className="nav-list">
-      {items.filter(item => !item.officialOnly || official).map(({ name, label, icon: Icon }) => {
+      {items.map(({ name, path, label, icon: Icon }) => {
         const current = active === name;
         return (
           <li key={name}>
-            <a href={`#/${name}`} className={current ? "nav-item is-active" : "nav-item"} aria-current={current ? "page" : undefined} title={collapsed ? t(label) : undefined}>
+            <a href={`#${path}`} className={current ? "nav-item is-active" : "nav-item"} aria-current={current ? "page" : undefined} title={collapsed ? t(label) : undefined}>
               {/* One shared highlight that slides to the active item. */}
               {current && <m.span layoutId="nav-active" className="nav-item__highlight" transition={SPRING} aria-hidden="true" />}
               <Icon size={16} aria-hidden="true" />
               <span className="nav-item__label">{t(label)}</span>
               {name === "risk" && riskCount ? <span className="nav-item__count mono" aria-label={`${riskCount} ${t("highRiskLabels")}`}>{riskCount}</span> : null}
+              {name === "fixes" && fixCount ? <span className="nav-item__count mono" aria-label={`${fixCount} ${t("fixItemsOpen")}`}>{fixCount}</span> : null}
             </a>
           </li>
         );
@@ -130,21 +157,29 @@ export function AppShell({ pageLabel, route, user, riskCount, search, onSearchCh
           <BrandMark />
           <div className="sidebar__brand-text">
             <span className="sidebar__product">{t("appName")}</span>
-            <span className="sidebar__caption">{t("legalMetrology")}</span>
+            <span className="sidebar__caption sidebar__portal">
+              {maker ? <Factory size={12} aria-hidden="true" /> : <ShieldCheck size={12} aria-hidden="true" />}
+              {t(maker ? "portalManufacturerCaption" : "portalInspectorCaption")}
+            </span>
           </div>
           <Button variant="ghost" size="icon" className="sidebar__close" aria-label={t("closeMenu")} onClick={() => setDrawerOpen(false)} icon={<X size={16} aria-hidden="true" />} />
         </div>
         <nav className="sidebar__nav" aria-label={t("primaryNavigation")}>
-          <p className="sidebar__group">{t("inspection")}</p>
-          {navList(INSPECTION_NAV)}
+          <p className="sidebar__group">{t(maker ? "labelSelfCheck" : "inspection")}</p>
+          {navList(maker ? MAKER_NAV : INSPECTION_NAV)}
           <p className="sidebar__group">{t("resources")}</p>
-          {navList(RESOURCE_NAV)}
+          {navList(maker ? MAKER_RESOURCE_NAV : RESOURCE_NAV)}
         </nav>
         <div className="sidebar__footer">
-          <div className="offline-card">
-            <Cpu size={16} aria-hidden="true" className="offline-card__icon" />
-            <p><strong>{t("runsOffline")}</strong> — {t("runsOfflineDetail")}</p>
-          </div>
+          {maker
+            ? <div className="offline-card offline-card--maker">
+              <ClipboardCheck size={16} aria-hidden="true" className="offline-card__icon" />
+              <p><strong>{t("checkBeforePrint")}</strong> — {t("checkBeforePrintDetail")}</p>
+            </div>
+            : <div className="offline-card">
+              <Cpu size={16} aria-hidden="true" className="offline-card__icon" />
+              <p><strong>{t("runsOffline")}</strong> — {t("runsOfflineDetail")}</p>
+            </div>}
           <UserMenu user={user} onLogout={onLogout} />
         </div>
       </aside>
@@ -160,14 +195,15 @@ export function AppShell({ pageLabel, route, user, riskCount, search, onSearchCh
           <nav className="breadcrumb" aria-label={t("breadcrumb")}>
             <ol>
               <li className="breadcrumb__section">{titles.sectionHref ? <a href={titles.sectionHref}>{t(titles.section)}</a> : t(titles.section)}</li>
-              <li aria-current="page" className={pageLabel ? "mono" : undefined}>{pageLabel ?? t(titles.page)}</li>
+              <li aria-current="page" className={pageLabel && route.name === "inspection" ? "mono" : undefined}>{pageLabel ?? t(titles.page)}</li>
             </ol>
           </nav>
+          <span className="portal-pill" data-portal-pill={portal}>{maker ? <Factory size={12} aria-hidden="true" /> : <ShieldCheck size={12} aria-hidden="true" />}{t(maker ? "portalManufacturer" : "portalInspector")}</span>
           <div className="topbar__spacer" />
           <ThemeToggle />
           <Button variant="outline" className="topbar__phone" icon={<Smartphone size={16} aria-hidden="true" />} onClick={() => setPhoneOpen(true)}>{t("phoneOpenButton")}</Button>
-          <SearchInput ref={searchRef} className="topbar__search" aria-label={t("searchInspections")} placeholder={t("searchPlaceholder")} hint="Ctrl K" value={search} onChange={event => onSearch(event.target.value)} />
-          <Button className="topbar__new" icon={<Plus size={16} aria-hidden="true" />} onClick={onNewInspection}>{t("newInspection")}</Button>
+          {!maker && <SearchInput ref={searchRef} className="topbar__search" aria-label={t("searchInspections")} placeholder={t("searchPlaceholder")} hint="Ctrl K" value={search} onChange={event => onSearch(event.target.value)} />}
+          <Button className="topbar__new" icon={<Plus size={16} aria-hidden="true" />} onClick={onNewInspection}>{t(maker ? "checkALabel" : "newInspection")}</Button>
         </header>
         <main id="main-content" className="shell__content" tabIndex={-1}>{children}</main>
       </div>
@@ -175,12 +211,17 @@ export function AppShell({ pageLabel, route, user, riskCount, search, onSearchCh
       {phoneOpen && <Suspense fallback={null}><PhoneDialog open onClose={() => setPhoneOpen(false)} onExpired={onExpired} /></Suspense>}
 
       <nav className="tabbar" aria-label={t("mobileNavigation")}>
-        <a href="#/overview" className={active === "overview" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "overview" ? "page" : undefined}><LayoutDashboard size={20} aria-hidden="true" /><span>{t("overview")}</span></a>
-        <a href="#/inspections" className={active === "inspections" && route.name !== "new" && route.name !== "capture" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "inspections" && route.name !== "new" && route.name !== "capture" ? "page" : undefined}><ClipboardList size={20} aria-hidden="true" /><span>{t("inspections")}</span></a>
-        <div className="tabbar__center"><button type="button" className="tabbar__fab" onClick={onNewInspection} aria-label={t("newInspection")}><Plus size={26} aria-hidden="true" /></button></div>
-        {official
-          ? <a href="#/risk" className={active === "risk" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "risk" ? "page" : undefined}><ShieldAlert size={20} aria-hidden="true" /><span>{t("riskQueue")}</span></a>
-          : <a href="#/patterns" className={active === "patterns" ? "tabbar__item is-active" : "tabbar__item"} aria-current={active === "patterns" ? "page" : undefined}><Repeat2 size={20} aria-hidden="true" /><span>{t("repeatIssues")}</span></a>}
+        {maker ? <>
+          <TabLink href="#/products" current={active === "products"} icon={<Boxes size={20} aria-hidden="true" />} label={t("tabProducts")} />
+          <TabLink href="#/fixes" current={active === "fixes"} icon={<ListChecks size={20} aria-hidden="true" />} label={t("tabFixes")} badge={fixCount} />
+        </> : <>
+          <TabLink href="#/overview" current={active === "overview"} icon={<LayoutDashboard size={20} aria-hidden="true" />} label={t("overview")} />
+          <TabLink href="#/inspections" current={active === "inspections" && route.name !== "new" && route.name !== "capture"} icon={<ClipboardList size={20} aria-hidden="true" />} label={t("inspections")} />
+        </>}
+        <div className="tabbar__center"><button type="button" className="tabbar__fab" onClick={onNewInspection} aria-label={t(maker ? "checkALabel" : "newInspection")}><Plus size={26} aria-hidden="true" /></button></div>
+        {maker
+          ? <TabLink href="#/reports" current={active === "reports"} icon={<FileText size={20} aria-hidden="true" />} label={t("tabReports")} />
+          : <TabLink href="#/risk" current={active === "risk"} icon={<ShieldAlert size={20} aria-hidden="true" />} label={t("riskQueue")} />}
         <button type="button" className={accountOpen ? "tabbar__item is-active" : "tabbar__item"} aria-haspopup="dialog" aria-expanded={accountOpen} onClick={() => setAccountOpen(true)}><CircleUserRound size={20} aria-hidden="true" /><span>{t("account")}</span></button>
       </nav>
       <Dialog open={accountOpen} onClose={() => setAccountOpen(false)} title={t("account")} className="account-sheet">
@@ -198,6 +239,15 @@ export function AppShell({ pageLabel, route, user, riskCount, search, onSearchCh
         </div>
       </Dialog>
     </div>
+  );
+}
+
+function TabLink({ href, current, icon, label, badge }: { href: string; current: boolean; icon: ReactNode; label: string; badge?: number | null }) {
+  return (
+    <a href={href} className={current ? "tabbar__item is-active" : "tabbar__item"} aria-current={current ? "page" : undefined}>
+      <span className="tabbar__icon">{icon}{badge ? <span className="tabbar__badge mono" aria-hidden="true">{badge}</span> : null}</span>
+      <span>{label}</span>
+    </a>
   );
 }
 

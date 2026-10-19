@@ -85,6 +85,9 @@ class Inspection(IdTimestampMixin, Base):
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     remarks: Mapped[str | None] = mapped_column(Text)
     demo_seed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+    # Manufacturer self-checks: a corrected label links to the check it replaces, and shares its product_key.
+    previous_inspection_id: Mapped[UUID | None] = mapped_column(ForeignKey("inspections.id", ondelete="SET NULL"), index=True)
+    product_key: Mapped[str | None] = mapped_column(String(255), index=True)
 
 
 def _next_upload_sequence(context) -> int:

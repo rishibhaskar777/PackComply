@@ -32,7 +32,7 @@ export function ReportsPage({ onExpired }: { onExpired: () => void }) {
   }
 
   const columns: Column<HistoryItem>[] = [
-    { key: "product", header: t("productName"), link: true, className: "cell-grow", render: item => <><span className="cell-primary">{item.product_name ?? item.image_filename ?? t("unknown")}</span><span className="cell-secondary mono">{item.inspection_number}</span></> },
+    { key: "product", header: t("productName"), link: true, className: "cell-grow", render: item => <><span className="cell-primary">{item.product_name ?? t("unknown")}</span><span className="cell-secondary mono">{item.inspection_number}</span></> },
     { key: "date", header: t("date"), hideOnMobile: true, render: item => <span className="tabular">{formatDate(item.created_at)}</span> },
     { key: "verdict", header: t("verdict"), hideOnMobile: true, render: item => <Badge variant={item.verdict ?? item.compliance_status ?? "PENDING"} /> },
     { key: "pdf", header: <span className="sr-only">{t("report")}</span>, align: "end", render: item => (

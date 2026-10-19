@@ -21,7 +21,7 @@ import json
 import logging
 import re
 from statistics import mean, median
-from typing import Any, Callable, Iterator
+from typing import Any, Callable, Iterable, Iterator
 
 from backend.app.services.compliance.rule_engine import ComplianceEngine
 from backend.app.services.extraction import fuzzy, values as value_first
@@ -184,6 +184,7 @@ _CARE_PHRASES = phrases("care", "consumer care", "customer care", "consumer comp
 # "Tide Lemon & Mint Mfg by Procter & Gamble ...": a "<role> by/for" key after other text.
 _INLINE_ROLE = re.compile(rf"(?i)(?<![A-Za-z])({_ROLE_WORD})\s*(by|for)(?![A-Za-z])\s*[:\-.]?\s*")
 _UNIT_CODE = re.compile(r"^\(\s*([A-Z0-9]{1,3})\s*\)(?:[A-Za-z](?=\s))?\s*[-–:]?\s*")
+_STRAY_INITIAL = re.compile(r"^[A-Za-z]\.\s+(?=[A-Z][A-Za-z])")
 _COMPANY_SUFFIX = r"pvt\.?\s*lt[do0]\.?|private\s+limited|ltd\.?|limited|llp|industries|foods?|co\.?|company|corporation|corp\.?|enterprises|inc\.?"
 # The name ends at its suffix before a comma, the line end, a number or a full stop ("Limited. 'Ujala House'").
 _COMPANY_NAME = re.compile(rf"(?i)^(.*?(?<![A-Za-z])(?:{_COMPANY_SUFFIX}))(?=\s*(?:[,;]|$|\d)|(?<=\.)\s|\.\s|\s*\([A-Z&]{{2,6}}\))")
@@ -500,7 +501,11 @@ class ExtractionService:
 
     def _mrp(self, layout: Layout) -> dict[str, ExtractedValue]:
         def build(match: re.Match[str]) -> tuple[str, str | None] | None:
-            value = f"₹{match.group(1).replace(',', '')}"
+            amount = match.group(1).replace(",", "")
+            # No price is printed with a leading zero ("016" is a stray number or a date fragment, not ₹16).
+            if re.match(r"0[0-9]", amount):
+                return None
+            value = f"₹{amount}"
             return (value, ComplianceEngine.normalize_mrp(value)) if ComplianceEngine.normalize_mrp(value) else None
 
         price = rf"(?:\([^)]*\)\s*)?(?:{_OCR_CURRENCY})?\s*{_AMOUNT}\s*(?:/-|/)?"
@@ -935,6 +940,24 @@ class ExtractionService:
                 mentions[role].append((line.index, party))
         return mentions
 
+    @staticmethod
+    def _without_stray_initial(name: str, layout: Layout, own_lines: Iterable[LayoutLine]) -> str:
+        """Drop a lone leading initial that OCR made of a logo or bullet ("S. Godrej Consumer Products").
+
+        A real initial ("M. K. Foods") is kept: the initial only goes when the rest of the name is printed
+        elsewhere on the label without it, which is evidence that the initial is not part of the name.
+        """
+        match = _STRAY_INITIAL.match(name)
+        if not match:
+            return name
+        rest = name[match.end():]
+        words = [re.escape(word) for word in re.findall(r"[A-Za-z]{2,}", rest)[:3]]
+        if len(words) < 2:
+            return name
+        elsewhere = re.compile(rf"(?<![A-Za-z]\.\s)(?<![A-Za-z]){r'[\s.,]+'.join(words)}(?![A-Za-z])")
+        own = {line.index for line in own_lines}
+        return rest if any(elsewhere.search(line.text) for line in layout.lines if line.index not in own) else name
+
     def _parties(self, layout: Layout) -> dict[str, ExtractedValue]:
         values: dict[str, ExtractedValue] = {}
         for role, mentions in self._role_mentions(layout).items():
@@ -942,6 +965,7 @@ class ExtractionService:
             if not parties:
                 continue
             chosen = parties[0]
+            chosen.name = self._without_stray_initial(chosen.name, layout, chosen.lines)
             ambiguous = len(dict.fromkeys(party.name.casefold() for party in parties)) > 1
             multi_unit = len(chosen.units) > 1
             confidence = CONFIDENCE[chosen.method] - (AMBIGUITY_PENALTY if ambiguous else 0.0) - (0.15 if multi_unit else 0.0)

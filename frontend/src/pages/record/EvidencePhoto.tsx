@@ -17,14 +17,19 @@ type Props = {
   hoveredId: string | null;
   onSelect: (id: string | null) => void;
   onHover: (id: string | null) => void;
+  /** Selecting a finding zooms the photo in on its box (manufacturer "Show on label"); otherwise only a zoomed photo pans to it. */
+  zoomOnSelect?: boolean;
 };
 
+const NO_LINES: OcrLine[] = [];
 const ZOOM_STEP = 1.5;
+/** Zoom level "Show on label" brings the selected box to. */
+const ZOOM_ON_SELECT = 2;
 /** Markers that share a corner (two rules on one field) are fanned out by this many pixels. */
 const MARKER_FAN = 18;
 
 /** The photo with numbered evidence markers, zoom (buttons, ctrl/pinch wheel, touch pinch), drag-to-pan and the raw OCR text sheet. */
-export function EvidencePhoto({ src, image, ocr, items, selectedId, hoveredId, onSelect, onHover }: Props) {
+export function EvidencePhoto({ src, image, ocr, items, selectedId, hoveredId, onSelect, onHover, zoomOnSelect = false }: Props) {
   const { t } = useI18n();
   const reduced = useReducedMotion();
   const frame = useRef<HTMLDivElement>(null);
@@ -39,7 +44,8 @@ export function EvidencePhoto({ src, image, ocr, items, selectedId, hoveredId, o
   const gesture = useRef<{ distance: number; zoom: number } | null>(null);
   const moved = useRef(false);
 
-  const lines: OcrLine[] = ocr?.results ?? [];
+  // A stable reference when there is no OCR: it is a dependency of the memos and effects below.
+  const lines: OcrLine[] = ocr?.results ?? NO_LINES;
   const allBoxes = useMemo(() => [...items.flatMap(item => item.boxes ?? []), ...lines.flatMap(line => (line.bbox ? [line.bbox] : []))], [items, lines]);
   const source = useMemo(() => sourceSize(image, natural, allBoxes), [image, natural, allBoxes]);
 
@@ -67,7 +73,9 @@ export function EvidencePhoto({ src, image, ocr, items, selectedId, hoveredId, o
 
   // Selecting a finding (or an OCR line) brings its box to the centre when the photo is zoomed in.
   useEffect(() => {
-    if (focusRect && rendered && zoom > 1) setPan(panToRect(focusRect, zoom, rendered));
+    if (!focusRect || !rendered) return;
+    if (zoom > 1) setPan(panToRect(focusRect, zoom, rendered));
+    else if (zoomOnSelect && selected) { setZoom(ZOOM_ON_SELECT); setPan(panToRect(focusRect, ZOOM_ON_SELECT, rendered)); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusRect]);
 

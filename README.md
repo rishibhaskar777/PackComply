@@ -159,10 +159,24 @@ On a desktop screen the top bar has an **Open on phone** button: it shows the sa
 .\.venv\Scripts\python.exe -m backend.scripts.seed_demo --reset-demo          # remove only what the seed created
 ```
 
-- Creates **`demo_inspector`** (OFFICIAL, owns most records and sees the risk queue) and **`demo_maker`** (MANUFACTURER, owns a few). Passwords are printed once, when an account is created (random `demo-NNNNNN`), or set with the flags. Re-running never changes an existing password unless you pass the flag.
+- Creates **`demo_inspector`** (OFFICIAL, owns most records and sees the risk queue) and **`demo_maker`** (MANUFACTURER, owns its own six products, below). Passwords are printed once, when an account is created (random `demo-NNNNNN`), or set with the flags. Re-running never changes an existing password unless you pass the flag. Both accounts and what each one sees are printed at the end.
+- **`demo_maker`'s data** is separate from the inspector's: six products with a mix of *Ready to print* (3), *Fix needed* (2) and *Check on pack* (1), and **Gluco Biscuits checked twice**: a first draft with 3 fixes, then the corrected label with none ("improved from 3 fixes to 0"). Four products come from the sample photos; Gluco Biscuits and Cream Cracker are demo **artwork** (`demo/artwork/*.png`, drawn by `python -m backend.scripts.make_demo_artwork`, with their OCR stored in `demo/artwork/ocr/`). The two Gluco PNGs are also what you upload live in the manufacturer demo.
 - Imports one inspection per photo through the real workflow (extraction → rules → risk → repeat patterns). A photo whose OCR is already stored in `backend/tests/fixtures/labels/real/` reuses it (about 10 s for all 23 sample photos, and the record shows the OCR time that photo really took); other photos are read with PaddleOCR (`--no-ocr` skips them).
 - Dates are spread over the last four weeks; the three lowest-risk records of the inspector are verified; the highest-risk record is left unreviewed for the live correction.
-- Idempotent: an inspection is identified by its photo's file name (`DEMO-<hash>`), so a second run adds nothing. Seeded rows carry a `demo_seed` tag (migration `20261019_0012`), so `--reset-demo` deletes only tagged inspections, their photo files and the two demo accounts. Your own accounts and records are never touched.
+- Idempotent: an inspection is identified by its photo's file name (`DEMO-<hash>`, the manufacturer's `DEMO-M-<hash>`), so a second run adds nothing; an older manufacturer demo layout is replaced. Seeded rows carry a `demo_seed` tag (migration `20261019_0012`), so `--reset-demo` deletes only tagged inspections, their photo files and the two demo accounts. Linked self-checks (migration `20261020_0013`: `previous_inspection_id`, `product_key`) are handled the same way. Your own accounts and records are never touched.
+
+### Two portals, one app
+
+The sign-in role decides which product you see (`<html data-portal>`; the server still scopes every record to its owner):
+
+| | Inspector portal (indigo) | Manufacturer portal (teal) |
+|---|---|---|
+| Home | `#/overview` — *Today's inspection priorities*: KPI tiles, risk queue, violations by rule, repeat issues | `#/products` — *My products*: readiness ring, counters, one card per product |
+| Work | `#/new` / phone **New inspection**, `#/inspections/:id` official record (markers, corrections, verify, audit) | `#/check` / phone **Check my label**, `#/products/:id` self-check result (fix cards with examples, *Show on label*) |
+| Other pages | Risk queue, Repeat issues, Rulesets, Reports (official PDF), About | Fix list, Self-check reports (pre-market PDF), LM(PC) rules guide, About |
+| Wording | Inspection, Violation, Risk, Verify, Official report | Check, Fix, Ready to print, Self-check report (a self-assessment aid, not an approval) |
+
+Opening the other role's route redirects (a manufacturer's `#/inspections/:id` becomes `#/products/:id`; an inspector's `#/products` becomes `#/overview`). Plain-language fix text comes from `backend/app/services/compliance/rulesets/remediation_v1.yaml`, one entry per rule (tested to cover every rule in the active ruleset).
 
 ### 5-minute judge demo
 
@@ -179,7 +193,8 @@ Have the laptop on Wi-Fi (or a phone hotspot), the phone on the same network, `s
 9. **Live progress**: *Done* shows the real step list (reading text EN + हिन्दी per photo, linking, rules, risk) with true durations, no fake percentages.
 10. **Result**: the phone shows the verdict; open the record on the laptop. It has three photo tabs (back, front, date) with their own evidence boxes.
 11. **Audit trail**: scroll to it: creation, each photo with its SHA-256, OCR time, ruleset version, correction, verification.
-12. If asked about accuracy, open **About & accuracy** (sidebar → Resources): precision, recall, rule agreement and the verdict confusion matrix measured by the evaluation script, labelled development or unseen, with the date.
+12. **Manufacturer portal** (second login, `demo_maker`): *My products* ("3 of 6 ready to print") → **Check a label** → upload `demo/artwork/gluco-biscuits-draft.png` → live checking → **Fix 3 items before printing** with plain-language problem, rule chip, *How to fix* and an *Example* → **Show on label** → **Upload corrected label** (`gluco-biscuits-corrected.png`) → **Ready to print ✓ · Improved from 3 fixes to 0** → **Download self-check report** → *My products* now shows "Gluco Biscuits improved from 3 fixes to 0".
+13. If asked about accuracy, open **About & accuracy** (sidebar → Resources): precision, recall, rule agreement and the verdict confusion matrix measured by the evaluation script, labelled development or unseen, with the date.
 
 Fallbacks:
 

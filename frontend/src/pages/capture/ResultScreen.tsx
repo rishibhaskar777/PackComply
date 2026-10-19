@@ -74,7 +74,7 @@ export function ResultScreen({ summary, official, photoUrls, onSave, onClose, on
       </div>
 
       <BottomSheet label={t("resSheet")} initial={1}
-        footer={<Button size="lg" className="cap-btn cap-btn--block" onClick={onSave}>{t("resSave")}</Button>}>
+        footer={<Button size="lg" className="cap-btn cap-btn--block" onClick={onSave}>{t(official ? "resSave" : "resOpenResult")}</Button>}>
         <section className="res-summary" aria-label={t("resSummary")}>
           <div className="res-summary__badges">
             {verdict && <Badge variant={verdict} />}
@@ -102,9 +102,9 @@ export function ResultScreen({ summary, official, photoUrls, onSave, onClose, on
                   <button type="button" className="res-item__main" aria-pressed={id === selectedId} onClick={() => select(item)}>
                     <span className={`res-num res-num--${item.group}`}>{item.number}</span>
                     <span className="res-item__text">
-                      <span className="res-item__title">{item.finding.rule_name}</span>
+                      <span className="res-item__title">{!official && item.finding.fix_title ? item.finding.fix_title : item.finding.rule_name}</span>
                       <span className="res-item__message">{item.finding.message}</span>
-                      {item.read && <span className="res-item__value mono">{item.read}</span>}
+                      {!official && item.finding.example ? <span className="res-item__value mono">{item.finding.example}</span> : item.read && <span className="res-item__value mono">{item.read}</span>}
                     </span>
                   </button>
                   <div className="res-item__actions">

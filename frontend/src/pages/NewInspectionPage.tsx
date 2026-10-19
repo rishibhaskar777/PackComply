@@ -16,11 +16,17 @@ const FALLBACK_LIMIT = 10 * 1024 * 1024;
 export const formatMegabytes = (bytes: number) => `${Math.round((bytes / (1024 * 1024)) * 10) / 10} MB`;
 const formatSize = (bytes: number) => (bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : formatMegabytes(bytes));
 
-type Props = { onExpired: () => void; onCompleted: () => void };
+type Props = {
+  onExpired: () => void; onCompleted: () => void;
+  /** Manufacturer portal: "Check a label", ending on the self-check result. */
+  maker?: boolean;
+  /** Upload a corrected label for this earlier self-check. */
+  previousId?: string;
+};
 type Slots = Partial<Record<Panel, CapturedPhoto>>;
 
 /** #/new: add the back panel (required), and optionally the front and date stamp; they are uploaded, read and checked together. */
-export function NewInspectionPage({ onExpired, onCompleted }: Props) {
+export function NewInspectionPage({ onExpired, onCompleted, maker = false, previousId }: Props) {
   const { t } = useI18n();
   const toast = useToast();
   const [slots, setSlots] = useState<Slots>({});
@@ -29,7 +35,7 @@ export function NewInspectionPage({ onExpired, onCompleted }: Props) {
   const [problem, setProblem] = useState<{ panel: Panel; message: string } | null>(null);
   const slotsRef = useRef(slots);
   slotsRef.current = slots;
-  const run = useInspectionRun({ onExpired });
+  const run = useInspectionRun({ onExpired, previousInspectionId: previousId });
   const busy = run.phase === "uploading" || run.phase === "processing";
 
   useEffect(() => {
@@ -39,7 +45,7 @@ export function NewInspectionPage({ onExpired, onCompleted }: Props) {
 
   // A finished run opens the record.
   useEffect(() => {
-    if (run.phase === "done" && run.inspectionId) { onCompleted(); toast(t("toastInspectionSaved")); navigate(`/inspections/${run.inspectionId}`); }
+    if (run.phase === "done" && run.inspectionId) { onCompleted(); toast(t(maker ? "toastCheckDone" : "toastInspectionSaved")); navigate(maker ? `/products/${run.inspectionId}` : `/inspections/${run.inspectionId}`); }
   }, [run.phase, run.inspectionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function choose(panel: Panel, candidate: File | undefined | null) {
@@ -76,9 +82,10 @@ export function NewInspectionPage({ onExpired, onCompleted }: Props) {
 
   return (
     <div className="page new-page">
-      <PageHeader title={t("newInspection")} subtitle={t("legalNotice")} />
+      <PageHeader title={t(maker ? (previousId ? "uploadCorrected" : "checkALabel") : "newInspection")} subtitle={t(maker ? "checkSubtitle" : "legalNotice")} />
+      {maker && previousId && <Alert variant="info" title={t("correctedLabelTitle")}>{t("correctedLabelHint")}</Alert>}
       {run.error?.unreachable && <Alert action={<Button size="sm" variant="outline" icon={<RefreshCw size={16} aria-hidden="true" />} onClick={() => void run.retry()} disabled={busy}>{t("progRetryUpload")}</Button>}>{t("progUnreachable")}</Alert>}
-      <Card title={t("newPhotosTitle")} description={fill(t("newDropHint"), { limit: formatMegabytes(limit) })}>
+      <Card title={t("newPhotosTitle")} description={maker ? fill(t("checkFormats"), { limit: formatMegabytes(limit) }) : fill(t("newDropHint"), { limit: formatMegabytes(limit) })}>
         <div className="new-slots">
           {CAPTURE_PANELS.map(panel => {
             const photo = slots[panel];
@@ -116,7 +123,7 @@ export function NewInspectionPage({ onExpired, onCompleted }: Props) {
           </div>
         )}
         <div className="page-footer-actions new-actions">
-          <Button size="lg" icon={<ImageUp size={16} aria-hidden="true" />} onClick={start} disabled={!slots.BACK || busy} loading={busy}>{t("newStart")}</Button>
+          <Button size="lg" icon={<ImageUp size={16} aria-hidden="true" />} onClick={start} disabled={!slots.BACK || busy} loading={busy}>{t(maker ? "checkStart" : "newStart")}</Button>
           {!slots.BACK && <span className="muted-text">{t("newNeedBack")}</span>}
         </div>
       </Card>

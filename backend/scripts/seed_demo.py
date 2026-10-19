@@ -10,8 +10,12 @@
   next to this repository, when present) as one inspection each and runs the real workflow (extraction, rules, risk,
   repeat patterns). Photos that already have stored OCR in ``backend/tests/fixtures/labels/real`` reuse it, so seeding
   takes seconds; others are read with PaddleOCR unless ``--no-ocr`` is given.
-- Inspection dates are spread over the last four weeks so trends and the dashboard look lived-in, and a few of the
-  lowest-risk records are verified. The highest-risk record is left unreviewed for the live demo.
+- ``demo_inspector`` gets the sample photos as inspections (dates spread over the last four weeks, a few of the lowest-risk
+  records verified, the highest-risk one left unreviewed for the live demo).
+- ``demo_maker`` gets its own manufacturer data: six products, with a mix of Ready to print / Fix needed / Check on pack, and
+  one of them (Gluco Biscuits) checked twice - a first draft with 3 fixes, then the corrected label with none. Four products
+  come from the sample photos, the other two from the demo artwork in ``demo/artwork`` (see make_demo_artwork.py), whose
+  OCR is stored beside it. Self-checks are linked exactly as "Upload corrected label" links them.
 - Idempotent: an inspection is identified by its photo's file name, so running it again adds nothing.
 - ``--reset-demo`` deletes ONLY what this script created (rows tagged ``demo_seed``, their photo files and the demo
   accounts). Real records and accounts are never touched.
@@ -41,6 +45,7 @@ from backend.app.models import (
 )
 from backend.app.services.audit import record_event
 from backend.app.services.compliance.rule_engine import ComplianceEngine
+from backend.app.services.products import effective_key
 from backend.app.services.corrections import mark_verified
 from backend.app.services.extraction import ExtractionService
 from backend.app.services.risk import RiskService
@@ -57,6 +62,18 @@ SPREAD_DAYS = 27
 VERIFIED_COUNT = 3
 # Every sixth photo belongs to the manufacturer account, so that login shows a small, believable history too.
 MAKER_EVERY = 6
+ARTWORK_DIR = REPO_ROOT / "demo" / "artwork"
+MAKER_PREFIX = NUMBER_PREFIX + "M-"
+# demo_maker's products, oldest check first: (product, [(photo file, folder or None for the demo artwork, days ago)]).
+# Sample photos are looked up by file name in the sample folders; a missing one is skipped.
+MAKER_PRODUCTS: tuple[tuple[str, tuple[tuple[str, str, int], ...]], ...] = (
+    ("Gluco Biscuits", (("gluco-biscuits-draft.png", "artwork", 6), ("gluco-biscuits-corrected.png", "artwork", 1))),
+    ("Cream Cracker", (("cream-cracker.png", "artwork", 3),)),
+    ("Spigen Liquid Air", (("1000088947.jpg", "samples", 2),)),
+    ("Buldak", (("71t28Cnhd2L._SL1000_.jpg", "samples", 8),)),
+    ("ALL OUT Liquid Vaporiser", (("WhatsApp Image 2026-10-15 at 10.51.16 PM (3).jpeg", "samples", 11),)),
+    ("Presto Active Wash Detergent Powder", (("713ThnhUQPL._SL1500_.jpg", "samples", 14),)),
+)
 _DATED = (InspectionImage, OcrResult, ExtractedField, ComplianceResult, InspectionEvent, InspectionIssue, FieldCorrection)
 
 
@@ -68,6 +85,8 @@ class SeedReport:
     skipped_existing: list[str] = field(default_factory=list)
     skipped_failed: list[tuple[str, str]] = field(default_factory=list)
     verified: int = 0
+    maker_imported: list[str] = field(default_factory=list)
+    maker_removed: int = 0
 
 
 class NoOcr:
@@ -80,6 +99,10 @@ class NoOcr:
 
 def demo_number(photo: Path) -> str:
     return NUMBER_PREFIX + sha1(photo.name.encode("utf-8")).hexdigest()[:10].upper()
+
+
+def maker_number(photo: Path) -> str:
+    return MAKER_PREFIX + sha1(photo.name.encode("utf-8")).hexdigest()[:8].upper()
 
 
 def _password() -> str:
@@ -132,8 +155,8 @@ def _scaled(detections: list[dict], scale: float) -> list[dict]:
     return [{**item, "bbox": [[x * scale, y * scale] for x, y in item["bbox"]]} if item.get("bbox") else item for item in detections]
 
 
-def _cached_ocr(photo: Path, fixture_dir: Path) -> dict | None:
-    path = fixture_dir / f"{fixture_name(photo)}.json"
+def _cached_ocr(photo: Path, fixture_dir: Path, file_stem: str | None = None) -> dict | None:
+    path = fixture_dir / f"{file_stem or fixture_name(photo)}.json"
     if not path.exists():
         return None
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -155,7 +178,8 @@ def _backdate(db: Session, inspection: Inspection, when: datetime) -> None:
 
 
 def seed(db: Session, folders: list[Path], upload_dir: Path, *, fixture_dir: Path = REAL_FIXTURE_DIR, inspector_password: str | None = None, maker_password: str | None = None,
-         allow_ocr: bool = True, ocr_factory: Callable[[], object] | None = None, now: datetime | None = None, log: Callable[[str], None] = print) -> SeedReport:
+         allow_ocr: bool = True, ocr_factory: Callable[[], object] | None = None, now: datetime | None = None, log: Callable[[str], None] = print,
+         maker_products: tuple = MAKER_PRODUCTS) -> SeedReport:
     settings = get_settings()
     now = now or datetime.now(timezone.utc)
     report = SeedReport()
@@ -164,8 +188,7 @@ def seed(db: Session, folders: list[Path], upload_dir: Path, *, fixture_dir: Pat
 
     photos = sorted({path.resolve(): path for folder in folders if folder.is_dir() for path in folder.iterdir() if path.suffix.lower() in IMAGE_SUFFIXES}.values(), key=lambda path: (str(path.parent), path.name))
     if not photos:
-        log("No photos found; the accounts were created but there is nothing to import.")
-        return report
+        log("No sample photos found: the inspector has nothing to import (the manufacturer's artwork products are still seeded).")
 
     live_ocr: list[object] = []
 
@@ -176,24 +199,19 @@ def seed(db: Session, folders: list[Path], upload_dir: Path, *, fixture_dir: Pat
             live_ocr.append((ocr_factory or _real_ocr)())
         return live_ocr[0]
 
-    created: list[Inspection] = []
-    total = len(photos)
-    for index, photo in enumerate(photos):
-        number = demo_number(photo)
-        if db.scalar(select(Inspection.id).where(Inspection.inspection_number == number)) is not None:
-            report.skipped_existing.append(photo.name)
-            continue
-        cached = _cached_ocr(photo, fixture_dir)
+    def import_photo(photo: Path, number: str, owner: User, ocr_dir: Path, ocr_stem: str | None, when: datetime, *, previous: Inspection | None = None) -> Inspection | None:
+        """Run one photo through the real workflow for ``owner`` and date it ``when``; None if it could not be imported."""
+        cached = _cached_ocr(photo, ocr_dir, ocr_stem)
         if cached is None and not allow_ocr:
             report.skipped_failed.append((photo.name, "no stored OCR and --no-ocr given"))
-            continue
-        owner = maker if index % MAKER_EVERY == MAKER_EVERY - 1 else inspector
+            return None
         inspection = None
         try:
             content, filename, content_type, scale = _prepare_upload(photo, settings.max_upload_bytes)
             validate_image(content, content_type, settings.max_upload_bytes)
             stored = store_image(content, filename, content_type, upload_dir)
-            inspection = Inspection(inspection_number=number, user_id=owner.id, status="IMAGE_UPLOADED", demo_seed=True)
+            inspection = Inspection(inspection_number=number, user_id=owner.id, status="IMAGE_UPLOADED", demo_seed=True,
+                                    previous_inspection_id=previous.id if previous else None, product_key=effective_key(previous) if previous else None)
             db.add(inspection)
             db.flush()
             image = InspectionImage(inspection_id=inspection.id, panel="BACK", **stored.__dict__)
@@ -211,7 +229,7 @@ def seed(db: Session, folders: list[Path], upload_dir: Path, *, fixture_dir: Pat
                 _delete_inspections(db, [inspection.id], upload_dir)
             report.skipped_failed.append((photo.name, str(error) or type(error).__name__))
             log(f"  skipped {photo.name}: {error}")
-            continue
+            return None
         if cached is not None:
             # The photo was really read in `ocr_seconds` when its OCR was stored, so the record shows that processing time
             # (a cached run finishes in under a second, which would make the dashboard's median time look absurd).
@@ -219,14 +237,54 @@ def seed(db: Session, folders: list[Path], upload_dir: Path, *, fixture_dir: Pat
             if ocr is not None and ocr.duration_ms:
                 inspection.completed_at = image.created_at + timedelta(milliseconds=ocr.duration_ms + 900)
                 db.commit()
+        _backdate(db, inspection, when)
+        return inspection
+
+    created: list[Inspection] = []
+    total = len(photos)
+    for index, photo in enumerate(photos):
+        number = demo_number(photo)
+        if db.scalar(select(Inspection.id).where(Inspection.inspection_number == number)) is not None:
+            report.skipped_existing.append(photo.name)
+            continue
+        if index % MAKER_EVERY == MAKER_EVERY - 1:
+            continue  # these photos used to be the manufacturer's; the manufacturer now has its own products (below)
         days_ago = 1 + round(index * SPREAD_DAYS / max(total - 1, 1))
-        _backdate(db, inspection, now - timedelta(days=days_ago, hours=(index * 7) % 9, minutes=(index * 13) % 50))
+        inspection = import_photo(photo, number, inspector, fixture_dir, None, now - timedelta(days=days_ago, hours=(index * 7) % 9, minutes=(index * 13) % 50))
+        if inspection is None:
+            continue
         created.append(inspection)
         report.imported.append(photo.name)
-        log(f"  [{index + 1}/{total}] {photo.name}  ->  {number}{'  (cached OCR)' if cached is not None else ''}")
+        log(f"  [{index + 1}/{total}] {photo.name}  ->  {number}{'  (cached OCR)' if _cached_ocr(photo, fixture_dir) is not None else ''}")
 
+    _seed_maker(db, maker, folders, upload_dir, fixture_dir, now, import_photo, report, log, maker_products)
     report.verified = _verify_lowest_risk(db, created, inspector)
     return report
+
+
+def _seed_maker(db: Session, maker: User, folders: list[Path], upload_dir: Path, fixture_dir: Path, now: datetime, import_photo, report: SeedReport, log, products: tuple) -> None:
+    """demo_maker's products. Idempotent: a check is identified by its number; legacy maker rows are replaced."""
+    legacy = list(db.scalars(select(Inspection.id).where(Inspection.user_id == maker.id, Inspection.demo_seed.is_(True), ~Inspection.inspection_number.like(f"{MAKER_PREFIX}%"))).all())
+    report.maker_removed = _delete_inspections(db, legacy, upload_dir)
+    by_name = {path.name: path for folder in folders if folder.is_dir() for path in folder.iterdir()}
+    for product, checks in products:
+        previous: Inspection | None = None
+        for file_name, source, days_ago in checks:
+            photo = ARTWORK_DIR / file_name if source == "artwork" else by_name.get(file_name)
+            if photo is None or not photo.exists():
+                log(f"  maker: {product}: {file_name} not found, skipped")
+                continue
+            number = maker_number(photo)
+            existing = db.scalar(select(Inspection).where(Inspection.inspection_number == number))
+            if existing is not None:
+                previous = existing
+                continue
+            ocr_dir, stem = (ARTWORK_DIR / "ocr", photo.stem) if source == "artwork" else (fixture_dir, None)
+            inspection = import_photo(photo, number, maker, ocr_dir, stem, now - timedelta(days=days_ago, hours=3), previous=previous)
+            if inspection is not None:
+                previous = inspection
+                report.maker_imported.append(f"{product} <- {file_name}")
+                log(f"  maker: {product}  ->  {number}{'  (continues the earlier check)' if inspection.previous_inspection_id else ''}")
 
 
 def _verify_lowest_risk(db: Session, created: list[Inspection], inspector: User) -> int:
@@ -302,6 +360,18 @@ class _ReadingService:
         self._service.close()
 
 
+def print_accounts(report: SeedReport) -> None:
+    """Both demo accounts and what each sees. A password is only known on the run that sets it."""
+    print("\nDemo accounts")
+    for spec, flag, sees in ((INSPECTOR, "inspector", "Inspector portal (indigo): overview with the risk queue, inspections, official PDF"),
+                             (MAKER, "maker", "Manufacturer portal (teal): My products (3 of 6 ready to print), Gluco Biscuits 3 fixes -> 0, fix list, self-check PDF")):
+        username = spec["username"]
+        password = report.created_users.get(username)
+        shown = f"password: {password}   (shown once - note it down)" if password else f"already existed; password unchanged (set one with --{flag}-password)"
+        print(f"  {username:16} {spec['role']:13} {shown}")
+        print(f"  {'':16} {sees}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("folders", nargs="*", type=Path, help="photo folders (default: ../PackComply-samples and ../PackComply-samples-phone if present)")
@@ -326,13 +396,9 @@ def main() -> int:
             print("No photo folder given and the PackComply-samples folders were not found next to the repository.")
         print("Seeding demo data" + (f" from {', '.join(str(folder) for folder in folders)}" if folders else "") + " ...")
         report = seed(db, list(folders), upload_dir, inspector_password=args.inspector_password, maker_password=args.maker_password, allow_ocr=not args.no_ocr)
-    print(f"\nImported {len(report.imported)} new inspection(s); {len(report.skipped_existing)} already present; {len(report.skipped_failed)} skipped; {report.verified} verified.")
-    if report.created_users:
-        print("\nDemo accounts (shown once — note them down):")
-        for username, password in report.created_users.items():
-            print(f"  {username:16} password: {password}")
-    for username in report.existing_users:
-        print(f"  {username:16} already existed; password unchanged (use --{'inspector' if username == INSPECTOR['username'] else 'maker'}-password to set one)")
+    print(f"\nInspector: imported {len(report.imported)} new inspection(s); {len(report.skipped_existing)} already present; {len(report.skipped_failed)} skipped; {report.verified} verified.")
+    print(f"Manufacturer: {len(report.maker_imported)} new self-check(s)" + (f"; {report.maker_removed} older demo record(s) replaced" if report.maker_removed else "") + ".")
+    print_accounts(report)
     return 0
 
 
