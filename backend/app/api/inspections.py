@@ -25,10 +25,12 @@ from backend.app.services import jobs
 from backend.app.services.merge import PANELS
 from backend.app.services.progress import AlreadyRunning, progress_store, stored_snapshot
 from backend.app.services.workflow import LATEST_IMAGE_ORDER, MAX_ACTIVE_IMAGES, InspectionWorkflow, WorkflowError, active_images, all_images, compliance_response, extraction_field_response, latest_extracted_fields, persist_compliance, primary_image, resolve_upload_path
+from backend.app.services.products import effective_key
 from backend.app.services.report import InspectionReportService
-from backend.app.api.auth import get_current_user, require_official
+from backend.app.services.self_check_report import SelfCheckReportService
+from backend.app.api.auth import get_current_user, require_manufacturer, require_official
 from backend.app.services.audit import build_audit, record_event
-from backend.app.services.corrections import FIELD_ALIASES, CorrectionError, active_corrections, mark_verified, normalise_value, reset_review, sync_label_identity
+from backend.app.services.corrections import FIELD_ALIASES, label_title, CorrectionError, active_corrections, mark_verified, normalise_value, reset_review, sync_label_identity
 from backend.app.models import User
 from backend.app.services.risk import RiskService
 
@@ -96,6 +98,7 @@ def _overall_compliance_status():
 
 @router.post("", response_model=InspectionCreated, status_code=status.HTTP_201_CREATED)
 def create_inspection(payload: InspectionCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> Inspection:
+    previous = require_owner(db.get(Inspection, payload.previous_inspection_id), user) if payload.previous_inspection_id else None
     inspection = Inspection(
         inspection_number=make_inspection_number(),
         manufacturer_id=payload.manufacturer_id,
@@ -103,6 +106,9 @@ def create_inspection(payload: InspectionCreate, db: Session = Depends(get_db), 
         notes=payload.notes,
         status="CREATED",
         user_id=user.id,
+        # A corrected label continues the product of the check it replaces.
+        previous_inspection_id=previous.id if previous else None,
+        product_key=effective_key(previous) if previous else None,
     )
     db.add(inspection)
     db.commit()
@@ -150,7 +156,7 @@ def list_inspections(
         count_query = count_query.where(overall_compliance == normalized_compliance)
     total = db.scalar(count_query) or 0
     rows = db.execute(query.order_by(Inspection.created_at.desc()).offset((page - 1) * page_size).limit(page_size)).all()
-    return InspectionHistoryPage(items=[InspectionHistoryItem(id=i.id, inspection_number=i.inspection_number, status=i.status, created_at=i.created_at, updated_at=i.updated_at, product_name=name or "Untitled label", brand_name=i.brand_name, maker_name=i.maker_name, review_status=i.review_status, image_filename=image, compliance_status=compliance, verdict=verdict([compliance]) if compliance else None) for i, name, image, compliance in rows], page=page, page_size=page_size, total=total, total_pages=(total + page_size - 1) // page_size)
+    return InspectionHistoryPage(items=[InspectionHistoryItem(id=i.id, inspection_number=i.inspection_number, status=i.status, created_at=i.created_at, updated_at=i.updated_at, product_name=label_title(name, i.brand_name, i.maker_name), brand_name=i.brand_name, maker_name=i.maker_name, review_status=i.review_status, image_filename=image, compliance_status=compliance, verdict=verdict([compliance]) if compliance else None) for i, name, image, compliance in rows], page=page, page_size=page_size, total=total, total_pages=(total + page_size - 1) // page_size)
 
 
 @router.get("/{inspection_id}/report", response_class=Response, responses={200: {"content": {"application/pdf": {}}}})
@@ -161,13 +167,28 @@ def download_inspection_report(
 ) -> Response:
     """Generate an authorized inspection report without persisting a file."""
     inspection = require_owner(db.get(Inspection, inspection_id), user)
+    # A manufacturer never receives an official inspection report: their PDF is the pre-market self-check.
+    self_check = user.role == "MANUFACTURER"
     try:
-        report = InspectionReportService(db, get_settings().upload_dir).generate(inspection)
+        service = SelfCheckReportService(db, get_settings().upload_dir, user) if self_check else InspectionReportService(db, get_settings().upload_dir)
+        report = service.generate(inspection)
     except Exception as error:
         logger.exception("PDF report generation failed inspection_id=%s", inspection_id)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Unable to generate inspection report.") from error
-    filename = f"inspection_{inspection.id}.pdf"
+    filename = f"{'self_check' if self_check else 'inspection'}_{inspection.id}.pdf"
     return Response(content=report, media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+
+
+@router.get("/{inspection_id}/self-check-report", response_class=Response, responses={200: {"content": {"application/pdf": {}}}})
+def download_self_check_report(inspection_id: UUID, db: Session = Depends(get_db), user: User = Depends(require_manufacturer)) -> Response:
+    """The pre-market label self-check PDF (manufacturers only; the caller must own the check)."""
+    inspection = require_owner(db.get(Inspection, inspection_id), user)
+    try:
+        report = SelfCheckReportService(db, get_settings().upload_dir, user).generate(inspection)
+    except Exception as error:
+        logger.exception("Self-check report generation failed inspection_id=%s", inspection_id)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Unable to generate self-check report.") from error
+    return Response(content=report, media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="self_check_{inspection.id}.pdf"'})
 
 
 def _panel_or_422(panel: str) -> str:

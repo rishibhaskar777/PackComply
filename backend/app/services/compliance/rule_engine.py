@@ -501,9 +501,17 @@ def _consumer_care(label: _Label, rule: RuleDefinition) -> Outcome:
     for field, value in found.items():
         if not _CARE_VALID[field](_CARE_NORMALIZE[field](value)):
             return Outcome(REVIEW, f"The consumer-care {field.rsplit('_', 1)[1]} \"{value}\" does not look valid; check it on the physical pack.", field)
-    if "consumer_care_phone" in found or "consumer_care_email" in found:
+    if "consumer_care_phone" in found and "consumer_care_email" in found:
         details = ", ".join(f"{field.rsplit('_', 1)[1]} {value}" for field, value in found.items())
         return Outcome(PASS, f"Consumer-care contact found: {details}.", next(iter(found)))
+    if "consumer_care_phone" in found or "consumer_care_email" in found:
+        details = ", ".join(f"{field.rsplit('_', 1)[1]} {value}" for field, value in found.items())
+        field = next(iter(found))
+        if label.text("consumer_care_declaration") != "absent":
+            return Outcome(PASS, f"Consumer-care contact found: {details}.", field)
+        # One detail picked up although the extractor found no consumer-care heading around it: it may be a stray
+        # string, or a misread ("wecere@..." for "wecare@..."), so it cannot confirm the declaration. Never a violation.
+        return Outcome(REVIEW, f"A consumer-care {details} was read, but no consumer-care heading was found with it and the other contact detail is missing. Check the consumer-care details on the physical pack.", field)
     if "consumer_care_website" in found:
         return Outcome(REVIEW, f"Only a website ({found['consumer_care_website']}) was found; a consumer-care telephone number and e-mail address are expected.", "consumer_care_website")
     field = "consumer_care_declaration" if label.text("consumer_care_declaration") == "present_without_details" else "consumer_care_phone"

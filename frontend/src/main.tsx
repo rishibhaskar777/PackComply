@@ -9,6 +9,7 @@ import "./styles/record.css";
 import "./styles/auth.css";
 import "./styles/progress.css";
 import "./styles/capture.css";
+import "./styles/portal.css";
 import App from "./App";
 import { ErrorBoundary } from "./app/ErrorBoundary";
 import { I18nProvider } from "./i18n";

@@ -46,11 +46,28 @@ describe("overview dashboard", () => {
     expect(window.location.hash).toBe("#/inspections/a1");
   });
 
-  it("hides numerical risk from manufacturers", async () => {
+  it("leads with the day's priorities: KPI tiles, then the risk queue, the violations chart, the verdict mix and repeat issues", async () => {
+    mockApi({ "GET /dashboard/summary": response({ ...summary, rule_counts: [{ rule_id: "MRP_FORMAT", title: "Retail sale price (MRP)", legal_reference: "LM(PC) Rules 2011, Rule 6(1)(e)", violations: 4, review: 1 }, { rule_id: "CONSUMER_CARE_FORMAT", title: "Consumer-care contact details", legal_reference: null, violations: 2, review: 0 }] }) });
+    renderOverview();
+    expect(await screen.findByRole("heading", { level: 1, name: en.todaysPriorities })).toBeTruthy();
+    const queue = screen.getByRole("heading", { level: 2, name: en.riskQueue });
+    const chart = screen.getByRole("heading", { level: 2, name: en.violationsByRule });
+    const repeat = screen.getByRole("heading", { level: 2, name: en.repeatIssues });
+    const mix = screen.getByRole("heading", { level: 2, name: en.verdictMix });
+    expect(chart.compareDocumentPosition(mix) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(mix.compareDocumentPosition(repeat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(queue.compareDocumentPosition(chart) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(chart.compareDocumentPosition(repeat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const bars = within(screen.getByRole("list", { name: en.violationsByRule }));
+    expect(bars.getAllByRole("listitem")).toHaveLength(2);
+    expect(bars.getByRole("img", { name: "Retail sale price (MRP): 4 violations, 1 to verify" })).toBeTruthy();
+  });
+
+  it("shows a dash instead of a score for a queue row that has none", async () => {
     mockApi({ "GET /dashboard/summary": response({ ...summary, top_risk: summary.top_risk.map(row => ({ ...row, risk_score: null, risk_level: null })) }) });
-    renderOverview(false);
-    expect(await screen.findByRole("table", { name: en.needsAttention })).toBeTruthy();
-    expect(screen.queryByRole("columnheader", { name: en.risk })).toBeNull();
+    renderOverview();
+    const queue = within(await screen.findByRole("table", { name: en.riskQueue }));
+    expect(queue.getAllByText("—")).toHaveLength(2);
   });
 
   it("reloads for the selected period", async () => {

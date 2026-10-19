@@ -1,0 +1,327 @@
+{
+ "source": "batch_evaluate OCR of gluco-biscuits-draft.png",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 1000,
+ "image_height": 1400,
+ "ocr_seconds": 25.78,
+ "raw_text": "SAMPLE FOODS\nEnergy biscuits with glucose\nGluco Biscuits\nNet Quantity: 70 g\nMRP ₹10.00\nMfd: 10/2026\nBest Before: 07/2027\nIngredients: Wheat flour (maida), sugar, edible vegetable oil\n(palm), glucose, invert syrup, milk solids, raising agents, salt.\nManufactured by: Sample Foods Pvt Ltd, Plot 12, MIDC\nAndheri East, Mumbai 400093, Maharashtra\nFSSAI Lic. No. 11224999000123\nMRP र10.00",
+ "detections": [
+  {
+   "text": "SAMPLE FOODS",
+   "confidence": 0.9972451329231262,
+   "bbox": [
+    [
+     67.81,
+     65.62
+    ],
+    [
+     375.16,
+     65.62
+    ],
+    [
+     375.16,
+     99.53
+    ],
+    [
+     67.81,
+     99.53
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Energy biscuits with glucose",
+   "confidence": 0.9999822378158569,
+   "bbox": [
+    [
+     68.91,
+     130.16
+    ],
+    [
+     468.12,
+     130.16
+    ],
+    [
+     468.12,
+     164.06
+    ],
+    [
+     68.91,
+     164.06
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Gluco Biscuits",
+   "confidence": 0.9665659666061401,
+   "bbox": [
+    [
+     64.53,
+     285.47
+    ],
+    [
+     744.84,
+     287.66
+    ],
+    [
+     743.75,
+     385.0
+    ],
+    [
+     64.53,
+     382.81
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Quantity: 70 g",
+   "confidence": 0.9998012185096741,
+   "bbox": [
+    [
+     65.62,
+     426.56
+    ],
+    [
+     490.0,
+     429.84
+    ],
+    [
+     490.0,
+     482.34
+    ],
+    [
+     65.62,
+     479.06
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP ₹10.00",
+   "confidence": 0.9641622304916382,
+   "bbox": [
+    [
+     67.81,
+     519.53
+    ],
+    [
+     329.22,
+     519.53
+    ],
+    [
+     329.22,
+     564.38
+    ],
+    [
+     67.81,
+     564.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mfd: 10/2026",
+   "confidence": 0.9807753562927246,
+   "bbox": [
+    [
+     67.81,
+     597.19
+    ],
+    [
+     307.34,
+     597.19
+    ],
+    [
+     307.34,
+     634.38
+    ],
+    [
+     67.81,
+     634.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Best Before: 07/2027",
+   "confidence": 0.9996694326400757,
+   "bbox": [
+    [
+     449.53,
+     599.38
+    ],
+    [
+     821.41,
+     599.38
+    ],
+    [
+     821.41,
+     633.28
+    ],
+    [
+     449.53,
+     633.28
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ingredients: Wheat flour (maida), sugar, edible vegetable oil",
+   "confidence": 0.9983546137809753,
+   "bbox": [
+    [
+     66.72,
+     695.62
+    ],
+    [
+     916.56,
+     695.62
+    ],
+    [
+     916.56,
+     728.44
+    ],
+    [
+     66.72,
+     728.44
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(palm), glucose, invert syrup, milk solids, raising agents, salt.",
+   "confidence": 0.9999703168869019,
+   "bbox": [
+    [
+     67.81,
+     740.47
+    ],
+    [
+     919.84,
+     740.47
+    ],
+    [
+     919.84,
+     773.28
+    ],
+    [
+     67.81,
+     773.28
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Manufactured by: Sample Foods Pvt Ltd, Plot 12, MIDC",
+   "confidence": 0.9986377954483032,
+   "bbox": [
+    [
+     67.81,
+     812.66
+    ],
+    [
+     835.62,
+     811.56
+    ],
+    [
+     835.62,
+     845.47
+    ],
+    [
+     67.81,
+     846.56
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Andheri East, Mumbai 400093, Maharashtra",
+   "confidence": 0.9974491000175476,
+   "bbox": [
+    [
+     67.81,
+     858.59
+    ],
+    [
+     689.06,
+     858.59
+    ],
+    [
+     689.06,
+     888.12
+    ],
+    [
+     67.81,
+     888.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FSSAI Lic. No. 11224999000123",
+   "confidence": 0.998580276966095,
+   "bbox": [
+    [
+     68.91,
+     925.31
+    ],
+    [
+     503.12,
+     925.31
+    ],
+    [
+     503.12,
+     954.84
+    ],
+    [
+     68.91,
+     954.84
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP र10.00",
+   "confidence": 0.9294025301933289,
+   "bbox": [
+    [
+     67.08,
+     519.17
+    ],
+    [
+     331.04,
+     519.17
+    ],
+    [
+     331.04,
+     564.38
+    ],
+    [
+     67.08,
+     564.38
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

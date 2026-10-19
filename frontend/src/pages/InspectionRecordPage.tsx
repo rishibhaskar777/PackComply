@@ -21,10 +21,10 @@ const VERDICT_LABEL: Record<string, TranslationKey> = { COMPLIANT: "verdictCompl
 const RISK_LABEL: Record<string, TranslationKey> = { LOW: "low", MEDIUM: "medium", HIGH: "high", CRITICAL: "critical" };
 type Failure = { status?: number; message: string; unavailable: boolean };
 
-type Props = { inspectionId: string; official: boolean; onExpired: () => void; onChanged?: () => void; onTitle?: (title: string | null) => void };
+type Props = { inspectionId: string; official: boolean; /** Shown in the official record header; the record belongs to the signed-in inspector. */ inspectorName?: string; onExpired: () => void; onChanged?: () => void; onTitle?: (title: string | null) => void };
 
 /** The inspection record: evidence photo with markers, findings with inspector corrections, verification and the audit trail. */
-export function InspectionRecordPage({ inspectionId, official, onExpired, onChanged, onTitle }: Props) {
+export function InspectionRecordPage({ inspectionId, official, inspectorName, onExpired, onChanged, onTitle }: Props) {
   const { t, locale } = useI18n();
   const toast = useToast();
   const reduced = useReducedMotion();
@@ -183,7 +183,11 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
   const verified = summary.review?.status === "VERIFIED";
   const canEdit = official && completed;
   const maker = summary.maker_name ?? summary.brand_name;
-  const meta = [fields.net_quantity?.value, maker, formatDateTime(summary.completed_at ?? summary.created_at, locale), compliance?.ruleset_label].filter(Boolean) as string[];
+  const when = formatDateTime(summary.completed_at ?? summary.created_at, locale);
+  // The official record leads with who/when/which rules; the self-check view keeps the product-first line.
+  const meta = (official
+    ? [summary.inspection_number, inspectorName ? fill(t("recInspectorMeta"), { name: inspectorName }) : null, when, compliance?.ruleset_label, fields.net_quantity?.value, maker]
+    : [fields.net_quantity?.value, maker, when, compliance?.ruleset_label]).filter(Boolean) as string[];
   const counts = { violations: compliance?.summary.failed ?? 0, review: compliance?.summary.review ?? 0, passed: compliance?.summary.passed ?? 0 };
   const risk = summary.risk;
   const fade = reduced ? { initial: false as const } : { initial: { opacity: 0, y: 4 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -4 }, transition: { duration: DURATION.base, ease: EASE } };
@@ -192,6 +196,7 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
     <div className="page record-page" aria-busy={busy || running || undefined}>
       <header className="record-header">
         <div className="record-header__text">
+          {official && <p className="eyebrow record-eyebrow">{t("officialRecord")}</p>}
           <div className="record-header__title-row">
             <h1 className="record-title">{summary.product_name ?? t("recUntitled")}</h1>
             <AnimatePresence mode="wait" initial={false}>
@@ -201,7 +206,7 @@ export function InspectionRecordPage({ inspectionId, official, onExpired, onChan
           </div>
           <p className="record-meta">
             {official ? null : <span className="record-meta__kind">{t("recSelfCheck")}</span>}
-            {meta.map((part, index) => <span key={index} className={index === 0 && fields.net_quantity?.value ? "mono" : undefined}>{part}</span>)}
+            {meta.map((part, index) => <span key={index} className={index === 0 && (official || fields.net_quantity?.value) ? "mono" : undefined}>{part}</span>)}
           </p>
         </div>
         <div className="record-header__side">

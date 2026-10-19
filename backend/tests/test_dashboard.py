@@ -67,7 +67,7 @@ def test_empty_database_returns_zeroes(sessions) -> None:
         "period": "all", "total_inspections": 0,
         "verdict_counts": {"NON_COMPLIANT": 0, "NEEDS_REVIEW": 0, "COMPLIANT": 0, "PENDING": 0},
         "top_risk": [], "repeat_issues": [], "median_processing_seconds": None,
-        "ruleset_version": default_ruleset().version,
+        "ruleset_version": default_ruleset().version, "rule_counts": [],
     }
 
 
@@ -148,3 +148,16 @@ def test_summary_requires_authentication_and_a_known_period(sessions) -> None:
     assert client_as(OFFICIAL).get("/api/dashboard/summary?period=1y").status_code == 422
     app.dependency_overrides[get_current_user] = lambda: (_ for _ in ()).throw(HTTPException(status_code=401, detail="Not authenticated."))
     assert TestClient(app).get("/api/dashboard/summary").status_code == 401
+
+
+def test_rule_counts_rank_rules_by_violations_per_distinct_photo(sessions) -> None:
+    with sessions() as db:
+        mrp, origin, name = _rules(db)
+        _inspection(db, OFFICIAL, "R-1", [(mrp, "FAIL"), (origin, "REVIEW")], checksum="a")
+        _inspection(db, OFFICIAL, "R-2", [(mrp, "FAIL"), (name, "PASS")], checksum="b")
+        _inspection(db, OFFICIAL, "R-3", [(mrp, "FAIL"), (origin, "FAIL")], checksum="a")  # same photo as R-1: counted once
+        _inspection(db, MANUFACTURER, "M-1", [(origin, "FAIL")], checksum="m")
+        db.commit()
+    counts = client_as(OFFICIAL).get("/api/dashboard/summary").json()["rule_counts"]
+    assert [(item["rule_id"], item["violations"], item["review"]) for item in counts] == [("MRP_FORMAT", 2, 0), ("COUNTRY_OF_ORIGIN", 1, 0)]
+    assert counts[0]["title"] == "Retail sale price (MRP)" and counts[0]["legal_reference"].endswith("Rule 6(1)(e)")

@@ -35,6 +35,8 @@ def env(tmp_path, monkeypatch):
 
 
 def run(sessions, photos, uploads, **options):
+    # The inspector tests below look at the inspector's data alone; the manufacturer's products have their own tests.
+    options.setdefault("maker_products", ())
     with sessions() as db:
         return seed_demo.seed(db, [photos], uploads, allow_ocr=False, log=lambda _line: None, **options)
 
@@ -106,3 +108,91 @@ def test_reset_demo_removes_only_tagged_data(env) -> None:
     with sessions() as db:
         assert seed_demo.reset_demo(db, uploads) == {"inspections": 0, "users": 0}
     assert len(run(sessions, photos, uploads).imported) == 3
+
+
+# ----------------------------------------------------------------------------- the manufacturer's data
+
+SAMPLE_NAMES = ("1000088947.jpg", "71t28Cnhd2L._SL1000_.jpg", "WhatsApp Image 2026-10-15 at 10.51.16 PM (3).jpeg", "713ThnhUQPL._SL1500_.jpg")
+
+
+@pytest.fixture
+def maker_env(tmp_path, monkeypatch):
+    monkeypatch.setenv("UPLOAD_DIR", str(tmp_path / "uploads"))
+    get_settings.cache_clear()
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(engine)
+    photos = tmp_path / "photos"
+    photos.mkdir()
+    for name in SAMPLE_NAMES:
+        Image.new("RGB", (64, 64), (200, 200, 200)).save(photos / name, "PNG" if name.endswith(".png") else "JPEG")
+    sessions = sessionmaker(bind=engine, expire_on_commit=False)
+    yield sessions, photos, tmp_path / "uploads"
+    get_settings.cache_clear()
+    engine.dispose()
+
+
+def run_with_maker(sessions, photos, uploads, **options):
+    with sessions() as db:
+        return seed_demo.seed(db, [photos], uploads, allow_ocr=False, log=lambda _line: None, **options)
+
+
+def maker_products(sessions):
+    from backend.app.services.products import product_summary
+
+    with sessions() as db:
+        maker = db.scalar(select(User).where(User.username == "demo_maker"))
+        return product_summary(db, maker.id)
+
+
+def test_demo_maker_has_six_products_with_a_mix_and_an_improving_gluco_biscuits(maker_env) -> None:
+    sessions, photos, uploads = maker_env
+    report = run_with_maker(sessions, photos, uploads)
+    assert len(report.maker_imported) == 7  # six products, one of them checked twice
+    summary = maker_products(sessions)
+    assert (summary.total, summary.ready, summary.fix, summary.check) == (6, 3, 2, 1)
+    assert summary.readiness_percent == 50 and summary.labels_to_fix == 2
+    gluco = next(card for card in summary.products if card.product_name == "Gluco Biscuits")
+    assert (gluco.checks, gluco.previous_fixes, gluco.fixes, gluco.status, gluco.improved) == (2, 3, 0, "READY", True)
+    assert [check.fixes for check in gluco.history] == [0, 3]
+    assert all(card.net_quantity or card.product_name for card in summary.products)
+    with sessions() as db:
+        rows = db.scalars(select(Inspection).where(Inspection.inspection_number.like("DEMO-M-%"))).all()
+        assert len(rows) == 7 and all(item.demo_seed and item.status == "COMPLETED" for item in rows)
+        second = next(item for item in rows if item.previous_inspection_id is not None)
+        assert second.product_key == "gluco biscuits"
+
+
+def test_maker_seeding_is_idempotent_and_leaves_the_inspector_alone(maker_env) -> None:
+    sessions, photos, uploads = maker_env
+    run_with_maker(sessions, photos, uploads)
+    before = counts(sessions)
+    with sessions() as db:
+        inspector = db.scalar(select(User).where(User.username == "demo_inspector"))
+        inspector_rows = db.scalar(select(func.count()).select_from(Inspection).where(Inspection.user_id == inspector.id))
+    again = run_with_maker(sessions, photos, uploads)
+    assert counts(sessions) == before and again.maker_imported == []
+    with sessions() as db:
+        assert db.scalar(select(func.count()).select_from(Inspection).where(Inspection.user_id == inspector.id)) == inspector_rows
+
+
+def test_reset_removes_the_makers_linked_checks_too(maker_env) -> None:
+    sessions, photos, uploads = maker_env
+    run_with_maker(sessions, photos, uploads)
+    with sessions() as db:
+        removed = seed_demo.reset_demo(db, uploads)
+    assert removed["users"] == 2 and removed["inspections"] >= 7
+    assert counts(sessions)[:2] == (0, 0)
+    assert not uploads.exists() or not list(uploads.iterdir())
+
+
+def test_older_manufacturer_demo_rows_are_replaced(maker_env) -> None:
+    sessions, photos, uploads = maker_env
+    run(sessions, photos, uploads)
+    with sessions() as db:
+        maker = db.scalar(select(User).where(User.username == "demo_maker"))
+        db.add(Inspection(inspection_number="DEMO-LEGACY0001", user_id=maker.id, status="IMAGE_UPLOADED", demo_seed=True))
+        db.commit()
+    report = run_with_maker(sessions, photos, uploads)
+    assert report.maker_removed == 1
+    with sessions() as db:
+        assert db.scalar(select(Inspection.id).where(Inspection.inspection_number == "DEMO-LEGACY0001")) is None

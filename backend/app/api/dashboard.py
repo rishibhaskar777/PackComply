@@ -20,7 +20,8 @@ from backend.app.api.inspections import _overall_compliance_status
 from backend.app.core.config import get_settings
 from backend.app.core.database import get_db
 from backend.app.models import ComplianceResult, ComplianceRule, Inspection, InspectionImage, User
-from backend.app.schemas.inspection import DashboardRepeatIssue, DashboardRiskItem, DashboardSummary
+from backend.app.schemas.inspection import DashboardRepeatIssue, DashboardRiskItem, DashboardRuleCount, DashboardSummary
+from backend.app.services.corrections import label_title
 from backend.app.services.compliance.registry import rule_legal_reference, rule_title
 from backend.app.services.compliance.rule_engine import FAIL, ISSUE_STATUSES, verdict
 from backend.app.services.compliance.ruleset import default_ruleset
@@ -64,7 +65,7 @@ def _risk_queue(db: Session, user: User, since: datetime | None) -> list[Dashboa
     items = []
     for inspection, product, score, level, verdict_value in ranked[:TOP_RISK_LIMIT]:
         extracted_product, maker = _labels(db, inspection)
-        items.append(DashboardRiskItem(id=inspection.id, inspection_number=inspection.inspection_number, product_name=product or extracted_product or "Untitled label", maker=maker, verdict=verdict_value, risk_score=score, risk_level=level))
+        items.append(DashboardRiskItem(id=inspection.id, inspection_number=inspection.inspection_number, product_name=label_title(product or extracted_product, maker), maker=maker, verdict=verdict_value, risk_score=score, risk_level=level))
     return items
 
 
@@ -88,6 +89,26 @@ def _repeat_issues(db: Session, scope: list) -> list[DashboardRepeatIssue]:
     minimum = get_settings().pattern_min_occurrences
     ranked = sorted((code for code, seen in photos.items() if len(seen) >= minimum), key=lambda code: (-len(photos[code]), code not in failed, code))
     return [DashboardRepeatIssue(rule_id=code, title=rule_title(rules[code]), legal_reference=rule_legal_reference(rules[code]), label_count=len(photos[code])) for code in ranked[:REPEAT_ISSUE_LIMIT]]
+
+
+def _rule_counts(db: Session, scope: list) -> list[DashboardRuleCount]:
+    """The rules with the most violations (then most items to verify), counted once per distinct label photo; top five."""
+    rows = db.execute(
+        select(Inspection.id, ComplianceRule, ComplianceResult.result)
+        .join(ComplianceResult, ComplianceResult.inspection_id == Inspection.id)
+        .join(ComplianceRule, ComplianceRule.id == ComplianceResult.rule_id)
+        .where(*scope, Inspection.status == "COMPLETED", ComplianceResult.result.in_(ISSUE_STATUSES))
+    ).all()
+    keys = photo_keys(db, list({inspection_id for inspection_id, _, _ in rows}))
+    seen: dict[str, dict[str, set[str]]] = defaultdict(lambda: {"FAIL": set(), "REVIEW": set()})
+    rules: dict[str, ComplianceRule] = {}
+    for inspection_id, rule, result in rows:
+        seen[rule.rule_code][result].add(keys[inspection_id])
+        rules[rule.rule_code] = rule
+    # A photo that is both a violation and an item to verify for one rule counts as the violation.
+    counts = {code: (len(found["FAIL"]), len(found["REVIEW"] - found["FAIL"])) for code, found in seen.items()}
+    ranked = sorted(counts, key=lambda code: (-counts[code][0], -counts[code][1], code))
+    return [DashboardRuleCount(rule_id=code, title=rule_title(rules[code]), legal_reference=rule_legal_reference(rules[code]), violations=counts[code][0], review=counts[code][1]) for code in ranked[:5]]
 
 
 def _median_processing_seconds(db: Session, scope: list) -> float | None:
@@ -119,6 +140,7 @@ def dashboard_summary(
         verdict_counts=counts,
         top_risk=_risk_queue(db, user, since),
         repeat_issues=_repeat_issues(db, scope),
+        rule_counts=_rule_counts(db, scope),
         median_processing_seconds=_median_processing_seconds(db, scope),
         ruleset_version=default_ruleset().version,
     )

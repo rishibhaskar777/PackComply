@@ -10,6 +10,8 @@ export type FindingStatus = "PASS" | "FAIL" | "REVIEW" | "NOT_APPLICABLE";
 export type Finding = {
   rule_id: string; rule_name: string; status: FindingStatus; severity: string; message: string; field: string | null; value: string | null;
   legal_reference?: string | null; source_bboxes?: BBox[] | null; image_id?: string | null; fields?: string[]; corrected?: boolean; recommended_action?: string | null;
+  /** Plain-language remediation (rule catalogue): shown to manufacturers, a hint for officials. */
+  fix_title?: string | null; fix_steps?: string[]; example?: string | null; pass_text?: string | null; rule_chip?: string | null;
 };
 export type Compliance = { overall_status: string; verdict?: string | null; ruleset_label?: string | null; ruleset_version?: string | null; summary: { passed: number; failed: number; review: number; not_applicable?: number }; findings: Finding[] };
 export type QuantityVerification = { declared_quantity: string | null; normalized_quantity: string | null; unit: string | null; status: "PASS" | "FAIL" | "REVIEW"; reason: string; rule_code: string; severity: string; evidence: string | null; requirement: string | null };
@@ -28,7 +30,7 @@ export type Summary = {
   quantity_verification?: QuantityVerification | null;
   risk?: { risk_score: number; risk_level: string; reasons: RiskReason[] } | null;
   product_name?: string; brand_name?: string | null; maker_name?: string | null;
-  corrections?: FieldCorrection[]; review?: Review;
+  corrections?: FieldCorrection[]; review?: Review; previous_inspection_id?: string | null;
 };
 export type ProgressStep = {
   id: string; kind: "prepare" | "read" | "link" | "rules" | "risk"; label: string; status: "pending" | "running" | "done" | "failed";
@@ -57,9 +59,14 @@ export type DashboardSummary = {
   repeat_issues: Array<{ rule_id: string; title: string; legal_reference: string | null; label_count: number }>;
   median_processing_seconds: number | null;
   ruleset_version: string;
+  /** Rules with the most violations across the caller's inspections (top 5). */
+  rule_counts?: Array<{ rule_id: string; title: string; legal_reference: string | null; violations: number; review: number }>;
 };
 
-export type ComplianceRule = { code: string; title: string; description: string; legal_reference: string | null; severity: string; applies_when?: string | null };
+export type ComplianceRule = {
+  code: string; title: string; description: string; legal_reference: string | null; severity: string; applies_when?: string | null;
+  expected?: string | null; rule_chip?: string | null; fix_title?: string | null; fix_steps?: string[]; example?: string | null; pass_text?: string | null;
+};
 export type Ruleset = { ruleset_id: string; version: string; label: string; title: string; disclaimer?: string | null; rules: ComplianceRule[] };
 
 /** The evaluation report written by `batch_evaluate --report-json` (GET /api/system/evaluation). */
@@ -78,3 +85,20 @@ export type EvalRun = {
   groups: EvalGroup[];
 };
 export type EvalReport = { schema: number; runs: EvalRun[] };
+
+/** Manufacturer portal: READY (nothing to fix or verify) / FIX (any failed rule) / CHECK (only items to verify on the pack). */
+export type Readiness = "READY" | "FIX" | "CHECK";
+export type ProductCheck = { inspection_id: string; checked_at: string; fixes: number; review: number; status: Readiness };
+export type ProductCard = {
+  product_key: string; inspection_id: string; product_name: string; net_quantity: string | null; checked_at: string; checks: number;
+  status: Readiness; fixes: number; review: number; passed: number; rules_total: number; has_photo: boolean; image_id: string | null;
+  previous_fixes: number | null; improved: boolean; history: ProductCheck[];
+};
+export type ProductsSummary = {
+  total: number; ready: number; fix: number; check: number; readiness_percent: number; open_fixes: number; labels_to_fix: number; products: ProductCard[];
+};
+export type FixGroup = {
+  rule_id: string; title: string; rule_name: string; legal_reference: string | null; rule_chip: string | null; severity: string; status: "FAIL" | "REVIEW";
+  product_count: number; fix_steps: string[]; example: string | null; products: Array<{ inspection_id: string; product_name: string; status: string }>;
+};
+export type FixesResponse = { total_items: number; groups: FixGroup[] };

@@ -17,7 +17,7 @@ export function newPhoto(panel: Panel, blob: Blob, name = `${panel.toLowerCase()
 }
 export const releasePhoto = (photo: CapturedPhoto) => URL.revokeObjectURL(photo.url);
 
-type Options = { onExpired: () => void };
+type Options = { onExpired: () => void; /** A corrected label: the earlier self-check of the same product, so the new check continues it. */ previousInspectionId?: string };
 
 /** One inspection being built: its id once created, what has been uploaded, and the uploads still in line. */
 type Session = { id: string | null; uploaded: Set<string>; queue: Promise<void>; started: boolean };
@@ -38,7 +38,7 @@ function discardDraft(s: Session) {
  * kept across retries: a failed or unreachable run resumes from where it stopped instead of creating a
  * second inspection or re-uploading finished photos.
  */
-export function useInspectionRun({ onExpired }: Options) {
+export function useInspectionRun({ onExpired, previousInspectionId }: Options) {
   const [phase, setPhase] = useState<RunPhase>("idle");
   const [progress, setProgress] = useState<Progress | null>(null);
   const [error, setError] = useState<RunError | null>(null);
@@ -50,6 +50,8 @@ export function useInspectionRun({ onExpired }: Options) {
   const active = useRef(true);
   const expired = useRef(onExpired);
   expired.current = onExpired;
+  const previous = useRef(previousInspectionId);
+  previous.current = previousInspectionId;
 
   const maxDimension = useCallback(async () => {
     if (!config.current) config.current = await getJson<{ ocr_max_image_dimension: number }>("/inspections/config", "config").catch(() => FALLBACK);
@@ -59,7 +61,7 @@ export function useInspectionRun({ onExpired }: Options) {
   /** Create the inspection on first use. Always called one at a time (inside the queue, or after it has drained). */
   const ensureInspection = useCallback(async (s: Session): Promise<string> => {
     if (!s.id) {
-      s.id = (await (await api("/inspections", "inspection", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })).json()).id as string;
+      s.id = (await (await api("/inspections", "inspection", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(previous.current ? { previous_inspection_id: previous.current } : {}) })).json()).id as string;
       if (active.current && session.current === s) setInspectionId(s.id);
     }
     return s.id;

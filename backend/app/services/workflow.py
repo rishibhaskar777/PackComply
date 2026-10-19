@@ -20,6 +20,8 @@ from sqlalchemy.orm import Session
 
 from backend.app.models import ComplianceResult, ComplianceRule, ExtractedField, Inspection, FieldCorrection, InspectionImage, OcrResult, User
 from backend.app.schemas.inspection import ComplianceFindingResponse, ComplianceResponse, ComplianceSummary, ExtractionFieldResponse, ExtractionResponse, FieldCorrectionResponse, ImageInfo, ImageUploaded, InspectionSummary, OcrProcessed, QuantityVerificationResponse, ReviewResponse
+from backend.app.services.compliance.remediation import remediation_for, rule_chip
+from backend.app.services.compliance.remediation import remediation_for, rule_chip
 from backend.app.services.compliance.registry import ensure_compliance_rules, results_ruleset, rule_action, rule_expected, rule_legal_reference, rule_title
 from backend.app.services.compliance.rule_engine import NOT_APPLICABLE, REVIEW, ComplianceEngine, FieldEvidence, overall_status, verdict
 from backend.app.services.corrections import INSPECTOR_PATTERN, SOURCE_INSPECTOR, SOURCE_OCR, apply_corrections, display_name, sync_label_identity
@@ -110,11 +112,29 @@ def extraction_field_response(field: ExtractedField, panels: dict[UUID, str] | N
     )
 
 
+def _with_remediation(finding: ComplianceFindingResponse) -> ComplianceFindingResponse:
+    """Attach the plain-language fix text for the rule (both roles; officials show it as a hint)."""
+    entry = remediation_for(finding.rule_id)
+    finding.rule_chip = rule_chip(finding.legal_reference)
+    if entry is not None:
+        finding.fix_title, finding.fix_steps, finding.example, finding.pass_text = entry.problem_title, list(entry.fix_steps), entry.example, entry.pass_text
+    return finding
+
+
+def _with_remediation(finding: ComplianceFindingResponse) -> ComplianceFindingResponse:
+    """Attach the plain-language fix text for the rule (both roles; officials show it as a hint)."""
+    entry = remediation_for(finding.rule_id)
+    finding.rule_chip = rule_chip(finding.legal_reference)
+    if entry is not None:
+        finding.fix_title, finding.fix_steps, finding.example, finding.pass_text = entry.problem_title, list(entry.fix_steps), entry.example, entry.pass_text
+    return finding
+
+
 def compliance_response(inspection_id: UUID, results: list[ComplianceResult], extracted: list[ExtractedField]) -> ComplianceResponse:
     boxes = {field.field_name: field.source_bboxes for field in extracted}
     image_ids = {field.field_name: field.image_id for field in extracted}
     corrected = {field.field_name for field in extracted if field.matched_pattern == INSPECTOR_PATTERN}
-    findings = [ComplianceFindingResponse(rule_id=result.rule.rule_code, rule_name=rule_title(result.rule), status=result.result, severity=result.rule.severity, message=result.explanation, field=result.field_name, value=result.value, confidence=float(result.confidence) if result.confidence is not None else None, evidence=result.evidence, expected=rule_expected(result.rule), source_bboxes=boxes.get(result.field_name) if result.field_name and result.result != NOT_APPLICABLE else None, image_id=image_ids.get(result.field_name) if result.field_name and result.result != NOT_APPLICABLE else None, legal_reference=rule_legal_reference(result.rule), recommended_action=rule_action(result.rule, result.result), fields=[result.field_name] if result.field_name else [], corrected=result.field_name in corrected) for result in results]
+    findings = [_with_remediation(ComplianceFindingResponse(rule_id=result.rule.rule_code, rule_name=rule_title(result.rule), status=result.result, severity=result.rule.severity, message=result.explanation, field=result.field_name, value=result.value, confidence=float(result.confidence) if result.confidence is not None else None, evidence=result.evidence, expected=rule_expected(result.rule), source_bboxes=boxes.get(result.field_name) if result.field_name and result.result != NOT_APPLICABLE else None, image_id=image_ids.get(result.field_name) if result.field_name and result.result != NOT_APPLICABLE else None, legal_reference=rule_legal_reference(result.rule), recommended_action=rule_action(result.rule, result.result), fields=[result.field_name] if result.field_name else [], corrected=result.field_name in corrected)) for result in results]
     statuses = [finding.status for finding in findings]
     counts = {name: statuses.count(name) for name in ("PASS", "FAIL", "REVIEW", NOT_APPLICABLE)}
     ruleset_id, version, label = results_ruleset(results)
@@ -525,4 +545,4 @@ class InspectionWorkflow:
         correction_responses = [FieldCorrectionResponse(id=row.id, field_name=row.field_name, original_value=row.original_value, corrected_value=row.corrected_value, reason=row.reason, corrected_by=row.corrected_by, corrected_by_name=names.get(row.corrected_by), created_at=row.created_at) for row in corrections]
         review = ReviewResponse(status=inspection.review_status or "UNREVIEWED", by=names.get(inspection.reviewed_by), at=inspection.reviewed_at, remarks=inspection.remarks)
         images = [ImageInfo(id=row.id, panel=row.panel, width=row.width, height=row.height, checksum=row.checksum, uploaded_at=row.created_at, active=row.id in active, original_filename=row.original_filename, byte_size=row.byte_size, content_type=row.content_type, read_error=row.read_error) for row in stored]
-        return InspectionSummary(product_name=display_name(inspection), brand_name=inspection.brand_name, maker_name=inspection.maker_name, corrections=correction_responses, review=review, id=inspection.id, inspection_number=inspection.inspection_number, status=inspection.status, created_at=inspection.created_at, updated_at=inspection.updated_at, completed_at=inspection.completed_at, failure_stage=inspection.failure_stage, failure_message=inspection.failure_message, image=ImageUploaded.model_validate(image) if image else None, images=images, ocr=ocr_response, extraction=extraction_response, compliance=compliance, quantity_verification=QuantityVerificationResponse(**quantity.__dict__) if quantity else None)
+        return InspectionSummary(product_name=display_name(inspection), brand_name=inspection.brand_name, maker_name=inspection.maker_name, corrections=correction_responses, review=review, previous_inspection_id=inspection.previous_inspection_id, id=inspection.id, inspection_number=inspection.inspection_number, status=inspection.status, created_at=inspection.created_at, updated_at=inspection.updated_at, completed_at=inspection.completed_at, failure_stage=inspection.failure_stage, failure_message=inspection.failure_message, image=ImageUploaded.model_validate(image) if image else None, images=images, ocr=ocr_response, extraction=extraction_response, compliance=compliance, quantity_verification=QuantityVerificationResponse(**quantity.__dict__) if quantity else None)

@@ -1,0 +1,117 @@
+# Plain-language remediation catalogue for the active ruleset (lm_pc_2011_v2.yaml), keyed by rule code.
+#
+# problem_title  what is wrong, in words a label designer understands
+# fix_steps      what to change on the artwork, one short sentence per step
+# example        a compliant sample the designer can copy and adapt (the figures are illustrative)
+# pass_text      the sentence shown when the rule passes ("already correct")
+#
+# Every rule code of the active ruleset must have all four entries (enforced by tests). The legal reference
+# always comes from the ruleset itself, never from this file.
+version: 1
+rules:
+  MANUFACTURER_INFORMATION:
+    problem_title: Manufacturer or packer name and address is missing or incomplete
+    fix_steps:
+      - Print the full name of the manufacturer, packer or brand owner on the pack.
+      - Add the complete postal address including the PIN code on the same panel.
+    example: "Manufactured by: Sample Foods Pvt Ltd, Plot 12, MIDC Andheri East, Mumbai 400093, Maharashtra"
+    pass_text: Manufacturer or packer name and address is declared.
+
+  IMPORTER_INFORMATION:
+    problem_title: Importer name and address is missing
+    fix_steps:
+      - Print "Imported by" followed by the importer's full name.
+      - Add the importer's complete address in India with the PIN code.
+    example: "Imported by: Sample Traders Pvt Ltd, 21 Nehru Place, New Delhi 110019"
+    pass_text: Importer name and address is declared.
+
+  COUNTRY_OF_ORIGIN:
+    problem_title: Country of origin is not declared on an imported pack
+    fix_steps:
+      - Add a line "Country of origin" (or "Made in") followed by the country.
+    example: "Country of Origin: Malaysia"
+    pass_text: Country of origin is declared.
+
+  PACKER_INFORMATION:
+    problem_title: Packer's address is missing
+    fix_steps:
+      - Where a separate packer is named, print the packer's complete address beside the name.
+    example: "Packed by: Sample Packers Pvt Ltd, Survey 45, Industrial Estate, Pune 411019"
+    pass_text: Packer details are complete.
+
+  PRODUCT_IDENTITY:
+    problem_title: The common name of the product is not clear
+    fix_steps:
+      - Print the common or generic name of the commodity on the principal (front) panel.
+      - Keep it in clear lettering, not only inside a logo or decoration.
+    example: "Gluco Biscuits"
+    pass_text: The common name of the product is stated.
+
+  NET_QUANTITY_FORMAT:
+    problem_title: Net quantity is missing or not in a standard unit
+    fix_steps:
+      - Print the net quantity as a number followed by a standard unit (g, kg, ml, L) or a count (N, pcs).
+      - Place it on the principal display panel in clear, readable lettering.
+    example: "Net Quantity: 70 g"
+    pass_text: Net quantity is declared in a standard unit.
+
+  NET_QUANTITY_UNIT_SUITABILITY:
+    problem_title: The unit used for the net quantity does not suit the product
+    fix_steps:
+      - Declare liquids by volume (ml or L) and solids by weight (g or kg).
+    example: "Net Volume: 500 ml (liquids)  ·  Net Weight: 500 g (solids)"
+    pass_text: The net quantity unit suits the product.
+
+  MRP_FORMAT:
+    problem_title: MRP is missing or unclear
+    fix_steps:
+      - Print "MRP" followed by the rupee amount, for example with the ₹ sign and two decimals.
+      - Make sure the price is printed or stamped inside the pack artwork, not left blank.
+    example: "MRP ₹49.00 (incl. of all taxes)"
+    pass_text: MRP is declared in rupees.
+
+  MRP_TAX_INCLUSIVE:
+    problem_title: "'Inclusive of all taxes' is missing beside the MRP"
+    fix_steps:
+      - Add "incl. of all taxes" directly after the MRP amount.
+    example: "MRP ₹49.00 (incl. of all taxes)"
+    pass_text: The MRP says it is inclusive of all taxes.
+
+  UNIT_SALE_PRICE:
+    problem_title: Unit sale price is missing or does not match the MRP
+    fix_steps:
+      - Print the unit sale price beside the MRP, per gram or millilitre up to 1 kg / 1 L, per kg or litre above that.
+      - Check the figure is MRP divided by net quantity, rounded to two decimals.
+    example: "₹0.14 per g   ·   ₹1.49 per ml   ·   ₹140.00 per kg"
+    pass_text: Unit sale price is declared and matches the MRP.
+
+  MANUFACTURE_DATE:
+    problem_title: Month and year of manufacture is missing
+    fix_steps:
+      - Print or reserve a space for the month and year of manufacture or packing.
+      - Use the words "Mfd" or "Pkd" so the date cannot be mistaken for another date.
+    example: "Mfd: 10/2026"
+    pass_text: Month and year of manufacture is declared.
+
+  DATE_CONSISTENCY:
+    problem_title: The dates on the label do not agree
+    fix_steps:
+      - Make sure the manufacture or packing date is not after the best before or expiry date.
+      - Make sure the manufacture date is not in the future.
+    example: "Mfd: 10/2026   Best before: 6 months from packing"
+    pass_text: Dates on the label are consistent.
+
+  CONSUMER_CARE_FORMAT:
+    problem_title: Consumer care contact is incomplete
+    fix_steps:
+      - Print a consumer care line with the name, address, telephone number and e-mail address of the person to contact.
+      - Check the phone number and the e-mail address are complete and easy to read.
+    example: "Consumer Care, Sample Foods Pvt Ltd, Mumbai 400057 · 1800-123-4567 · care@samplefoods.in"
+    pass_text: Consumer care telephone and e-mail are declared.
+
+  FSSAI_LICENSE_PRESENT:
+    problem_title: FSSAI licence number is missing on a food product
+    fix_steps:
+      - Print the FSSAI logo with the 14-digit licence number.
+    example: "FSSAI Lic. No. 11224999000123"
+    pass_text: FSSAI licence number is shown.

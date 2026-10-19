@@ -273,6 +273,79 @@
   --marker-outline-fill: rgba(129, 140, 248, 0.16);
 }
 
+/* Portal layer. <html data-portal="..."> is set after sign-in from the role (src/lib/portal.ts) and cleared on sign-out.
+   inspector keeps the indigo/violet tokens above. manufacturer re-points the brand tokens to teal/emerald; status colours
+   (violation / review / pass) are never touched, so red, amber and green mean the same in both portals.
+   Every property set in the light manufacturer block must be set again in the dark one (tested), because the dark theme
+   block above would otherwise leak its indigo values through. */
+:root[data-portal="manufacturer"] {
+  --primary: #0D9488;
+  /* #0D9488 is 3.7:1 under white text; fills that carry text use the deeper teal. */
+  --primary-solid: #0F766E;
+  --primary-solid-hover: #115E59;
+  --primary-strong: #0F766E;
+  --primary-soft: #F0FDFA;
+  --primary-border: #99F6E4;
+  --brand-gradient: linear-gradient(135deg, #14B8A6, #10B981);
+  --brand-soft-gradient: linear-gradient(135deg, #F0FDFA, #ECFDF5);
+  --brand-glow: 0 0 0 transparent;
+  --brand-mark-shadow: 0 6px 16px -4px rgba(13, 148, 136, 0.3);
+  --ring: rgba(13, 148, 136, 0.45);
+  --cta-from: #0F766E;
+  --cta-to: #0E7C72;
+  --cta-glow: 0 1px 2px rgba(9, 9, 11, 0.08), 0 8px 20px -8px rgba(13, 148, 136, 0.45);
+  --sidebar-bg: #F7FDFC;
+  --grid-minor: rgba(13, 148, 136, 0.05);
+  --grid-major: rgba(13, 148, 136, 0.10);
+  --ruler-tick: rgba(13, 148, 136, 0.32);
+  --ruler-tick-major: rgba(13, 148, 136, 0.55);
+  --app-glow: rgba(20, 184, 166, 0.10);
+  --spotlight: rgba(20, 184, 166, 0.07);
+  --scan-from: #14B8A6;
+  --scan-to: #10B981;
+  --scan-glow: rgba(20, 184, 166, 0.45);
+  --selection: #CCFBF1;
+  --marker-selected: #0F766E;
+  --marker-outline: rgba(13, 148, 136, 0.9);
+  --marker-outline-fill: rgba(13, 148, 136, 0.12);
+  /* Field-app accent on the always-dark camera surfaces */
+  --cap-primary: #2DD4BF;
+  --cap-primary-fg: #04201C;
+}
+
+:root[data-theme="dark"][data-portal="manufacturer"] {
+  --primary: #14B8A6;
+  --primary-solid: #0F766E;
+  --primary-solid-hover: #0E7C72;
+  --primary-strong: #5EEAD4;
+  --primary-soft: rgba(20, 184, 166, 0.14);
+  --primary-border: rgba(45, 212, 191, 0.3);
+  --brand-gradient: linear-gradient(135deg, #14B8A6, #10B981);
+  --brand-soft-gradient: linear-gradient(135deg, rgba(20, 184, 166, 0.14), rgba(16, 185, 129, 0.1));
+  --brand-glow: 0 0 24px rgba(20, 184, 166, 0.35);
+  --brand-mark-shadow: 0 0 24px rgba(20, 184, 166, 0.45);
+  --ring: rgba(45, 212, 191, 0.6);
+  --cta-from: #0F766E;
+  --cta-to: #0E7C72;
+  --cta-glow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 28px rgba(20, 184, 166, 0.45);
+  --sidebar-bg: rgba(10, 17, 17, 0.9);
+  --grid-minor: rgba(45, 212, 191, 0.06);
+  --grid-major: rgba(45, 212, 191, 0.11);
+  --ruler-tick: rgba(45, 212, 191, 0.3);
+  --ruler-tick-major: rgba(45, 212, 191, 0.55);
+  --app-glow: rgba(20, 184, 166, 0.16);
+  --spotlight: rgba(45, 212, 191, 0.1);
+  --scan-from: #14B8A6;
+  --scan-to: #10B981;
+  --scan-glow: rgba(45, 212, 191, 0.6);
+  --selection: rgba(20, 184, 166, 0.32);
+  --shadow-hover: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 0 1px rgba(45, 212, 191, 0.14);
+  --card-hover-border: rgba(45, 212, 191, 0.3);
+  --marker-selected: #0E7C72;
+  --marker-outline: rgba(94, 234, 212, 0.95);
+  --marker-outline-fill: rgba(45, 212, 191, 0.16);
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; background: var(--background); }

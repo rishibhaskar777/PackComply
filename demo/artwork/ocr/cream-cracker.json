@@ -1,0 +1,375 @@
+{
+ "source": "batch_evaluate OCR of cream-cracker.png",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 1000,
+ "image_height": 1400,
+ "ocr_seconds": 17.4,
+ "raw_text": "SAMPLE FOODS\nCrisp, light and salty\nCream Cracker\nNet Quantity: 120 g\nMRP ₹30.00 (incl. of all taxes)\nUnit Sale Price: ₹0.25 per g\nMfd: 09/2026\nBest Before: 06/2027\nIngredients: Refined wheat flour (maida), edible vegetable\noil, sugar, invert syrup, salt, milk solids, raising agents.\nManufactured by: Sample Foods Pvt Ltd, Plot 12, MIDC\nAndheri East, Mumbai 400093, Maharashtra\nConsumer Care, Sample Foods Pvt Ltd, Mumbai 400057 .\n1800-123-4567·care@samplefoods.in\nFSSAI Lic. No. 11224999000456",
+ "detections": [
+  {
+   "text": "SAMPLE FOODS",
+   "confidence": 0.9948566555976868,
+   "bbox": [
+    [
+     67.81,
+     66.72
+    ],
+    [
+     375.16,
+     66.72
+    ],
+    [
+     375.16,
+     99.53
+    ],
+    [
+     67.81,
+     99.53
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Crisp, light and salty",
+   "confidence": 0.9998363256454468,
+   "bbox": [
+    [
+     67.81,
+     129.06
+    ],
+    [
+     357.66,
+     129.06
+    ],
+    [
+     357.66,
+     166.25
+    ],
+    [
+     67.81,
+     166.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Cream Cracker",
+   "confidence": 0.9999962449073792,
+   "bbox": [
+    [
+     64.53,
+     287.66
+    ],
+    [
+     789.69,
+     287.66
+    ],
+    [
+     789.69,
+     385.0
+    ],
+    [
+     64.53,
+     385.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Quantity: 120 g",
+   "confidence": 0.999727725982666,
+   "bbox": [
+    [
+     65.62,
+     426.56
+    ],
+    [
+     516.25,
+     429.84
+    ],
+    [
+     516.25,
+     482.34
+    ],
+    [
+     65.62,
+     479.06
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP ₹30.00 (incl. of all taxes)",
+   "confidence": 0.9913350343704224,
+   "bbox": [
+    [
+     65.62,
+     515.16
+    ],
+    [
+     732.81,
+     519.53
+    ],
+    [
+     732.81,
+     570.94
+    ],
+    [
+     65.62,
+     566.56
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Unit Sale Price: ₹0.25 per g",
+   "confidence": 0.9931387305259705,
+   "bbox": [
+    [
+     66.72,
+     592.81
+    ],
+    [
+     547.97,
+     599.38
+    ],
+    [
+     546.88,
+     640.94
+    ],
+    [
+     66.72,
+     634.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mfd: 09/2026",
+   "confidence": 0.9937763214111328,
+   "bbox": [
+    [
+     67.81,
+     667.19
+    ],
+    [
+     307.34,
+     667.19
+    ],
+    [
+     307.34,
+     704.38
+    ],
+    [
+     67.81,
+     704.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Best Before: 06/2027",
+   "confidence": 0.9998012781143188,
+   "bbox": [
+    [
+     448.44,
+     667.19
+    ],
+    [
+     822.5,
+     667.19
+    ],
+    [
+     822.5,
+     704.38
+    ],
+    [
+     448.44,
+     704.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ingredients: Refined wheat flour (maida), edible vegetable",
+   "confidence": 0.9969419240951538,
+   "bbox": [
+    [
+     66.72,
+     765.62
+    ],
+    [
+     891.41,
+     765.62
+    ],
+    [
+     891.41,
+     798.44
+    ],
+    [
+     66.72,
+     798.44
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "oil, sugar, invert syrup, salt, milk solids, raising agents.",
+   "confidence": 0.9887685775756836,
+   "bbox": [
+    [
+     68.91,
+     809.38
+    ],
+    [
+     836.72,
+     809.38
+    ],
+    [
+     836.72,
+     842.19
+    ],
+    [
+     68.91,
+     842.19
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Manufactured by: Sample Foods Pvt Ltd, Plot 12, MIDC",
+   "confidence": 0.9882545471191406,
+   "bbox": [
+    [
+     66.72,
+     882.66
+    ],
+    [
+     835.62,
+     881.56
+    ],
+    [
+     835.62,
+     915.47
+    ],
+    [
+     66.72,
+     916.56
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Andheri East, Mumbai 400093, Maharashtra",
+   "confidence": 0.9976673126220703,
+   "bbox": [
+    [
+     67.81,
+     928.59
+    ],
+    [
+     689.06,
+     928.59
+    ],
+    [
+     689.06,
+     958.12
+    ],
+    [
+     67.81,
+     958.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Consumer Care, Sample Foods Pvt Ltd, Mumbai 400057 .",
+   "confidence": 0.9864487051963806,
+   "bbox": [
+    [
+     67.81,
+     995.31
+    ],
+    [
+     864.06,
+     995.31
+    ],
+    [
+     864.06,
+     1028.12
+    ],
+    [
+     67.81,
+     1028.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "1800-123-4567·care@samplefoods.in",
+   "confidence": 0.9977862238883972,
+   "bbox": [
+    [
+     68.91,
+     1039.06
+    ],
+    [
+     602.66,
+     1040.16
+    ],
+    [
+     602.66,
+     1070.78
+    ],
+    [
+     68.91,
+     1069.69
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FSSAI Lic. No. 11224999000456",
+   "confidence": 0.9914901256561279,
+   "bbox": [
+    [
+     68.91,
+     1107.97
+    ],
+    [
+     504.22,
+     1107.97
+    ],
+    [
+     504.22,
+     1137.5
+    ],
+    [
+     68.91,
+     1137.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  }
+ ]
+}

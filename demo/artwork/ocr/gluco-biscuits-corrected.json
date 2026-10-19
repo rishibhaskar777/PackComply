@@ -1,0 +1,375 @@
+{
+ "source": "batch_evaluate OCR of gluco-biscuits-corrected.png",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 1000,
+ "image_height": 1400,
+ "ocr_seconds": 17.59,
+ "raw_text": "SAMPLE FOODS\nEnergy biscuits with glucose\nGluco Biscuits\nNet Quantity: 70 g\nMRP ₹10.00 (incl. of all taxes)\nUnit Sale Price: ₹0.14 per g\nMfd: 10/2026\nBest Before: 07/2027\nIngredients: Wheat flour (maida), sugar, edible vegetable oil\n(palm), glucose, invert syrup, milk solids, raising agents, salt.\nManufactured by: Sample Foods Pvt Ltd, Plot 12, MIDC\nAndheri East, Mumbai 400093, Maharashtra\nConsumer Care, Sample Foods Pvt Ltd, Mumbai 400057 .\n1800-123-4567·care@samplefoods.in\nFSSAI Lic. No. 11224999000123",
+ "detections": [
+  {
+   "text": "SAMPLE FOODS",
+   "confidence": 0.9950392842292786,
+   "bbox": [
+    [
+     67.81,
+     66.72
+    ],
+    [
+     375.16,
+     66.72
+    ],
+    [
+     375.16,
+     99.53
+    ],
+    [
+     67.81,
+     99.53
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Energy biscuits with glucose",
+   "confidence": 0.9999822378158569,
+   "bbox": [
+    [
+     68.91,
+     130.16
+    ],
+    [
+     468.12,
+     130.16
+    ],
+    [
+     468.12,
+     164.06
+    ],
+    [
+     68.91,
+     164.06
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Gluco Biscuits",
+   "confidence": 0.9999375939369202,
+   "bbox": [
+    [
+     64.53,
+     285.47
+    ],
+    [
+     744.84,
+     287.66
+    ],
+    [
+     743.75,
+     385.0
+    ],
+    [
+     64.53,
+     382.81
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Quantity: 70 g",
+   "confidence": 0.999862015247345,
+   "bbox": [
+    [
+     65.62,
+     426.56
+    ],
+    [
+     490.0,
+     429.84
+    ],
+    [
+     490.0,
+     482.34
+    ],
+    [
+     65.62,
+     479.06
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP ₹10.00 (incl. of all taxes)",
+   "confidence": 0.9902653098106384,
+   "bbox": [
+    [
+     66.72,
+     518.44
+    ],
+    [
+     732.81,
+     518.44
+    ],
+    [
+     732.81,
+     569.84
+    ],
+    [
+     66.72,
+     569.84
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Unit Sale Price: ₹0.14 per g",
+   "confidence": 0.9930753111839294,
+   "bbox": [
+    [
+     66.72,
+     592.81
+    ],
+    [
+     547.97,
+     599.38
+    ],
+    [
+     546.88,
+     640.94
+    ],
+    [
+     66.72,
+     634.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mfd: 10/2026",
+   "confidence": 0.9828109741210938,
+   "bbox": [
+    [
+     67.81,
+     667.19
+    ],
+    [
+     307.34,
+     667.19
+    ],
+    [
+     307.34,
+     704.38
+    ],
+    [
+     67.81,
+     704.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Best Before: 07/2027",
+   "confidence": 0.9997525215148926,
+   "bbox": [
+    [
+     448.44,
+     667.19
+    ],
+    [
+     822.5,
+     667.19
+    ],
+    [
+     822.5,
+     704.38
+    ],
+    [
+     448.44,
+     704.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ingredients: Wheat flour (maida), sugar, edible vegetable oil",
+   "confidence": 0.9983545541763306,
+   "bbox": [
+    [
+     66.72,
+     765.62
+    ],
+    [
+     916.56,
+     765.62
+    ],
+    [
+     916.56,
+     798.44
+    ],
+    [
+     66.72,
+     798.44
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(palm), glucose, invert syrup, milk solids, raising agents, salt.",
+   "confidence": 0.9999703168869019,
+   "bbox": [
+    [
+     67.81,
+     810.47
+    ],
+    [
+     919.84,
+     810.47
+    ],
+    [
+     919.84,
+     843.28
+    ],
+    [
+     67.81,
+     843.28
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Manufactured by: Sample Foods Pvt Ltd, Plot 12, MIDC",
+   "confidence": 0.9986404180526733,
+   "bbox": [
+    [
+     67.81,
+     882.66
+    ],
+    [
+     835.62,
+     881.56
+    ],
+    [
+     835.62,
+     915.47
+    ],
+    [
+     67.81,
+     916.56
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Andheri East, Mumbai 400093, Maharashtra",
+   "confidence": 0.9974491000175476,
+   "bbox": [
+    [
+     67.81,
+     928.59
+    ],
+    [
+     689.06,
+     928.59
+    ],
+    [
+     689.06,
+     958.12
+    ],
+    [
+     67.81,
+     958.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Consumer Care, Sample Foods Pvt Ltd, Mumbai 400057 .",
+   "confidence": 0.9878266453742981,
+   "bbox": [
+    [
+     67.81,
+     995.31
+    ],
+    [
+     864.06,
+     995.31
+    ],
+    [
+     864.06,
+     1028.12
+    ],
+    [
+     67.81,
+     1028.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "1800-123-4567·care@samplefoods.in",
+   "confidence": 0.997872531414032,
+   "bbox": [
+    [
+     68.91,
+     1039.06
+    ],
+    [
+     602.66,
+     1040.16
+    ],
+    [
+     602.66,
+     1070.78
+    ],
+    [
+     68.91,
+     1069.69
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "FSSAI Lic. No. 11224999000123",
+   "confidence": 0.9920728206634521,
+   "bbox": [
+    [
+     70.0,
+     1107.97
+    ],
+    [
+     502.03,
+     1107.97
+    ],
+    [
+     502.03,
+     1137.5
+    ],
+    [
+     70.0,
+     1137.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  }
+ ]
+}

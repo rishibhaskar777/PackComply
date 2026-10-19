@@ -192,6 +192,19 @@ def infer_rotation(boxes: list[LayoutBox]) -> list[LayoutBox]:
     return [replace(box, rotation=rotation) for box in boxes]
 
 
+# Boxes of one recogniser pass are distinct detections, not re-readings of each other; only a near-identical box is a duplicate.
+_SAME_PASS_DUPLICATE_IOU = 0.8
+
+
+def _same_pass_neighbour(box: LayoutBox, other: LayoutBox) -> bool:
+    """True when both boxes come from the same language pass and are not (almost) the same region.
+
+    Two lines of tilted or curved text have bounding boxes that overlap by a third; the geometry alone must not
+    make the second line "a re-reading" of the first and drop it (an "MRP ... incl. of all taxes" line was lost that way).
+    """
+    return bool(box.language and box.language == other.language) and bbox_iou(box.bbox, other.bbox) < _SAME_PASS_DUPLICATE_IOU
+
+
 def suppress_duplicates(boxes: list[LayoutBox]) -> list[LayoutBox]:
     """Drop later boxes that re-read an earlier box's region in the same script.
 
@@ -204,7 +217,8 @@ def suppress_duplicates(boxes: list[LayoutBox]) -> list[LayoutBox]:
     for box in boxes:
         overlapping = [
             other for other in kept
-            if bbox_iou(box.bbox, other.bbox) >= _DUPLICATE_IOU or bbox_containment(box.bbox, other.bbox) >= _DUPLICATE_CONTAINMENT
+            if _same_pass_neighbour(box, other) is False
+            and (bbox_iou(box.bbox, other.bbox) >= _DUPLICATE_IOU or bbox_containment(box.bbox, other.bbox) >= _DUPLICATE_CONTAINMENT)
         ]
         covered = set().union(*(_scripts(other.text) for other in overlapping)) if overlapping else set()
         if overlapping and _scripts(box.text) <= covered:

@@ -182,8 +182,19 @@ def sync_label_identity(db: Session, inspection: Inspection, extracted: list[Ext
     db.commit()
 
 
+UNTITLED = "Untitled label"
+
+
+def label_title(product_name: str | None, brand_name: str | None = None, maker_name: str | None = None) -> str:
+    """The name a label is listed under: the product name, else the brand owner or maker read from the pack, else "Untitled label".
+
+    Display only (the stored product name and every rule still use the product name alone). A file name is never a title.
+    """
+    return next((name.strip() for name in (product_name, brand_name, maker_name) if name and name.strip()), UNTITLED)
+
+
 def display_name(inspection: Inspection) -> str:
-    return inspection.product_name or "Untitled label"
+    return label_title(inspection.product_name, inspection.brand_name, inspection.maker_name)
 
 
 def reset_review(inspection: Inspection) -> None:

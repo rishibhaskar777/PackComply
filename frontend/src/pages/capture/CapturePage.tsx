@@ -96,7 +96,8 @@ export function CapturePage({ official, onExpired, onCompleted, add, forceFallba
     setSkipped(nextSkipped);
     advance(photos, nextSkipped);
   }
-  function close() { navigate(adding ? `/inspections/${adding.inspectionId}` : "/overview"); }
+  const recordPath = (id: string) => (official ? `/inspections/${id}` : `/products/${id}`);
+  function close() { navigate(adding ? recordPath(adding.inspectionId) : official ? "/overview" : "/products"); }
 
   async function correct(payload: CorrectionPayload): Promise<string | null> {
     if (!inspectionId) return null;
@@ -120,7 +121,7 @@ export function CapturePage({ official, onExpired, onCompleted, add, forceFallba
   const preview: PreviewPhoto[] = Object.values(photos).filter((photo): photo is CapturedPhoto => Boolean(photo)).map(photo => ({ panel: photo.panel, url: photo.url }));
 
   if (screen === "result" && summary) {
-    return <div className="capture-root"><ResultScreen summary={summary} official={official} photoUrls={photoUrls} onSave={() => navigate(`/inspections/${summary.id}`)} onClose={close} onCapture={capture} onCorrect={correct} /></div>;
+    return <div className="capture-root"><ResultScreen summary={summary} official={official} photoUrls={photoUrls} onSave={() => navigate(recordPath(summary.id))} onClose={close} onCapture={capture} onCorrect={correct} /></div>;
   }
   if (screen === "processing") {
     return (
@@ -140,7 +141,7 @@ export function CapturePage({ official, onExpired, onCompleted, add, forceFallba
   }
   return (
     <div className="capture-root">
-      <CaptureScreen steps={steps} current={current} photos={photos} skipped={skipped} title={adding ? t("capAddTitle") : t("newInspection")}
+      <CaptureScreen steps={steps} current={current} photos={photos} skipped={skipped} title={adding ? t("capAddTitle") : t(official ? "newInspection" : "checkMyLabel")}
         onStep={setCurrent} onUse={use} onSkip={skip} onClose={close} forceFallback={forceFallback} />
     </div>
   );
