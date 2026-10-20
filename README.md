@@ -1,495 +1,417 @@
 # PackComply
 
-Legal Metrology compliance checks for packaged goods — from a single label photo.
+**Offline, AI-assisted label compliance checks under India's Legal Metrology (Packaged Commodities) Rules, 2011, for inspectors and manufacturers.**
 
-## What it does
+![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![React 19](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![PaddleOCR](https://img.shields.io/badge/OCR-PaddleOCR-0053D6)
+![Runs 100% offline](https://img.shields.io/badge/runs-100%25%20offline-2EA44F)
+![Tests passing: 1292](https://img.shields.io/badge/tests-1292%20passing-2EA44F)
 
-PackComply takes a photo of a package label and runs it through a pipeline: image → OCR (PaddleOCR) → field extraction (MRP, net quantity, manufacturer, dates, consumer care) → rule-based compliance checks aligned with the Legal Metrology (Packaged Commodities) Rules, 2011 → risk prioritisation → PDF report.
+<p align="center">
+  <img src="docs/screenshots/inspector-overview-light.png" alt="PackComply Inspector portal overview in the light theme: inspection counts, verdict tiles and a risk queue sorted by risk score" width="900">
+</p>
+<p align="center"><em>Inspector portal overview: the risk queue puts the labels most worth inspecting first.</em></p>
 
-PackComply assists inspectors. Its results are not legally binding decisions.
+## Contents
 
-## Features
+- [The problem](#the-problem)
+- [The solution](#the-solution)
+- [Two portals, one rule engine](#two-portals-one-rule-engine)
+- [Key features](#key-features)
+- [Demo walkthrough](#demo-walkthrough)
+- [Architecture](#architecture)
+- [Rules checked](#rules-checked)
+- [Accuracy](#accuracy)
+- [Tech stack](#tech-stack)
+- [Getting started](#getting-started)
+- [Usage notes](#usage-notes)
+- [Testing and quality](#testing-and-quality)
+- [Project structure](#project-structure)
+- [Roadmap](#roadmap)
+- [Limitations](#limitations)
+- [Team and credits](#team-and-credits)
+- [Licence](#licence)
 
-- Image upload with validation (JPG/PNG, size limit, content checked against the declared type). Manufacturers can also upload artwork as a **PDF**; its first page is rendered locally to an image (see [PDF artwork upload](#pdf-artwork-upload-manufacturers))
-- Multilingual OCR with PaddleOCR, configured for `en, hi, gom, mai, mr, ne, sa, ta, te, ur, ka`
-- Explainable field extraction with heuristic confidence, review flags, and source evidence
-- A versioned Legal Metrology (Packaged Commodities) Rules 2011 ruleset: 14 rules, each citing its legal reference, with PASS / FAIL / REVIEW / NOT_APPLICABLE results and an overall verdict
-- Declared-quantity verification (what the label states; no physical weighing)
-- Risk-based targeting queue for officials
-- Repeat-pattern detection across a user's completed inspections
-- Inspection history with search and filters
-- PDF inspection reports
-- Cookie-based authentication with OFFICIAL and MANUFACTURER roles, login lockout, "keep me signed in", and an offline password reset (see [Accounts and password reset](#accounts-and-password-reset))
-- 23 UI languages (loaded on demand)
-- One-command Windows demo start with a phone QR code, seeded demo data and an "About & accuracy" page showing measured results (see [Demo day](#demo-day-windows-no-docker))
+## The problem
+
+The Legal Metrology (Packaged Commodities) Rules, 2011 (LM(PC) Rules) require every pre-packed commodity to carry a set of mandatory declarations: the name and address of the manufacturer, packer or importer, the common name of the commodity, the net quantity in a standard unit, the maximum retail price (MRP) inclusive of all taxes, the month and year of manufacture or packing, consumer-care contact details, the unit sale price where it applies, and the country of origin for imported goods.
+
+Checking these by hand means reading small print on curved or glossy packs, in more than one script, and comparing each declaration with the rules. It is slow and repetitive, so an inspector can only look at so many packs, and an error can go unnoticed until the pack is already on a shelf. Manufacturers face the mirror problem: a label error found after printing means a reprint.
+
+## The solution
+
+PackComply turns one or more photos of a pack into a checked, explainable result. Everything runs on the user's own machine.
+
+- **Photo to text.** On-device OCR with PaddleOCR reads English and Hindi. No image leaves the device.
+- **Layout-aware extraction with evidence.** Values (MRP, net quantity, maker, dates, consumer care and more) are linked to their keys using position and fuzzy matching. Each value keeps the exact text and boxes it came from, shown as numbered markers on the photo.
+- **Rule engine with legal references.** A versioned YAML ruleset of 14 rules gives each finding PASS, FAIL, REVIEW or NOT_APPLICABLE and cites the rule it comes from, then rolls the findings up into a verdict (COMPLIANT, NEEDS_REVIEW or NON_COMPLIANT) and a transparent 0-100 risk score.
+- **Human in the loop.** Inspectors correct a mis-read value, verify the record and get an audit trail of who changed what. When the tool is unsure it says REVIEW; it does not accuse.
+- **Reports.** An official inspection PDF for inspectors and a pre-market self-check PDF for manufacturers, both with Hindi text rendered correctly.
+
+PackComply assists people. It is not legal advice and its output is not an enforcement decision.
+
+## Two portals, one rule engine
+
+The role chosen at sign-in decides which product you see. Both portals use the same OCR, extraction and rule engine, and every record is scoped to its owner.
+
+| | Inspector portal | Manufacturer portal |
+|---|---|---|
+| Purpose | Inspect packs in the field or at the desk and decide what needs follow-up | Check label artwork before printing and fix problems early |
+| Colour | Indigo | Teal |
+| Home page | Overview: "Today's inspection priorities" with KPI tiles, risk queue, violations by rule, repeat issues | My products: readiness ring, counters and one card per product |
+| Key actions | New inspection (desktop or phone), correct a value, verify, add or retake a photo, re-analyse | Check a label (image or PDF), work through the fix list, upload a corrected label, download the self-check report |
+| Outputs | Official record with evidence markers and audit trail, risk score, official PDF | Fix list with how-to-fix text and an example per rule, "Ready to print" state, self-check PDF (a self-assessment aid, not an approval) |
+
+<p align="center">
+  <img src="docs/screenshots/inspector-record-markers-light.png" alt="Inspector portal inspection record: a photographed pack with numbered evidence markers on the left and the list of findings with legal references on the right" width="900">
+</p>
+<p align="center"><em>Inspector record: select a finding and the matching evidence box lights up on the photo.</em></p>
+
+<p align="center">
+  <img src="docs/screenshots/manufacturer-my-products-light.png" alt="Manufacturer portal My products page: a readiness ring showing 3 of 6 products ready to print and a card for each product" width="900">
+</p>
+<p align="center"><em>Manufacturer portal "My products": what is ready to print and what still needs a fix.</em></p>
+
+<p align="center">
+  <img src="docs/screenshots/manufacturer-fix-list-dark.png" alt="Manufacturer portal fix list in the dark theme: each card names a problem, the legal rule, how to fix it and an example" width="900">
+</p>
+<p align="center"><em>Manufacturer fix list (dark theme): problem, rule, how to fix, and a sample declaration to copy.</em></p>
+
+## Key features
+
+**Inspection and evidence**
+- Up to four photos per inspection (back, front, date stamp, other), read once each and merged field by field; when photos disagree on a value a rule depends on, the rule becomes REVIEW.
+- Numbered evidence markers on the photo, with the exact text OCR read.
+- Inspector corrections are validated with the extractor's own parsers; the verdict and risk update immediately and OCR is not repeated.
+- Verification by an inspector and a full audit trail (photo SHA-256, OCR time, ruleset version, corrections, verification).
+- Risk queue, repeat-issue detection, searchable history, official PDF report.
+
+**Manufacturer self-check**
+- Upload artwork as PNG, JPEG or PDF (first page only, rendered locally).
+- Fix list with plain-language problem, rule reference, how to fix and an example, from a remediation catalogue that covers every rule.
+- Upload a corrected label to see "Improved from 3 fixes to 0"; self-check report as PDF.
+
+**Field app on a phone**
+- Camera capture with sharpness, light and glare checks; falls back to the phone's own camera app or the gallery.
+- Each photo is uploaded and read while the next one is framed; live progress with real step durations.
+- Result screen with verdict, findings and one-tap corrections.
+
+**Accuracy and safety**
+- No false accusations by design: a mandatory declaration that cannot be read is REVIEW, not FAIL, unless the photo was read well enough to be sure it is absent.
+- The manufacture date is never FAIL when not visible.
+- The evaluation counts verdict-safety errors explicitly (see [Accuracy](#accuracy)).
+
+**Security**
+- Cookie-based sessions with two roles, login lockout after repeated failures, optional "keep me signed in".
+- Offline password reset: an administrator issues a one-time code with a CLI; no e-mail or SMS service is needed.
+- Records are scoped to their owner; role checks reject cross-role access.
+
+**Accessibility and i18n**
+- 23 UI languages loaded on demand, light and dark themes, reduced-motion support, keyboard shortcuts.
+- OCR languages are separate from UI languages (English and Hindi by default).
+
+**Offline and privacy**
+- OCR, extraction, rules, PDFs and the database all run locally. No paid APIs and no cloud calls while it runs.
+
+## Demo walkthrough
+
+Two flows, using the seeded demo data (see [Getting started](#getting-started)). The full 5-minute script with fallbacks is in [docs/DEMO.md](docs/DEMO.md).
+
+**Inspector**
+1. Sign in to the Inspector portal and open **Overview**.
+2. Press **+ New inspection** (on a phone this opens the field app).
+3. Photograph the **back**, then optionally the **front** and the **date stamp**.
+4. Watch live progress: text reading per photo, linking, rules, risk.
+5. Read the result and open the record.
+6. Correct a mis-read value (for example the MRP), with a reason; verdict and risk update.
+7. Point out a hidden violation and its legal reference.
+8. **Verify** the record and download the **official PDF**.
+
+**Manufacturer**
+1. Sign in to the Manufacturer portal and open **My products**.
+2. Choose **Check a label** and upload artwork (image or PDF).
+3. Read the **Fix list**: problem, how to fix, example; use **Show on label**.
+4. **Upload corrected label**.
+5. See **Ready to print** and the improvement.
+6. Download the **self-check report**.
+
+<p align="center">
+  <img src="docs/screenshots/manufacturer-flow.png" alt="Three screenshots of the manufacturer flow: My products, a fix list with three fixes, and the corrected label marked Ready to print" width="900">
+</p>
+<p align="center"><em>Manufacturer flow: My products, fix list for the draft label, and the corrected label.</em></p>
+
+<p align="center">
+  <img src="docs/screenshots/phone-capture-and-result.png" alt="Phone field app at 390 pixel width: the capture screen with the back panel captured, and the result screen showing a Non-compliant verdict with findings" width="520">
+</p>
+<p align="center"><em>Field app at 390 px: capture, then the result.</em></p>
+
+<p align="center">
+  <img src="docs/screenshots/login-light.png" alt="PackComply sign-in page with a status strip showing the OCR engine, ruleset and languages" width="700">
+</p>
+<p align="center"><em>Sign-in page, with a live system status strip.</em></p>
+
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph Client["Browser"]
+    SPA["React SPA<br/>desktop + phone field app"]
+  end
+  SPA <-->|"/api (Vite dev proxy)"| API["FastAPI"]
+  API <--> DB[("PostgreSQL")]
+  API --> OCR["OCR service<br/>PaddleOCR: English in process,<br/>Hindi in a worker process"]
+  OCR --> EXT["Extraction<br/>layout, values, fuzzy keys, evidence"]
+  EXT --> COMP["Compliance<br/>versioned YAML ruleset +<br/>remediation catalogue"]
+  COMP --> RISK["Risk score"]
+  RISK --> PDF["PDF reports<br/>ReportLab + Noto fonts + HarfBuzz"]
+```
+
+One inspection, from upload to verdict:
+
+```mermaid
+sequenceDiagram
+  actor U as User (browser)
+  participant A as FastAPI
+  participant O as OCR service
+  participant D as PostgreSQL
+  U->>A: POST /api/inspections (create)
+  U->>A: POST /images?process_now=true (photo 1)
+  A-->>U: 201 stored (OCR starts for that photo)
+  U->>A: POST /process (Done)
+  A-->>U: 202 progress snapshot
+  U->>A: GET /progress/stream (SSE)
+  A->>O: read each photo (en + hi)
+  O-->>A: text boxes
+  A->>A: extract, merge, rules, risk
+  A->>D: save fields, findings, risk, audit events
+  A-->>U: SSE step events with real durations
+  A-->>U: completed with verdict
+  U->>A: GET inspection record
+```
+
+Deep detail (OCR language handling, extraction passes, rule semantics, risk scoring) is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Rules checked
+
+The active ruleset is `LM_PC_2011` version 2, defined in [lm_pc_2011_v2.yaml](backend/app/services/compliance/rulesets/lm_pc_2011_v2.yaml). Rule titles and references below are taken from that file. Each rule's logic is a Python function in [rule_engine.py](backend/app/services/compliance/rule_engine.py).
+
+| Rule ID | What it checks | Legal reference | Severity |
+|---|---|---|---|
+| `MANUFACTURER_INFORMATION` | Manufacturer / packer name and address | LM(PC) Rules 2011, Rule 6(1)(a) | HIGH |
+| `IMPORTER_INFORMATION` | Importer name and address | LM(PC) Rules 2011, Rule 6(1)(a) | HIGH |
+| `COUNTRY_OF_ORIGIN` | Country of origin (imported goods) | LM(PC) Rules 2011, Rule 6(1)(aa) | HIGH |
+| `PACKER_INFORMATION` | Separate packer details | LM(PC) Rules 2011, Rule 6(1)(a) | INFO |
+| `PRODUCT_IDENTITY` | Common or generic name of the commodity | LM(PC) Rules 2011, Rule 6(1)(b) | WARNING |
+| `NET_QUANTITY_FORMAT` | Net quantity declaration | LM(PC) Rules 2011, Rule 6(1)(c) and Rule 9 | HIGH |
+| `NET_QUANTITY_UNIT_SUITABILITY` | Net quantity unit suits the commodity | LM(PC) Rules 2011, Rule 9 and Fourth Schedule | INFO |
+| `MRP_FORMAT` | Retail sale price (MRP) | LM(PC) Rules 2011, Rule 6(1)(e) | HIGH |
+| `MRP_TAX_INCLUSIVE` | MRP inclusive of all taxes | LM(PC) Rules 2011, Rule 6(1)(e) | WARNING |
+| `UNIT_SALE_PRICE` | Unit sale price | LM(PC) Rules 2011, Rule 6(11) (as amended 2022) | WARNING |
+| `MANUFACTURE_DATE` | Month and year of manufacture | LM(PC) Rules 2011, Rule 6(1)(d) | WARNING |
+| `DATE_CONSISTENCY` | Date consistency | LM(PC) Rules 2011, Rule 6(1)(d) | WARNING |
+| `CONSUMER_CARE_FORMAT` | Consumer-care contact details | LM(PC) Rules 2011, Rule 6(2) | WARNING |
+| `FSSAI_LICENSE_PRESENT` | FSSAI licence number (food cross-check) | FSS (Labelling and Display) Regulations 2020 — cross-check, not LM(PC) | INFO |
+
+The FSSAI row is a cross-check on food labels, not an LM(PC) rule. Findings are inspection assistance based on one label photo; an inspector must confirm every finding on the physical package.
+
+## Accuracy
+
+All figures come from [evaluation_report.json](backend/app/assets/evaluation_report.json), which is also what the in-app "About & accuracy" page shows.
+
+**Run `development-2026-10`, kind: development, generated 2026-10-19, ruleset LM_PC_2011 v2 (14 rules).**
+
+| Measure | Development score (23 labelled photos) |
+|---|---|
+| Field precision | 96.3% (438 fields scored) |
+| Field recall | 83.4% |
+| Rule agreement | 290 of 322 (90.1%) |
+| Verdict accuracy | 17 of 23 (73.9%) |
+| False NON_COMPLIANT verdicts | 0 |
+| False PASS on mandatory rules | 0 |
+| Median processing time | 23.62 s per photo (max 105.18 s, 23 photos) |
+
+| Dataset | Photos |
+|---|---|
+| Development | 23 (of which 14 phone photos retired from hold-out to development on 2026-10-16) |
+| Unseen | **0** |
+
+**How to read this.** These are **development scores**, not unseen scores: extraction was tuned while looking at these photos, so they are optimistic. No unseen score exists yet; the repository has the tooling and procedure to produce one ([docs/EVALUATION.md](docs/EVALUATION.md)): photos are labelled by hand before the pipeline sees them, the set is evaluated once, and extraction is not tuned in response. A hold-out split was used earlier, but both hold-outs were retired into development after their failures were inspected.
+
+**Known weak spots in the report:** product-name recall is 9 of 19, and manufacturing-date recall is 6 of 9. The 6 verdict disagreements in the development set are all labels the ground truth rates COMPLIANT that PackComply marks NEEDS_REVIEW, i.e. the safe direction.
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 19, TypeScript, Vite |
-| Backend | Python 3.11+, FastAPI, Pydantic |
-| Database | PostgreSQL 16, SQLAlchemy, Alembic |
-| AI / OCR | PaddleOCR, OpenCV |
-| Reports | ReportLab |
-| PDF artwork | pypdfium2 (Apache-2.0 / BSD-3-Clause), first page only |
-| DevOps | Docker, Docker Compose |
-| Tests | pytest, Vitest |
+| Layer | Technology | Why | Licence |
+|---|---|---|---|
+| Frontend | React 19, TypeScript, Vite | Typed SPA with fast dev server and a built-in `/api` proxy | MIT |
+| Backend | Python 3.12, FastAPI, Pydantic | Typed API with automatic docs | MIT |
+| Database | PostgreSQL 16, SQLAlchemy, Alembic | Reliable local database with versioned migrations | PostgreSQL licence; MIT |
+| OCR | PaddleOCR / PaddlePaddle, OpenCV | Strong open-source OCR that runs on CPU, English and Hindi | Apache-2.0; Apache-2.0 |
+| PDF reports | ReportLab, uharfbuzz (HarfBuzz), Noto Sans and Noto Sans Devanagari | Correct Hindi shaping in reports | BSD; MIT; SIL OFL |
+| PDF artwork | pypdfium2 (PDFium) | Render page 1 of a PDF locally | Apache-2.0 / BSD-3-Clause |
+| Rules | YAML (PyYAML) | Rule metadata separate from code, versioned | MIT |
+| Tests | pytest, Vitest, Testing Library | Backend and UI coverage | MIT |
+| Dev ops | Docker, Docker Compose (optional) | Alternative to a local PostgreSQL | |
 
-## How it works
+Everything is free and open source and runs locally. Licences are as published by each project; check them before redistributing.
 
-1. **Upload** — `backend/app/services/uploads.py` validates the image and stores it under a generated file name.
-2. **OCR** — `backend/app/services/ocr/ocr_service.py` runs one PaddleOCR recognizer per configured language and removes duplicate text boxes.
-3. **Extraction** — `backend/app/services/extraction/extraction_service.py` deterministically interprets the OCR text into label fields, each with confidence, a review flag, and evidence.
-4. **Compliance** — `backend/app/services/compliance/rule_engine.py` evaluates the extracted fields against the versioned ruleset in `backend/app/services/compliance/rulesets/` (see [Compliance ruleset](#compliance-ruleset)).
-5. **Risk** — `backend/app/services/risk.py` turns persisted findings into a transparent 0–100 prioritisation score for officials.
-6. **Patterns** — `backend/app/services/patterns.py` groups issues that repeat across completed inspections.
-7. **Report** — `backend/app/services/report.py` renders the PDF report from persisted evidence.
-8. **Orchestration** — `backend/app/services/workflow.py` runs the unfinished stages in order and is safe to call again after a failure.
+## Getting started
+
+### Prerequisites
+
+- Python 3.12 (3.11 to 3.13 work; PaddlePaddle has no wheels for newer releases)
+- Node.js 20 or newer (developed with Node 24) and npm
+- PostgreSQL 16 (the EDB zip binaries need no installer; see [docs/local-setup-windows.md](docs/local-setup-windows.md))
+- Windows 11 is the primary target. Note that Windows Smart App Control can block unsigned developer tools (for example the PostgreSQL binaries or Node add-ons); if something fails to start, check that setting first.
+
+### Install
+
+```powershell
+git clone https://github.com/rishibhaskar777/PackComply.git
+cd PackComply
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+cd frontend; npm install; cd ..
+Copy-Item .env.example .env
+```
+
+Edit `.env` (never commit it). The important variables:
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `DATABASE_URL` | `postgresql+psycopg://packcomply:<password>@localhost:5432/packcomply` | Database connection; set your own password |
+| `UPLOAD_DIR` | `uploads` | Where evidence photos are stored |
+| `MAX_UPLOAD_BYTES` | `10485760` | Upload size limit (10 MB) |
+| `OCR_LANGUAGES` | `en,hi` | OCR languages (each extra language adds time) |
+| `OCR_PANEL_LANGUAGES` | `DATE_STAMP=en;BACK=en+hi;FRONT=en+hi;OTHER=en+hi` | Languages read per photo panel |
+| `OCR_MAX_IMAGE_DIMENSION` | `1280` | Longest side photos are resized to for OCR |
+| `OCR_WARMUP_ON_STARTUP` | `true` | Load OCR models in the background at start |
+| `SESSION_TTL_HOURS` / `SESSION_REMEMBER_DAYS` | `12` / `30` | Sign-in lifetime without and with "Keep me signed in" |
+| `SESSION_SECURE` | `false` | Set `true` when served over HTTPS |
+| `LOGIN_MAX_ATTEMPTS` / `LOGIN_LOCKOUT_MINUTES` | `5` / `15` | Lockout policy |
+| `ALLOW_OFFICIAL_SELF_REGISTRATION` | `false` | Whether anyone may self-register as an inspector (demos only) |
+| `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Allowed browser origins |
+| `LAN_IP` / `PHONE_URL` | empty (auto-detected) | Override the address shown for phone access |
+
+Create the database (PostgreSQL running; use the same password as in `.env`), then migrate and create a user:
+
+```powershell
+psql -U postgres -h localhost -c "CREATE ROLE packcomply WITH LOGIN PASSWORD '<your-password>';" -c "CREATE DATABASE packcomply OWNER packcomply;"
+alembic -c backend/alembic.ini upgrade head
+python -m backend.scripts.create_user --role OFFICIAL       # prompts for username, e-mail, password
+python -m backend.scripts.warm_ocr                          # optional: download OCR models once
+python -m backend.scripts.seed_demo                         # optional: demo accounts and data
+```
+
+`seed_demo` creates `demo_inspector` and `demo_maker` and prints their passwords once when it creates them (or use `--inspector-password` / `--maker-password`). It looks for sample photos in folders next to the repository, or you can pass photo folders as arguments. Seeded rows can be removed with `seed_demo --reset-demo`. The first OCR run downloads the models and needs internet access once; after that it works offline.
+
+### Start
+
+One command (Windows PowerShell):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\start-demo.ps1
+powershell -ExecutionPolicy Bypass -File scripts\stop-demo.ps1
+```
+
+`start-demo.ps1` checks the virtual environment, `npm` and `node_modules` and that ports 8000 and 5173 are free; starts PostgreSQL with `pg_ctl` if it is not already running (set the two PostgreSQL paths at the top of the script); runs migrations; prints a **pre-flight summary** (database answers, migrations at head, OCR models on disk, free disk space, LAN address, firewall rule); starts the API and the HTTPS web app; waits for readiness and OCR warm-up; then prints the laptop URL, the phone URL and a QR code. Critical failures stop with the fix; a missing Wi-Fi address or firewall rule is only a warning.
+
+Or start the two servers by hand, in two terminals:
+
+```powershell
+uvicorn backend.app.main:app --reload          # repository root, venv active
+cd frontend; npm run dev                       # or: npm run dev:https
+```
+
+Open <http://localhost:5173>; API docs are at <http://localhost:8000/docs>. Docker Compose is also supported: `docker compose up --build` (see [docs/SETUP.md](docs/SETUP.md)).
+
+### Test on a phone
+
+The live camera preview needs HTTPS, so use the HTTPS dev mode:
+
+1. Run `npm run dev:https` in `frontend/` (the one-command start already does this).
+2. Put the phone on the **same Wi-Fi** as the laptop, or connect the laptop to the phone's hotspot.
+3. Allow the dev port through Windows Firewall once, from an Administrator PowerShell: `New-NetFirewallRule -DisplayName "PackComply Demo (5173)" -Direction Inbound -Protocol TCP -LocalPort 5173 -Action Allow -Profile Any`
+4. On the phone open `https://<laptop-ip>:5173`, and accept the **self-signed certificate** warning once (Advanced, then proceed).
+5. Or, on the desktop, click **Open on phone** in the top bar: it shows the phone URL as a QR code drawn in the browser.
+
+More detail, including backup and restore and troubleshooting, is in [docs/SETUP.md](docs/SETUP.md).
+
+## Usage notes
+
+- **Corrections and verification.** Inspectors can enter a corrected value with a reason; the verdict and risk update without repeating OCR. Verifying records who and when; a later correction returns the record to unreviewed.
+- **Multi-photo panels.** Back, front, date stamp and other; adding a photo to a record reads only that photo.
+- **PDF artwork upload.** Manufacturers can upload a PDF; only the first page is rendered locally. Encrypted PDFs, PDFs over 20 pages and files over the upload limit are rejected with a clear message. Inspector uploads are image-only.
+- **Password reset.** `python -m backend.scripts.reset_password --username <name>` prints a one-time 6-digit code valid for 15 minutes; add `--set-password` to set a password directly.
+- **Backups.** `scripts\backup-db.ps1` writes a database dump (and a zip of the stored photos); `scripts\restore-db.ps1 -File <dump>` restores it after a typed confirmation.
+- **Evaluation.** `python -m backend.scripts.eval_extraction`, `eval_compliance` and `eval_real` score the stored fixtures; `batch_evaluate` runs the full pipeline on a folder of photos; `scripts\run-unseen-eval.ps1` runs the one-shot unseen evaluation. Procedure in [docs/EVALUATION.md](docs/EVALUATION.md).
+- **Reanalyse.** After improving extraction, `python -m backend.scripts.reanalyse_all` re-runs extraction and rules on stored OCR without repeating OCR.
+
+## Testing and quality
+
+```powershell
+pytest backend/tests          # 666 tests
+cd frontend; npm test         # 626 tests in 37 files (Vitest)
+cd frontend; npm run verify:auth-locales
+```
+
+Latest local run: **666 backend and 626 frontend tests passed (1292 in total)**. The backend suite covers the rule engine and every rule, extraction on labelled OCR fixtures (synthetic and real), the API and role scoping, authentication and password reset, multi-photo merging, PDF upload and reports, risk scoring, seeding and evaluation reports. The frontend suite covers the portals, capture flow, record and fix-list pages, progress handling, i18n and image utilities; the locale tests check that every language file has every key and that placeholders and product terms survive translation. The remediation catalogue is tested to cover every rule in the active ruleset.
 
 ## Project structure
 
 ```text
 backend/
-  alembic/            Database migrations
   app/
-    api/              HTTP routes (auth, inspections, patterns, risk targeting, roles, health)
-    core/             Settings and database session
-    models/           SQLAlchemy models
-    schemas/          Pydantic request/response schemas
-    services/         OCR, extraction, compliance, risk, patterns, reports, workflow
-  scripts/            Utility scripts (e.g. create_user.py)
-  tests/              pytest suite
+    api/                 HTTP routes (auth, inspections, products, dashboard, risk, system ...)
+    core/                Settings, database, security, start-up checks
+    models/ schemas/     SQLAlchemy models and Pydantic schemas
+    services/
+      ocr/               PaddleOCR service and workers
+      extraction/        Layout, value-first linking, fuzzy keys, evidence
+      compliance/        Rule engine and rulesets/ (versioned YAML + remediation)
+      risk.py report.py self_check_report.py workflow.py ...
+    assets/              Fonts (Noto) and evaluation_report.json
+  alembic/               Database migrations
+  scripts/               create_user, seed_demo, reset_password, evaluation tools ...
+  tests/                 pytest suite and labelled OCR fixtures
 frontend/
-  src/                React application, i18n, and locales/
-database/             Database notes (migrations live in backend/alembic)
-docker-compose.yml
+  src/                   React app: pages/ (inspector, maker, capture), components/, locales/ (23 languages)
+scripts/                 start-demo, stop-demo, backup-db, restore-db, run-unseen-eval (PowerShell)
+demo/artwork/            Synthetic label artwork used by the demo
+docs/                    SETUP, DEMO, EVALUATION, ARCHITECTURE, screenshots/
 ```
 
-## Getting started
+## Roadmap
 
-Windows users without Docker: see [docs/local-setup-windows.md](docs/local-setup-windows.md), and for a demo [Demo day](#demo-day-windows-no-docker): `scripts\start-demo.ps1` does the rest.
+- Native-speaker review of the 21 machine-assisted translations.
+- Rules for drug and medical-device labels, and more rulesets and amendments.
+- Packaging for easier deployment (Docker images are provided for the stack, but a polished installer is not).
+- Move OCR to a process pool so the API stays responsive while photos are being read.
+- Mobile PWA with an offline queue for uploads.
+- A real unseen-photo evaluation run.
 
-### Prerequisites
+## Limitations
 
-- Python 3.11+
-- Node.js 20+
-- Docker Desktop (recommended for PostgreSQL)
+- OCR on CPU takes about 20 s per photo (median 23.6 s in the development run).
+- Glossy or curved labels, and low light or glare, reduce reading quality.
+- Prices and dates stamped separately on the pack are often not linked; PackComply marks these REVIEW.
+- Product-name extraction from front panels is the weakest field (see [Accuracy](#accuracy)); an empty name is preferred to a wrong one.
+- The self-check report is a self-assessment aid, not an official approval.
+- 21 of the 23 UI translations are machine-assisted and need native-speaker review. OCR supports fewer languages than the UI.
+- No unseen-set accuracy figure exists yet; the published scores are development scores.
 
-### Run with Docker
+## Team and credits
 
-1. Copy `.env.example` to `.env` and adjust values only if needed.
-2. Run `docker compose up --build`. The backend waits for PostgreSQL (up to 30 s), applies all Alembic migrations, then starts the API.
-3. Open `http://localhost:5173` for the frontend.
-4. Open `http://localhost:8000/docs` for API documentation.
+Built by **Team CORTEX** for **InnoTech'26**. Originally developed by VersatileSid; maintained by rishibhaskar777.
 
-Uploaded images and the downloaded PaddleOCR models are kept in the named volumes `uploads` and `paddlex_cache`, so they survive rebuilds. The first OCR run downloads the models, which needs internet access.
+Built on open-source software: [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) and PaddlePaddle, [FastAPI](https://fastapi.tiangolo.com/), [React](https://react.dev/), [Vite](https://vite.dev/), [SQLAlchemy](https://www.sqlalchemy.org/) and Alembic, [PostgreSQL](https://www.postgresql.org/), [ReportLab](https://www.reportlab.com/opensource/), [HarfBuzz](https://harfbuzz.github.io/) (via uharfbuzz), [pypdfium2](https://github.com/pypdfium2-team/pypdfium2), OpenCV, [Noto fonts](https://fonts.google.com/noto) (SIL Open Font License), Geist fonts, lucide icons and Motion.
 
-Health checks: `GET http://localhost:8000/api/health` (liveness) and `GET http://localhost:8000/api/health/ready` (readiness: 200 when PostgreSQL answers, 503 otherwise). The sign-in page polls `GET /api/system/status` (public, cached for 5 s): `{"status": "ok"|"degraded"|"down", "database": bool, "ocr": "ready"|"warming_up"|"unavailable", "ruleset_version", "rule_count", "languages"}`. It always answers 200 while the API runs; `status` is `down` without the database and `degraded` when OCR is unavailable.
+## Licence
 
-### Run locally
-
-Start PostgreSQL with `docker compose up db -d`, then in separate terminals run:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -e ".[dev]"
-uvicorn backend.app.main:app --reload
-```
-
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-
-Apply database migrations once PostgreSQL is running:
-
-```powershell
-alembic -c backend/alembic.ini upgrade head
-```
-
-Do not commit `.env`; it may contain credentials.
-
-## Demo day (Windows, no Docker)
-
-Everything runs on the laptop: PostgreSQL, the API, the web app and OCR. No paid APIs, no API keys, no cloud calls while it runs.
-
-### One-command start
-
-Prerequisites, once: the Python venv (`python -m venv .venv`, then `pip install -e ".[dev]"`, which also installs the `qrcode` package used for the terminal QR), `npm install` in `frontend/`, the OCR models downloaded (`python -m backend.scripts.warm_ocr`), and PostgreSQL initialised.
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\start-demo.ps1      # add -NoBrowser to skip opening the browser
-powershell -ExecutionPolicy Bypass -File scripts\stop-demo.ps1       # -StopPostgres to stop the database too
-```
-
-`start-demo.ps1` (the two PostgreSQL paths are variables at the top of the script, default `D:\Development\PGSQL\pgsql\bin` and `D:\Development\PGSQL\data`):
-
-1. checks the venv, `npm` and `frontend\node_modules` (and offers `npm install` if it is missing) and that ports 8000 and 5173 are free;
-2. starts PostgreSQL with `pg_ctl` if port 5432 is not already answering (an already-running server is left alone);
-3. runs `alembic -c backend/alembic.ini upgrade head`, then prints a **pre-flight summary**: database answers, migrations at head, OCR models present on disk (`.paddlex\official_models`), free disk space, the LAN address and the firewall rule. A critical failure (database, migrations, OCR models, under 0.5 GB free) stops the start with the fix before any window opens; a missing Wi-Fi address or firewall rule is only a warning (the laptop-only demo still works);
-4. detects the laptop's Wi-Fi/LAN IPv4 (the adapter with a default gateway; Hyper-V, WSL, VMware, VirtualBox, VPN and similar virtual adapters are ignored);
-5. starts uvicorn (`127.0.0.1:8000`) and the HTTPS Vite dev server (`:5173`) in two separate windows;
-6. waits for `/api/health/ready`, for the web port and for the OCR warm-up (`/api/system/status` → `ocr: ready`), with a live timer;
-7. prints the laptop URL, the phone URL and a **QR code for the phone URL**:
-
-```text
- Laptop : https://localhost:5173/#/overview
- Phone  : https://192.168.1.105:5173/#/capture   (same Wi-Fi as this laptop)
- <QR code>
-```
-
-Failures stop with one clear message and the fix: PostgreSQL does not start (log path and the stale `postmaster.pid` hint), port 8000/5173 busy (who owns it, and `scripts\stop-demo.ps1`), venv or `alembic` missing (the exact commands), `node_modules` missing (offers `npm install`; `-Yes` accepts), and a missing firewall rule: if Windows Firewall has no rule for port 5173 the script prints the exact command to run once in an **Administrator** PowerShell:
-
-```powershell
-New-NetFirewallRule -DisplayName "PackComply Demo (5173)" -Direction Inbound -Protocol TCP -LocalPort 5173 -Action Allow -Profile Any
-```
-
-The API logs one summary line when it is ready, for example `PackComply ready | DB ok | ruleset LM_PC_2011 v2 (14 rules) | OCR en+hi ready (warm-up 13.2 s) | LAN https://192.168.1.105:5173/#/capture`.
-
-On a desktop screen the top bar has an **Open on phone** button: it shows the same phone URL as a QR code, drawn in the browser (`GET /api/system/network` returns the address; no image service is involved). `LAN_IP` / `PHONE_URL` in `.env` override the detected address.
-
-### Demo data
-
-```powershell
-.\.venv\Scripts\python.exe -m backend.scripts.seed_demo                       # sample folders next to the repository, if present
-.\.venv\Scripts\python.exe -m backend.scripts.seed_demo D:\photos\labels      # or any folder(s) of JPG/PNG/WebP photos
-.\.venv\Scripts\python.exe -m backend.scripts.seed_demo --inspector-password "..." --maker-password "..."
-.\.venv\Scripts\python.exe -m backend.scripts.seed_demo --reset-demo          # remove only what the seed created
-```
-
-- Creates **`demo_inspector`** (OFFICIAL, owns most records and sees the risk queue) and **`demo_maker`** (MANUFACTURER, owns its own six products, below). Passwords are printed once, when an account is created (random `demo-NNNNNN`), or set with the flags. Re-running never changes an existing password unless you pass the flag. Both accounts and what each one sees are printed at the end.
-- **`demo_maker`'s data** is separate from the inspector's: six products with a mix of *Ready to print* (3), *Fix needed* (2) and *Check on pack* (1), and **Gluco Biscuits checked twice**: a first draft with 3 fixes, then the corrected label with none ("improved from 3 fixes to 0"). Four products come from the sample photos; Gluco Biscuits and Cream Cracker are demo **artwork** (`demo/artwork/*.png`, drawn by `python -m backend.scripts.make_demo_artwork`, with their OCR stored in `demo/artwork/ocr/`). The two Gluco PNGs are also what you upload live in the manufacturer demo.
-- Imports one inspection per photo through the real workflow (extraction → rules → risk → repeat patterns). A photo whose OCR is already stored in `backend/tests/fixtures/labels/real/` reuses it (about 10 s for all 23 sample photos, and the record shows the OCR time that photo really took); other photos are read with PaddleOCR (`--no-ocr` skips them).
-- Dates are spread over the last four weeks; the three lowest-risk records of the inspector are verified; the highest-risk record is left unreviewed for the live correction.
-- Idempotent: an inspection is identified by its photo's file name (`DEMO-<hash>`, the manufacturer's `DEMO-M-<hash>`), so a second run adds nothing; an older manufacturer demo layout is replaced. Seeded rows carry a `demo_seed` tag (migration `20261019_0012`), so `--reset-demo` deletes only tagged inspections, their photo files and the two demo accounts. Linked self-checks (migration `20261020_0013`: `previous_inspection_id`, `product_key`) are handled the same way. Your own accounts and records are never touched.
-
-### Before a demo: backup
-
-Take a backup once the demo data is the way you want it, and again before you let anyone else click around:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\backup-db.ps1                 # -SkipUploads for the database only
-powershell -ExecutionPolicy Bypass -File scripts\restore-db.ps1 -File backups\packcomply-20261021-090000.dump
-powershell -ExecutionPolicy Bypass -File scripts\restore-db.ps1 -File backups\packcomply-20261021-090000.dump -UploadsZip backups\packcomply-uploads-20261021-090000.zip
-```
-
-- `backup-db.ps1` uses `pg_dump` from the PostgreSQL `bin` folder (the same `$PgBin` setting as `start-demo.ps1`) and the connection in `DATABASE_URL` (`.env`). It writes `backups\packcomply-<timestamp>.dump` (custom format) and, unless `-SkipUploads`, `backups\packcomply-uploads-<timestamp>.zip` with the stored photos (the evidence behind every record). `backups\` is git-ignored.
-- `restore-db.ps1` uses `pg_restore --clean --if-exists`. It is destructive, so it first shows what will be replaced and **requires typing the backup's file name**; anything else cancels without a change. It refuses to run while the API port (8000) is in use (run `scripts\stop-demo.ps1` first), brings an older backup up to date with `alembic upgrade head`, and only unpacks the uploads zip after a second typed confirmation.
-- Resetting the demo data stays a command-line action (`seed_demo --reset-demo`); there is deliberately no "reset" button in the app.
-
-### Two portals, one app
-
-The sign-in role decides which product you see (`<html data-portal>`; the server still scopes every record to its owner):
-
-| | Inspector portal (indigo) | Manufacturer portal (teal) |
-|---|---|---|
-| Home | `#/overview` — *Today's inspection priorities*: KPI tiles, risk queue, violations by rule, repeat issues | `#/products` — *My products*: readiness ring, counters, one card per product |
-| Work | `#/new` / phone **New inspection**, `#/inspections/:id` official record (markers, corrections, verify, audit) | `#/check` / phone **Check my label**, `#/products/:id` self-check result (fix cards with examples, *Show on label*) |
-| Other pages | Risk queue, Repeat issues, Rulesets, Reports (official PDF), About | Fix list, Self-check reports (pre-market PDF), LM(PC) rules guide, About |
-| Wording | Inspection, Violation, Risk, Verify, Official report | Check, Fix, Ready to print, Self-check report (a self-assessment aid, not an approval) |
-
-Opening the other role's route redirects (a manufacturer's `#/inspections/:id` becomes `#/products/:id`; an inspector's `#/products` becomes `#/overview`). Plain-language fix text comes from `backend/app/services/compliance/rulesets/remediation_v1.yaml`, one entry per rule (tested to cover every rule in the active ruleset).
-
-### PDF artwork upload (manufacturers)
-
-On **Check a label** (`#/check`, also when uploading a corrected label) a manufacturer can choose a **PDF** as well as a PNG or JPEG ("PNG, JPEG or PDF (first page)"). The browser sends the PDF untouched; the backend (`backend/app/services/uploads.py`) then:
-
-- renders **only the first page** to a PNG with `pypdfium2` at the OCR size (`OCR_MAX_IMAGE_DIMENSION`, longest side), runs the normal OCR, extraction and rules on that image, and stores the **rendered PNG as the evidence image**;
-- records a `PDF_RENDERED` event in the audit trail with the **original PDF's SHA-256**, its file name, size and page count (the image's own SHA-256 is recorded as for any photo);
-- rejects with a plain `422` message: an **encrypted or password-protected** PDF, one with **more than 20 pages**, a file over the upload limit (`MAX_UPLOAD_BYTES`, default 10 MB), or a file that is not a valid PDF.
-
-Inspector uploads stay image-only (inspectors photograph packs): a PDF sent by an inspector is refused with `422` and nothing is stored. Everything runs on the laptop; PDFium is a local library, so no network is used. Tests: `backend/tests/test_pdf_upload.py`.
-
-### Keyboard shortcuts and page titles
-
-Press **?** anywhere (outside a text field) for the list: **Ctrl K** focuses the inspection search (inspector portal), **N** starts a new inspection / label check, **G** then **O** goes to the inspector home (**G** then **P** to *My products* in the manufacturer portal). Every route has a meaningful browser-tab title for the role ("Today's inspection priorities · PackComply", "My products · PackComply", "<inspection number> · Inspection details · PackComply"), and an unknown address shows a friendly *Page not found* with a link to the role's home.
-
-### 5-minute judge demo
-
-Have the laptop on Wi-Fi (or a phone hotspot), the phone on the same network, `start-demo.ps1` finished and `seed_demo` run once. Open the laptop URL; on the phone, accept the certificate warning once beforehand and keep the page open.
-
-1. **Log in** as `demo_inspector`. Say: everything runs on this laptop, nothing leaves it (the "Runs offline" card in the sidebar).
-2. **Overview**: verdict mix, the risk queue and the repeat issues are already populated from real photos.
-3. **Open the highest-risk record** (top of the risk queue, score 100). The photo shows numbered evidence markers; the findings list shows each failed rule with its legal reference.
-4. **Click a finding**: the matching evidence box lights up on the photo, with the exact text OCR read.
-5. **Make a correction** on a finding that is a mis-read, not a violation (for example the MRP or the net quantity): enter the value, give a reason, save. The verdict and risk update at once; the audit trail records who changed what.
-6. **Show a hidden violation**: a finding that a casual look would miss (for example no consumer-care contact details, or an unit sale price that does not match MRP ÷ net quantity). Point at its legal reference and recommended action.
-7. **Verify** the record (inspector review), then **download the PDF**.
-8. **Phone capture of a new pack**: on the laptop click **Open on phone** and scan the QR (or open the phone URL), sign in as `demo_inspector` on the phone, tap **New inspection** (the field app), and photograph the back of a real pack; add the front or the date stamp if time allows. Each photo is uploaded and read while you frame the next one.
-9. **Live progress**: *Done* shows the real step list (reading text EN + हिन्दी per photo, linking, rules, risk) with true durations, no fake percentages.
-10. **Result**: the phone shows the verdict; open the record on the laptop. It has three photo tabs (back, front, date) with their own evidence boxes.
-11. **Audit trail**: scroll to it: creation, each photo with its SHA-256, OCR time, ruleset version, correction, verification.
-12. **Manufacturer portal** (second login, `demo_maker`): *My products* ("3 of 6 ready to print") → **Check a label** → upload `demo/artwork/gluco-biscuits-draft.png` → live checking → **Fix 3 items before printing** with plain-language problem, rule chip, *How to fix* and an *Example* → **Show on label** → **Upload corrected label** (`gluco-biscuits-corrected.png`) → **Ready to print ✓ · Improved from 3 fixes to 0** → **Download self-check report** → *My products* now shows "Gluco Biscuits improved from 3 fixes to 0".
-13. If asked about accuracy, open **About & accuracy** (sidebar → Resources): precision, recall, rule agreement and the verdict confusion matrix measured by the evaluation script, labelled development or unseen, with the date.
-
-Fallbacks:
-
-- **Wi-Fi fails or the phone cannot reach the laptop**: turn on the phone's hotspot, connect the laptop to it, run `scripts\stop-demo.ps1` then `scripts\start-demo.ps1` again (a new LAN address is detected) and re-scan the QR. Or skip the phone: on the laptop use **New inspection** (`#/new`), drop the same photos onto the upload form and follow the same progress and result screens.
-- **Phone says "can't connect"**: the firewall rule above is the usual cause; the script prints the command whenever it is missing. Check that both devices are on the same network and that the phone URL begins with `https://`.
-- **Camera preview does not open on the phone**: the page must be `https://`; if the browser still blocks it, the shutter opens the phone's own camera app instead.
-- **One photo cannot be read** (OCR crash or timeout): the inspection still completes with the other photos. Rules that depend on the unread photo are marked REVIEW with a note ("The date stamp photo could not be read…"), never PASS or FAIL, the progress list shows the failed step, and **Retry photo** (on the record) reads only that photo.
-- **A screen crashes**: the global error screen offers **Reload**; saved inspections are unaffected. If a session expires, any request returning 401 sends you back to sign-in with a notice.
-
-### About & accuracy and honest metrics
-
-`#/about` shows what the 14 rules check (loaded from the ruleset API, each with its legal reference), a diagram of the pipeline, the privacy statement, and the **measured** accuracy: precision and recall per field, rule agreement, the verdict confusion matrix, the count of false NON_COMPLIANT verdicts and of false PASS findings on mandatory rules, dataset sizes (development / phone hold-out retired to development / unseen) and the median OCR time. All numbers come from the JSON written by the evaluation script (`backend/app/assets/evaluation_report.json`, served by `GET /api/system/evaluation`); nothing is typed into the page. Each run is labelled **Development score** (extraction was tuned while looking at those photos, so the numbers are optimistic) or **Unseen score**, with its dataset name and date.
-
-Refresh the development report from the stored OCR fixtures (no photos needed):
-
-```powershell
-.\.venv\Scripts\python.exe -m backend.scripts.eval_real --report-json backend/app/assets/evaluation_report.json --run-label development-2026-10 --run-note "23 labelled photos, development"
-```
-
-#### Adding a fresh UNSEEN set
-
-Three steps: **(1)** generate the template (`make_ground_truth_template`), **(2)** fill it in by hand from the real packs, **(3)** run `scripts\run-unseen-eval.ps1` once. Nothing has been evaluated on unseen photos in this repository yet: the About page shows only the development run until a person has done step 3. The detail:
-
-
-1. Put the new phone photos in one folder, for example `D:\unseen-photos` (only photos nobody has run through the pipeline or tuned on).
-2. Generate the ground-truth template, a separate fixture folder keeps this set apart from the development photos: `python -m backend.scripts.make_ground_truth_template D:\unseen-photos` (writes `backend/tests/fixtures/labels/unseen/expected_real.json` and `split.json`; add `--fixture-dir` and `--group` to choose another folder or batch name). Every field is `null` and every photo is marked `"filled": false`; every photo is HOLD-OUT.
-3. **Before running the pipeline on them**, read each photo yourself and fill the expected values by hand (the format is described at the top of `backend/tests/fixtures/labels/real/expected_real.json`; omit or leave `null` what the photo does not show), then set `"filled": true` for each finished photo. Unfilled photos are not scored.
-4. Evaluate **once**, without tuning, with the script (it runs the same `batch_evaluate`, labels the run `unseen-<date>`, and prints the summary):
-
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File scripts\run-unseen-eval.ps1                     # default folder D:\Development\VibeCoding\Projects\PackComply-samples-unseen
-   powershell -ExecutionPolicy Bypass -File scripts\run-unseen-eval.ps1 -PhotoDir D:\unseen-photos -Note "N new phone photos, labelled by hand before the run"
-   ```
-
-   The script refuses to run while no photo in the template is marked `"filled": true`, and refuses a second run once an unseen run is in the report (`-Force` overrides, for a genuinely new untouched batch). The equivalent manual command is:
-
-   ```powershell
-   .\.venv\Scripts\python.exe -m backend.scripts.batch_evaluate D:\unseen-photos --fixture-dir backend\tests\fixtures\labels\unseen --report-json backend\app\assets\evaluation_report.json --run-label unseen-2026-10-29 --run-note "N new phone photos, labelled by hand before the run"
-   ```
-
-   This runs the real OCR, extraction and rules, prints the scores and **adds** the run to the report file (runs with other labels are kept, so development and unseen results sit side by side on the page). Do not change extraction or rule code in response to the numbers and then re-run: that turns the unseen set into a development set. Commit the updated `evaluation_report.json` if you want it in the repository.
-
-### Speed and reliability notes
-
-- The first screen loads only English plus the app shell: other UI languages are separate chunks fetched when selected (and cached), and every page is its own route chunk behind a skeleton. Initial JavaScript is about 110 kB gzip (it was 394 kB); the two Geist font files are preloaded.
-- If OCR crashes or times out for one photo of a multi-photo inspection, the inspection completes with the others (see the fallbacks above). If no photo at all can be read, the run fails with a clear message and **Try again** resumes it.
-
-## Running tests
-
-```powershell
-pytest backend/tests
-python -m backend.scripts.eval_extraction   # field-level precision/recall on the labelled fixtures
-python -m backend.scripts.eval_compliance   # rule-outcome and verdict accuracy on the same fixtures
-cd frontend; npm test
-```
-
-`eval_compliance` extracts every fixture, stores it the way an inspection does, runs the current ruleset and compares each rule outcome and the verdict with the `rules` / `verdict` entries in `expected.json`.
-
-`eval_extraction` runs extraction over every label in `backend/tests/fixtures/labels` (one real Parle-G back label exported from OCR, plus synthetic layouts) and compares the result with `expected.json`. Add a fixture and its ground truth whenever a new label layout is supported; `--failures` prints only the rows that differ.
-
-### Evaluating on real label photos
-
-One command runs the full pipeline (real PaddleOCR with the `.env` settings, extraction, compliance; no database writes) over a folder of photos and prints the scores:
-
-```powershell
-python -m backend.scripts.batch_evaluate D:\path\to\label-photos
-```
-
-- OCR output (never the photos) is saved to `backend/tests/fixtures/labels/real/<name>.json`, so `--reuse-ocr` re-runs extraction and compliance in seconds after a code change. `python -m backend.scripts.eval_real` scores the stored fixtures without the photo folder.
-- `reports/batch/report.html` (git-ignored, photos embedded) shows each photo with its OCR evidence boxes, extracted fields and rule findings for quick review.
-- `split.json` fixes a seeded DEV / HOLD-OUT split by file name the first time a photo is seen; existing assignments never change. Look at DEV failures (`--failures`) to improve extraction; HOLD-OUT is for measuring only — its failing rows are hidden unless `eval_real --show-holdout` is given.
-- The first hold-out was retired on 2026-10-15 after its failures were fixed: all 9 original photos are now DEV, and `"new_photos": "holdout"` in `split.json` sends every photo added later to a fresh HOLD-OUT.
-- The second hold-out, 14 phone photos (`phone_holdout_2026_10`), was retired on 2026-10-16 after its failures were inspected to change the extraction approach. All 23 photos are now DEV: every score printed is a development score, and there is no unseen-label score until new photos are added. Photos added together keep a group (`_meta.group` in `expected_real.json`) that is still scored as its own column.
-- Besides precision / recall and rule agreement, the scores count verdict-safety errors: **false NON_COMPLIANT** verdicts (the ground truth is not NON_COMPLIANT) and **false PASS** findings on mandatory rules (a PASS the ground truth does not give, or a PASS on a wrongly read value). The ground-truth rules see the same photo: its OCR coverage comes from extraction, and a declaration the person did not list counts as not detected unless they recorded its key without a value.
-- Scores are printed for DEV, HOLD-OUT, the real phone photos (`"_meta": {"real_photo": true}`) and all photos, once ground truth for a photo is in `real/expected_real.json` (format described at the top of that file). Photos without ground truth are listed but not scored.
-- Use `--fixture-dir` to keep a different photo set's fixtures, split and ground truth apart.
-
-OCR re-reads a photo taken sideways: when most text boxes are tall and narrow, the photo is read turned 90° and 270° and the orientation with the most confidently read text is kept (`OCR_AUTO_ROTATE=false` turns this off). Boxes are always stored in original photo pixels; each detection records the `rotation` it was read at so extraction can rebuild the reading order. This costs two extra OCR passes, only on sideways photos. Upside-down (180°) photos are not detected.
-
-## OCR
-
-PaddleOCR requires the `paddlepaddle`, `paddleocr`, and OpenCV packages declared in `pyproject.toml`. CPU inference is the default; consult PaddlePaddle's installation guidance if your platform needs a platform-specific wheel or GPU support. Model downloads may occur the first time an image is processed.
-
-PackComply runs one recognizer per configured language against the same image. Every detection is tagged with the language that produced it. A secondary-language recognizer also re-reads English text, so a secondary detection is kept only if it contains that language's own script (for example Devanagari for `hi`/`mr`) or its box does not overlap a primary-language box; the number dropped is logged. Configuration is validated against the documented PP-OCRv3 language codes used by this project, so an unsupported code fails clearly at startup.
-
-The configured languages are `en,hi,gom,mai,mr,ne,sa,ta,te,ur,ka`: English, Hindi, Konkani, Maithili, Marathi, Nepali, Sanskrit, Tamil, Telugu, Urdu, and Kannada (`ka` is PaddleOCR's Kannada model code). They are selected with `OCR_LANGUAGES`, and the OCR response reports the codes actually used.
-
-To add another OCR language, first verify a compatible PaddleOCR model and its exact `lang` code for the installed release, then add it to `SUPPORTED_PADDLE_OCR_LANGUAGES` and `OCR_LANGUAGES` and cover it with a unit test.
-
-After uploading an image, OCR can be run directly with `POST /api/inspections/{inspection_id}/images/{image_id}/ocr`; the usual route is `POST /api/inspections/{inspection_id}/process`, which runs every unfinished stage.
-
-## Information extraction
-
-`POST /api/inspections/{inspection_id}/extract` interprets the preserved OCR text into fields such as entities, addresses, MRP, net quantity, dates, and consumer-care details. Confidence values are explainable heuristics, not calibrated probabilities. Missing information is never fabricated and raw OCR evidence is never changed.
-
-Extraction is layout-aware: OCR boxes are grouped into lines, and a value is only taken from text attached to an explicit key (`Net Wt.`, `M.R.P.`, `Marketed by`, `LIC. No.`, Hindi equivalents), either on the key's line, in the box to its right, or directly below it. Each field records the OCR line(s) it came from (`source_text`), how it was found (`matched_pattern`, e.g. `net_quantity:right_of_key`), and the exact boxes (`source_bboxes`). Results stored without boxes fall back to reading the next line. A photo whose text boxes are almost all tall and narrow but carry no recorded rotation is read sideways: the end where the boxes line up (left-aligned text) gives the reading direction.
-
-A second, **value-first** pass (`backend/app/services/extraction/values.py`) links the values the key-first pass cannot reach on phone photos:
-
-1. It finds every value on the label with its position: prices (₹ / Rs / INR / रु, and the shapes OCR gives ₹ such as `T499.00` or `२58/-` when the amount is price-shaped), unit sale prices (`₹0.89/ml`, with `/mn` read as ml and `0.36/9` as per g), net quantities (also glued `550mlnet` and dual `100 ml / 3.38 fl. oz.`, never nutrition rows, dosage strengths, dilutions or `per 100 g`), and dates (also behind a letter or symbol code: `M 12/24`, `¥12/28`).
-2. It finds every key **fuzzily** (`fuzzy.py`, standard library only): text and key are folded (M↔VI, l↔1↔I, O↔0, rn↔m, S↔5) and compared with an edit distance of at most 1 for keys of 4–7 characters and 2 for 8 or more, so `VIRP`, `Net Contemt` and `Manufactued by` count. Three-letter keys read with one error (`MAP`, `MFO`) count only when the line confirms them (a price, "incl. of all taxes", another key, a redirect). It also reads combined key blocks (`MRP (incl. of all taxes); USP, MFD (M) & Use Before (U): see below`): the codes they define and the redirect that applies to all their keys.
-3. It scores every key/value pair — same line to the right, then a tilted next row, then directly below, then nearest in the same region; a code binds a value to its coded field (conventional `M`/`U`/`E`/`P` codes too); a key/value table on a curved pack pairs row by row; a redirect (`see below`, `see coding area`, `see bottom`, …) allows a stamp-like value elsewhere — and assigns greedily, one value per field and one field per value. Prices offered in a sentence (`also available @ ₹40/-`) are never the MRP. An unkeyed price is taken as the MRP only when the unit sale price and net quantity confirm it (`mrp:usp_consistency`).
-
-Value-first matches record how they were made (`mrp:redirect_coding_area`, `manufacturing_date:letter_code_M`, `net_quantity:glued_key`) and are flagged for review when they come from a redirect, a coding area or the nearest-in-region rule.
-
-Besides the original fields, extraction reports `brand_owner` (manufactured for / marketed by), `manufacturing_units` (every `(CODE)-company` unit of a multi-unit label), `mrp_declaration` (`present_with_value`, `present_without_value` when the price is stamped separately, or `absent`), `tax_inclusive`, `fssai_license`, `country_of_origin`, `unit_sale_price`, `batch_number` and `product_category` (`food`, `drug`, `personal_care`, `household` or `other`; food only with a nutrition panel, FSSAI text, a 14-digit licence, or a best-before date with an ingredients list of food words). Dates also carry an ISO-like `normalized_value` (`2026-03`, `2026-03-12`, or `P9M` for "9 months from manufacture").
-
-Two further fields are evidence for compliance and are not shown as label fields: `declaration_status` records for each mandatory declaration whether it was read with its value (`DECLARED_WITH_VALUE`), only its key or a redirect was found (`KEY_FOUND_VALUE_UNREAD`), or nothing was detected (`NOT_DETECTED`); `ocr_coverage` records how much of the photo OCR read (text lines, mean confidence, share of poorly read lines).
-
-The product name is left empty and flagged for review when no candidate clearly stands out: headings (matched fuzzily), instructions, lists, addresses, company names, foreign-language marketing copy and unreadable text are never candidates, and a name needs either a generic commodity word (shampoo, biscuits, liquid, …) or large type. A wrong name would be reported as a fact; an empty one only asks the inspector to look.
-
-After improving extraction, `POST /api/inspections/{inspection_id}/reanalyse` re-runs extraction and compliance on the stored OCR result without repeating OCR; `python -m backend.scripts.reanalyse_all` does this for every completed inspection.
-
-## Inspection record, corrections and audit trail
-
-An inspection's page (`#/inspections/:id`) shows the photo with numbered evidence markers, the findings, an inspector-review footer and an audit trail.
-
-- **Label identity.** The extracted product name, brand owner and manufacturer are stored on the inspection (`product_name`, `brand_name`, `maker_name`), so history and search work without joining extraction rows. Search matches product, brand, maker and inspection number case-insensitively; nothing extracted shows as "Untitled label". For inspections that predate this, run `python -m backend.scripts.backfill_product_names` once after `alembic upgrade head` (idempotent; it does not re-run OCR, extraction or compliance).
-- **Corrections** (OFFICIAL only). `POST /api/inspections/{id}/corrections` with `{field_name, corrected_value, reason?}` validates the value with the extractor's own parsers (MRP `10` / `₹10.00` become `₹10.00`; quantities `70 g`; dates `08/2026`), returns 422 with a message when invalid, then re-runs extraction on the stored OCR, re-applies all corrections (confidence 1.0, source `INSPECTOR`), and re-evaluates compliance and risk. OCR is never repeated. `DELETE /api/inspections/{id}/corrections/{correction_id}` undoes one. Corrections survive "Re-analyse".
-- **Verification.** `POST /api/inspections/{id}/verify` with `{remarks}` (OFFICIAL, completed inspections only) records who and when. Any later correction returns the record to `UNREVIEWED`.
-- **Audit.** `GET /api/inspections/{id}/audit` returns creation, photo upload (with SHA-256), OCR (with duration), compliance evaluation (with ruleset version), corrections, re-analysis, undo and verification in time order.
-- The PDF report gains an "Inspector review" section and marks inspector-corrected values.
-
-Access stays scoped to the inspection's owner; the role checks above additionally reject manufacturers with 403.
-
-## Multi-photo inspections, live progress and the phone field app
-
-An inspection holds up to four photos, one per panel: `BACK`, `FRONT`, `DATE_STAMP`, `OTHER`. Each photo is read once (OCR results are stored per image and never repeated for the same checksum), extracted on its own, and merged field by field: the highest confidence wins, and a tie goes to the panel that owns the field (product and brand names: front; dates and batch: date stamp; everything else: back). Every field keeps the `image_id` it came from, with its boxes in that photo's pixel space. When photos disagree on a field a rule depends on (for example two net quantities), the rule is marked REVIEW with a note instead of one value being dropped. A new photo for a panel replaces the old one for processing; the old file and checksum stay as evidence.
-
-Processing runs in a background thread pool inside the API (no broker; works on Windows). `POST /api/inspections/{id}/process` returns `202` with a progress snapshot; a second start while one is running returns `409`. Follow it with `GET .../progress` (polling, every second) or `GET .../progress/stream` (Server-Sent Events). Percentages are completed steps over total steps. Steps are kept in memory; after a restart the stored inspection status is used.
-
-### Testing on a real phone (same Wi-Fi)
-
-1. Run the backend as usual: `uvicorn backend.app.main:app --host 127.0.0.1 --port 8000`.
-2. Run the frontend with `npm run dev` in `frontend/` (it uses `vite --host`). The dev server proxies `/api` to `http://127.0.0.1:8000` (override with `VITE_PROXY_TARGET`), so the phone talks to one origin and no CORS change is needed.
-3. Find the laptop's LAN IP (`ipconfig`, the IPv4 address, e.g. `192.168.1.23`) and allow ports 5173 in the Windows firewall for private networks.
-4. On the phone open `http://192.168.1.23:5173`, sign in, tap **New inspection**. On screens narrower than 768px this opens the field app (`#/capture`).
-
-#### Live camera preview on a phone (HTTPS dev mode)
-
-Browsers only allow the live camera preview on HTTPS or `localhost`, and a phone opening `http://<LAN-IP>:5173` is neither. For the live rear-camera preview run the dev server over HTTPS with a local self-signed certificate (the free `@vitejs/plugin-basic-ssl`; nothing is downloaded or sent anywhere at runtime):
-
-1. In `frontend/` run `npm run dev:https` (instead of `npm run dev`; plain `npm run dev` is unchanged). The `/api` proxy keeps working: the browser speaks HTTPS to Vite, Vite speaks HTTP to the API on the laptop. The frontend calls the relative `/api` path whenever `VITE_API_URL` is unset (localhost or LAN, http or https), so it never builds `https://localhost:8000` (uvicorn serves plain HTTP). Leave `VITE_API_URL` out of `frontend/.env` for local dev; in dev an `http://` value on an https page is ignored with a console warning. See `frontend/.env.example`.
-2. On the phone open `https://<laptop-IP>:5173`, for example `https://192.168.1.23:5173`.
-3. The browser warns that the certificate is not trusted (it is self-signed). Choose **Advanced → Proceed to 192.168.1.23 (unsafe)** once.
-4. Sign in, tap **New inspection**, then tap the shutter (or **Enable camera**) and allow the camera. The live rear-camera preview, torch toggle (where the phone supports it) and the 1080p capture now work.
-
-The camera is never opened when the page loads: the browser's permission prompt appears only after you tap the shutter or **Enable camera**. If the camera cannot be used (plain `http://`, permission refused, no camera found), the screen says why in one line and the shutter opens the phone's own camera app instead (`<input type="file" accept="image/*" capture="environment">`, opened synchronously inside the tap, which is what mobile browsers require); **Gallery** is a separate picker. Photos are checked for sharpness, light and glare, then resized to the OCR size before upload.
-
-#### Why results are fast: photos are read while you capture
-
-The field app (and `#/new`) creates the inspection when the first photo is accepted and uploads each photo as soon as **Use photo** is tapped, with `POST /api/inspections/{id}/images?process_now=true`. That queues OCR for that one photo only (inspection status, merge and rules are not touched), so it is read while you frame the next panel. The final **Done** / **Start** calls `POST /process`, which waits for any photo still being read, then merges, checks the rules and scores risk. A photo is never read twice (an in-flight read is shared, a stored OCR result is reused, and identical files reuse the earlier reading by checksum). If a read-ahead fails, the final `POST /process` simply reads that photo again. An inspection that is abandoned before processing (closed camera, a removed photo) is deleted with `DELETE /api/inspections/{id}`, which only ever removes unprocessed drafts.
-
-Languages are chosen per panel with `OCR_PANEL_LANGUAGES` (`PANEL=lang+lang` pairs separated by `;`). The default is `DATE_STAMP=en;BACK=en+hi;FRONT=en+hi;OTHER=en+hi`: dates and batch codes are Latin, so a date stamp skips the Hindi pass. Panels not listed use `OCR_LANGUAGES`; languages that are not loaded are ignored. English and Hindi run in parallel, so the progress list shows one *Reading text · EN + हिन्दी* step per photo with its real duration. Models, image size and recognition settings are unchanged.
-
-Uploads are resized in the browser to `ocr_max_image_dimension` (from `GET /api/inspections/config`) with EXIF orientation applied. The resized file is the stored evidence (its SHA-256 is recorded); the original is not kept because OCR never reads more than that size.
-
-## Accounts and password reset
-
-Create users with `python -m backend.scripts.create_user` (inspector accounts are only created this way unless `ALLOW_OFFICIAL_SELF_REGISTRATION=true`). Passwords must be at least 8 characters, differ from the username, and not be one of the 20 most common passwords.
-
-A sign-in normally lasts `SESSION_TTL_HOURS` (12). Ticking **Keep me signed in on this device** makes it last `SESSION_REMEMBER_DAYS` (30). After `LOGIN_MAX_ATTEMPTS` (5) failed attempts the account is locked for `LOGIN_LOCKOUT_MINUTES` (15).
-
-**Forgot password** works offline: there is no SMS or paid e-mail service. On the sign-in page, *Forgot password?* asks for a username and then for a one-time 6-digit code. The page never says whether a username exists.
-
-The administrator issues the code on the server and hands it over in person:
-
-```powershell
-python -m backend.scripts.reset_password --username inspector
-```
-
-This prints `Reset code for inspector: 123456`. The code is valid for 15 minutes and for one use; any earlier code stops working. Five wrong guesses burn it. Alternatively, set a new password directly (typed twice, not echoed):
-
-```powershell
-python -m backend.scripts.reset_password --username inspector --set-password
-```
-
-Either way, a completed reset signs the user out on every device. A reset through the sign-in page also clears the login lockout. The CLI runs in a separate process and cannot clear that in-memory lock; it expires after `LOGIN_LOCKOUT_MINUTES`.
-
-Optional e-mail delivery uses the Python standard library (`smtplib`) and is off until `SMTP_HOST` is set (see `.env.example`). The code is then e-mailed to the account's address as well. Codes are stored only as scrypt hashes and never written to logs. Reset requests are limited to 3 per username and 3 per IP address per 15 minutes; a further request gets 429.
-
-| Endpoint | Body | Response |
-|---|---|---|
-| `POST /api/auth/password-reset/request` | `{"username"}` | Always `202` with the same message for known and unknown usernames; `429` when rate-limited |
-| `POST /api/auth/password-reset/confirm` | `{"username", "code", "new_password"}` | `200` on success; `400 {"detail": "Invalid or expired code"}` for any code failure; `422` when the new password breaks the policy |
-
-## UI languages
-
-The interface offers 23 fully translated languages: English, Hindi, Assamese, Bengali, Bodo, Dogri, Gujarati, Kannada, Kashmiri, Konkani, Maithili, Malayalam, Manipuri (Meitei), Marathi, Nepali, Odia, Punjabi, Sanskrit, Santali, Sindhi, Tamil, Telugu, and Urdu. The header selector persists the choice under `packcomply-language` and falls back to English when the stored value is invalid.
-
-Translations live in `frontend/src/locales/`. Every locale file must contain every UI key; the app rejects incomplete locale files rather than silently rendering English. The brand name stays "PackComply" in every language.
-
-**Translation status.** The 21 languages other than English and Hindi were translated with machine assistance (no paid service, no network) and **need review by a native speaker before they are relied on**, especially Bodo, Dogri, Kashmiri, Konkani, Maithili, Manipuri (Meitei script), Sanskrit and Santali (Ol Chiki script), where wording and legal terminology are the least certain. Product and legal terms (MRP, FSSAI, LM(PC), Rule 6(1)(e), SHA-256, PDF, OCR…) and `{placeholder}` tokens are kept exactly as in English. `frontend/src/locales.translated.test.ts` fails if a non-English locale keeps more than 10% of its values identical to English (the product name, `MRP`, `PDF` and the language badge are the only allowed exceptions), if a `{placeholder}` goes missing, or if a product or legal term is dropped.
-
-UI language and OCR language are separate. Assamese, Bengali, Bodo, Dogri, Gujarati, Kashmiri, Malayalam, Manipuri (Meitei), Odia, Punjabi, Santali, and Sindhi are UI options but are not enabled for OCR. OCR text is never translated; it remains as printed on the package.
-
-## Compliance ruleset
-
-The checks follow the mandatory declarations of the Legal Metrology (Packaged Commodities) Rules, 2011, as amended (including 2022). Rule metadata — title, inspector-facing description, legal reference, severity, applicability, enable/disable and configuration — lives in a versioned YAML file, `backend/app/services/compliance/rulesets/lm_pc_2011_v2.yaml` (v1 is kept so earlier results stay traceable). The check logic stays in Python, one function per rule code in `rule_engine.py`. The YAML is validated when the API starts and copied into the `compliance_rules` table (rules are updated, never deleted). Every stored result records the ruleset id and version, shown in the API (`ruleset_label`) and the PDF ("Checked against: LM(PC) 2011 ruleset v2"). `GET /api/compliance/rules` lists the active rules.
-
-Each finding is one of:
-
-- **FAIL** — a violation visible on the label (e.g. no net-quantity declaration at all on a well-read photo).
-- **REVIEW** — cannot be confirmed from this photo (e.g. the MRP key is printed but the price is stamped elsewhere; the manufacture date is not in the frame). Ask the inspector to check the physical pack.
-
-A tool for regulators must not accuse falsely, so for the mandatory declarations (manufacturer, net quantity, MRP, "inclusive of all taxes", unit sale price, manufacture date, consumer care) a missing value is judged by its `declaration_status`:
-
-- `DECLARED_WITH_VALUE` — the value is checked as usual (PASS or FAIL).
-- `KEY_FOUND_VALUE_UNREAD` — the key or a redirect ("see below", "see coding area", "printed on pack", "for MRP and other details see bottom of the pack") is printed but no value was linked: REVIEW, "Declaration present; value could not be read — verify on the pack".
-- `NOT_DETECTED` — FAIL only when the photo's OCR coverage is adequate by the ruleset's `evidence` thresholds (`min_text_lines: 8`, `min_mean_confidence: 0.80`, `max_low_confidence_line_share: 0.30`), otherwise REVIEW, "Not detected — photo may not show this panel". The manufacture date is never FAIL.
-
-Results stored before `declaration_status` existed keep their previous outcomes (only the MRP and consumer-care headings were recorded as "key without value", and the photo counts as adequately read).
-- **PASS** — the declaration was found and is well formed.
-- **NOT_APPLICABLE** — the rule does not apply to this label (e.g. importer rules on a domestic product). Not counted as an issue, in risk scores or in repeat patterns.
-
-The verdict is **NON_COMPLIANT** (any FAIL), **NEEDS_REVIEW** (no FAIL, any REVIEW) or **COMPLIANT**. `overall_status` (FAIL / REVIEW / PASS) is still returned for compatibility.
-
-| Rule code | Checks | Legal reference | Severity |
-|---|---|---|---|
-| MANUFACTURER_INFORMATION | Manufacturer / packer / brand-owner (or, if imported, importer) name and address | Rule 6(1)(a) | HIGH |
-| IMPORTER_INFORMATION | Importer name and address — imported goods only | Rule 6(1)(a) | HIGH |
-| COUNTRY_OF_ORIGIN | Country of origin — imported goods only | Rule 6(1)(aa) | HIGH |
-| PACKER_INFORMATION | Address of a separately named packer | Rule 6(1)(a) | INFO |
-| PRODUCT_IDENTITY | Common or generic name | Rule 6(1)(b) | WARNING |
-| NET_QUANTITY_FORMAT | Net quantity in a standard unit | Rule 6(1)(c), Rule 9 | HIGH |
-| NET_QUANTITY_UNIT_SUITABILITY | Unit clearly unsuited to the commodity (e.g. a liquid by count) | Rule 9, Fourth Schedule | INFO |
-| MRP_FORMAT | MRP in Indian rupees | Rule 6(1)(e) | HIGH |
-| MRP_TAX_INCLUSIVE | "Inclusive of all taxes" | Rule 6(1)(e) | WARNING |
-| UNIT_SALE_PRICE | Unit sale price present and consistent with MRP ÷ net quantity | Rule 6(11) (2022) | WARNING |
-| MANUFACTURE_DATE | Month and year of manufacture / packing (REVIEW, never FAIL, when not visible) | Rule 6(1)(d) | WARNING |
-| DATE_CONSISTENCY | Manufacture/packing not after expiry/use-by, not in the future | Rule 6(1)(d) | WARNING |
-| CONSUMER_CARE_FORMAT | Consumer-care telephone / e-mail | Rule 6(2) | WARNING |
-| FSSAI_LICENSE_PRESENT | 14-digit FSSAI licence on food labels — an FSSAI cross-check, not Legal Metrology | FSS labelling regulations | INFO |
-
-To change a rule's meaning, copy the YAML to a new version (`lm_pc_2011_v3.yaml`), bump `version`, point `DEFAULT_RULESET` in `ruleset.py` at it and re-run `python -m backend.scripts.reanalyse_all`. The unit-sale-price base units and tolerance are configuration and must be verified against the official notification.
-
-## Risk-based targeting
-
-Risk targeting is a transparent, deterministic prioritisation aid for completed inspections. It is not a machine-learning model and does not create legal rules or enforcement decisions. Officials see a queue based only on persisted compliance findings, missing extraction values that need review, and repeated evidence in their own completed-inspection history. Manufacturers cannot access the queue or the numerical score.
-
-Scores are capped at 100: 0–24 LOW, 25–49 MEDIUM, 50–74 HIGH, and 75–100 CRITICAL.
-
-- A FAIL contributes 35 / 25 / 15 / 10 points for HIGH / WARNING / INFO / LOW severity.
-- A REVIEW contributes 20 / 12 / 6 / 4 points.
-- A NOT_APPLICABLE result contributes nothing.
-- A missing field contributes 6 points (maximum 18) only when it is a `required_fields` entry of a rule that FAILed; under a REVIEW the review points already cover it. Optional or informational fields (website, batch number, best before, a packer beside a declared manufacturer) never add points on their own, so a fully compliant label scores 0.
-- Repeats count violations only: a rule that FAILs again adds 12, and a missing required field of a failing rule that recurs adds 8. Repeated REVIEW findings still appear on the patterns page but add no risk points.
-- Repeats are counted per distinct photo: inspections whose latest image has the same checksum (the same photo uploaded again) are one occurrence, for both risk and the patterns page.
-- Three or more distinct FAIL rules (violations) add 8.
-
-Repeat evidence is calculated only within the authenticated owner's completed inspections. `GET /api/risk-targeting` is official-only, paginated, and excludes OCR text and image data.
-
-`GET /api/dashboard/summary?period=7d|30d|all` (default `all`) feeds the Overview page: inspection count, verdict counts (including `PENDING` for inspections without results), the six highest-risk completed labels, the top three rules flagged FAIL or REVIEW on at least `PATTERN_MIN_OCCURRENCES` distinct photos, the median upload-to-completion time and the active ruleset version. Like the history endpoint it covers only the caller's own inspections; manufacturers receive the queue ordered by verdict, with `risk_score` and `risk_level` set to null.
-
-## Declared quantity verification
-
-Quantity verification reuses the existing OCR, extraction, and `NET_QUANTITY_FORMAT` compliance rule. It verifies only the **quantity declared on the label**; it does not weigh a product or claim that the physical contents were measured. The inspection result and PDF show the declared quantity, a normalized representation, its evidence, and the authoritative compliance result.
-
-Supported formats include common mass and volume units (`mg`, `g`, `kg`, `ml`, `L`, `cm3`/`cc`) and count declarations (`N`, `nos`, `pcs`). Harmless spacing, capitalization, and common OCR character variants are normalized for validation while the declared display value is kept. Missing, unsupported, or ambiguous declarations continue through the existing compliance, risk, and repeat-pattern mechanisms.
-
-## Disclaimer
-
-PackComply is an inspection-assistance tool. It is not legal advice and its output is not an enforcement decision.
-
-## Team
-
-Team CORTEX
-
-Originally developed by VersatileSid; maintained by rishibhaskar777.
+<!-- TODO(owner): choose and add a LICENSE file, then add a licence badge and replace this section. -->
+Not yet licensed. All rights reserved by the authors.
