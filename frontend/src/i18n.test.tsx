@@ -47,11 +47,11 @@ describe("inspection workflow UI", () => {
   });
   it("persists a language choice", async () => { renderApp(); await appReady(); await openUserMenu(); fireEvent.change(screen.getByRole("combobox"), { target: { value: "hi" } }); expect(within(await screen.findByRole("navigation", { name: hi.primaryNavigation })).getByText(hi.overview)).toBeTruthy(); expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe("hi"); });
   it("has complete locale key sets", async () => { for (const language of UI_LANGUAGES) { const locale = await import(`./locales/${language.code}.json`); expect(Object.keys(locale.default).sort()).toEqual(Object.keys(en).sort()); } });
-  it("shows the unauthenticated state after a 401 startup check", async () => {
+  it("shows the sign-in page without an expiry notice after a 401 startup check", async () => {
     const fetchMock = mockApi({ "GET /auth/me": unauthenticated });
     renderApp();
-    expect(await screen.findByText(en.sessionExpired)).toBeTruthy();
-    expect(screen.getByRole("textbox", { name: en.username })).toBeTruthy();
+    expect(await screen.findByRole("textbox", { name: en.username })).toBeTruthy();
+    expect(screen.queryByText(en.sessionExpired)).toBeNull();
     expect(fetchMock).toHaveBeenCalledWith(`${API}/auth/me`, expect.objectContaining({ credentials: "include" }));
   });
   it("opens registration from the sign-in page and detects a password mismatch", async () => {

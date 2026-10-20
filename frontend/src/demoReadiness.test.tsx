@@ -161,6 +161,22 @@ describe("expired session", () => {
     await waitFor(() => expect(screen.getAllByText(en.sessionExpired).length).toBeGreaterThanOrEqual(1));
   });
 
+  it("shows no banner on a fresh visit (the first /auth/me answers 401)", async () => {
+    mockApi({ "GET /auth/me": response({ detail: "Not authenticated" }, false, 401) });
+    render(<I18nProvider><App /></I18nProvider>);
+    await screen.findByRole("textbox", { name: en.username });
+    expect(screen.queryByText(en.sessionExpired)).toBeNull();
+  });
+
+  it("shows no banner after a manual logout", async () => {
+    mockApi({ "GET /auth/me": official(), "POST /auth/logout": response({}, true, 204) });
+    render(<I18nProvider><App /></I18nProvider>);
+    fireEvent.click(await screen.findByRole("button", { name: new RegExp(en.accountMenu) }));
+    fireEvent.click(await screen.findByRole("button", { name: en.logout }));
+    await screen.findByRole("textbox", { name: en.username });
+    expect(screen.queryByText(en.sessionExpired)).toBeNull();
+  });
+
   it("does not announce an expired session when nobody is signed in", async () => {
     mockApi({ "GET /auth/me": response({ detail: "Not authenticated" }, false, 401) });
     render(<I18nProvider><App /></I18nProvider>);

@@ -94,6 +94,26 @@ describe("design token contrast (WCAG AA, 4.5:1 for body text)", () => {
     });
   }
 
+  it("buttons on the theme-coloured result sheet use theme tokens, not the always-dark camera tokens", () => {
+    const capture = readFileSync(join(__dirname, "capture.css"), "utf8");
+    const rule = (selector: string) => {
+      const start = capture.indexOf(`${selector} {`);
+      if (start < 0) throw new Error(`Missing ${selector}`);
+      return capture.slice(start, capture.indexOf("}", start));
+    };
+    expect(rule(".capture-root .bottom-sheet .btn--outline")).toContain("color: var(--foreground)");
+    expect(rule(".capture-root .bottom-sheet .btn--ghost")).toContain("color: var(--secondary-foreground)");
+    expect(rule(".capture-root .bottom-sheet .btn--primary")).toContain("background: var(--primary-solid)");
+    expect(rule(".capture-root .bottom-sheet .btn--primary")).toContain("color: var(--primary-foreground)");
+    // The tokens those rules use are AA on the sheet (--surface) and on hover (--muted), in every theme and portal.
+    for (const tokens of Object.values(themes)) {
+      expect(ratio(tokens, "--foreground", "--surface")).toBeGreaterThanOrEqual(4.5);
+      expect(ratio(tokens, "--foreground", "--muted")).toBeGreaterThanOrEqual(4.5);
+      expect(ratio(tokens, "--secondary-foreground", "--muted")).toBeGreaterThanOrEqual(4.5);
+      expect(ratio(tokens, "--primary-foreground", "--primary-solid-hover")).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
   it("the dark manufacturer block sets everything the light one does, so no indigo leaks through in the dark theme", () => {
     // Capture accents are theme-independent (the camera UI is always dark).
     const themeFree = new Set(["--cap-primary", "--cap-primary-fg"]);

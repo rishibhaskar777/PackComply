@@ -62,6 +62,7 @@ function AppContent() {
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState("");
   const authRequest = useRef(0);
+  const hadSession = useRef(false);
   // The portal theme follows the signed-in role and is cleared on sign-out.
   usePortalAttribute(user?.role, user !== null);
 
@@ -69,11 +70,12 @@ function AppContent() {
     const request = ++authRequest.current;
     try {
       const authenticatedUser = await getJson<User>("/auth/me", "authentication");
-      if (request === authRequest.current) { setUser(authenticatedUser); setAuthError(""); }
+      if (request === authRequest.current) { hadSession.current = true; setUser(authenticatedUser); setAuthError(""); }
     } catch (e) {
       if (request === authRequest.current) {
         setUser(null);
-        if (isExpired(e)) setAuthError(t("sessionExpired"));
+        // A 401 is an expiry only if this tab had a session; a fresh visit is simply signed out.
+        if (isExpired(e)) setAuthError(hadSession.current ? t("sessionExpired") : "");
         else if (isUnavailable(e)) setAuthError(t("serverUnavailable"));
       }
     } finally {
@@ -104,6 +106,7 @@ function AppContent() {
   }
   async function logout() {
     await api("/auth/logout", "logout", { method: "POST" }).catch(() => undefined);
+    hadSession.current = false;
     setUser(null);
     navigate("/overview", { replace: true });
   }

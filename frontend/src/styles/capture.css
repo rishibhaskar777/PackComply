@@ -17,7 +17,15 @@
 .capture-root .btn--outline:hover:not(:disabled) { background: var(--cap-surface-2); }
 .capture-root .btn--ghost { color: var(--cap-muted); }
 .capture-root .btn--ghost:hover:not(:disabled) { background: var(--cap-surface-2); color: var(--cap-fg); }
-.capture-root .alert--error, .capture-root .alert--info { background: var(--cap-surface); border-color: var(--cap-violation); color: var(--cap-fg); }
+/* The result sheet follows the app theme (--surface), unlike the always-dark camera chrome, so its buttons use theme tokens. */
+.capture-root .bottom-sheet .btn--primary { background: var(--primary-solid); color: var(--primary-foreground); }
+.capture-root .bottom-sheet .btn--primary:hover:not(:disabled) { background: var(--primary-solid-hover); }
+.capture-root .bottom-sheet .btn--outline { border-color: var(--border-strong); color: var(--foreground); }
+.capture-root .bottom-sheet .btn--outline:hover:not(:disabled) { background: var(--muted); }
+.capture-root .bottom-sheet .btn--ghost { color: var(--secondary-foreground); }
+.capture-root .bottom-sheet .btn--ghost:hover:not(:disabled) { background: var(--muted); color: var(--foreground); }
+.capture-root .bottom-sheet :focus-visible { outline-color: var(--primary); }
+.capture-root .alert--error,.capture-root .alert--info { background: var(--cap-surface); border-color: var(--cap-violation); color: var(--cap-fg); }
 .cap-btn { flex: 1; min-height: 52px; font-size: var(--text-md); }
 .cap-btn--block { width: 100%; }
 
