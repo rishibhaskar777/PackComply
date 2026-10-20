@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime, timezone
 from functools import lru_cache
+from pathlib import Path
 import json
 import logging
 from time import perf_counter
@@ -20,7 +21,7 @@ from backend.app.services.compliance.rule_engine import verdict
 from backend.app.services.extraction import ExtractionService
 from backend.app.services.extraction.evidence import build_extracted_fields, field_evidence
 from backend.app.services.ocr import OcrInitializationError, OcrProcessingError, PaddleOcrService
-from backend.app.services.uploads import UploadValidationError, store_image, validate_image
+from backend.app.services.uploads import UploadValidationError, is_pdf, render_pdf_first_page, store_image, validate_image
 from backend.app.services import jobs
 from backend.app.services.merge import PANELS
 from backend.app.services.progress import AlreadyRunning, progress_store, stored_snapshot
@@ -202,7 +203,7 @@ def _panel_or_422(panel: str) -> str:
 @router.post("/{inspection_id}/images", response_model=ImageUploaded, status_code=status.HTTP_201_CREATED)
 async def upload_inspection_image(
     inspection_id: UUID,
-    image: UploadFile = File(..., description="Package image in JPG, JPEG, or PNG format."),
+    image: UploadFile = File(..., description="Package image in JPG, JPEG, or PNG format (manufacturers may also send a PDF; its first page is rendered)."),
     panel: str = Form("BACK", description="Which part of the pack: BACK, FRONT, DATE_STAMP or OTHER."),
     process_now: bool = Query(False, description="Start reading this photo's text in the background right away, so the final process call finds it already read."),
     db: Session = Depends(get_db),
@@ -226,9 +227,18 @@ async def upload_inspection_image(
     settings = get_settings()
     content = await image.read(settings.max_upload_bytes + 1)
     content_type = (image.content_type or "").lower()
+    filename = image.filename or "package-image"
+    rendered = None
     try:
+        if is_pdf(content, content_type):
+            # Artwork PDFs are for manufacturers; inspectors photograph the pack.
+            if user.role != "MANUFACTURER":
+                raise UploadValidationError("PDF files are not accepted for inspections. Photograph the pack and upload a JPG or PNG image.")
+            rendered = render_pdf_first_page(content, settings.max_upload_bytes, settings.ocr_max_image_dimension)
+            # The evidence is the rendered page; the source PDF's SHA-256 is kept in the audit trail below.
+            content, content_type, filename = rendered.png, "image/png", f"{Path(filename).stem or 'artwork'}-page1.png"
         validate_image(content, content_type, settings.max_upload_bytes)
-        stored = store_image(content, image.filename or "package-image", content_type, settings.upload_dir)
+        stored = store_image(content, filename, content_type, settings.upload_dir)
     except UploadValidationError as error:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error)) from error
 
@@ -244,6 +254,8 @@ async def upload_inspection_image(
     db.commit()
     db.refresh(image_record)
     progress_store.discard(inspection.id)
+    if rendered is not None:
+        record_event(db, inspection.id, "PDF_RENDERED", user.id, {"image_id": str(image_record.id), "panel": panel, "source_filename": Path(image.filename or "artwork.pdf").name, "source_sha256": rendered.source_sha256, "source_bytes": rendered.source_bytes, "pages": rendered.page_count, "rendered_page": 1, "rendered_sha256": image_record.checksum, "width": image_record.width, "height": image_record.height})
     if process_now:
         jobs.start_image_ocr(workflow, inspection.id, image_record.id)
     if not first:

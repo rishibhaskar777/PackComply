@@ -1,13 +1,13 @@
 import { ReactNode } from "react";
-import { BadgeCheck, Camera, FilePlus2, PenLine, RefreshCw, Scale, ScanText, Undo2 } from "lucide-react";
+import { BadgeCheck, Camera, FilePlus2, FileText, PenLine, RefreshCw, Scale, ScanText, Undo2 } from "lucide-react";
 import { Card, Skeleton } from "../../components/ui";
 import { PANEL_LABEL } from "../../components/ProgressPanel";
 import { fill, TranslationKey, useI18n } from "../../i18n";
 import { AuditEvent } from "../../types";
 import { FIELD_LABELS } from "./Findings";
 
-const ICONS: Record<string, typeof FilePlus2> = { CREATED: FilePlus2, PHOTO_UPLOADED: Camera, PHOTO_ADDED: Camera, PHOTO_REPLACED: Camera, OCR_COMPLETED: ScanText, COMPLIANCE_EVALUATED: Scale, CORRECTION: PenLine, CORRECTION_UNDONE: Undo2, REANALYSED: RefreshCw, VERIFIED: BadgeCheck };
-const TITLES: Record<string, TranslationKey> = { CREATED: "recAuditCreated", PHOTO_UPLOADED: "recAuditPhoto", PHOTO_ADDED: "recAuditPhotoAdded", PHOTO_REPLACED: "recAuditPhotoReplaced", OCR_COMPLETED: "recAuditOcr", COMPLIANCE_EVALUATED: "recAuditCompliance", CORRECTION: "recAuditCorrection", CORRECTION_UNDONE: "recAuditUndone", REANALYSED: "recAuditReanalysed", VERIFIED: "recAuditVerified" };
+const ICONS: Record<string, typeof FilePlus2> = { CREATED: FilePlus2, PHOTO_UPLOADED: Camera, PHOTO_ADDED: Camera, PHOTO_REPLACED: Camera, PDF_RENDERED: FileText, OCR_COMPLETED: ScanText, COMPLIANCE_EVALUATED: Scale, CORRECTION: PenLine, CORRECTION_UNDONE: Undo2, REANALYSED: RefreshCw, VERIFIED: BadgeCheck };
+const TITLES: Record<string, TranslationKey> = { CREATED: "recAuditCreated", PHOTO_UPLOADED: "recAuditPhoto", PHOTO_ADDED: "recAuditPhotoAdded", PHOTO_REPLACED: "recAuditPhotoReplaced", PDF_RENDERED: "recAuditPdf", OCR_COMPLETED: "recAuditOcr", COMPLIANCE_EVALUATED: "recAuditCompliance", CORRECTION: "recAuditCorrection", CORRECTION_UNDONE: "recAuditUndone", REANALYSED: "recAuditReanalysed", VERIFIED: "recAuditVerified" };
 
 const text = (value: unknown) => (value === null || value === undefined || value === "" ? null : String(value));
 
@@ -32,6 +32,10 @@ function Details({ event }: { event: AuditEvent }) {
     case "PHOTO_UPLOADED": case "PHOTO_ADDED": case "PHOTO_REPLACED":
       if (text(d.filename)) parts.push(<span key="f" className="mono">{text(d.filename)}</span>);
       if (text(d.checksum)) parts.push(<span key="c">SHA-256 <span className="mono" title={text(d.checksum)!}>{shortChecksum(text(d.checksum)!)}</span></span>);
+      break;
+    case "PDF_RENDERED":
+      if (text(d.source_filename)) parts.push(<span key="f" className="mono">{text(d.source_filename)}</span>);
+      if (text(d.source_sha256)) parts.push(<span key="c">SHA-256 <span className="mono" title={text(d.source_sha256)!}>{shortChecksum(text(d.source_sha256)!)}</span></span>);
       break;
     case "OCR_COMPLETED":
       if (Array.isArray(d.languages)) parts.push(<span key="l" className="mono">{(d.languages as string[]).join(" + ")}</span>);

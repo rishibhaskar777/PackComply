@@ -1,5 +1,5 @@
 import { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
-import { ImageUp, RefreshCw, X } from "lucide-react";
+import { FileText, ImageUp, RefreshCw, X } from "lucide-react";
 import { getJson } from "../api/client";
 import { navigate } from "../app/router";
 import { Alert, Button, Card, useToast } from "../components/ui";
@@ -11,6 +11,9 @@ import { CapturedPhoto, newPhoto, releasePhoto, useInspectionRun } from "../lib/
 import type { Panel } from "../types";
 
 const ACCEPTED = ["image/png", "image/jpeg"];
+/** Manufacturers may also upload artwork as a PDF; the backend renders its first page. Inspectors photograph packs. */
+const PDF = "application/pdf";
+const isPdf = (photo: CapturedPhoto) => photo.blob.type === PDF;
 const FALLBACK_LIMIT = 10 * 1024 * 1024;
 
 export const formatMegabytes = (bytes: number) => `${Math.round((bytes / (1024 * 1024)) * 10) / 10} MB`;
@@ -50,7 +53,7 @@ export function NewInspectionPage({ onExpired, onCompleted, maker = false, previ
 
   function choose(panel: Panel, candidate: File | undefined | null) {
     if (!candidate || busy) return;
-    if (!ACCEPTED.includes(candidate.type)) { setProblem({ panel, message: t("newBadType") }); return; }
+    if (!ACCEPTED.includes(candidate.type) && !(maker && candidate.type === PDF)) { setProblem({ panel, message: t(maker ? "newBadTypeMaker" : "newBadType") }); return; }
     if (candidate.size > limit) { setProblem({ panel, message: fill(t("newTooLarge"), { limit: formatMegabytes(limit) }) }); return; }
     setProblem(null);
     const photo = newPhoto(panel, candidate, candidate.name);
@@ -95,9 +98,14 @@ export function NewInspectionPage({ onExpired, onCompleted, maker = false, previ
                 <p className="new-slot__label"><strong>{t(PANEL_LABEL[panel])}</strong> <span className="muted-text">{required ? t("capRequired") : t("capOptional")}</span></p>
                 <label className={`dropzone dropzone--slot${dragging === panel ? " is-dragging" : ""}${busy ? " is-busy" : ""}${photo ? " has-preview" : ""}`}
                   onDragOver={event => { event.preventDefault(); if (!busy) setDragging(panel); }} onDragLeave={() => setDragging(null)} onDrop={event => onDrop(event, panel)}>
-                  <input className="sr-only" type="file" accept="image/png,image/jpeg" disabled={busy} aria-label={fill(t("newChoosePanel"), { panel: t(PANEL_LABEL[panel]) })}
+                  <input className="sr-only" type="file" accept={maker ? "image/png,image/jpeg,application/pdf" : "image/png,image/jpeg"} disabled={busy} aria-label={fill(t("newChoosePanel"), { panel: t(PANEL_LABEL[panel]) })}
                     onChange={(event: ChangeEvent<HTMLInputElement>) => { choose(panel, event.target.files?.[0]); event.target.value = ""; }} />
-                  {photo
+                  {photo && isPdf(photo)
+                    ? <>
+                      <span className="dropzone__icon" aria-hidden="true"><FileText size={20} /></span>
+                      <span className="dropzone__label">{t("newPdfChosen")}</span>
+                    </>
+                    : photo
                     ? <img className="dropzone__preview" src={photo.url} alt={fill(t("newPreviewAlt"), { panel: t(PANEL_LABEL[panel]) })} />
                     : <>
                       <span className="dropzone__icon" aria-hidden="true"><ImageUp size={20} /></span>
@@ -118,7 +126,7 @@ export function NewInspectionPage({ onExpired, onCompleted, maker = false, previ
         </div>
         {started && (
           <div className="new-progress">
-            <ProgressPanel progress={run.progress} uploading={run.phase === "uploading"} photos={photos.map(photo => ({ panel: photo.panel, url: photo.url }))}
+            <ProgressPanel progress={run.progress} uploading={run.phase === "uploading"} photos={photos.filter(photo => !isPdf(photo)).map(photo => ({ panel: photo.panel, url: photo.url }))}
               error={run.error && !run.error.unreachable ? run.error : null} onRetry={() => void run.retry()} />
           </div>
         )}

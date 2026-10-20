@@ -10,7 +10,7 @@ PackComply assists inspectors. Its results are not legally binding decisions.
 
 ## Features
 
-- Image upload with validation (JPG/PNG only, size limit, content checked against the declared type)
+- Image upload with validation (JPG/PNG, size limit, content checked against the declared type). Manufacturers can also upload artwork as a **PDF**; its first page is rendered locally to an image (see [PDF artwork upload](#pdf-artwork-upload-manufacturers))
 - Multilingual OCR with PaddleOCR, configured for `en, hi, gom, mai, mr, ne, sa, ta, te, ur, ka`
 - Explainable field extraction with heuristic confidence, review flags, and source evidence
 - A versioned Legal Metrology (Packaged Commodities) Rules 2011 ruleset: 14 rules, each citing its legal reference, with PASS / FAIL / REVIEW / NOT_APPLICABLE results and an overall verdict
@@ -32,6 +32,7 @@ PackComply assists inspectors. Its results are not legally binding decisions.
 | Database | PostgreSQL 16, SQLAlchemy, Alembic |
 | AI / OCR | PaddleOCR, OpenCV |
 | Reports | ReportLab |
+| PDF artwork | pypdfium2 (Apache-2.0 / BSD-3-Clause), first page only |
 | DevOps | Docker, Docker Compose |
 | Tests | pytest, Vitest |
 
@@ -128,7 +129,7 @@ powershell -ExecutionPolicy Bypass -File scripts\stop-demo.ps1       # -StopPost
 
 1. checks the venv, `npm` and `frontend\node_modules` (and offers `npm install` if it is missing) and that ports 8000 and 5173 are free;
 2. starts PostgreSQL with `pg_ctl` if port 5432 is not already answering (an already-running server is left alone);
-3. runs `alembic -c backend/alembic.ini upgrade head`;
+3. runs `alembic -c backend/alembic.ini upgrade head`, then prints a **pre-flight summary**: database answers, migrations at head, OCR models present on disk (`.paddlex\official_models`), free disk space, the LAN address and the firewall rule. A critical failure (database, migrations, OCR models, under 0.5 GB free) stops the start with the fix before any window opens; a missing Wi-Fi address or firewall rule is only a warning (the laptop-only demo still works);
 4. detects the laptop's Wi-Fi/LAN IPv4 (the adapter with a default gateway; Hyper-V, WSL, VMware, VirtualBox, VPN and similar virtual adapters are ignored);
 5. starts uvicorn (`127.0.0.1:8000`) and the HTTPS Vite dev server (`:5173`) in two separate windows;
 6. waits for `/api/health/ready`, for the web port and for the OCR warm-up (`/api/system/status` → `ocr: ready`), with a live timer;
@@ -165,6 +166,20 @@ On a desktop screen the top bar has an **Open on phone** button: it shows the sa
 - Dates are spread over the last four weeks; the three lowest-risk records of the inspector are verified; the highest-risk record is left unreviewed for the live correction.
 - Idempotent: an inspection is identified by its photo's file name (`DEMO-<hash>`, the manufacturer's `DEMO-M-<hash>`), so a second run adds nothing; an older manufacturer demo layout is replaced. Seeded rows carry a `demo_seed` tag (migration `20261019_0012`), so `--reset-demo` deletes only tagged inspections, their photo files and the two demo accounts. Linked self-checks (migration `20261020_0013`: `previous_inspection_id`, `product_key`) are handled the same way. Your own accounts and records are never touched.
 
+### Before a demo: backup
+
+Take a backup once the demo data is the way you want it, and again before you let anyone else click around:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\backup-db.ps1                 # -SkipUploads for the database only
+powershell -ExecutionPolicy Bypass -File scripts\restore-db.ps1 -File backups\packcomply-20261021-090000.dump
+powershell -ExecutionPolicy Bypass -File scripts\restore-db.ps1 -File backups\packcomply-20261021-090000.dump -UploadsZip backups\packcomply-uploads-20261021-090000.zip
+```
+
+- `backup-db.ps1` uses `pg_dump` from the PostgreSQL `bin` folder (the same `$PgBin` setting as `start-demo.ps1`) and the connection in `DATABASE_URL` (`.env`). It writes `backups\packcomply-<timestamp>.dump` (custom format) and, unless `-SkipUploads`, `backups\packcomply-uploads-<timestamp>.zip` with the stored photos (the evidence behind every record). `backups\` is git-ignored.
+- `restore-db.ps1` uses `pg_restore --clean --if-exists`. It is destructive, so it first shows what will be replaced and **requires typing the backup's file name**; anything else cancels without a change. It refuses to run while the API port (8000) is in use (run `scripts\stop-demo.ps1` first), brings an older backup up to date with `alembic upgrade head`, and only unpacks the uploads zip after a second typed confirmation.
+- Resetting the demo data stays a command-line action (`seed_demo --reset-demo`); there is deliberately no "reset" button in the app.
+
 ### Two portals, one app
 
 The sign-in role decides which product you see (`<html data-portal>`; the server still scopes every record to its owner):
@@ -177,6 +192,20 @@ The sign-in role decides which product you see (`<html data-portal>`; the server
 | Wording | Inspection, Violation, Risk, Verify, Official report | Check, Fix, Ready to print, Self-check report (a self-assessment aid, not an approval) |
 
 Opening the other role's route redirects (a manufacturer's `#/inspections/:id` becomes `#/products/:id`; an inspector's `#/products` becomes `#/overview`). Plain-language fix text comes from `backend/app/services/compliance/rulesets/remediation_v1.yaml`, one entry per rule (tested to cover every rule in the active ruleset).
+
+### PDF artwork upload (manufacturers)
+
+On **Check a label** (`#/check`, also when uploading a corrected label) a manufacturer can choose a **PDF** as well as a PNG or JPEG ("PNG, JPEG or PDF (first page)"). The browser sends the PDF untouched; the backend (`backend/app/services/uploads.py`) then:
+
+- renders **only the first page** to a PNG with `pypdfium2` at the OCR size (`OCR_MAX_IMAGE_DIMENSION`, longest side), runs the normal OCR, extraction and rules on that image, and stores the **rendered PNG as the evidence image**;
+- records a `PDF_RENDERED` event in the audit trail with the **original PDF's SHA-256**, its file name, size and page count (the image's own SHA-256 is recorded as for any photo);
+- rejects with a plain `422` message: an **encrypted or password-protected** PDF, one with **more than 20 pages**, a file over the upload limit (`MAX_UPLOAD_BYTES`, default 10 MB), or a file that is not a valid PDF.
+
+Inspector uploads stay image-only (inspectors photograph packs): a PDF sent by an inspector is refused with `422` and nothing is stored. Everything runs on the laptop; PDFium is a local library, so no network is used. Tests: `backend/tests/test_pdf_upload.py`.
+
+### Keyboard shortcuts and page titles
+
+Press **?** anywhere (outside a text field) for the list: **Ctrl K** focuses the inspection search (inspector portal), **N** starts a new inspection / label check, **G** then **O** goes to the inspector home (**G** then **P** to *My products* in the manufacturer portal). Every route has a meaningful browser-tab title for the role ("Today's inspection priorities · PackComply", "My products · PackComply", "<inspection number> · Inspection details · PackComply"), and an unknown address shows a friendly *Page not found* with a link to the role's home.
 
 ### 5-minute judge demo
 
@@ -216,10 +245,20 @@ Refresh the development report from the stored OCR fixtures (no photos needed):
 
 #### Adding a fresh UNSEEN set
 
+Three steps: **(1)** generate the template (`make_ground_truth_template`), **(2)** fill it in by hand from the real packs, **(3)** run `scripts\run-unseen-eval.ps1` once. Nothing has been evaluated on unseen photos in this repository yet: the About page shows only the development run until a person has done step 3. The detail:
+
+
 1. Put the new phone photos in one folder, for example `D:\unseen-photos` (only photos nobody has run through the pipeline or tuned on).
 2. Generate the ground-truth template, a separate fixture folder keeps this set apart from the development photos: `python -m backend.scripts.make_ground_truth_template D:\unseen-photos` (writes `backend/tests/fixtures/labels/unseen/expected_real.json` and `split.json`; add `--fixture-dir` and `--group` to choose another folder or batch name). Every field is `null` and every photo is marked `"filled": false`; every photo is HOLD-OUT.
 3. **Before running the pipeline on them**, read each photo yourself and fill the expected values by hand (the format is described at the top of `backend/tests/fixtures/labels/real/expected_real.json`; omit or leave `null` what the photo does not show), then set `"filled": true` for each finished photo. Unfilled photos are not scored.
-4. Evaluate once, without tuning:
+4. Evaluate **once**, without tuning, with the script (it runs the same `batch_evaluate`, labels the run `unseen-<date>`, and prints the summary):
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts\run-unseen-eval.ps1                     # default folder D:\Development\VibeCoding\Projects\PackComply-samples-unseen
+   powershell -ExecutionPolicy Bypass -File scripts\run-unseen-eval.ps1 -PhotoDir D:\unseen-photos -Note "N new phone photos, labelled by hand before the run"
+   ```
+
+   The script refuses to run while no photo in the template is marked `"filled": true`, and refuses a second run once an unseen run is in the report (`-Force` overrides, for a genuinely new untouched batch). The equivalent manual command is:
 
    ```powershell
    .\.venv\Scripts\python.exe -m backend.scripts.batch_evaluate D:\unseen-photos --fixture-dir backend\tests\fixtures\labels\unseen --report-json backend\app\assets\evaluation_report.json --run-label unseen-2026-10-29 --run-note "N new phone photos, labelled by hand before the run"
@@ -376,6 +415,8 @@ Optional e-mail delivery uses the Python standard library (`smtplib`) and is off
 The interface offers 23 fully translated languages: English, Hindi, Assamese, Bengali, Bodo, Dogri, Gujarati, Kannada, Kashmiri, Konkani, Maithili, Malayalam, Manipuri (Meitei), Marathi, Nepali, Odia, Punjabi, Sanskrit, Santali, Sindhi, Tamil, Telugu, and Urdu. The header selector persists the choice under `packcomply-language` and falls back to English when the stored value is invalid.
 
 Translations live in `frontend/src/locales/`. Every locale file must contain every UI key; the app rejects incomplete locale files rather than silently rendering English. The brand name stays "PackComply" in every language.
+
+**Translation status.** The 21 languages other than English and Hindi were translated with machine assistance (no paid service, no network) and **need review by a native speaker before they are relied on**, especially Bodo, Dogri, Kashmiri, Konkani, Maithili, Manipuri (Meitei script), Sanskrit and Santali (Ol Chiki script), where wording and legal terminology are the least certain. Product and legal terms (MRP, FSSAI, LM(PC), Rule 6(1)(e), SHA-256, PDF, OCR…) and `{placeholder}` tokens are kept exactly as in English. `frontend/src/locales.translated.test.ts` fails if a non-English locale keeps more than 10% of its values identical to English (the product name, `MRP`, `PDF` and the language badge are the only allowed exceptions), if a `{placeholder}` goes missing, or if a product or legal term is dropped.
 
 UI language and OCR language are separate. Assamese, Bengali, Bodo, Dogri, Gujarati, Kashmiri, Malayalam, Manipuri (Meitei), Odia, Punjabi, Santali, and Sindhi are UI options but are not enabled for OCR. OCR text is never translated; it remains as printed on the package.
 
