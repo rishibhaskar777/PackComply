@@ -410,7 +410,7 @@ docs/                    SETUP, DEMO, EVALUATION, ARCHITECTURE, screenshots/
 
 **Rishi Bhaskar** ([@rishibhaskar777](https://github.com/rishibhaskar777)): design, development, evaluation and maintenance of PackComply, built for InnoTech'26.
 
-PackComply started from an early prototype by VersatileSid and has since been substantially redesigned and rebuilt: the OCR pipeline, layout-aware extraction, versioned rule engine with legal references, risk scoring, inspector and manufacturer portals, phone field app, evaluation framework and UI.
+PackComply started from an early prototype and has since been substantially redesigned and rebuilt: the OCR pipeline, layout-aware extraction, versioned rule engine with legal references, risk scoring, inspector and manufacturer portals, phone field app, evaluation framework and UI.
 
 Built on open-source software: PaddleOCR and PaddlePaddle, FastAPI, React, Vite, SQLAlchemy and Alembic, PostgreSQL, ReportLab, HarfBuzz (via uharfbuzz), pypdfium2, OpenCV, Noto fonts (SIL Open Font License), Geist fonts, lucide icons and Motion.
 
