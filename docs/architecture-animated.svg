@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 580" width="1240" height="580" role="img" aria-labelledby="t d" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif">
+  <title id="t">How PackComply checks a label</title>
+  <desc id="d">Animated architecture: a label photo goes from the phone to the FastAPI server, is read by on-device OCR in English and Hindi, linked to declarations, checked against 14 Legal Metrology rules, scored for risk, saved to PostgreSQL, and the result with photo markers returns to the user. Everything runs on one laptop without internet.</desc>
+  <style>
+    .bg{fill:#0B1020}
+    .node{fill:#121A2B;stroke:#26314A;stroke-width:1.5}
+    .h{fill:#E6EAF2;font-size:17px;font-weight:600}
+    .s{fill:#94A0B8;font-size:12.5px}
+    .tiny{fill:#94A0B8;font-size:11px;letter-spacing:.6px}
+    .base{stroke:#26314A;stroke-width:2;fill:none}
+    .flow{stroke:#818CF8;stroke-width:2;fill:none;stroke-dasharray:4 10;animation:dash 1s linear infinite}
+    .flow.ret{stroke:#2DD4BF}
+    .flow.db{stroke:#FBBF24}
+    @keyframes dash{to{stroke-dashoffset:-14}}
+    .scan{animation:scan 1.1s ease-in-out infinite alternate;transform-box:fill-box}
+    @keyframes scan{from{transform:translateY(0)}to{transform:translateY(78px)}}
+    .n-user{animation:hlUser 10s linear infinite}
+    .n-api{animation:hlApi 10s linear infinite}
+    .n-ocr{animation:hlOcr 10s linear infinite}
+    .n-ex{animation:hlEx 10s linear infinite}
+    .n-ru{animation:hlRu 10s linear infinite}
+    .n-rk{animation:hlRk 10s linear infinite}
+    .n-db{animation:hlDb 10s linear infinite}
+    @keyframes hlUser{0%,3%{stroke:#818CF8;stroke-width:2.5}5%,84%{stroke:#26314A;stroke-width:1.5}87%,97%{stroke:#2DD4BF;stroke-width:2.5}100%{stroke:#26314A}}
+    @keyframes hlApi{0%,7%{stroke:#26314A;stroke-width:1.5}9%,13%{stroke:#818CF8;stroke-width:2.5}15%,61%{stroke:#26314A;stroke-width:1.5}63%,70%{stroke:#818CF8;stroke-width:2.5}72%,100%{stroke:#26314A;stroke-width:1.5}}
+    @keyframes hlOcr{0%,15%{stroke:#26314A;stroke-width:1.5}17%,35%{stroke:#818CF8;stroke-width:2.5}37%,100%{stroke:#26314A;stroke-width:1.5}}
+    @keyframes hlEx{0%,41%{stroke:#26314A;stroke-width:1.5}43%,50%{stroke:#818CF8;stroke-width:2.5}52%,100%{stroke:#26314A;stroke-width:1.5}}
+    @keyframes hlRu{0%,51%{stroke:#26314A;stroke-width:1.5}53%,60%{stroke:#818CF8;stroke-width:2.5}62%,100%{stroke:#26314A;stroke-width:1.5}}
+    @keyframes hlRk{0%,59%{stroke:#26314A;stroke-width:1.5}61%,68%{stroke:#818CF8;stroke-width:2.5}70%,100%{stroke:#26314A;stroke-width:1.5}}
+    @keyframes hlDb{0%,65%{stroke:#26314A;stroke-width:1.5}67%,74%{stroke:#FBBF24;stroke-width:2.5}76%,100%{stroke:#26314A;stroke-width:1.5}}
+    @media (prefers-reduced-motion: reduce){.flow,.scan,.n-user,.n-api,.n-ocr,.n-ex,.n-ru,.n-rk,.n-db{animation:none}}
+  </style>
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3A4766"/></marker>
+    <path id="p1" d="M210 270 H260"/>
+    <path id="p2" d="M430 270 H480"/>
+    <path id="p3" d="M640 270 H680"/>
+    <path id="p4" d="M840 270 H880"/>
+    <path id="p5" d="M1040 270 H1070"/>
+    <path id="p7" d="M345 330 V410"/>
+    <path id="p6" d="M1145 330 V535 H120 V330"/>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1240" height="580" rx="20"/>
+
+  <text x="40" y="52" fill="#E6EAF2" font-size="24" font-weight="700">How PackComply checks a label</text>
+  <text x="40" y="78" class="s" font-size="14">One photo in, a legal verdict with evidence out. Every step runs on one laptop.</text>
+  <g transform="translate(1020 34)">
+    <rect width="184" height="30" rx="15" fill="#10241F" stroke="#1F5A4C"/>
+    <circle cx="18" cy="15" r="4" fill="#34D399"><animate attributeName="opacity" values="1;.3;1" dur="2s" repeatCount="indefinite"/></circle>
+    <text x="30" y="20" fill="#6EE7B7" font-size="12.5" font-weight="600">100% offline · no paid AI</text>
+  </g>
+
+  <!-- step captions -->
+  <g font-size="15" font-weight="600" fill="#C7D2FE">
+    <text x="40" y="128" opacity="0">1 · The label is photographed on the phone (back, front, date stamp)
+      <animate attributeName="opacity" calcMode="discrete" values="1;0;0" keyTimes="0;0.10;1" dur="10s" repeatCount="indefinite"/></text>
+    <text x="40" y="128" opacity="0">2 · The laptop reads the text in English and Hindi with on-device OCR
+      <animate attributeName="opacity" calcMode="discrete" values="0;1;0" keyTimes="0;0.10;0.38" dur="10s" repeatCount="indefinite"/></text>
+    <text x="40" y="128" opacity="0">3 · Each declaration is linked to its value and its position on the photo
+      <animate attributeName="opacity" calcMode="discrete" values="0;1;0" keyTimes="0;0.38;0.52" dur="10s" repeatCount="indefinite"/></text>
+    <text x="40" y="128" opacity="0">4 · 14 LM(PC) Rules 2011 checks run, each with its legal reference, then risk is scored
+      <animate attributeName="opacity" calcMode="discrete" values="0;1;0" keyTimes="0;0.52;0.64" dur="10s" repeatCount="indefinite"/></text>
+    <text x="40" y="128" opacity="0">5 · Findings, risk and the audit trail are saved as evidence
+      <animate attributeName="opacity" calcMode="discrete" values="0;1;0" keyTimes="0;0.64;0.71" dur="10s" repeatCount="indefinite"/></text>
+    <text x="40" y="128" opacity="0">6 · Live progress, then the verdict with photo markers and a PDF report
+      <animate attributeName="opacity" calcMode="discrete" values="0;1" keyTimes="0;0.71" dur="10s" repeatCount="indefinite"/></text>
+  </g>
+  <rect x="40" y="146" width="1160" height="4" rx="2" fill="#1A2236"/>
+  <rect x="40" y="146" width="0" height="4" rx="2" fill="#818CF8"><animate attributeName="width" values="0;1160" dur="10s" repeatCount="indefinite"/></rect>
+
+  <!-- connectors -->
+  <g marker-end="url(#arr)">
+    <use href="#p1" class="base"/><use href="#p2" class="base"/><use href="#p3" class="base"/><use href="#p4" class="base"/><use href="#p5" class="base"/><use href="#p7" class="base"/><use href="#p6" class="base"/>
+  </g>
+  <use href="#p1" class="flow"/><use href="#p2" class="flow"/><use href="#p3" class="flow"/><use href="#p4" class="flow"/><use href="#p5" class="flow"/>
+  <use href="#p7" class="flow db"/><use href="#p6" class="flow ret"/>
+  <text x="632" y="560" text-anchor="middle" fill="#5EEAD4" font-size="13" font-weight="600">Live progress (SSE) → verdict with photo markers → inspector review → official PDF</text>
+
+  <!-- nodes -->
+  <g>
+    <rect class="node n-user" x="30" y="210" width="180" height="120" rx="14"/>
+    <g transform="translate(48 228)" fill="none" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="0" y="0" width="18" height="30" rx="4"/><path d="M7 25h4"/></g>
+    <text class="h" x="76" y="250">You</text>
+    <text class="s" x="48" y="286">Inspector or</text>
+    <text class="s" x="48" y="303">manufacturer · phone</text>
+    <text class="s" x="48" y="320">or laptop browser</text>
+  </g>
+  <g>
+    <rect class="node n-api" x="260" y="210" width="170" height="120" rx="14"/>
+    <text class="tiny" x="278" y="236">API</text>
+    <text class="h" x="278" y="260">FastAPI server</text>
+    <text class="s" x="278" y="286">Login and roles</text>
+    <text class="s" x="278" y="303">Upload and progress</text>
+    <text class="s" x="278" y="320">Audit trail</text>
+  </g>
+  <g>
+    <rect class="node n-ocr" x="480" y="210" width="160" height="120" rx="14"/>
+    <clipPath id="ocrclip"><rect x="480" y="210" width="160" height="120" rx="14"/></clipPath>
+    <g clip-path="url(#ocrclip)" opacity="0">
+      <rect class="scan" x="482" y="226" width="156" height="3" fill="#818CF8" filter="url(#glow)"/>
+      <animate attributeName="opacity" calcMode="discrete" values="0;1;0" keyTimes="0;0.16;0.36" dur="10s" repeatCount="indefinite"/>
+    </g>
+    <text class="tiny" x="498" y="236">STEP 1</text>
+    <text class="h" x="498" y="260">On-device OCR</text>
+    <text class="s" x="498" y="286">PaddleOCR</text>
+    <text class="s" x="498" y="303">English + Hindi</text>
+    <text class="s" x="498" y="320">≈ 20 s per photo</text>
+  </g>
+  <g>
+    <rect class="node n-ex" x="680" y="210" width="160" height="120" rx="14"/>
+    <text class="tiny" x="698" y="236">STEP 2</text>
+    <text class="h" x="698" y="260">Extraction</text>
+    <text class="s" x="698" y="286">Layout-aware linking</text>
+    <text class="s" x="698" y="303">MRP, net qty, dates…</text>
+    <text class="s" x="698" y="320">Evidence boxes</text>
+  </g>
+  <g>
+    <rect class="node n-ru" x="880" y="210" width="160" height="120" rx="14"/>
+    <text class="tiny" x="898" y="236">STEP 3</text>
+    <text class="h" x="898" y="260">Rule engine</text>
+    <text class="s" x="898" y="286">14 LM(PC) 2011 rules</text>
+    <text class="s" x="898" y="303">Legal reference each</text>
+    <text class="s" x="898" y="320">How-to-fix guidance</text>
+  </g>
+  <g>
+    <rect class="node n-rk" x="1070" y="210" width="150" height="120" rx="14"/>
+    <text class="tiny" x="1086" y="236">STEP 4</text>
+    <text class="h" x="1086" y="260">Verdict + risk</text>
+    <rect x="1086" y="276" width="112" height="16" rx="8" fill="#2A1416"/><text x="1094" y="288" fill="#F87171" font-size="10.5" font-weight="600">● Non-compliant</text>
+    <rect x="1086" y="298" width="112" height="16" rx="8" fill="#2A2210"/><text x="1094" y="310" fill="#FBBF24" font-size="10.5" font-weight="600">● Needs review</text>
+    <rect x="1086" y="320" width="0" height="0"/>
+  </g>
+  <g>
+    <rect class="node n-db" x="260" y="410" width="170" height="96" rx="14"/>
+    <text class="tiny" x="278" y="436">STORAGE</text>
+    <text class="h" x="278" y="460">PostgreSQL</text>
+    <text class="s" x="278" y="484">Photos (SHA-256), findings,</text>
+    <text class="s" x="278" y="500">corrections, audit events</text>
+  </g>
+  <g transform="translate(480 410)">
+    <rect width="630" height="96" rx="14" fill="#0F1626" stroke="#1E2840" stroke-dasharray="4 6"/>
+    <text class="tiny" x="20" y="28">INSPECTOR STAYS IN CONTROL</text>
+    <text x="20" y="54" fill="#E6EAF2" font-size="14">Unsure value → "Needs review", never a guessed violation</text>
+    <text x="20" y="76" fill="#94A0B8" font-size="13">Inspector corrects from the real pack · instant re-check · official PDF</text>
+  </g>
+
+  <!-- moving packets -->
+  <g filter="url(#glow)">
+    <circle r="6" fill="#A5B4FC" opacity="0"><animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.001;0.08;1"><mpath href="#p1"/></animateMotion><animate attributeName="opacity" calcMode="discrete" values="0;1;0;0" keyTimes="0;0.001;0.08;1" dur="10s" repeatCount="indefinite"/></circle>
+    <circle r="6" fill="#A5B4FC" opacity="0"><animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.10;0.16;1"><mpath href="#p2"/></animateMotion><animate attributeName="opacity" calcMode="discrete" values="0;1;0;0" keyTimes="0;0.10;0.16;1" dur="10s" repeatCount="indefinite"/></circle>
+    <circle r="6" fill="#A5B4FC" opacity="0"><animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.36;0.42;1"><mpath href="#p3"/></animateMotion><animate attributeName="opacity" calcMode="discrete" values="0;1;0;0" keyTimes="0;0.36;0.42;1" dur="10s" repeatCount="indefinite"/></circle>
+    <circle r="6" fill="#A5B4FC" opacity="0"><animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.46;0.52;1"><mpath href="#p4"/></animateMotion><animate attributeName="opacity" calcMode="discrete" values="0;1;0;0" keyTimes="0;0.46;0.52;1" dur="10s" repeatCount="indefinite"/></circle>
+    <circle r="6" fill="#A5B4FC" opacity="0"><animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.56;0.62;1"><mpath href="#p5"/></animateMotion><animate attributeName="opacity" calcMode="discrete" values="0;1;0;0" keyTimes="0;0.56;0.62;1" dur="10s" repeatCount="indefinite"/></circle>
+    <circle r="6" fill="#FCD34D" opacity="0"><animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.64;0.70;1"><mpath href="#p7"/></animateMotion><animate attributeName="opacity" calcMode="discrete" values="0;1;0;0" keyTimes="0;0.64;0.70;1" dur="10s" repeatCount="indefinite"/></circle>
+    <circle r="7" fill="#5EEAD4" opacity="0"><animateMotion dur="10s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0;1;1" keyTimes="0;0.70;0.86;1"><mpath href="#p6"/></animateMotion><animate attributeName="opacity" calcMode="discrete" values="0;1;0;0" keyTimes="0;0.70;0.86;1" dur="10s" repeatCount="indefinite"/></circle>
+  </g>
+</svg>
