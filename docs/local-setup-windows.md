@@ -2,7 +2,7 @@
 
 This guide runs the backend, frontend and PostgreSQL directly on Windows using PowerShell.
 
-> Once everything below is installed once, `scripts\start-demo.ps1` starts PostgreSQL, migrations, the API and the HTTPS web app in one command and prints a QR code for the phone. See "Demo day" in the README.
+> Once everything below is installed once, `scripts\start-demo.ps1` starts PostgreSQL, migrations, the API and the HTTPS web app in one command and prints a QR code for the phone. See [SETUP.md](SETUP.md) and [DEMO.md](DEMO.md).
 
 ## Prerequisites
 
