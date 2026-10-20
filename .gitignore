@@ -27,3 +27,5 @@ PackComply-samples/
 
 # Demo runtime state written by scripts/start-demo.ps1
 .demo/
+
+backups/

@@ -490,7 +490,7 @@
   "productsLoadError": "We could not load your products.",
   "quantityNotRead": "Quantity not read",
   "checkSubtitle": "Upload the final artwork before printing, or a photo of a printed pack.",
-  "checkFormats": "PNG or JPEG only, up to {limit} each. The label is read on this device.",
+  "checkFormats": "PNG, JPEG or PDF (first page), up to {limit} each. The label is read on this device.",
   "checkStart": "Check my label",
   "uploadCorrected": "Upload corrected label",
   "correctedLabelTitle": "Checking a corrected label",
@@ -543,5 +543,6 @@
   "noViolationsByRule": "No violations or items to verify yet.",
   "ruleBarLabel": "{rule}: {violations} violations, {review} to verify",
   "officialRecord": "Official inspection record",
-  "recInspectorMeta": "Inspector: {name}"
+  "recInspectorMeta": "Inspector: {name}",
+  "newBadTypeMaker": "Only PNG, JPEG and PDF files can be checked.", "newPdfChosen": "PDF artwork (first page is checked)", "recAuditPdf": "Artwork PDF converted to an image (page 1)", "notFoundTitle": "Page not found", "notFoundBody": "This address does not lead to a page in PackComply. Check the link, or go back to your home page.", "notFoundHome": "Go to {page}", "shortcutsTitle": "Keyboard shortcuts", "shortcutsIntro": "Press ? at any time. Shortcuts are off while you type in a field.", "shortcutThen": "then", "aboutCompareTitle": "Development vs unseen", "aboutCompareHint": "Headline scores of the latest development run and the latest unseen run, side by side (development · unseen). The unseen score is the honest one: those photos were never used to tune the extractor."
 }

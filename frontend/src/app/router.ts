@@ -9,7 +9,8 @@ import { useEffect, useState } from "react";
 export type Route =
   | { name: "overview" } | { name: "inspections" } | { name: "inspection"; id: string } | { name: "new" } | { name: "capture"; add?: string; panel?: string }
   | { name: "risk" } | { name: "patterns" } | { name: "rulesets" } | { name: "reports" } | { name: "about" }
-  | { name: "products" } | { name: "product"; id: string } | { name: "check"; previous?: string } | { name: "fixes" } | { name: "guide" };
+  | { name: "products" } | { name: "product"; id: string } | { name: "check"; previous?: string } | { name: "fixes" } | { name: "guide" }
+  | { name: "notfound" };
 export type RouteName = Route["name"];
 
 const SIMPLE: RouteName[] = ["overview", "inspections", "new", "risk", "patterns", "rulesets", "reports", "about", "products", "fixes"];
@@ -39,6 +40,14 @@ export function redirectFor(route: Route, role?: string): string | null {
   }
   if (role !== "MANUFACTURER" && MANUFACTURER_ONLY.includes(route.name)) return "/overview";
   return null;
+}
+
+/** The hashes that mean "no particular page": the app opens the default one instead of showing Not found. */
+const isBlankHash = (hash: string) => ["", "/", FORGOT_PASSWORD_PATH].includes(hash.replace(/^#/, "").split("?")[0].replace(/\/+$/, ""));
+
+/** The route for a hash: a blank one is the default page, an unknown one is the Not found page. */
+export function routeFor(hash: string): Route {
+  return parseHash(hash) ?? (isBlankHash(hash) ? { name: "overview" } : { name: "notfound" });
 }
 
 export function parseHash(hash: string): Route | null {
@@ -95,12 +104,12 @@ export function useHashPath(): string {
 const sameRoute = (a: Route, b: Route) => JSON.stringify(a) === JSON.stringify(b);
 
 export function useHashRoute(): Route {
-  const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash) ?? { name: "overview" });
+  const [route, setRoute] = useState<Route>(() => routeFor(window.location.hash));
   useEffect(() => {
     // A hashchange to the page already shown (a late or duplicate event) keeps the same route object, so nothing that
     // depends on the route (closing the menu, moving focus) fires for it.
-    const update = () => setRoute(current => { const next = parseHash(window.location.hash) ?? { name: "overview" }; return sameRoute(current, next) ? current : next; });
-    if (!parseHash(window.location.hash)) navigate(DEFAULT_PATH, { replace: true });
+    const update = () => setRoute(current => { const next = routeFor(window.location.hash); return sameRoute(current, next) ? current : next; });
+    if (!parseHash(window.location.hash) && isBlankHash(window.location.hash)) navigate(DEFAULT_PATH, { replace: true });
     window.addEventListener("hashchange", update);
     return () => window.removeEventListener("hashchange", update);
   }, []);

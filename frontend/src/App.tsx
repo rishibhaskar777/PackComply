@@ -1,7 +1,7 @@
 import { lazy, ReactNode, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, LazyMotion, m, MotionConfig } from "motion/react";
 import { api, getJson, isExpired, isUnavailable, ApiError, UNAUTHORIZED_EVENT } from "./api/client";
-import { AppShell, routeTitles } from "./app/AppShell";
+import { AppShell, documentTitle } from "./app/AppShell";
 import { homePath, navigate, redirectFor, Route, useHashRoute } from "./app/router";
 import { PageSkeleton } from "./components/PageSkeleton";
 import { ToastProvider, useToast } from "./components/ui";
@@ -30,6 +30,7 @@ const ProductResultPage = lazy(() => import("./pages/maker/ProductResultPage").t
 const FixListPage = lazy(() => import("./pages/maker/FixListPage").then(module => ({ default: module.FixListPage })));
 const SelfCheckReportsPage = lazy(() => import("./pages/maker/SelfCheckReportsPage").then(module => ({ default: module.SelfCheckReportsPage })));
 const RulesGuidePage = lazy(() => import("./pages/maker/RulesGuidePage").then(module => ({ default: module.RulesGuidePage })));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage").then(module => ({ default: module.NotFoundPage })));
 const ReportsPage = lazy(() => import("./pages/ReportsPage").then(module => ({ default: module.ReportsPage })));
 
 // Animation and layout features are fetched after first paint; elements render statically until then.
@@ -123,6 +124,8 @@ function AppContent() {
     return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
   }, [t, toast]);
 
+  useEffect(() => { if (!user) document.title = `${t("signIn")} · ${t("appName")}`; }, [user, t]);
+
   if (authLoading) return <div className="boot-screen" role="status">{t("authenticationLoading")}</div>;
   if (!user) return <AuthPage loading={authBusy} error={authError} onLogin={login} onRegister={register} />;
   return <Workspace user={user} onLogout={logout} onExpired={expired} />;
@@ -159,9 +162,8 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
   // Each role has its own pages: an inspector page opened by a manufacturer (or the reverse) is replaced by its equivalent.
   const redirect = redirectFor(route, user.role);
   useEffect(() => { if (redirect) navigate(redirect, { replace: true }); }, [redirect]);
+  useEffect(() => { document.title = documentTitle(route, user.role, t, pageLabel); }, [route, t, pageLabel, user.role]);
   useEffect(() => {
-    const titles = routeTitles(route, user.role);
-    document.title = `${t(titles.page)} · ${t("appName")}`;
     // Move focus to the new page for keyboard and screen-reader users (not on first load).
     if (firstRoute.current) firstRoute.current = false;
     else document.getElementById("main-content")?.focus({ preventScroll: true });
@@ -216,6 +218,7 @@ function Workspace({ user, onLogout, onExpired }: { user: User; onLogout: () => 
       case "rulesets": return <RulesetsPage onExpired={onExpired} />;
       case "reports": return official ? <ReportsPage onExpired={onExpired} /> : <SelfCheckReportsPage onExpired={onExpired} />;
       case "about": return <AboutPage onExpired={onExpired} />;
+      case "notfound": return <NotFoundPage official={official} />;
     }
   }
 }

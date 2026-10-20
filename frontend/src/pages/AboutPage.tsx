@@ -47,6 +47,14 @@ export function AboutPage({ onExpired }: { onExpired: () => void }) {
   const [selected, setSelected] = useState(0);
   const run = report.data?.runs[Math.min(selected, Math.max((report.data?.runs.length ?? 1) - 1, 0))] ?? null;
 
+  // The newest development run beside the newest unseen run, once a person has scored one.
+  const pair = useMemo(() => {
+    const all = report.data?.runs ?? [];
+    const dev = all.find(item => item.kind !== "unseen");
+    const unseen = all.find(item => item.kind === "unseen");
+    return dev && unseen ? { dev, unseen } : null;
+  }, [report.data]);
+
   const date = (iso: string) => { try { return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(iso)); } catch { return iso.slice(0, 10); } };
   const columns: Column<ComplianceRule>[] = [
     { key: "rule", header: t("rule"), className: "cell-wrap cell-grow", render: rule => <span className="cell-primary">{rule.title}</span> },
@@ -76,6 +84,12 @@ export function AboutPage({ onExpired }: { onExpired: () => void }) {
           : !run ? <p className="about__text">{t("aboutEvalNone")}</p>
           : <EvaluationRun key={run.label} run={run} runs={report.data.runs} selected={selected} onSelect={setSelected} date={date} />}
       </Card>
+
+      {pair && (
+        <Card title={t("aboutCompareTitle")} description={t("aboutCompareHint")}>
+          <EvaluationCompare dev={pair.dev} unseen={pair.unseen} />
+        </Card>
+      )}
 
       <Card title={t("aboutChecksTitle")} description={rules.data ? fill(t("aboutChecksBody"), { count: rules.data.rules.length, ruleset: rules.data.label }) : undefined} flush>
         {rules.failure
@@ -134,6 +148,42 @@ function EvaluationRun({ run, runs, selected, onSelect, date }: { run: EvalRun; 
         </div>
         <GroupResults group={group} />
       </>}
+    </div>
+  );
+}
+
+/** The overall group of a run (ALL when present). */
+const overall = (run: EvalRun) => run.groups.find(group => group.name === "ALL") ?? run.groups[run.groups.length - 1];
+
+/** Headline scores of the latest development run and the latest unseen run as paired bars, each value read straight from the report. */
+function EvaluationCompare({ dev, unseen }: { dev: EvalRun; unseen: EvalRun }) {
+  const { t } = useI18n();
+  const a = overall(dev);
+  const b = overall(unseen);
+  if (!a || !b) return null;
+  const metrics: [TranslationKey, number, number][] = [
+    ["aboutPrecision", a.precision, b.precision],
+    ["aboutRecall", a.recall, b.recall],
+    ["aboutVerdictsCorrect", a.photos ? a.verdicts_correct / a.photos : 0, b.photos ? b.verdicts_correct / b.photos : 0],
+  ];
+  return (
+    <div className="about-compare">
+      <p className="about-compare__legend">
+        <span className="about-compare__key about-compare__key--dev">{dev.label} ({a.photos})</span>
+        <span className="about-compare__key about-compare__key--unseen">{unseen.label} ({b.photos})</span>
+      </p>
+      <dl className="about-compare__rows">
+        {metrics.map(([label, first, second]) => (
+          <div key={label} className="about-compare__row">
+            <dt>{t(label)}</dt>
+            <dd>
+              <span className="about-compare__bar about-compare__bar--dev" aria-hidden="true"><span style={{ width: `${Math.round(first * 100)}%` }} /></span>
+              <span className="about-compare__bar about-compare__bar--unseen" aria-hidden="true"><span style={{ width: `${Math.round(second * 100)}%` }} /></span>
+              <span className="tabular about-compare__values">{`${percent(first)} · ${percent(second)}`}</span>
+            </dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }

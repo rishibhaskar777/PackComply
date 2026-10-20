@@ -152,6 +152,69 @@ try {
 } finally { Pop-Location }
 Ok "Schema is up to date"
 
+# ---------------------------------------------------------------------------------------------------- pre-flight
+# One summary of everything the demo depends on. A critical check that fails stops the start here, before any window
+# opens, with the fix; warnings (no Wi-Fi, no firewall rule) are shown but do not stop the laptop-only demo.
+Step "Pre-flight summary"
+$checks = New-Object System.Collections.Generic.List[object]
+function Add-Check([string]$name, [string]$state, [string]$detail, [string]$fix = "") {
+    $checks.Add([pscustomobject]@{ Name = $name; State = $state; Detail = $detail; Fix = $fix })
+}
+
+# Database answers.
+if (Test-TcpOpen $PgPort) { Add-Check "Database" "OK" "PostgreSQL answers on port $PgPort" }
+else { Add-Check "Database" "FAIL" "PostgreSQL is not answering on port $PgPort" "Start it with pg_ctl or re-run this script; check the log in $StateDir\postgres.log" }
+
+# Migrations are at the newest revision.
+Push-Location $Root
+try {
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    $currentText = (& $Alembic -c backend/alembic.ini current 2>&1 | Out-String)
+    $headsText = (& $Alembic -c backend/alembic.ini heads 2>&1 | Out-String)
+    $ErrorActionPreference = $previous
+} finally { Pop-Location }
+$headId = [regex]::Match($headsText, '(?m)^([0-9a-f]+)').Groups[1].Value
+if ($headId -and $currentText -match [regex]::Escape($headId)) { Add-Check "Migrations" "OK" "database is at head ($headId)" }
+else { Add-Check "Migrations" "FAIL" "database is not at the newest migration" "Run:  .\.venv\Scripts\alembic.exe -c backend/alembic.ini upgrade head" }
+
+# OCR models are on disk (no download is attempted while the demo runs).
+$modelDir = Join-Path $Root ".paddlex\official_models"
+$modelFolders = if (Test-Path $modelDir) { @(Get-ChildItem $modelDir -Directory -ErrorAction SilentlyContinue | Where-Object { (Get-ChildItem $_.FullName -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1) }) } else { @() }
+$detModels = @($modelFolders | Where-Object { $_.Name -match "det" }).Count
+$recModels = @($modelFolders | Where-Object { $_.Name -match "rec" }).Count
+if ($detModels -ge 1 -and $recModels -ge 1) { Add-Check "OCR models" "OK" "$($modelFolders.Count) model folders in .paddlex\official_models" }
+else { Add-Check "OCR models" "FAIL" "no detection/recognition models in $modelDir" "Download them once (needs internet):  .\.venv\Scripts\python.exe -m backend.scripts.warm_ocr" }
+
+# Free disk space where the uploads and the database live.
+try {
+    $drive = Get-PSDrive -Name ($Root.Substring(0, 1)) -ErrorAction Stop
+    $freeGb = [math]::Round($drive.Free / 1GB, 1)
+    if ($freeGb -lt 0.5) { Add-Check "Disk space" "FAIL" "only $freeGb GB free on $($drive.Name):" "Free some space; uploads and PDF reports need room." }
+    elseif ($freeGb -lt 2) { Add-Check "Disk space" "WARN" "$freeGb GB free on $($drive.Name):" }
+    else { Add-Check "Disk space" "OK" "$freeGb GB free on $($drive.Name):" }
+} catch { Add-Check "Disk space" "WARN" "could not read the free space" }
+
+# Wi-Fi / LAN address and the firewall rule for the phone.
+$preLan = Get-LanIPv4
+if ($preLan) { Add-Check "LAN address" "OK" "$($preLan.Ip) on '$($preLan.Alias)'" }
+else { Add-Check "LAN address" "WARN" "no Wi-Fi/LAN address (the laptop URL still works; the phone will not)" }
+if ($preLan) {
+    if (Get-NetFirewallRule -DisplayName $FirewallRule -ErrorAction SilentlyContinue) { Add-Check "Firewall rule" "OK" "'$FirewallRule' present" }
+    else { Add-Check "Firewall rule" "WARN" "no rule for port $WebPort; the phone may not connect (command is printed at the end)" }
+}
+
+foreach ($check in $checks) {
+    $line = "    {0,-4} {1,-14} {2}" -f $check.State, $check.Name, $check.Detail
+    $colour = switch ($check.State) { "OK" { "Green" } "WARN" { "Yellow" } default { "Red" } }
+    Write-Host $line -ForegroundColor $colour
+}
+$critical = @($checks | Where-Object { $_.State -eq "FAIL" })
+if ($critical.Count -gt 0) {
+    $first = $critical[0]
+    Fail "$($critical.Count) critical check(s) failed: $(($critical | ForEach-Object { $_.Name }) -join ', '). Not starting the servers." $first.Fix
+}
+
 # ---------------------------------------------------------------------------------------------------- network
 Step "Network address for the phone"
 $lan = Get-LanIPv4

@@ -27,6 +27,8 @@ dependencies = [
   "pyyaml>=6.0,<7.0",
   # Draws the phone-URL QR code in the terminal (scripts/start-demo.ps1). Pure Python, no network.
   "qrcode>=7.4,<9.0",
+  # Renders page 1 of a manufacturer's artwork PDF to an image (Apache-2.0 / BSD-3-Clause, PDFium is BSD-3). Local, no network.
+  "pypdfium2>=4.30,<6.0",
 ]
 
 [project.optional-dependencies]

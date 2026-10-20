@@ -71,9 +71,11 @@ export function useInspectionRun({ onExpired, previousInspectionId }: Options) {
     if (s.uploaded.has(photo.id)) return;
     const id = await ensureInspection(s);
     const limit = await maxDimension();
-    const prepared = await prepareForUpload(photo.blob, limit).catch(() => ({ blob: photo.blob }));
+    // Artwork PDFs go up untouched: the backend renders page 1 and keeps the PDF's SHA-256 in the audit trail.
+    const isPdf = photo.blob.type === "application/pdf";
+    const prepared = isPdf ? { blob: photo.blob } : await prepareForUpload(photo.blob, limit).catch(() => ({ blob: photo.blob }));
     const form = new FormData();
-    form.append("image", prepared.blob, photo.name.replace(/\.\w+$/, prepared.blob.type === "image/png" ? ".png" : ".jpg"));
+    form.append("image", prepared.blob, isPdf ? photo.name : photo.name.replace(/\.\w+$/, prepared.blob.type === "image/png" ? ".png" : ".jpg"));
     form.append("panel", photo.panel);
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
     await api(`/inspections/${id}/image${readNow ? "?process_now=true" : ""}`, "upload", { method: "POST", body: form }, 120_000);

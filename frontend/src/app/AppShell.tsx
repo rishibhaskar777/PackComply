@@ -11,6 +11,7 @@ import { BrandMark } from "./BrandMark";
 import { ThemeSwitcher, ThemeToggle } from "./ThemeControls";
 import { portalOf } from "../lib/portal";
 import { Route, RouteName } from "./router";
+import { ShortcutsDialog, useShortcuts } from "./shortcuts";
 
 type NavItem = { name: RouteName; path: string; label: TranslationKey; icon: LucideIcon };
 const INSPECTION_NAV: NavItem[] = [
@@ -43,6 +44,7 @@ const PhoneDialog = lazy(() => import("./PhoneDialog"));
 export function routeTitles(route: Route, role?: string): { section: TranslationKey; sectionHref?: string; page: TranslationKey } {
   if (role === "MANUFACTURER") {
     switch (route.name) {
+      case "notfound": return { section: "labelSelfCheck", page: "notFoundTitle" };
       case "product": return { section: "myProducts", sectionHref: "#/products", page: "selfCheckResult" };
       case "check": case "new": case "capture": return { section: "myProducts", sectionHref: "#/products", page: "checkALabel" };
       case "fixes": return { section: "labelSelfCheck", page: "fixList" };
@@ -53,6 +55,7 @@ export function routeTitles(route: Route, role?: string): { section: Translation
     }
   }
   switch (route.name) {
+    case "notfound": return { section: "inspection", page: "notFoundTitle" };
     case "inspection": return { section: "inspections", sectionHref: "#/inspections", page: "inspectionDetails" };
     case "new": case "capture": return { section: "inspections", sectionHref: "#/inspections", page: "newInspection" };
     case "rulesets": case "reports": return { section: "resources", page: route.name };
@@ -62,6 +65,13 @@ export function routeTitles(route: Route, role?: string): { section: Translation
     case "inspections": return { section: "inspection", page: "inspections" };
     default: return { section: "inspection", page: "overview" };
   }
+}
+
+/** The browser-tab title: the page's own name ("Today's inspection priorities", "My products"…), plus the record for a detail page. */
+export function documentTitle(route: Route, role: string | undefined, t: (key: TranslationKey) => string, pageLabel?: string | null): string {
+  const page = role !== "MANUFACTURER" && route.name === "overview" ? t("todaysPriorities") : t(routeTitles(route, role).page);
+  const detail = (route.name === "inspection" || route.name === "product") && pageLabel ? `${pageLabel} · ` : "";
+  return `${detail}${page} · ${t("appName")}`;
 }
 
 function activeNav(route: Route): RouteName {
@@ -100,6 +110,8 @@ export function AppShell({ pageLabel, route, user, riskCount, fixCount = null, s
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [phoneOpen, setPhoneOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  useShortcuts({ maker, onNew: onNewInspection, onHelp: () => setShortcutsOpen(true) });
   const searchRef = useRef<HTMLInputElement>(null);
   const titles = routeTitles(route, user.role);
   const active = activeNav(route);
@@ -208,6 +220,7 @@ export function AppShell({ pageLabel, route, user, riskCount, fixCount = null, s
         <main id="main-content" className="shell__content" tabIndex={-1}>{children}</main>
       </div>
 
+      <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} maker={maker} />
       {phoneOpen && <Suspense fallback={null}><PhoneDialog open onClose={() => setPhoneOpen(false)} onExpired={onExpired} /></Suspense>}
 
       <nav className="tabbar" aria-label={t("mobileNavigation")}>
