@@ -160,26 +160,7 @@ Two flows, using the seeded demo data (see [Getting started](#getting-started)).
 
 One inspection, from upload to verdict:
 
-```mermaid
-sequenceDiagram
-  actor U as User (browser)
-  participant A as FastAPI
-  participant O as OCR service
-  participant D as PostgreSQL
-  U->>A: POST /api/inspections (create)
-  U->>A: POST /images?process_now=true (photo 1)
-  A-->>U: 201 stored (OCR starts for that photo)
-  U->>A: POST /process (Done)
-  A-->>U: 202 progress snapshot
-  U->>A: GET /progress/stream (SSE)
-  A->>O: read each photo (en + hi)
-  O-->>A: text boxes
-  A->>A: extract, merge, rules, risk
-  A->>D: save fields, findings, risk, audit events
-  A-->>U: SSE step events with real durations
-  A-->>U: completed with verdict
-  U->>A: GET inspection record
-```
+   ![One inspection from upload to verdict: create, upload photos, live progress, OCR, extraction, 14 rules, risk, saved with audit trail, verdict returned](docs/sequence-animated.svg)
 
 Deep detail (OCR language handling, extraction passes, rule semantics, risk scoring) is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
