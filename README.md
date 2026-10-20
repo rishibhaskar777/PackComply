@@ -156,19 +156,7 @@ Two flows, using the seeded demo data (see [Getting started](#getting-started)).
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  subgraph Client["Browser"]
-    SPA["React SPA<br/>desktop + phone field app"]
-  end
-  SPA <-->|"/api (Vite dev proxy)"| API["FastAPI"]
-  API <--> DB[("PostgreSQL")]
-  API --> OCR["OCR service<br/>PaddleOCR: English in process,<br/>Hindi in a worker process"]
-  OCR --> EXT["Extraction<br/>layout, values, fuzzy keys, evidence"]
-  EXT --> COMP["Compliance<br/>versioned YAML ruleset +<br/>remediation catalogue"]
-  COMP --> RISK["Risk score"]
-  RISK --> PDF["PDF reports<br/>ReportLab + Noto fonts + HarfBuzz"]
-```
+![How PackComply checks a label: photo → on-device OCR → extraction → 14 rules → verdict and risk → result back to the user](docs/architecture-animated.svg)
 
 One inspection, from upload to verdict:
 
