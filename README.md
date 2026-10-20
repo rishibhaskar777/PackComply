@@ -405,13 +405,15 @@ docs/                    SETUP, DEMO, EVALUATION, ARCHITECTURE, screenshots/
 - 21 of the 23 UI translations are machine-assisted and need native-speaker review. OCR supports fewer languages than the UI.
 - No unseen-set accuracy figure exists yet; the published scores are development scores.
 
-## Team and credits
 
-Built by **Team CORTEX** for **InnoTech'26**. Originally developed by VersatileSid; maintained by rishibhaskar777.
+## Author
 
-Built on open-source software: [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) and PaddlePaddle, [FastAPI](https://fastapi.tiangolo.com/), [React](https://react.dev/), [Vite](https://vite.dev/), [SQLAlchemy](https://www.sqlalchemy.org/) and Alembic, [PostgreSQL](https://www.postgresql.org/), [ReportLab](https://www.reportlab.com/opensource/), [HarfBuzz](https://harfbuzz.github.io/) (via uharfbuzz), [pypdfium2](https://github.com/pypdfium2-team/pypdfium2), OpenCV, [Noto fonts](https://fonts.google.com/noto) (SIL Open Font License), Geist fonts, lucide icons and Motion.
+**Rishi Bhaskar** ([@rishibhaskar777](https://github.com/rishibhaskar777)): design, development, evaluation and maintenance of PackComply, built for InnoTech'26.
+
+PackComply started from an early prototype by VersatileSid and has since been substantially redesigned and rebuilt: the OCR pipeline, layout-aware extraction, versioned rule engine with legal references, risk scoring, inspector and manufacturer portals, phone field app, evaluation framework and UI.
+
+Built on open-source software: PaddleOCR and PaddlePaddle, FastAPI, React, Vite, SQLAlchemy and Alembic, PostgreSQL, ReportLab, HarfBuzz (via uharfbuzz), pypdfium2, OpenCV, Noto fonts (SIL Open Font License), Geist fonts, lucide icons and Motion.
 
 ## Licence
 
-<!-- TODO(owner): choose and add a LICENSE file, then add a licence badge and replace this section. -->
-Not yet licensed. All rights reserved by the authors.
+Not yet licensed. All rights reserved.
