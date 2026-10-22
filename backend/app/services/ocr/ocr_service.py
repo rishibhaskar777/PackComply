@@ -46,6 +46,8 @@ class OcrDetection:
     # Degrees the photo was turned clockwise (0, 90 or 270) before this text
     # was read upright.  The box itself is always in original photo pixels.
     rotation: int = 0
+    # Set on detections the date-recovery pass added or confirmed (see date_recovery.py); None everywhere else.
+    recovery: dict[str, Any] | None = None
 
 
 # Unicode block of each configured language's native script.  A secondary
@@ -167,7 +169,7 @@ class OcrDocument:
         return "\n".join(item.text for item in self.detections)
 
     def as_database_detections(self) -> list[dict[str, Any]]:
-        return [asdict(item) for item in self.detections]
+        return [{key: value for key, value in asdict(item).items() if key != "recovery" or value is not None} for item in self.detections]
 
 
 def _secondary_worker_main(language: str, options: dict[str, Any], requests: Any, responses: Any) -> None:
@@ -299,6 +301,7 @@ class PaddleOcrService:
     """Run PaddleOCR after a small contrast/noise preprocessing step."""
 
     engine_name = "PaddleOCR"
+    date_recovery = True
 
     def __init__(
         self,
@@ -577,13 +580,13 @@ class PaddleOcrService:
             parse_started = perf_counter()
             deduplicated = self._deduplicate(detections)
             logger.info("OCR result conversion completed detections=%d elapsed_seconds=%.3f", len(deduplicated), perf_counter() - parse_started)
-            return OcrDocument(
+            return self._recover_dates(OcrDocument(
                 engine=self.engine_name,
                 languages=completed_languages,
                 detections=deduplicated,
                 skipped_languages=skipped_languages,
                 secondary_duplicates_dropped=dropped_total,
-            )
+            ), image_path)
         except OcrInitializationError:
             raise
         except Exception as error:
@@ -596,6 +599,20 @@ class PaddleOcrService:
                 if processed_path.exists():
                     processed_path.unlink()
             logger.info("OCR request completed image_path=%s elapsed_seconds=%.3f", image_path, perf_counter() - started)
+
+    def _recover_dates(self, document: OcrDocument, image_path: Path) -> OcrDocument:
+        """Second pass for date keys read without a value (best effort: any failure keeps the first-pass result)."""
+        if not self.date_recovery:
+            return document
+        try:
+            from backend.app.services.ocr.date_recovery import recover_dates
+
+            language = "en" if "en" in self.languages else self.languages[0]
+            recovered = recover_dates(image_path, document.raw_text, document.detections, lambda path: self._predict(language, path))
+            return replace(document, detections=recovered.detections)
+        except Exception:
+            logger.warning("OCR date recovery skipped image_path=%s", image_path, exc_info=True)
+            return document
 
     def _best_rotation(self, image_path: Path, language: str, upright: list[OcrDetection]) -> tuple[int, list[OcrDetection], Path | None]:
         """Read a sideways photo turned 90 and 270 degrees; keep the orientation that reads best."""

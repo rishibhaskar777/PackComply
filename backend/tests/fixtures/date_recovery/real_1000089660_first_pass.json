@@ -1,0 +1,1599 @@
+{
+ "source": "batch_evaluate OCR of 1000089660.jpg",
+ "engine": "PaddleOCR",
+ "languages": [
+  "en",
+  "hi"
+ ],
+ "skipped_languages": [],
+ "image_width": 3000,
+ "image_height": 4000,
+ "ocr_seconds": 25.59,
+ "raw_text": "DIRECTIONS FOR USE\nShake well\nMix 30ml of\nTake empty stomach\njuice with 30ml of\nin the morning and\nbefore use\nwarm water\n30 mins post dinner\nIngredients: Each 100ml Juice/Swaras Contains:\nHarad (Terminalia chebula) Fr. 1gm, Baheda (Terminalia\nbellirica) Fr. 1gm, Amla (Phyllanthus emblica) Fr. 1gm,\nShunthi (Zingiber officinale) Rz. 0.7gm, Marich (Piper nigrum)\nSd. 0.7gm, Pippali (Piper Longum) Fr. 0.7gm, Pippalimool\n(Piper Longum) Rt. 0.7gm, Chavya (Piper retrofractum Vahi)\nRt. 0.7gm, Chitrak (Plumbago zeylanica) Rt. 0.7gm, Saindhav\nLavan 0.1gm, Anardana (Punica granatum) Fr. 1gm,\nAmlavetas (Garcinia pedunculata) Fr. 1gm, Choti Elaichi\n(Elettaria cardamomum Maton) Fr. 0.1gm, Nishoth\n(Operculina turpethum) Rt. 0.8gm, Munakka (Leptospermum\nscoparium) Fr. 0.8gm with permitted class II preservatives\nless than 0.3%\nGMP\n8\nNATURAL\nNO ADDED\nGMP\nNO\nHERBS\nSUGAR\nCERTIFIED\nEXTRACTS\nUSED\nCaution\n1. Store in cool and dry place.\n2. Keep the botttle lid always closed.\n3. Check if the seal is intact before use.\n4. Use as directed by physician.\n5. Use within a month after opening\nNet Volume : 1000 ml (33.814 fl oz)\nMRP₹/USP₹：\n(Incl. of all taxes)\n480.000.48/ml\nMfg. Date\nR-DLU7-063\nBatch No.\n042028\nExpiry Date\nAddress for mfg. location address, refer the first\ncharacter of Batch No. and see address panel\nManufactured & Marketed by:\nSandipani Healthcare Pvt. Ltd.\nAt: {R} Plot No.1, Heavy Industrial Area, Jodhpur,\nRajasthan-342003 Mfg. Lic. No.: RJ 627-AYU\nAt: {A} 11, Samkit Industrial Park, Jajiwal\nBramana, Jodhpur, Rajasthan-342027\nMfg. Lic. No.: RJ 1064-AYU\nContact us for feedback and queries:\nWeb:www.krishnaayurved.com\nMail: care@krishnaayurved.com\nHelpline:0291 3529700\nPRODUCT OF INDIA\nT\nMRPश/USPर :\n480.00 स 0.48-mt\n05026",
+ "detections": [
+  {
+   "text": "DIRECTIONS FOR USE",
+   "confidence": 0.9918564558029175,
+   "bbox": [
+    [
+     1087.5,
+     406.25
+    ],
+    [
+     1737.5,
+     403.12
+    ],
+    [
+     1737.5,
+     468.75
+    ],
+    [
+     1087.5,
+     471.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Shake well",
+   "confidence": 0.9999922513961792,
+   "bbox": [
+    [
+     946.88,
+     843.75
+    ],
+    [
+     1121.88,
+     843.75
+    ],
+    [
+     1121.88,
+     887.5
+    ],
+    [
+     946.88,
+     887.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mix 30ml of",
+   "confidence": 0.9991119503974915,
+   "bbox": [
+    [
+     1315.62,
+     818.75
+    ],
+    [
+     1512.5,
+     812.5
+    ],
+    [
+     1512.5,
+     859.38
+    ],
+    [
+     1315.62,
+     865.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Take empty stomach",
+   "confidence": 0.999983549118042,
+   "bbox": [
+    [
+     1653.12,
+     815.62
+    ],
+    [
+     1946.88,
+     815.62
+    ],
+    [
+     1946.88,
+     856.25
+    ],
+    [
+     1653.12,
+     856.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "juice with 30ml of",
+   "confidence": 0.9844735264778137,
+   "bbox": [
+    [
+     1271.88,
+     859.38
+    ],
+    [
+     1556.25,
+     856.25
+    ],
+    [
+     1556.25,
+     900.0
+    ],
+    [
+     1271.88,
+     903.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "in the morning and",
+   "confidence": 0.9976662397384644,
+   "bbox": [
+    [
+     1662.5,
+     856.25
+    ],
+    [
+     1934.38,
+     856.25
+    ],
+    [
+     1934.38,
+     896.88
+    ],
+    [
+     1662.5,
+     896.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "before use",
+   "confidence": 0.9997053146362305,
+   "bbox": [
+    [
+     946.88,
+     887.5
+    ],
+    [
+     1115.62,
+     887.5
+    ],
+    [
+     1115.62,
+     921.88
+    ],
+    [
+     946.88,
+     921.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "warm water",
+   "confidence": 0.9999893307685852,
+   "bbox": [
+    [
+     1315.62,
+     900.0
+    ],
+    [
+     1512.5,
+     893.75
+    ],
+    [
+     1512.5,
+     937.5
+    ],
+    [
+     1315.62,
+     943.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "30 mins post dinner",
+   "confidence": 0.9719620943069458,
+   "bbox": [
+    [
+     1659.38,
+     896.88
+    ],
+    [
+     1940.62,
+     896.88
+    ],
+    [
+     1940.62,
+     937.5
+    ],
+    [
+     1659.38,
+     937.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Ingredients: Each 100ml Juice/Swaras Contains:",
+   "confidence": 0.9995694160461426,
+   "bbox": [
+    [
+     871.88,
+     1028.12
+    ],
+    [
+     1759.38,
+     1012.5
+    ],
+    [
+     1759.38,
+     1065.62
+    ],
+    [
+     871.88,
+     1081.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Harad (Terminalia chebula) Fr. 1gm, Baheda (Terminalia",
+   "confidence": 0.9880279302597046,
+   "bbox": [
+    [
+     871.88,
+     1078.12
+    ],
+    [
+     1868.75,
+     1065.62
+    ],
+    [
+     1868.75,
+     1118.75
+    ],
+    [
+     871.88,
+     1131.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "bellirica) Fr. 1gm, Amla (Phyllanthus emblica) Fr. 1gm,",
+   "confidence": 0.996252179145813,
+   "bbox": [
+    [
+     871.88,
+     1131.25
+    ],
+    [
+     1831.25,
+     1118.75
+    ],
+    [
+     1831.25,
+     1175.0
+    ],
+    [
+     871.88,
+     1187.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Shunthi (Zingiber officinale) Rz. 0.7gm, Marich (Piper nigrum)",
+   "confidence": 0.9959973096847534,
+   "bbox": [
+    [
+     871.88,
+     1181.25
+    ],
+    [
+     1962.5,
+     1168.75
+    ],
+    [
+     1962.5,
+     1231.25
+    ],
+    [
+     871.88,
+     1243.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Sd. 0.7gm, Pippali (Piper Longum) Fr. 0.7gm, Pippalimool",
+   "confidence": 0.9975691437721252,
+   "bbox": [
+    [
+     875.0,
+     1237.5
+    ],
+    [
+     1890.62,
+     1225.0
+    ],
+    [
+     1890.62,
+     1278.12
+    ],
+    [
+     875.0,
+     1290.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(Piper Longum) Rt. 0.7gm, Chavya (Piper retrofractum Vahi)",
+   "confidence": 0.9923097491264343,
+   "bbox": [
+    [
+     878.12,
+     1290.62
+    ],
+    [
+     1931.25,
+     1275.0
+    ],
+    [
+     1931.25,
+     1328.12
+    ],
+    [
+     878.12,
+     1343.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Rt. 0.7gm, Chitrak (Plumbago zeylanica) Rt. 0.7gm, Saindhav",
+   "confidence": 0.9994584321975708,
+   "bbox": [
+    [
+     878.12,
+     1343.75
+    ],
+    [
+     1953.12,
+     1328.12
+    ],
+    [
+     1953.12,
+     1381.25
+    ],
+    [
+     878.12,
+     1396.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Lavan 0.1gm, Anardana (Punica granatum) Fr. 1gm,",
+   "confidence": 0.9983417391777039,
+   "bbox": [
+    [
+     878.12,
+     1396.88
+    ],
+    [
+     1787.5,
+     1384.38
+    ],
+    [
+     1787.5,
+     1437.5
+    ],
+    [
+     878.12,
+     1450.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Amlavetas (Garcinia pedunculata) Fr. 1gm, Choti Elaichi",
+   "confidence": 0.9995954632759094,
+   "bbox": [
+    [
+     881.25,
+     1446.88
+    ],
+    [
+     1868.75,
+     1434.38
+    ],
+    [
+     1868.75,
+     1487.5
+    ],
+    [
+     881.25,
+     1500.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(Elettaria cardamomum Maton) Fr. 0.1gm, Nishoth",
+   "confidence": 0.9976508021354675,
+   "bbox": [
+    [
+     881.25,
+     1500.0
+    ],
+    [
+     1771.88,
+     1490.62
+    ],
+    [
+     1771.88,
+     1543.75
+    ],
+    [
+     881.25,
+     1553.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(Operculina turpethum) Rt. 0.8gm, Munakka (Leptospermum",
+   "confidence": 0.9983699321746826,
+   "bbox": [
+    [
+     884.38,
+     1553.12
+    ],
+    [
+     1953.12,
+     1540.62
+    ],
+    [
+     1953.12,
+     1593.75
+    ],
+    [
+     884.38,
+     1606.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "scoparium) Fr. 0.8gm with permitted class II preservatives",
+   "confidence": 0.9904065132141113,
+   "bbox": [
+    [
+     881.25,
+     1606.25
+    ],
+    [
+     1925.0,
+     1590.62
+    ],
+    [
+     1925.0,
+     1643.75
+    ],
+    [
+     881.25,
+     1659.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "less than 0.3%",
+   "confidence": 0.9997326731681824,
+   "bbox": [
+    [
+     884.38,
+     1656.25
+    ],
+    [
+     1153.12,
+     1650.0
+    ],
+    [
+     1153.12,
+     1703.12
+    ],
+    [
+     884.38,
+     1709.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "GMP",
+   "confidence": 0.9999930262565613,
+   "bbox": [
+    [
+     1506.25,
+     1793.75
+    ],
+    [
+     1637.5,
+     1793.75
+    ],
+    [
+     1637.5,
+     1878.12
+    ],
+    [
+     1506.25,
+     1878.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "8",
+   "confidence": 0.8207027316093445,
+   "bbox": [
+    [
+     1831.25,
+     1796.88
+    ],
+    [
+     1878.12,
+     1796.88
+    ],
+    [
+     1878.12,
+     1840.62
+    ],
+    [
+     1831.25,
+     1840.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NATURAL",
+   "confidence": 0.9999953508377075,
+   "bbox": [
+    [
+     928.12,
+     1940.62
+    ],
+    [
+     1093.75,
+     1940.62
+    ],
+    [
+     1093.75,
+     1984.38
+    ],
+    [
+     928.12,
+     1984.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NO ADDED",
+   "confidence": 0.999395489692688,
+   "bbox": [
+    [
+     1200.0,
+     1937.5
+    ],
+    [
+     1381.25,
+     1937.5
+    ],
+    [
+     1381.25,
+     1981.25
+    ],
+    [
+     1200.0,
+     1981.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "GMP",
+   "confidence": 0.9999947547912598,
+   "bbox": [
+    [
+     1528.12,
+     1931.25
+    ],
+    [
+     1618.75,
+     1931.25
+    ],
+    [
+     1618.75,
+     1978.12
+    ],
+    [
+     1528.12,
+     1978.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "NO",
+   "confidence": 0.9996696710586548,
+   "bbox": [
+    [
+     1818.75,
+     1915.62
+    ],
+    [
+     1887.5,
+     1915.62
+    ],
+    [
+     1887.5,
+     1965.62
+    ],
+    [
+     1818.75,
+     1965.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "HERBS",
+   "confidence": 0.9999922513961792,
+   "bbox": [
+    [
+     946.88,
+     1984.38
+    ],
+    [
+     1075.0,
+     1984.38
+    ],
+    [
+     1075.0,
+     2031.25
+    ],
+    [
+     946.88,
+     2031.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "SUGAR",
+   "confidence": 0.9999898076057434,
+   "bbox": [
+    [
+     1231.25,
+     1981.25
+    ],
+    [
+     1359.38,
+     1981.25
+    ],
+    [
+     1359.38,
+     2028.12
+    ],
+    [
+     1231.25,
+     2028.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "CERTIFIED",
+   "confidence": 0.9999844431877136,
+   "bbox": [
+    [
+     1487.5,
+     1978.12
+    ],
+    [
+     1665.62,
+     1978.12
+    ],
+    [
+     1665.62,
+     2021.88
+    ],
+    [
+     1487.5,
+     2021.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "EXTRACTS",
+   "confidence": 0.9999940395355225,
+   "bbox": [
+    [
+     1762.5,
+     1962.5
+    ],
+    [
+     1950.0,
+     1962.5
+    ],
+    [
+     1950.0,
+     2006.25
+    ],
+    [
+     1762.5,
+     2006.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "USED",
+   "confidence": 0.9999887943267822,
+   "bbox": [
+    [
+     1803.12,
+     2003.12
+    ],
+    [
+     1906.25,
+     2003.12
+    ],
+    [
+     1906.25,
+     2050.0
+    ],
+    [
+     1803.12,
+     2050.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Caution",
+   "confidence": 0.999468207359314,
+   "bbox": [
+    [
+     893.75,
+     2093.75
+    ],
+    [
+     1071.88,
+     2093.75
+    ],
+    [
+     1071.88,
+     2150.0
+    ],
+    [
+     893.75,
+     2150.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "1. Store in cool and dry place.",
+   "confidence": 0.9917687177658081,
+   "bbox": [
+    [
+     896.88,
+     2153.12
+    ],
+    [
+     1534.38,
+     2146.88
+    ],
+    [
+     1534.38,
+     2206.25
+    ],
+    [
+     896.88,
+     2212.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "2. Keep the botttle lid always closed.",
+   "confidence": 0.9887266755104065,
+   "bbox": [
+    [
+     893.75,
+     2212.5
+    ],
+    [
+     1690.62,
+     2200.0
+    ],
+    [
+     1690.62,
+     2262.5
+    ],
+    [
+     893.75,
+     2275.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "3. Check if the seal is intact before use.",
+   "confidence": 0.9996495842933655,
+   "bbox": [
+    [
+     896.88,
+     2271.88
+    ],
+    [
+     1746.88,
+     2262.5
+    ],
+    [
+     1746.88,
+     2318.75
+    ],
+    [
+     896.88,
+     2328.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "4. Use as directed by physician.",
+   "confidence": 0.9913100004196167,
+   "bbox": [
+    [
+     900.0,
+     2328.12
+    ],
+    [
+     1581.25,
+     2321.88
+    ],
+    [
+     1581.25,
+     2378.12
+    ],
+    [
+     900.0,
+     2384.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "5. Use within a month after opening",
+   "confidence": 0.9998696446418762,
+   "bbox": [
+    [
+     900.0,
+     2384.38
+    ],
+    [
+     1684.38,
+     2375.0
+    ],
+    [
+     1684.38,
+     2437.5
+    ],
+    [
+     900.0,
+     2446.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Net Volume : 1000 ml (33.814 fl oz)",
+   "confidence": 0.9857522249221802,
+   "bbox": [
+    [
+     896.88,
+     2453.12
+    ],
+    [
+     1693.75,
+     2443.75
+    ],
+    [
+     1693.75,
+     2506.25
+    ],
+    [
+     896.88,
+     2515.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "MRP₹/USP₹：",
+   "confidence": 0.8342455625534058,
+   "bbox": [
+    [
+     903.12,
+     2534.38
+    ],
+    [
+     1312.5,
+     2531.25
+    ],
+    [
+     1312.5,
+     2587.5
+    ],
+    [
+     903.12,
+     2590.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "(Incl. of all taxes)",
+   "confidence": 0.9973834753036499,
+   "bbox": [
+    [
+     906.25,
+     2590.62
+    ],
+    [
+     1200.0,
+     2590.62
+    ],
+    [
+     1200.0,
+     2643.75
+    ],
+    [
+     906.25,
+     2643.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "480.000.48/ml",
+   "confidence": 0.9423367381095886,
+   "bbox": [
+    [
+     1359.38,
+     2600.0
+    ],
+    [
+     2012.5,
+     2568.75
+    ],
+    [
+     2015.62,
+     2621.88
+    ],
+    [
+     1362.5,
+     2653.12
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mfg. Date",
+   "confidence": 0.9802227020263672,
+   "bbox": [
+    [
+     903.12,
+     2643.75
+    ],
+    [
+     1150.0,
+     2643.75
+    ],
+    [
+     1150.0,
+     2709.38
+    ],
+    [
+     903.12,
+     2709.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "R-DLU7-063",
+   "confidence": 0.6214720606803894,
+   "bbox": [
+    [
+     1400.0,
+     2693.75
+    ],
+    [
+     1843.75,
+     2668.75
+    ],
+    [
+     1846.88,
+     2721.88
+    ],
+    [
+     1403.12,
+     2746.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Batch No.",
+   "confidence": 0.9999921321868896,
+   "bbox": [
+    [
+     909.38,
+     2731.25
+    ],
+    [
+     1150.0,
+     2731.25
+    ],
+    [
+     1150.0,
+     2787.5
+    ],
+    [
+     909.38,
+     2787.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "042028",
+   "confidence": 0.9799304008483887,
+   "bbox": [
+    [
+     1412.5,
+     2734.38
+    ],
+    [
+     1818.75,
+     2718.75
+    ],
+    [
+     1821.88,
+     2775.0
+    ],
+    [
+     1412.5,
+     2790.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Expiry Date",
+   "confidence": 0.9999951720237732,
+   "bbox": [
+    [
+     909.38,
+     2815.62
+    ],
+    [
+     1187.5,
+     2815.62
+    ],
+    [
+     1187.5,
+     2881.25
+    ],
+    [
+     909.38,
+     2881.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Address for mfg. location address, refer the first",
+   "confidence": 0.9996379017829895,
+   "bbox": [
+    [
+     909.38,
+     2900.0
+    ],
+    [
+     1906.25,
+     2884.38
+    ],
+    [
+     1906.25,
+     2946.88
+    ],
+    [
+     909.38,
+     2962.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "character of Batch No. and see address panel",
+   "confidence": 0.9979913830757141,
+   "bbox": [
+    [
+     912.5,
+     2959.38
+    ],
+    [
+     1856.25,
+     2943.75
+    ],
+    [
+     1856.25,
+     2996.88
+    ],
+    [
+     912.5,
+     3012.5
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Manufactured & Marketed by:",
+   "confidence": 0.9999847412109375,
+   "bbox": [
+    [
+     909.38,
+     3031.25
+    ],
+    [
+     1565.62,
+     3025.0
+    ],
+    [
+     1565.62,
+     3078.12
+    ],
+    [
+     909.38,
+     3084.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Sandipani Healthcare Pvt. Ltd.",
+   "confidence": 0.9999186992645264,
+   "bbox": [
+    [
+     912.5,
+     3087.5
+    ],
+    [
+     1578.12,
+     3078.12
+    ],
+    [
+     1578.12,
+     3134.38
+    ],
+    [
+     912.5,
+     3143.75
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "At: {R} Plot No.1, Heavy Industrial Area, Jodhpur,",
+   "confidence": 0.9975114464759827,
+   "bbox": [
+    [
+     909.38,
+     3140.62
+    ],
+    [
+     1953.12,
+     3121.88
+    ],
+    [
+     1953.12,
+     3187.5
+    ],
+    [
+     909.38,
+     3206.25
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Rajasthan-342003 Mfg. Lic. No.: RJ 627-AYU",
+   "confidence": 0.9888743162155151,
+   "bbox": [
+    [
+     909.38,
+     3196.88
+    ],
+    [
+     1881.25,
+     3181.25
+    ],
+    [
+     1881.25,
+     3243.75
+    ],
+    [
+     909.38,
+     3259.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "At: {A} 11, Samkit Industrial Park, Jajiwal",
+   "confidence": 0.9935211539268494,
+   "bbox": [
+    [
+     912.5,
+     3253.12
+    ],
+    [
+     1793.75,
+     3240.62
+    ],
+    [
+     1793.75,
+     3303.12
+    ],
+    [
+     912.5,
+     3315.62
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Bramana, Jodhpur, Rajasthan-342027",
+   "confidence": 0.9998871088027954,
+   "bbox": [
+    [
+     912.5,
+     3306.25
+    ],
+    [
+     1728.12,
+     3296.88
+    ],
+    [
+     1728.12,
+     3362.5
+    ],
+    [
+     912.5,
+     3371.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mfg. Lic. No.: RJ 1064-AYU",
+   "confidence": 0.9995604753494263,
+   "bbox": [
+    [
+     915.62,
+     3368.75
+    ],
+    [
+     1509.38,
+     3362.5
+    ],
+    [
+     1509.38,
+     3415.62
+    ],
+    [
+     915.62,
+     3421.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Contact us for feedback and queries:",
+   "confidence": 0.999973714351654,
+   "bbox": [
+    [
+     915.62,
+     3446.88
+    ],
+    [
+     1712.5,
+     3437.5
+    ],
+    [
+     1712.5,
+     3490.62
+    ],
+    [
+     915.62,
+     3500.0
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Web:www.krishnaayurved.com",
+   "confidence": 0.9998577833175659,
+   "bbox": [
+    [
+     915.62,
+     3496.88
+    ],
+    [
+     1615.62,
+     3493.75
+    ],
+    [
+     1615.62,
+     3556.25
+    ],
+    [
+     915.62,
+     3559.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Mail: care@krishnaayurved.com",
+   "confidence": 0.9950540065765381,
+   "bbox": [
+    [
+     915.62,
+     3556.25
+    ],
+    [
+     1628.12,
+     3550.0
+    ],
+    [
+     1628.12,
+     3615.62
+    ],
+    [
+     915.62,
+     3621.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "Helpline:0291 3529700",
+   "confidence": 0.9926568865776062,
+   "bbox": [
+    [
+     921.88,
+     3618.75
+    ],
+    [
+     1450.0,
+     3612.5
+    ],
+    [
+     1450.0,
+     3665.62
+    ],
+    [
+     921.88,
+     3671.88
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "PRODUCT OF INDIA",
+   "confidence": 0.9994679689407349,
+   "bbox": [
+    [
+     925.0,
+     3706.25
+    ],
+    [
+     1356.25,
+     3706.25
+    ],
+    [
+     1356.25,
+     3759.38
+    ],
+    [
+     925.0,
+     3759.38
+    ]
+   ],
+   "language": "en",
+   "rotation": 0
+  },
+  {
+   "text": "T",
+   "confidence": 0.4748515486717224,
+   "bbox": [
+    [
+     1470.83,
+     525.0
+    ],
+    [
+     1545.83,
+     554.17
+    ],
+    [
+     1520.83,
+     616.67
+    ],
+    [
+     1445.83,
+     587.5
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "MRPश/USPर :",
+   "confidence": 0.8576001524925232,
+   "bbox": [
+    [
+     895.83,
+     2533.33
+    ],
+    [
+     1312.5,
+     2529.17
+    ],
+    [
+     1312.5,
+     2587.5
+    ],
+    [
+     895.83,
+     2591.67
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "480.00 स 0.48-mt",
+   "confidence": 0.7944923043251038,
+   "bbox": [
+    [
+     1354.17,
+     2600.0
+    ],
+    [
+     2016.67,
+     2562.5
+    ],
+    [
+     2020.83,
+     2620.83
+    ],
+    [
+     1358.33,
+     2658.33
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  },
+  {
+   "text": "05026",
+   "confidence": 0.5351666808128357,
+   "bbox": [
+    [
+     1408.33,
+     2641.67
+    ],
+    [
+     1829.17,
+     2620.83
+    ],
+    [
+     1833.33,
+     2679.17
+    ],
+    [
+     1412.5,
+     2700.0
+    ]
+   ],
+   "language": "hi",
+   "rotation": 0
+  }
+ ]
+}

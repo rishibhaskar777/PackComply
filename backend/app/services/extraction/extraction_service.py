@@ -55,6 +55,8 @@ AMBIGUITY_PENALTY = 0.25
 PRODUCT_NAME_MAX_CONFIDENCE = 0.8
 # Value-first matches scoring below this are flagged for review (nearest-in-region, redirects, coding areas).
 VALUE_FIRST_REVIEW_BELOW = 0.8
+# matched_pattern suffix of a date suggested by the OCR date-recovery pass; evidence.py keeps such a value away from the rules.
+RECOVERED_GUESS = "recovered_guess"
 # Declaration states recorded in declaration_status (see rule_engine).
 DECLARED_WITH_VALUE, KEY_FOUND_VALUE_UNREAD, NOT_DETECTED = "DECLARED_WITH_VALUE", "KEY_FOUND_VALUE_UNREAD", "NOT_DETECTED"
 # A detection below this confidence counts as poorly read for ocr_coverage.
@@ -130,19 +132,26 @@ _COMBINED_PRICE_KEY = re.compile(rf"(?i)(?:{_MRP_KEY})\W{{0,6}}(?:₹|rs\.?|R|%|
 _GLUED_PRICES = re.compile(r"(?<![0-9.,])([0-9]+\.[0-9]{2})(?=[0-9]+(?:\.[0-9]{1,2})?\s*(?:/|per))")
 _LOOSE_PRICE = re.compile(rf"(?<![0-9.,/])(?:{_OCR_CURRENCY}\s*)?([0-9]{{1,3}}(?:,[0-9]{{2,3}})+(?:\.[0-9]{{1,2}})?|[0-9]+(?:\.[0-9]{{1,2}})?)(?![0-9]|[.,][0-9]|\s*(?:/|per|%|[A-Za-z]))")
 
-_DATE_VALUE = (
-    r"(\d{1,2}\s*[/.\-]\s*\d{1,2}\s*[/.\-]\s*(?:\d{4}|\d{2})(?!\d)"
-    r"|\d{1,2}\s*[/.\-]\s*(?:\d{4}|\d{2})(?!\d)"
-    r"|(?:\d{1,2}\s*[\-/ ]\s*)?(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*[\-/' ]?\s*(?:\d{4}|\d{2})(?!\d)"
-    r"|\d{1,2}\s*months?(?:\s*from\s*(?:the\s*date\s*of\s*)?(?:manufacture|manufacturing|mfg\.?|packing|packaging|pkd\.?))?)"
+_DATE_SHAPES = (
+    # YYYY-MM and YYYY/MM; not the start of a full ISO date or of a longer number
+    r"20\d{2}\s*[/\-]\s*(?:0[1-9]|1[0-2])(?!\d|\s*[/.\-]\s*\d)",
+    r"\d{1,2}\s*[/.\-]\s*\d{1,2}\s*[/.\-]\s*(?:\d{4}|\d{2})(?!\d)",
+    r"\d{1,2}\s*[/.\-]\s*(?:\d{4}|\d{2})(?!\d)",
+    r"(?:\d{1,2}\s*[\-/ ]\s*)?(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s*[\-/' ]?\s*(?:\d{4}|\d{2})(?!\d)",
 )
+_DATE_MONTHS = r"\d{1,2}\s*months?(?:\s*from\s*(?:the\s*date\s*of\s*)?(?:manufacture|manufacturing|mfg\.?|packing|packaging|pkd\.?))?"
+_DATE_VALUE = "(" + "|".join((*_DATE_SHAPES, _DATE_MONTHS)) + ")"
+# Calendar dates only: a bare key ("Manufactured 05/2026") never takes a shelf life.
+_DATE_ONLY = "(" + "|".join(_DATE_SHAPES) + ")"
 _DATE_KEYS = {
-    "manufacturing_date": r"date\s*of\s*(?:mfg|manufacture|manufacturing)|mfg\.?\s*date|mfd\.?\s*(?:date|on)|manufactured\s*on|manufacturing\s*date|mfg\.?|mfd\.?|निर्माण\s*(?:की\s*)?तिथि",
-    "packing_date": r"date\s*of\s*pack(?:ing|aging)|packing\s*date|packed\s*on|pkd\.?\s*(?:date|on)?|पैकिंग\s*(?:की\s*)?तिथि",
+    "manufacturing_date": r"date\s*of\s*(?:mfg|manufacture|manufacturing)|mfg\.?\s*date|mfd\.?\s*(?:date|on)|manufactured\s*on|manufacturing\s*date|production\s*date|prod\.?\s*date|made\s*on|m\.\s*f\.\s*g\.?|mfg\.?|mfd\.?|निर्माण\s*(?:की\s*)?तिथि",
+    "packing_date": r"date\s*of\s*pack(?:ing|aging)|packing\s*date|pack\s*date|packed\s*on|pkd\.?\s*(?:date|on)?|पैकिंग\s*(?:की\s*)?तिथि",
     "use_by": r"use\s*by(?:\s*date)?|उपयोग\s*(?:करने\s*)?की\s*अंतिम\s*तिथि",
     "expiry_date": r"expiry(?:\s*date)?|exp\.?(?:\s*date)?|expires?(?:\s*on)?|समाप्ति(?:\s*तिथि)?",
     "best_before": r"best\s*before(?:\s*date)?|use\s*before|बेस्ट\s*बिफोर|इससे\s*पहले\s*उपयोग\s*करें",
 }
+# "Manufactured" / "Packed" alone name a date only when one follows directly ("Packed by ..." never does).
+_BARE_DATE_KEYS = {"manufacturing_date": "manufactured", "packing_date": "packed"}
 
 _ROLE_KEYS = {
     "manufacturer": r"manufactured\s*(?:&|and)\s*marketed\s*by|manufactured\s*by|manufacturer|mfd\.?\s*by|mfg\.?\s*by|mfr\.?(?:\s*by)?|निर्माणकर्ता|निर्माता|निर्मित(?:\s*द्वारा)?",
@@ -295,15 +304,21 @@ class ExtractionService:
         results["net_quantity"] = self._net_quantity(layout)
         results.update(self._mrp(layout))
         results.update(self._dates(layout))
+        self._release_stacked_dates(layout, results)
         results.update(self._consumer_care(layout))
         results["fssai_license"] = self._fssai(layout)
         results["country_of_origin"] = self._country(layout)
         results["unit_sale_price"] = self._unit_sale_price(layout)
         self._combined_price_key(layout, results)
-        results["batch_number"] = self._batch(layout)
+        guesses = self._date_guesses(detections)
+        results["batch_number"] = self._batch(layout, self._not_batch(results, guesses))
         results["import_declaration"] = self._first_line(layout, _key(_ROLE_KEYS["importer"]), "present", "import_declaration:key")
         matching = value_first.match(layout, self._claimed(layout, results))
         self._fill_from_values(results, matching)
+        self._apply_date_guesses(results, guesses)
+        # The value-first pass may have just given a date field the very stamp the batch key took: read the batch again without it.
+        if results["batch_number"].value and results["batch_number"].value.upper() in (not_batch := self._not_batch(results, guesses)):
+            results["batch_number"] = self._batch(layout, not_batch)
         results["tax_inclusive"], tax_state = self._tax_inclusive(layout, results, matching)
         results["mrp_declaration"] = self._mrp_declaration(results, matching)
         results["product_category"] = self._product_category(layout, results["fssai_license"])
@@ -396,7 +411,9 @@ class ExtractionService:
         party = next((results[role] for role in ("manufacturer", "brand_owner", "packer", "importer") if results[role].value), None)
         role_keys = [line.text for line in layout.lines if _ANY_ROLE.search(line.text) or _COMBINED_ROLE.match(line.text) or _MAKER_REFERENCE.search(line.text)
                      or any(not re.search(r"[A-Za-z0-9]", line.text[:hit.start]) for hit in fuzzy.find(line.text, _ROLE_PHRASES))]
-        dates = results["manufacturing_date"] if results["manufacturing_date"].value else results["packing_date"]
+        guess = next((item for item in (results["manufacturing_date"], results["packing_date"]) if (item.matched_pattern or "").endswith(RECOVERED_GUESS)), None)
+        read = [item for item in (results["manufacturing_date"], results["packing_date"]) if item.value and item is not guess]
+        dates = read[0] if read else ExtractedValue()
         # A printed price without its MRP key, or a per-unit price that could not be parsed, shows the declaration is there.
         prices = [value.span.line.text for value in matching.values if value.kind == "price" and not value.offer]
         usp_shaped = [line.text for line in layout.lines if _PER_UNIT_SHAPE.search(line.text)]
@@ -406,7 +423,7 @@ class ExtractionService:
             "manufacturer": entry(party, role_keys, redirectable=False),
             "net_quantity": entry(results["net_quantity"], key_text("net_quantity")),
             "mrp": entry(results["mrp"], key_text("mrp") + prices),
-            "manufacturing_date": entry(dates, key_text("manufacturing_date") + key_text("packing_date")),
+            "manufacturing_date": entry(dates, ([f"please confirm: {guess.value}"] if guess and not read else []) + key_text("manufacturing_date") + key_text("packing_date")),
             "unit_sale_price": entry(results["unit_sale_price"], key_text("unit_sale_price") + usp_shaped),
             "tax_inclusive": {"state": tax[0], "evidence": tax[1]},
             "consumer_care": entry(care, [care_key], redirectable=False),
@@ -601,6 +618,57 @@ class ExtractionService:
     # -------------------------------------------------------------- dates
 
     @staticmethod
+    def _date_guesses(detections: list[Any] | None) -> list[tuple[str, dict[str, Any], Any]]:
+        """(text, recovery, bbox) of the six-digit stamps the date recovery pass suggests but did not read as dates."""
+        found = []
+        for item in detections or []:
+            text, recovery, bbox = (item.get("text"), item.get("recovery"), item.get("bbox")) if isinstance(item, dict) else (getattr(item, "text", None), getattr(item, "recovery", None), getattr(item, "bbox", None))
+            if text and isinstance(recovery, dict) and recovery.get("kind") == "date_guess" and recovery.get("field") and recovery.get("suggestion"):
+                found.append((str(text).strip(), recovery, bbox))
+        return found
+
+    @staticmethod
+    def _not_batch(results: dict[str, ExtractedValue], guesses: list[tuple[str, dict[str, Any], Any]]) -> frozenset[str]:
+        dates = {item.value.strip().upper() for name in ("manufacturing_date", "packing_date", "expiry_date", "best_before", "use_by") if (item := results[name]).value}
+        return frozenset(dates | {text.upper() for text, _, _ in guesses})
+
+    @staticmethod
+    def _apply_date_guesses(results: dict[str, ExtractedValue], guesses: list[tuple[str, dict[str, Any], Any]]) -> None:
+        """A suggested date ("please confirm: 04/2028") fills only an empty field and is flagged; the rules never see it (see evidence.py)."""
+        for text, recovery, bbox in guesses:
+            name = recovery["field"]
+            covered = ("manufacturing_date", "packing_date") if name in ("manufacturing_date", "packing_date") else (name,)
+            if name in results and not any(results[field].value for field in covered):
+                results[name] = ExtractedValue(recovery["suggestion"], 0.5, True, text, f"{name}:{RECOVERED_GUESS}", None, [bbox] if bbox else None)
+
+    @staticmethod
+    def _release_stacked_dates(layout: Layout, results: dict[str, ExtractedValue]) -> None:
+        """Take back an expiry the key-first pass read beside its key when the row pairing gives that date to the manufacture key above.
+
+        On a tilted pack the manufacture date can sit level with the expiry key below it.  The expiry is
+        released (left empty for the value-first pass to fill) only when the date is the very one the
+        value-first pairing assigns to an empty manufacture/packing field, and not if that would put the
+        manufacture date after the expiry date the pairing finds.
+        """
+        if not layout.geometric:
+            return
+        starts = [name for name in ("manufacturing_date", "packing_date") if not results[name].value]
+        for end in ("expiry_date", "best_before", "use_by"):
+            item = results[end]
+            if not starts or not item.value or not (item.matched_pattern or "").endswith((":right_of_key", ":below_key")):
+                continue
+            matching = value_first.match(layout)
+            for start in starts:
+                paired, other = matching.assignments.get(start), matching.assignments.get(end)
+                if not paired or paired.how not in value_first.STACKED_HOWS or paired.value.normalized != item.normalized_value:
+                    continue
+                if other and other.value.kind == "date" and (value_first.date_month(other.value.normalized) or (0, 0)) < (value_first.date_month(paired.value.normalized) or (0, 0)):
+                    continue
+                results[end] = ExtractedValue()
+                break
+
+
+    @staticmethod
     def normalize_date(value: str) -> str | None:
         """YYYY-MM-DD, YYYY-MM, or an ISO-8601 duration (P9M) for "N months from ..."."""
         return value_first.normalize_date(value)
@@ -616,6 +684,17 @@ class ExtractionService:
         for name, key in _DATE_KEYS.items():
             # "Mfd. by" / "Pkd. for" introduce a party, never a date.
             found = self._keyed(layout, rf"(?:{key})(?:\s*date)?(?!\s*[.:]?\s*(?:by|for)(?![A-Za-z]))", rf"(?:date\s*[:\-.]?\s*)?{_DATE_VALUE}", build)
+            results[name] = self._choose(name, found)
+        for name, word in _BARE_DATE_KEYS.items():
+            if results[name].value:
+                continue
+            bare = re.compile(rf"(?i)(?<![A-Za-z]){word}(?![A-Za-z])\s*[:\-.]?\s*(?!(?:by|for)(?![A-Za-z])){_DATE_ONLY}")
+            found = []
+            for line in layout.lines:
+                match = bare.search(line.text)
+                # "Packed 12.50" is an amount, not month 12 of 2050.
+                if match and not re.fullmatch(r"\d{1,2}\s*\.\s*\d{2}", match.group(1)) and (built := build(match)):
+                    found.append(_Found(*built, (line,), "same_line"))
             results[name] = self._choose(name, found)
         return results
 
@@ -676,10 +755,11 @@ class ExtractionService:
                 return True
         return False
 
-    def _batch(self, layout: Layout) -> ExtractedValue:
+    def _batch(self, layout: Layout, not_batch: frozenset[str] = frozenset()) -> ExtractedValue:
         def build(match: re.Match[str]) -> tuple[str, str | None] | None:
             token = match.group(1).strip("-/")
-            return (token, token.upper()) if re.search(r"\d", token) else None
+            # A stamp the date fields (or the date recovery) hold is never also the batch number.
+            return (token, token.upper()) if re.search(r"\d", token) and token.upper() not in not_batch else None
 
         return self._choose("batch_number", self._keyed(layout, _BATCH_KEY, r"[#:\-.]*\s*([A-Z0-9][A-Z0-9/\-]{1,19})(?![A-Za-z0-9])", build))
 

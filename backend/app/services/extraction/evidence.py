@@ -56,6 +56,8 @@ _DATE_FIELDS = frozenset({"manufacturing_date", "packing_date", "best_before", "
 
 def _compliance_value(field: ExtractedField) -> str | None:
     """Dates reach the rule engine in the numeric form it compares ("MAR 2026" -> "03/2026")."""
+    if (field.matched_pattern or "").endswith(":recovered_guess"):
+        return None  # a suggestion to confirm on the pack, never a value a rule may pass on
     normalized = field.normalized_value or ""
     if field.field_name in _DATE_FIELDS and (match := re.fullmatch(r"(\d{4})-(\d{2})(?:-(\d{2}))?", normalized)):
         year, month, day = match.groups()
