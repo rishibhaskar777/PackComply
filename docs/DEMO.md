@@ -55,3 +55,9 @@ Fallbacks:
 - **One photo cannot be read** (OCR crash or timeout): the inspection still completes with the other photos. Rules that depend on the unread photo are marked REVIEW with a note ("The date stamp photo could not be read…"), never PASS or FAIL, the progress list shows the failed step, and **Retry photo** (on the record) reads only that photo.
 - **A screen crashes**: the global error screen offers **Reload**; saved inspections are unaffected. If a session expires, any request returning 401 sends you back to sign-in with a notice.
 
+### Troubleshooting on demo day
+
+- **PostgreSQL stale lock:** `scripts\start-demo.ps1` removes a leftover `postmaster.pid` automatically when no server is running (it prints a line saying so) and waits for the database before continuing. Log: `.demo\postgres.log`.
+- **Phone cannot connect:** (1) the firewall rule "PackComply dev 5173" must allow TCP 5173 on all profiles, not just Private (hotspots are often Public); the script prints the exact admin command if not; (2) put the phone and laptop on the same network or hotspot; (3) use the Phone URL line that matches the network, since the script lists every address (`192.168.137.x`, `192.168.43.x`, `10.x`...), or force one with `LAN_IP` in `.env`.
+- **Certificate / HTTPS warning is expected:** the certificate is made on this laptop. Accept it once on the phone (Advanced -> Continue) before the demo.
+- **No `READY` line:** the script says which part failed and which log to open (`.demopi.log`, `.demo\web.log`, `.demo\postgres.log`). Full steps in [SETUP.md](SETUP.md#troubleshooting-on-demo-day).

@@ -3,6 +3,8 @@ import { resolve } from "node:path";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../App";
+import { AppShell } from "./AppShell";
+import { ThemeProvider } from "../theme/theme";
 import en from "../locales/en.json";
 import { I18nProvider } from "../i18n";
 import { API, mockApi, response } from "../test/mockApi";
@@ -124,7 +126,39 @@ describe("mobile tab bar", () => {
     expect(mobile).toMatch(/\.tabbar \{[^}]*grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/);
     expect(mobile).toMatch(/\.tabbar \{[^}]*env\(safe-area-inset-bottom\)/);
     expect(mobile).toMatch(/\.tabbar__fab \{[^}]*width: 56px; height: 56px; margin-top: -22px;[^}]*border-radius: 50%/);
-    expect(mobile).toMatch(/\.tabbar__item span \{[^}]*white-space: nowrap/);
+    expect(mobile).toMatch(/\.tabbar__item > span:not\(\.tabbar__icon\) \{[^}]*white-space: nowrap/);
+    expect(mobile).not.toMatch(/\.tabbar__item span \{/);
     expect(mobile).toMatch(/\.tabbar__center \{[^}]*place-items: start center/);
+  });
+});
+
+describe("Fixes badge on the phone tab bar", () => {
+  afterEach(() => cleanup());
+  const maker = { username: "maker", role: "MANUFACTURER" } as never;
+  const renderShell = (fixCount: number) => render(
+    <I18nProvider><ThemeProvider><AppShell route={{ name: "fixes" }} user={maker} riskCount={null} fixCount={fixCount} search="" onSearchChange={() => undefined} onNewInspection={() => undefined} onLogout={() => undefined}><p>page</p></AppShell></ThemeProvider></I18nProvider>,
+  );
+  const tab = () => within(screen.getByRole("navigation", { name: en.mobileNavigation }));
+
+  it.each([[1, "1"], [12, "12"], [120, "99+"]])("shows %i as %s with an accessible name", (count, text) => {
+    renderShell(count);
+    const link = tab().getByRole("link", { name: `${en.tabFixes}, ${count} ${en.fixItemsOpen}` });
+    const badge = link.querySelector(".tabbar__badge");
+    expect(badge?.textContent).toBe(text);
+    expect(badge?.closest(".tabbar__icon")).toBeTruthy();
+  });
+
+  it("hides the badge at 0 and keeps the plain name", () => {
+    renderShell(0);
+    const link = tab().getByRole("link", { name: en.tabFixes });
+    expect(link.querySelector(".tabbar__badge")).toBeNull();
+    expect(link.getAttribute("aria-label")).toBeNull();
+  });
+
+  it("no rule clips the badge: the label rule skips the icon wrapper and the badge is positioned outside the icon", () => {
+    const portal = readFileSync(resolve(__dirname, "../styles/portal.css"), "utf8");
+    expect(portal).toMatch(/\.tabbar__icon \{[^}]*position: relative;[^}]*overflow: visible/);
+    expect(portal).toMatch(/\.tabbar__badge \{[^}]*top: -6px; inset-inline-end: -10px;[^}]*min-width: 18px; height: 18px; padding: 0 5px/);
+    expect(portal).toMatch(/\.tabbar__badge \{[^}]*font-size: 11px; font-weight: 700/);
   });
 });

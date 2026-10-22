@@ -54,8 +54,8 @@ Everything runs on the laptop: PostgreSQL, the API, the web app and OCR. No paid
 Prerequisites, once: the Python venv (`python -m venv .venv`, then `pip install -e ".[dev]"`, which also installs the `qrcode` package used for the terminal QR), `npm install` in `frontend/`, the OCR models downloaded (`python -m backend.scripts.warm_ocr`), and PostgreSQL initialised.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\start-demo.ps1      # add -NoBrowser to skip opening the browser
-powershell -ExecutionPolicy Bypass -File scripts\stop-demo.ps1       # -StopPostgres to stop the database too
+powershell -ExecutionPolicy Bypass -File scripts\start-demo.ps1      # -NoBrowser skips the browser; -Fast skips the disk/firewall/OCR-model checks; a timing table is printed at the end
+powershell -ExecutionPolicy Bypass -File scripts\stop-demo.ps1       # stops the app, then PostgreSQL (-KeepPostgres to leave the database up)
 ```
 
 `start-demo.ps1` (the two PostgreSQL paths are variables at the top of the script, default `D:\Development\PGSQL\pgsql\bin` and `D:\Development\PGSQL\data`):
@@ -77,7 +77,7 @@ powershell -ExecutionPolicy Bypass -File scripts\stop-demo.ps1       # -StopPost
 Failures stop with one clear message and the fix: PostgreSQL does not start (log path and the stale `postmaster.pid` hint), port 8000/5173 busy (who owns it, and `scripts\stop-demo.ps1`), venv or `alembic` missing (the exact commands), `node_modules` missing (offers `npm install`; `-Yes` accepts), and a missing firewall rule: if Windows Firewall has no rule for port 5173 the script prints the exact command to run once in an **Administrator** PowerShell:
 
 ```powershell
-New-NetFirewallRule -DisplayName "PackComply Demo (5173)" -Direction Inbound -Protocol TCP -LocalPort 5173 -Action Allow -Profile Any
+New-NetFirewallRule -DisplayName "PackComply dev 5173" -Direction Inbound -Protocol TCP -LocalPort 5173 -Action Allow -Profile Any
 ```
 
 The API logs one summary line when it is ready, for example `PackComply ready | DB ok | ruleset LM_PC_2011 v2 (14 rules) | OCR en+hi ready (warm-up 13.2 s) | LAN https://<laptop-ip>:5173/#/capture`.
@@ -145,3 +145,16 @@ Languages are chosen per panel with `OCR_PANEL_LANGUAGES` (`PANEL=lang+lang` pai
 
 Uploads are resized in the browser to `ocr_max_image_dimension` (from `GET /api/inspections/config`) with EXIF orientation applied. The resized file is the stored evidence (its SHA-256 is recorded); the original is not kept because OCR never reads more than that size.
 
+## Troubleshooting on demo day
+
+**PostgreSQL will not start (stale lock).** After a crash or forced shutdown, `postmaster.pid` stays in the data folder and blocks the next start. `start-demo.ps1` handles it: if `pg_ctl status` says no server is running and `data\postmaster.pid` exists, it deletes the file, prints a line saying so, and starts PostgreSQL with a log at `.demo\postgres.log`. It never deletes the file while a server is running. It then waits up to 60 s for connections (`pg_isready`). If it still fails, read `.demo\postgres.log`.
+
+**The phone cannot connect.** Check in this order:
+1. *Firewall profile.* The rule must allow TCP 5173 on **all** profiles; a phone hotspot network is usually "Public", so a Private-only rule does not help. The script prints the exact command when the rule is missing or Private-only (run it once in an Administrator PowerShell):
+   `Remove-NetFirewallRule -DisplayName "PackComply dev 5173" -ErrorAction SilentlyContinue; New-NetFirewallRule -DisplayName "PackComply dev 5173" -Direction Inbound -Protocol TCP -LocalPort 5173 -Action Allow -Profile Any`
+2. *Same network.* The phone and laptop must be on the same Wi-Fi, or the phone on the laptop's hotspot, or the laptop on the phone's hotspot. Some venue Wi-Fi isolates clients; use a hotspot instead.
+3. *Wrong IP.* The script prints one Phone URL per active adapter (hotspot ranges such as `192.168.137.x`, `192.168.43.x` and `10.x` included); the QR is for the first one. Try the others, or set `LAN_IP=<address>` in `.env` to force the primary one.
+
+**"Your connection is not private" on the phone or laptop is expected.** The dev server uses an HTTPS certificate generated on this laptop (the phone camera needs HTTPS). Tap **Advanced -> Continue / Proceed** once; nothing leaves the laptop.
+
+**Which part failed?** The script prints `READY` only after the API health check and the web app both answer. Otherwise it names the failing part and its log: `.demopi.log`, `.demo\web.log` or `.demo\postgres.log`.
