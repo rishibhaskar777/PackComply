@@ -384,7 +384,8 @@
     min-width: 0; height: 100%; padding: 0 2px;
     border: 0; background: transparent; color: var(--muted-foreground); font: inherit; font-size: 11px; line-height: 1.2;
   }
-  .tabbar__item span { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Only the label: the icon wrapper and the count badge are spans too and must not clip. */
+  .tabbar__item > span:not(.tabbar__icon) { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tabbar__item:hover { text-decoration: none; color: var(--foreground); }
   .tabbar__item.is-active { color: var(--primary-strong); font-weight: 500; }
   .tabbar__center { display: grid; place-items: start center; min-width: 0; }

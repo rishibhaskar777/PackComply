@@ -305,7 +305,7 @@ The live camera preview needs HTTPS, so use the HTTPS dev mode:
 
 1. Run `npm run dev:https` in `frontend/` (the one-command start already does this).
 2. Put the phone on the **same Wi-Fi** as the laptop, or connect the laptop to the phone's hotspot.
-3. Allow the dev port through Windows Firewall once, from an Administrator PowerShell: `New-NetFirewallRule -DisplayName "PackComply Demo (5173)" -Direction Inbound -Protocol TCP -LocalPort 5173 -Action Allow -Profile Any`
+3. Allow the dev port through Windows Firewall once, from an Administrator PowerShell: `New-NetFirewallRule -DisplayName "PackComply dev 5173" -Direction Inbound -Protocol TCP -LocalPort 5173 -Action Allow -Profile Any`
 4. On the phone open `https://<laptop-ip>:5173`, and accept the **self-signed certificate** warning once (Advanced, then proceed).
 5. Or, on the desktop, click **Open on phone** in the top bar: it shows the phone URL as a QR code drawn in the browser.
 

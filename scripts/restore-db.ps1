@@ -60,7 +60,7 @@ $pgRestore = Join-Path $PgBin "pg_restore.exe"
 if (-not (Test-Path $pgRestore)) { Fail "pg_restore.exe not found at $pgRestore" "Edit `$PgBin at the top of scripts\restore-db.ps1 (the same folder as in start-demo.ps1)." }
 
 $apiBusy = Get-NetTCPConnection -LocalPort $ApiPort -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
-if ($apiBusy) { Fail "Something is listening on port $ApiPort (the API?). Restoring under a running API can fail or be undone by it." "Stop it first:  scripts\stop-demo.ps1   (add -StopPostgres only if you also want the database down; keep it running for the restore)." }
+if ($apiBusy) { Fail "Something is listening on port $ApiPort (the API?). Restoring under a running API can fail or be undone by it." "Stop it first:  scripts\stop-demo.ps1   (use -KeepPostgres: the restore needs the database running)." }
 $client = New-Object System.Net.Sockets.TcpClient
 try { $client.Connect($dbHost, [int]$dbPort) } catch { Fail "PostgreSQL is not answering on ${dbHost}:${dbPort}." "Start it (pg_ctl start -D `"$PgData`") and run this script again." } finally { $client.Close() }
 

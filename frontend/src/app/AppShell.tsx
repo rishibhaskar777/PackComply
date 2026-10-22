@@ -226,7 +226,7 @@ export function AppShell({ pageLabel, route, user, riskCount, fixCount = null, s
       <nav className="tabbar" aria-label={t("mobileNavigation")}>
         {maker ? <>
           <TabLink href="#/products" current={active === "products"} icon={<Boxes size={20} aria-hidden="true" />} label={t("tabProducts")} />
-          <TabLink href="#/fixes" current={active === "fixes"} icon={<ListChecks size={20} aria-hidden="true" />} label={t("tabFixes")} badge={fixCount} />
+          <TabLink href="#/fixes" current={active === "fixes"} icon={<ListChecks size={20} aria-hidden="true" />} label={t("tabFixes")} badge={fixCount} badgeLabel={t("fixItemsOpen")} />
         </> : <>
           <TabLink href="#/overview" current={active === "overview"} icon={<LayoutDashboard size={20} aria-hidden="true" />} label={t("overview")} />
           <TabLink href="#/inspections" current={active === "inspections" && route.name !== "new" && route.name !== "capture"} icon={<ClipboardList size={20} aria-hidden="true" />} label={t("inspections")} />
@@ -255,10 +255,14 @@ export function AppShell({ pageLabel, route, user, riskCount, fixCount = null, s
   );
 }
 
-function TabLink({ href, current, icon, label, badge }: { href: string; current: boolean; icon: ReactNode; label: string; badge?: number | null }) {
+/** "99+" above 99 so the count always fits the badge. */
+export const badgeText = (count: number) => (count > 99 ? "99+" : String(count));
+
+function TabLink({ href, current, icon, label, badge, badgeLabel }: { href: string; current: boolean; icon: ReactNode; label: string; badge?: number | null; badgeLabel?: string }) {
+  const count = badge && badge > 0 ? badge : 0;
   return (
-    <a href={href} className={current ? "tabbar__item is-active" : "tabbar__item"} aria-current={current ? "page" : undefined}>
-      <span className="tabbar__icon">{icon}{badge ? <span className="tabbar__badge mono" aria-hidden="true">{badge}</span> : null}</span>
+    <a href={href} className={current ? "tabbar__item is-active" : "tabbar__item"} aria-current={current ? "page" : undefined} aria-label={count && badgeLabel ? `${label}, ${count} ${badgeLabel}` : undefined}>
+      <span className="tabbar__icon">{icon}{count ? <span className="tabbar__badge mono" aria-hidden="true">{badgeText(count)}</span> : null}</span>
       <span>{label}</span>
     </a>
   );

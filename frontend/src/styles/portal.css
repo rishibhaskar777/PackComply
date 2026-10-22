@@ -19,12 +19,12 @@
 .alert-inline { display: inline-flex; align-items: center; gap: var(--space-2); }
 
 /* Count on a phone tab */
-.tabbar__icon { position: relative; display: inline-grid; place-items: center; }
+.tabbar__icon { position: relative; display: inline-grid; place-items: center; overflow: visible; }
 .tabbar__badge {
-  position: absolute; top: -6px; inset-inline-start: 55%;
-  min-width: 16px; height: 16px; padding: 0 4px; display: inline-grid; place-items: center;
-  border: 1px solid var(--violation-border); border-radius: 999px; background: var(--violation-bg); color: var(--violation-text);
-  font-size: 10px; font-weight: 600; line-height: 1;
+  position: absolute; top: -6px; inset-inline-end: -10px;
+  min-width: 18px; height: 18px; padding: 0 5px; display: inline-grid; place-items: center;
+  border-radius: 9px; background: var(--violation-bg); color: var(--violation-text); box-shadow: 0 0 0 2px var(--tabbar-bg);
+  font-size: 11px; font-weight: 700; line-height: 1; text-align: center; font-variant-numeric: tabular-nums; overflow: visible;
 }
 
 /* Inspector overview: the risk queue leads */
