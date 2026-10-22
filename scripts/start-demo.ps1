@@ -12,12 +12,14 @@
   Stop everything with scripts\stop-demo.ps1.
 
 .PARAMETER NoBrowser   Do not open the laptop URL in the default browser.
+.PARAMETER KeepSessions Do not sign everyone out: existing browser sessions stay valid (default: the API start deletes all sessions).
 .PARAMETER Yes         Answer "yes" to prompts (for example installing node_modules).
 .PARAMETER Fast        Skip the disk, firewall and OCR-model pre-flight checks (a warning says so).
 .PARAMETER SkipOcrWait Do not wait for the OCR warm-up (the first photo then loads the models, which is slow).
 #>
 param(
     [switch]$NoBrowser,
+    [switch]$KeepSessions,
     [switch]$Yes,
     [switch]$SkipOcrWait,
     [switch]$Fast
@@ -297,7 +299,7 @@ $lan = $lanAll | Select-Object -First 1
 if ($lan) {
     foreach ($entry in $lanAll) { Ok "$($entry.Ip) on '$($entry.Alias)'" }
     $env:LAN_IP = $lan.Ip
-    $env:PHONE_URL = "https://$($lan.Ip):$WebPort/#/capture"
+    $env:PHONE_URL = "https://$($lan.Ip):$WebPort/#/capture"  # signed out, the phone shows the sign-in page, then continues to capture
 } else {
     Warn "No Wi-Fi/LAN address found. The laptop URL works; connect to Wi-Fi (or a phone hotspot) to use the phone."
     Remove-Item Env:LAN_IP -ErrorAction SilentlyContinue
@@ -308,6 +310,9 @@ if ($lan) {
 # Started before the pre-flight so the API boots (imports, OCR warm-up) while the checks run. A critical failure below
 # closes both windows again.
 Step "API: launch"
+# The demo always starts at the sign-in page: the API deletes every stored session on start (sessions only, no other data).
+if ($KeepSessions) { Remove-Item Env:DEMO_FORCE_RELOGIN -ErrorAction SilentlyContinue; Ok "Existing sessions are kept (-KeepSessions)" }
+else { $env:DEMO_FORCE_RELOGIN = "1" }
 $api = Start-DemoWindow "PackComply API" $Root "& '$Python' -m uvicorn backend.app.main:app --host 127.0.0.1 --port $ApiPort" $ApiLog
 $apiLaunched = Get-Date
 @{ api = $api.Id; web = $web.Id; started = (Get-Date).ToString("o") } | ConvertTo-Json | Set-Content -Path $PidFile -Encoding UTF8
@@ -407,7 +412,7 @@ if (-not $SkipOcrWait) {
 }
 
 # ---------------------------------------------------------------------------------------------------- summary
-$laptopUrl = "https://localhost:$WebPort/#/overview"
+$laptopUrl = "https://localhost:$WebPort/#/login"
 Step "Summary"
 # Reached only after the API health check and the web app both answered (every failure above exits with its log file).
 Write-Host ""

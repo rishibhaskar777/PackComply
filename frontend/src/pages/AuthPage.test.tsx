@@ -27,6 +27,16 @@ describe("sign-in page", () => {
   beforeEach(() => { localStorage.clear(); window.history.replaceState(null, "", "#/overview"); });
   afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.useRealTimers(); delete document.documentElement.dataset.theme; });
 
+  it("shows the sign-in page with no session-expired banner when the old session is rejected on the first load", async () => {
+    mockMatchMedia();
+    window.history.replaceState(null, "", "#/login");
+    mockApi({ "GET /auth/me": unauthenticated, "GET /system/status": response(ready) });
+    renderApp();
+    expect(await screen.findByRole("heading", { level: 1, name: en.loginAsInspector })).toBeTruthy();
+    expect(screen.queryByText(en.sessionExpired)).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
   it.each([["light", false], ["dark", true]] as const)("renders the redesigned page in the %s theme", async (theme, dark) => {
     mockMatchMedia({ dark });
     mockApi({ "GET /auth/me": unauthenticated, "GET /system/status": response(ready) });

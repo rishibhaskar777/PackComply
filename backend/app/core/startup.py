@@ -2,12 +2,14 @@
 import logging
 from time import perf_counter
 
-from sqlalchemy import text
+from sqlalchemy import delete, text
+from sqlalchemy.exc import SQLAlchemyError
 
 from backend.app.core.config import get_ocr_languages, get_settings
 from backend.app.core.database import SessionLocal
 from backend.app.core.network import phone_url
 from backend.app.core.ocr_status import get_ocr_state
+from backend.app.models import AuthSession
 from backend.app.services.compliance.ruleset import default_ruleset
 
 logger = logging.getLogger("uvicorn.error")
@@ -34,3 +36,18 @@ def startup_summary(warmup_seconds: float | None) -> str:
 
 def log_startup_summary(started: float | None = None) -> None:
     logger.info(startup_summary(perf_counter() - started if started is not None else None))
+
+
+def invalidate_sessions_if_requested() -> int:
+    """With DEMO_FORCE_RELOGIN set, delete every stored session (and nothing else) so each browser must sign in again."""
+    if not get_settings().demo_force_relogin:
+        return 0
+    try:
+        with SessionLocal() as db:
+            removed = db.execute(delete(AuthSession)).rowcount or 0
+            db.commit()
+    except SQLAlchemyError:
+        logger.warning("Could not clear sessions at startup (database down or not migrated)", exc_info=True)
+        return 0
+    logger.info("DEMO_FORCE_RELOGIN: %s existing session(s) removed; everyone signs in again", removed)
+    return removed

@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     # Lifetime when "Keep me signed in on this device" is ticked at login.
     session_remember_days: int = 30
     session_secure: bool = False
+    # scripts/start-demo.ps1 sets DEMO_FORCE_RELOGIN=1: every stored session is deleted when the API starts, so each browser signs in again.
+    demo_force_relogin: bool = False
     pattern_min_occurrences: int = 2
     # Copy the versioned ruleset YAML into compliance_rules when the API starts.
     compliance_rules_sync_on_startup: bool = True

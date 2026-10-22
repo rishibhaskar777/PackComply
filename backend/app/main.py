@@ -21,7 +21,7 @@ from backend.app.api.products import router as products_router
 from backend.app.core.config import get_cors_origins, get_settings
 from backend.app.core.database import SessionLocal
 from backend.app.core.ocr_status import set_ocr_state
-from backend.app.core.startup import log_startup_summary
+from backend.app.core.startup import invalidate_sessions_if_requested, log_startup_summary
 from backend.app.services import jobs
 from backend.app.services.compliance.registry import sync_compliance_rules
 from backend.app.services.compliance.ruleset import default_ruleset
@@ -61,6 +61,7 @@ def _sync_compliance_rules() -> None:
 async def lifespan(_: FastAPI):
     # A malformed ruleset fails here, at startup, rather than mid-inspection.
     default_ruleset()
+    invalidate_sessions_if_requested()
     if get_settings().compliance_rules_sync_on_startup:
         _sync_compliance_rules()
     # Warm in a daemon thread so the API serves /api/health immediately.
