@@ -43,7 +43,7 @@ export function redirectFor(route: Route, role?: string): string | null {
 }
 
 /** The hashes that mean "no particular page": the app opens the default one instead of showing Not found. */
-const isBlankHash = (hash: string) => ["", "/", FORGOT_PASSWORD_PATH].includes(hash.replace(/^#/, "").split("?")[0].replace(/\/+$/, ""));
+const isBlankHash = (hash: string) => ["", "/", LOGIN_PATH, FORGOT_PASSWORD_PATH].includes(hash.replace(/^#/, "").split("?")[0].replace(/\/+$/, ""));
 
 /** The route for a hash: a blank one is the default page, an unknown one is the Not found page. */
 export function routeFor(hash: string): Route {
@@ -88,6 +88,8 @@ export function navigate(path: string, { replace = false } = {}) {
 
 // Signed-out routes, handled by the sign-in page rather than the workspace.
 export const FORGOT_PASSWORD_PATH = "/forgot-password";
+/** The address the demo script opens: the sign-in page when signed out, the default page once signed in. */
+export const LOGIN_PATH = "/login";
 
 /** The current hash path (e.g. "/forgot-password"), updated on navigation. */
 export function useHashPath(): string {
