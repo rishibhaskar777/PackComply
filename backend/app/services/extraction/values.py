@@ -129,6 +129,8 @@ def normalize_date(value: str) -> str | None:
     if month_year := re.fullmatch(r"([0-9]{1,2}) ?[/.\-] ?([0-9]{4}|[0-9]{2})", text):
         month = int(month_year.group(1))
         return f"{year(month_year.group(2)):04d}-{month:02d}" if 1 <= month <= 12 else None
+    if iso := re.fullmatch(r"(20[0-9]{2}) ?[/\-] ?(0[1-9]|1[0-2])", text):
+        return f"{iso.group(1)}-{iso.group(2)}"
     if named := re.fullmatch(r"(?:([0-9]{1,2}) ?[\-/ ] ?)?([a-z]{3})[a-z]*\.? ?[\-/'. ]? ?([0-9]{4}|[0-9]{2})", text):
         if named.group(2) not in _MONTHS:
             return None
@@ -599,12 +601,78 @@ def match(layout: Layout, claimed: Iterable[tuple[int, str]] = ()) -> Matching:
             continue
         used.add(index)
         result.assignments[name] = Assignment(name, value, key if key and key.phrase != "code" else None, round(score, 3), how)
+    _repair_stacked_dates(layout, result, keys, values)
     _order_dates(result, keys, values)
     result.keys = {}
     for key in keys:
         result.keys.setdefault(key.field, []).append(key)
     result.values = values
     return result
+
+
+_START_FIELDS, _END_FIELDS = ("manufacturing_date", "packing_date"), ("expiry_date", "best_before", "use_by")
+_GEOMETRIC_HOWS = ("right_of_key", "below_key", "nearest_in_region")
+STACKED_HOWS = ("table_row", "stacked_order", "stacked_straddle")  # pairings made by rows or by stacked order
+STACKED_SCORE = 0.78  # below VALUE_FIRST_REVIEW_BELOW: the field is flagged for review
+
+
+def date_month(normalized: str) -> tuple[int, int] | None:
+    match = re.fullmatch(r"([0-9]{4})-([0-9]{2})(?:-[0-9]{2})?", normalized)
+    return (int(match.group(1)), int(match.group(2))) if match else None
+
+
+def _repair_stacked_dates(layout: Layout, result: Matching, keys: list[Key], values: list[Value]) -> None:
+    """A manufacture/packing key stacked right above an expiry key, whose values sit in a column beside them.
+
+    On a tilted or curved pack the value of the upper key can line up with the lower key, so
+    "right of the key" gives the manufacture date to the expiry key ("Mfg. Date" / "Expiry Date" / "04/2026").
+    Only a field the geometric pass gave a date, with the start field still empty, is touched:
+
+    - two dates in the column: they are paired top to bottom, and only if the first is not after the second;
+    - one date straddling both key rows: it is the manufacture date only when another printed, unassigned date
+      is later; the expiry field then stays empty (the later date is not paired with a key).
+
+    Nothing is invented: every value was already read as a date, and nothing is paired when it is ambiguous.
+    """
+    if not layout.geometric:
+        return
+    for end_key in keys:
+        end = result.assignments.get(end_key.field)
+        if end_key.field not in _END_FIELDS or end_key.box is None or end is None or end.key is not end_key or end.value.kind != "date" or end.how not in _GEOMETRIC_HOWS:
+            continue
+        height = _height(end_key.box)
+        start_key = next((key for key in keys if key.field in _START_FIELDS and key.field not in result.assignments and key.box is not None
+                          and key.span.line is not end_key.span.line and _center_y(key.box) < _center_y(end_key.box)
+                          and end_key.box[1] - key.box[3] <= 1.5 * height
+                          and _x_overlap(key.box, end_key.box) >= 0.5 * min(key.box[2] - key.box[0], end_key.box[2] - end_key.box[0])), None)
+        if start_key is None:
+            continue
+        taken = {id(item.value) for item in result.assignments.values()} - {id(end.value)}
+        left, top, bottom = max(start_key.box[2], end_key.box[2]) - 0.5 * height, start_key.box[1] - height, end_key.box[3] + 2 * height
+        column = sorted((value for value in values if value.kind == "date" and value.box is not None and not value.offer and id(value) not in taken
+                         and value.box[0] >= left and top <= _center_y(value.box) <= bottom and date_month(value.normalized) is not None),
+                        key=lambda value: _center_y(value.box))  # type: ignore[arg-type]
+        if not any(value is end.value for value in column):
+            continue
+        if len(column) == 2:
+            first, second = column
+            if date_month(first.normalized) > date_month(second.normalized):  # type: ignore[operator]
+                continue  # would put the manufacture date after the expiry date
+            pairs = [(start_key, first, "stacked_order"), (end_key, second, "stacked_order")]
+        elif len(column) == 1:
+            value = column[0]
+            overlap = lambda key: min(value.box[3], key.box[3]) - max(value.box[1], key.box[1]) > 0  # type: ignore[index]
+            later = any(other is not value and other.kind == "date" and id(other) not in taken and not other.offer and (month := date_month(other.normalized)) is not None
+                        and month > date_month(value.normalized) for other in values)  # type: ignore[operator]
+            if not (overlap(start_key) and overlap(end_key) and later):
+                continue
+            del result.assignments[end_key.field]
+            pairs = [(start_key, value, "stacked_straddle")]
+        else:
+            continue
+        for key, value, how in pairs:
+            result.assignments[key.field] = Assignment(key.field, value, key, STACKED_SCORE, how)
+        return
 
 
 def _order_dates(result: Matching, keys: list[Key], values: list[Value]) -> None:

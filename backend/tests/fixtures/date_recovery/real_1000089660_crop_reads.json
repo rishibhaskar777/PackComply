@@ -1,0 +1,556 @@
+[
+ [
+  {
+   "text": "MRP₹/USP₹:",
+   "confidence": 0.9429373741149902,
+   "bbox": [
+    [
+     13.0,
+     5.0
+    ],
+    [
+     218.0,
+     3.0
+    ],
+    [
+     218.0,
+     32.0
+    ],
+    [
+     13.0,
+     34.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "(Incl. of all taxes)",
+   "confidence": 0.9999626278877258,
+   "bbox": [
+    [
+     14.0,
+     33.0
+    ],
+    [
+     165.0,
+     33.0
+    ],
+    [
+     165.0,
+     59.0
+    ],
+    [
+     14.0,
+     59.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "480.000.48.ml",
+   "confidence": 0.9560813307762146,
+   "bbox": [
+    [
+     245.0,
+     36.0
+    ],
+    [
+     584.0,
+     18.0
+    ],
+    [
+     586.0,
+     51.0
+    ],
+    [
+     247.0,
+     68.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "Mfg. Date",
+   "confidence": 0.9884217381477356,
+   "bbox": [
+    [
+     14.0,
+     60.0
+    ],
+    [
+     140.0,
+     60.0
+    ],
+    [
+     140.0,
+     93.0
+    ],
+    [
+     14.0,
+     93.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "05/2026",
+   "confidence": 0.9698399305343628,
+   "bbox": [
+    [
+     272.0,
+     60.0
+    ],
+    [
+     489.0,
+     50.0
+    ],
+    [
+     490.0,
+     79.0
+    ],
+    [
+     273.0,
+     90.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "EDL11-063",
+   "confidence": 0.5280377864837646,
+   "bbox": [
+    [
+     266.0,
+     86.0
+    ],
+    [
+     495.0,
+     76.0
+    ],
+    [
+     496.0,
+     101.0
+    ],
+    [
+     267.0,
+     111.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "Batch No.",
+   "confidence": 0.9999815821647644,
+   "bbox": [
+    [
+     15.0,
+     104.0
+    ],
+    [
+     139.0,
+     104.0
+    ],
+    [
+     139.0,
+     134.0
+    ],
+    [
+     15.0,
+     134.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "042028",
+   "confidence": 0.9122553467750549,
+   "bbox": [
+    [
+     275.0,
+     109.0
+    ],
+    [
+     485.0,
+     99.0
+    ],
+    [
+     486.0,
+     126.0
+    ],
+    [
+     276.0,
+     135.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "Expiry Date",
+   "confidence": 0.9999913573265076,
+   "bbox": [
+    [
+     15.0,
+     148.0
+    ],
+    [
+     158.0,
+     148.0
+    ],
+    [
+     158.0,
+     181.0
+    ],
+    [
+     15.0,
+     181.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "Address for mfg. location address, refer the first",
+   "confidence": 0.9919179677963257,
+   "bbox": [
+    [
+     17.0,
+     193.0
+    ],
+    [
+     526.0,
+     184.0
+    ],
+    [
+     526.0,
+     213.0
+    ],
+    [
+     17.0,
+     222.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "character of Batch No. and see address panel",
+   "confidence": 0.9898572564125061,
+   "bbox": [
+    [
+     16.0,
+     217.0
+    ],
+    [
+     501.0,
+     213.0
+    ],
+    [
+     501.0,
+     241.0
+    ],
+    [
+     16.0,
+     243.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  }
+ ],
+ [
+  {
+   "text": "MRP₹/USP₹:",
+   "confidence": 0.9640110731124878,
+   "bbox": [
+    [
+     12.0,
+     5.0
+    ],
+    [
+     219.0,
+     2.0
+    ],
+    [
+     219.0,
+     31.0
+    ],
+    [
+     12.0,
+     34.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "(Incl. of all taxes)",
+   "confidence": 0.9996606707572937,
+   "bbox": [
+    [
+     14.0,
+     33.0
+    ],
+    [
+     165.0,
+     33.0
+    ],
+    [
+     165.0,
+     59.0
+    ],
+    [
+     14.0,
+     59.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "480.000.48ml",
+   "confidence": 0.9758816361427307,
+   "bbox": [
+    [
+     245.0,
+     36.0
+    ],
+    [
+     584.0,
+     19.0
+    ],
+    [
+     586.0,
+     51.0
+    ],
+    [
+     247.0,
+     67.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "Mfg. Date",
+   "confidence": 0.9975340366363525,
+   "bbox": [
+    [
+     13.0,
+     60.0
+    ],
+    [
+     140.0,
+     60.0
+    ],
+    [
+     140.0,
+     93.0
+    ],
+    [
+     13.0,
+     93.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "05/2026",
+   "confidence": 0.9697067141532898,
+   "bbox": [
+    [
+     270.0,
+     60.0
+    ],
+    [
+     489.0,
+     49.0
+    ],
+    [
+     491.0,
+     78.0
+    ],
+    [
+     272.0,
+     90.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "E0017-063",
+   "confidence": 0.6084377765655518,
+   "bbox": [
+    [
+     266.0,
+     87.0
+    ],
+    [
+     493.0,
+     75.0
+    ],
+    [
+     494.0,
+     100.0
+    ],
+    [
+     267.0,
+     112.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "Batch No.",
+   "confidence": 0.9999805092811584,
+   "bbox": [
+    [
+     15.0,
+     104.0
+    ],
+    [
+     139.0,
+     104.0
+    ],
+    [
+     139.0,
+     134.0
+    ],
+    [
+     15.0,
+     134.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "042028",
+   "confidence": 0.9679946899414062,
+   "bbox": [
+    [
+     274.0,
+     110.0
+    ],
+    [
+     486.0,
+     99.0
+    ],
+    [
+     487.0,
+     125.0
+    ],
+    [
+     275.0,
+     135.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "Expiry Date",
+   "confidence": 0.9580980539321899,
+   "bbox": [
+    [
+     15.0,
+     148.0
+    ],
+    [
+     158.0,
+     148.0
+    ],
+    [
+     158.0,
+     181.0
+    ],
+    [
+     15.0,
+     181.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "Address for mfg. location address, refer the first",
+   "confidence": 0.9947673678398132,
+   "bbox": [
+    [
+     17.0,
+     193.0
+    ],
+    [
+     526.0,
+     184.0
+    ],
+    [
+     526.0,
+     213.0
+    ],
+    [
+     17.0,
+     222.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  },
+  {
+   "text": "character of Batch No. and see address panel",
+   "confidence": 0.9997646808624268,
+   "bbox": [
+    [
+     16.0,
+     219.0
+    ],
+    [
+     501.0,
+     212.0
+    ],
+    [
+     501.0,
+     241.0
+    ],
+    [
+     16.0,
+     243.0
+    ]
+   ],
+   "language": null,
+   "rotation": 0,
+   "recovery": null
+  }
+ ]
+]
