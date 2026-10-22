@@ -82,7 +82,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<I18nValue>(() => {
     const dictionary = translations ?? loaded.get("en")!;
-    return { locale, setLocale: setLocaleState, t: key => dictionary[key] };
+    return { locale, setLocale: setLocaleState, t: key => dictionary[key] ?? loaded.get("en")![key] };
   }, [locale, translations]);
 
   // A saved non-English language is fetched before the first paint of the UI, so it never flashes English.

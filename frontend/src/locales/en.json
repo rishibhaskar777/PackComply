@@ -544,5 +544,12 @@
   "ruleBarLabel": "{rule}: {violations} violations, {review} to verify",
   "officialRecord": "Official inspection record",
   "recInspectorMeta": "Inspector: {name}",
-  "newBadTypeMaker": "Only PNG, JPEG and PDF files can be checked.", "newPdfChosen": "PDF artwork (first page is checked)", "recAuditPdf": "Artwork PDF converted to an image (page 1)", "notFoundTitle": "Page not found", "notFoundBody": "This address does not lead to a page in PackComply. Check the link, or go back to your home page.", "notFoundHome": "Go to {page}", "shortcutsTitle": "Keyboard shortcuts", "shortcutsIntro": "Press ? at any time. Shortcuts are off while you type in a field.", "shortcutThen": "then", "aboutCompareTitle": "Development vs unseen", "aboutCompareHint": "Headline scores of the latest development run and the latest unseen run, side by side (development · unseen). The unseen score is the honest one: those photos were never used to tune the extractor."
+  "newBadTypeMaker": "Only PNG, JPEG and PDF files can be checked.", "newPdfChosen": "PDF artwork (first page is checked)", "recAuditPdf": "Artwork PDF converted to an image (page 1)", "notFoundTitle": "Page not found", "notFoundBody": "This address does not lead to a page in PackComply. Check the link, or go back to your home page.", "notFoundHome": "Go to {page}", "shortcutsTitle": "Keyboard shortcuts", "shortcutsIntro": "Press ? at any time. Shortcuts are off while you type in a field.", "shortcutThen": "then", "aboutCompareTitle": "Development vs unseen", "aboutCompareHint": "Headline scores of the latest development run and the latest unseen run, side by side (development · unseen). The unseen score is the honest one: those photos were never used to tune the extractor.",
+  "loginRoleTabs": "Account type",
+  "loginAsInspector": "Sign in as an inspector",
+  "loginAsManufacturer": "Sign in as a manufacturer",
+  "loginInspectorHint": "Review pack labels and record inspections.",
+  "loginManufacturerHint": "Check your own labels before they go to print.",
+  "loginWrongInspector": "This is an inspector account. Please use the Inspector tab.",
+  "loginWrongManufacturer": "This is a manufacturer account. Please use the Manufacturer tab."
 }

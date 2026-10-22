@@ -509,5 +509,12 @@
   "ruleBarLabel": "{rule}: {violations} फिदिनाय, {review} रोखा खालामनो",
   "officialRecord": "सरकारि निरीक्षण रेकर्ड",
   "recInspectorMeta": "निरीक्षक: {name}",
-  "newBadTypeMaker": "PNG, JPEG आरो PDF फाइल सोदोब नायनो मोन्नाय।", "newPdfChosen": "PDF आर्टवर्क (गोबां पाता नायगोन)", "recAuditPdf": "आर्टवर्क PDF मुसुखाआव फोरमा जाबाय (पाता 1)", "notFoundTitle": "पाता मोनाखै", "notFoundBody": "बे ठेगानाआ PackComplyनि मोनसे पातायाबो लांखो। लिंक नाय, एबा गावनि होम पातायाव फिन थां।", "notFoundHome": "{page} आव थां", "shortcutsTitle": "कीबोर्ड शर्टकट", "shortcutsIntro": "माब्लाबो ? दाब। फिल्डआव टाइप खालामनायाव शर्टकट बन्द थायो।", "shortcutThen": "उनाव", "aboutCompareTitle": "बिकास आरो नुजायाखै", "aboutCompareHint": "दाबोलाव बिकास रन आरो दाबोलाव नुजायाखै रननि गोबां अंक मोनसे फोरै (बिकास · नुजायाखै)। नुजायाखै अंकनि सावराइ: बे फटोफोरआव बिजिरग्राखौ मोनसेबो फोरमायनाय जायाखै।"
+  "newBadTypeMaker": "PNG, JPEG आरो PDF फाइल सोदोब नायनो मोन्नाय।", "newPdfChosen": "PDF आर्टवर्क (गोबां पाता नायगोन)", "recAuditPdf": "आर्टवर्क PDF मुसुखाआव फोरमा जाबाय (पाता 1)", "notFoundTitle": "पाता मोनाखै", "notFoundBody": "बे ठेगानाआ PackComplyनि मोनसे पातायाबो लांखो। लिंक नाय, एबा गावनि होम पातायाव फिन थां।", "notFoundHome": "{page} आव थां", "shortcutsTitle": "कीबोर्ड शर्टकट", "shortcutsIntro": "माब्लाबो ? दाब। फिल्डआव टाइप खालामनायाव शर्टकट बन्द थायो।", "shortcutThen": "उनाव", "aboutCompareTitle": "बिकास आरो नुजायाखै", "aboutCompareHint": "दाबोलाव बिकास रन आरो दाबोलाव नुजायाखै रननि गोबां अंक मोनसे फोरै (बिकास · नुजायाखै)। नुजायाखै अंकनि सावराइ: बे फटोफोरआव बिजिरग्राखौ मोनसेबो फोरमायनाय जायाखै।",
+  "loginRoleTabs": "एकाउन्टनि बेसेर",
+  "loginAsInspector": "निरीक्षक हिसाबै साइन इन खालाम",
+  "loginAsManufacturer": "सोरजिग्रा हिसाबै साइन इन खालाम",
+  "loginInspectorHint": "पैक लेबेल नायनो आरो निरीक्षण लिखाम।",
+  "loginManufacturerHint": "छाप खालामनि सिगांफ्रा नाजेरनि लेबेल नायनो।",
+  "loginWrongInspector": "बे निरीक्षक एकाउन्ट। निरीक्षक टेबखौ बाहाय खालाम।",
+  "loginWrongManufacturer": "बे सोरजिग्रा एकाउन्ट। सोरजिग्रा टेबखौ बाहाय खालाम।"
 }

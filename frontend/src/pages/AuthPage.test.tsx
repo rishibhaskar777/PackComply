@@ -31,7 +31,7 @@ describe("sign-in page", () => {
     mockMatchMedia({ dark });
     mockApi({ "GET /auth/me": unauthenticated, "GET /system/status": response(ready) });
     renderApp();
-    expect(await screen.findByRole("heading", { level: 1, name: en.welcomeBack })).toBeTruthy();
+    expect(await screen.findByRole("heading", { level: 1, name: en.loginAsInspector })).toBeTruthy();
     expect(document.documentElement.dataset.theme).toBe(theme);
     expect(screen.getByText(en.storyHeadline)).toBeTruthy();
     expect(screen.getByRole("img", { name: en.sampleLabelCaption })).toBeTruthy();
@@ -72,7 +72,7 @@ describe("sign-in page", () => {
     let asked = false;
     mockApi({ "GET /auth/me": unauthenticated, "GET /system/status": () => new Promise(resolve => { asked = true; answer = resolve; }) });
     renderApp();
-    await screen.findByRole("heading", { level: 1, name: en.welcomeBack });
+    await screen.findByRole("heading", { level: 1, name: en.loginAsInspector });
     // The status request is made by a mount effect, which can run just after the heading is visible.
     await waitFor(() => expect(asked).toBe(true));
     expect(pill().textContent).toContain(en.statusChecking);
@@ -118,13 +118,13 @@ describe("sign-in page", () => {
     mockMatchMedia({ reduce: true });
     mockApi({ "GET /auth/me": unauthenticated, "GET /system/status": response(ready) });
     renderApp();
-    await screen.findByRole("heading", { level: 1, name: en.welcomeBack });
+    await screen.findByRole("heading", { level: 1, name: en.loginAsInspector });
     expect(screen.queryByTestId("scan-line")).toBeNull();
     expect(document.querySelector(".label-card.is-floating, .rule-chip.is-animated")).toBeNull();
     cleanup();
     mockMatchMedia({ reduce: false });
     renderApp();
-    await screen.findByRole("heading", { level: 1, name: en.welcomeBack });
+    await screen.findByRole("heading", { level: 1, name: en.loginAsInspector });
     expect(screen.getByTestId("scan-line")).toBeTruthy();
     expect(document.querySelectorAll(".rule-chip.is-animated").length).toBeGreaterThan(0);
   });
@@ -169,7 +169,7 @@ describe("forgot password", () => {
     expect(lastBody(fetchMock, "/auth/password-reset/confirm")).toEqual({ username: "inspector", code: "482913", new_password: "Fresh-Passphrase-42" });
 
     fireEvent.click(screen.getByRole("button", { name: en.backToSignIn }));
-    expect(await screen.findByRole("heading", { level: 1, name: en.welcomeBack })).toBeTruthy();
+    expect(await screen.findByRole("heading", { level: 1, name: en.loginAsInspector })).toBeTruthy();
     expect(window.location.hash).toBe("#/overview");
   });
 
@@ -218,7 +218,7 @@ describe("forgot password", () => {
     const heading = await screen.findByRole("heading", { level: 1, name: en.resetTitle });
     await waitFor(() => expect(document.activeElement).toBe(heading));
     fireEvent.click(screen.getByRole("button", { name: en.backToSignIn }));
-    expect(await screen.findByRole("heading", { level: 1, name: en.welcomeBack })).toBeTruthy();
+    expect(await screen.findByRole("heading", { level: 1, name: en.loginAsInspector })).toBeTruthy();
     expect(window.location.hash).toBe("#/overview");
   });
 });
@@ -266,5 +266,205 @@ describe("password strength", () => {
     expect(passwordScore("abcdefgh")).toBe(1);
     expect(passwordScore("Abcdefghijkl")).toBe(3);
     expect(passwordScore("Fresh-Passphrase-42")).toBe(4);
+  });
+});
+
+describe("sign-in role tabs", () => {
+  const inspectorUser = { username: "demo_inspector", full_name: "Demo Inspector", role: "OFFICIAL" };
+  const makerUser = { username: "demo_maker", full_name: "Demo Manufacturer", role: "MANUFACTURER" };
+  const productsEmpty = { total: 0, ready: 0, fix: 0, check: 0, readiness_percent: 0, open_fixes: 0, labels_to_fix: 0, products: [] };
+  const tab = (name: string) => screen.getByRole("tab", { name });
+  const portal = () => document.documentElement.dataset.portal;
+  const title = () => screen.getByRole("heading", { level: 1 }).textContent;
+
+  /** Signed out; the server answers a login with `login` and the following /auth/me with `me`. */
+  function server(login: ReturnType<typeof response>, me?: unknown) {
+    return mockApi({
+      "GET /auth/me": [unauthenticated, ...(me ? [response(me)] : [])], "POST /auth/login": login, "POST /auth/logout": response({}, true, 204),
+      "GET /system/status": response(ready), "GET /products": response(productsEmpty), "GET /fixes": response({ total_items: 0, groups: [] }),
+    });
+  }
+  function submitAs(username: string, password = "a-password") {
+    fireEvent.change(screen.getByRole("textbox", { name: en.username }), { target: { value: username } });
+    fireEvent.change(screen.getByLabelText(en.password), { target: { value: password } });
+    fireEvent.click(screen.getByRole("button", { name: en.signIn }));
+  }
+
+  beforeEach(() => { localStorage.clear(); window.history.replaceState(null, "", "#/overview"); mockMatchMedia(); });
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); delete document.documentElement.dataset.theme; delete document.documentElement.dataset.portal; });
+
+  it("shows both tabs above the heading and username field, Inspector selected by default", async () => {
+    server(response({}));
+    renderApp();
+    expect(await screen.findByRole("tablist", { name: en.loginRoleTabs })).toBeTruthy();
+    expect(tab(en.roleInspector).getAttribute("aria-selected")).toBe("true");
+    expect(tab(en.roleManufacturer).getAttribute("aria-selected")).toBe("false");
+    expect(title()).toBe(en.loginAsInspector);
+    expect(screen.getByText(en.loginInspectorHint)).toBeTruthy();
+    expect(portal()).toBe("inspector");
+    const tablist = screen.getByRole("tablist");
+    expect(tablist.compareDocumentPosition(screen.getByRole("textbox", { name: en.username })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(tablist.compareDocumentPosition(screen.getByRole("heading", { level: 1 })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("switching tabs changes the heading, hint and portal theme, and keeps the forgot-password link", async () => {
+    server(response({}));
+    renderApp();
+    await screen.findByRole("tablist");
+    fireEvent.click(tab(en.roleManufacturer));
+    expect(tab(en.roleManufacturer).getAttribute("aria-selected")).toBe("true");
+    expect(title()).toBe(en.loginAsManufacturer);
+    expect(screen.getByText(en.loginManufacturerHint)).toBeTruthy();
+    expect(portal()).toBe("manufacturer");
+    expect(screen.getByRole("link", { name: en.forgotPassword }).getAttribute("href")).toBe("#/forgot-password");
+    fireEvent.click(tab(en.roleInspector));
+    expect(title()).toBe(en.loginAsInspector);
+    expect(portal()).toBe("inspector");
+  });
+
+  it("opens on the tab last used on this browser", async () => {
+    server(response({}));
+    renderApp();
+    await screen.findByRole("tablist");
+    fireEvent.click(tab(en.roleManufacturer));
+    cleanup();
+    renderApp();
+    await screen.findByRole("tablist");
+    expect(tab(en.roleManufacturer).getAttribute("aria-selected")).toBe("true");
+    expect(title()).toBe(en.loginAsManufacturer);
+    expect(portal()).toBe("manufacturer");
+  });
+
+  it("works with storage blocked", async () => {
+    const blocked = () => { throw new DOMException("blocked", "SecurityError"); };
+    vi.stubGlobal("localStorage", { getItem: blocked, setItem: blocked, removeItem: blocked, clear: blocked });
+    server(response({}));
+    renderApp();
+    await screen.findByRole("tablist");
+    expect(title()).toBe(en.loginAsInspector);
+    fireEvent.click(tab(en.roleManufacturer));
+    expect(title()).toBe(en.loginAsManufacturer);
+    expect(portal()).toBe("manufacturer");
+  });
+
+  it("moves between tabs with the arrow, Home and End keys", async () => {
+    server(response({}));
+    renderApp();
+    await screen.findByRole("tablist");
+    tab(en.roleInspector).focus();
+    fireEvent.keyDown(tab(en.roleInspector), { key: "ArrowRight" });
+    expect(tab(en.roleManufacturer).getAttribute("aria-selected")).toBe("true");
+    expect(document.activeElement).toBe(tab(en.roleManufacturer));
+    expect(title()).toBe(en.loginAsManufacturer);
+    fireEvent.keyDown(tab(en.roleManufacturer), { key: "ArrowRight" });
+    expect(tab(en.roleInspector).getAttribute("aria-selected")).toBe("true");
+    fireEvent.keyDown(tab(en.roleInspector), { key: "End" });
+    expect(tab(en.roleManufacturer).getAttribute("aria-selected")).toBe("true");
+    fireEvent.keyDown(tab(en.roleManufacturer), { key: "Home" });
+    expect(tab(en.roleInspector).getAttribute("aria-selected")).toBe("true");
+    // Only the selected tab is in the tab order.
+    expect(tab(en.roleInspector).tabIndex).toBe(0);
+    expect(tab(en.roleManufacturer).tabIndex).toBe(-1);
+  });
+
+  it("never sends the selected tab to the server", async () => {
+    const fetchMock = server(response(makerUser), makerUser);
+    renderApp();
+    await screen.findByRole("tablist");
+    fireEvent.click(tab(en.roleManufacturer));
+    submitAs("demo_maker");
+    await waitFor(() => expect(calledPaths(fetchMock)).toContain("/auth/login"));
+    expect(lastBody(fetchMock, "/auth/login")).toEqual({ username: "demo_maker", password: "a-password", remember: false });
+  });
+
+  it("continues to the inspector portal when an inspector signs in on the Inspector tab", async () => {
+    server(response(inspectorUser), inspectorUser);
+    renderApp();
+    await screen.findByRole("tablist");
+    submitAs("demo_inspector");
+    await screen.findByRole("navigation", { name: en.primaryNavigation });
+    expect(portal()).toBe("inspector");
+    expect(document.querySelector("[data-portal-pill]")?.textContent).toBe(en.portalInspector);
+  });
+
+  it("continues to the manufacturer portal when a manufacturer signs in on the Manufacturer tab", async () => {
+    server(response(makerUser), makerUser);
+    renderApp();
+    await screen.findByRole("tablist");
+    fireEvent.click(tab(en.roleManufacturer));
+    submitAs("demo_maker");
+    await screen.findByRole("navigation", { name: en.primaryNavigation });
+    expect(portal()).toBe("manufacturer");
+    expect(document.querySelector("[data-portal-pill]")?.textContent).toBe(en.portalManufacturer);
+  });
+
+  it("ends the session and switches tab when a manufacturer signs in on the Inspector tab", async () => {
+    const fetchMock = server(response(makerUser), makerUser);
+    renderApp();
+    await screen.findByRole("tablist");
+    submitAs("demo_maker");
+    expect((await screen.findByRole("alert")).textContent).toContain(en.loginWrongManufacturer);
+    expect(en.loginWrongManufacturer).toBe("This is a manufacturer account. Please use the Manufacturer tab.");
+    // The session was cleared again and the user was never let in.
+    expect(calledPaths(fetchMock)).toContain("/auth/logout");
+    expect(calledPaths(fetchMock).filter(path => path === "/auth/me")).toHaveLength(1);
+    expect(screen.queryByRole("navigation", { name: en.primaryNavigation })).toBeNull();
+    // The matching tab is now selected so they can sign in again, and the portal theme follows it.
+    expect(tab(en.roleManufacturer).getAttribute("aria-selected")).toBe("true");
+    expect(title()).toBe(en.loginAsManufacturer);
+    expect(portal()).toBe("manufacturer");
+    // Choosing a tab by hand dismisses the notice.
+    fireEvent.click(tab(en.roleInspector));
+    expect(screen.queryByText(en.loginWrongManufacturer)).toBeNull();
+  });
+
+  it("ends the session and switches tab when an inspector signs in on the Manufacturer tab", async () => {
+    const fetchMock = server(response(inspectorUser), inspectorUser);
+    renderApp();
+    await screen.findByRole("tablist");
+    fireEvent.click(tab(en.roleManufacturer));
+    submitAs("demo_inspector");
+    expect((await screen.findByRole("alert")).textContent).toContain(en.loginWrongInspector);
+    expect(calledPaths(fetchMock)).toContain("/auth/logout");
+    expect(tab(en.roleInspector).getAttribute("aria-selected")).toBe("true");
+    expect(title()).toBe(en.loginAsInspector);
+    expect(localStorage.getItem("packcomply-login-portal")).toBe("inspector");
+  });
+
+  it.each([["manufacturer", 401], ["inspector", 401], ["inspector", 422]] as const)("shows only the generic message, no role, for a failed sign-in on the %s tab (%i)", async (selected, status) => {
+    const fetchMock = server(response({ detail: "Invalid username or password." }, false, status));
+    renderApp();
+    await screen.findByRole("tablist");
+    const label = selected === "manufacturer" ? en.roleManufacturer : en.roleInspector;
+    fireEvent.click(tab(label));
+    submitAs("unknown", "wrong-password");
+    expect((await screen.findByRole("alert")).textContent).toContain(en.invalidCredentials);
+    expect(screen.queryByText(en.loginWrongInspector)).toBeNull();
+    expect(screen.queryByText(en.loginWrongManufacturer)).toBeNull();
+    expect(tab(label).getAttribute("aria-selected")).toBe("true");
+    expect(calledPaths(fetchMock)).not.toContain("/auth/logout");
+  });
+
+  it("shows the lockout message and note on the Manufacturer tab", async () => {
+    server(response({ detail: "Too many failed attempts." }, false, 429));
+    renderApp();
+    await screen.findByRole("tablist");
+    fireEvent.click(tab(en.roleManufacturer));
+    submitAs("locked", "wrong-password");
+    expect((await screen.findByRole("alert")).textContent).toContain(en.tooManyAttempts);
+    expect(screen.getByText(en.lockoutNote.replace("{count}", "5"))).toBeTruthy();
+  });
+
+  it("falls back to English text for a key a locale lacks, never the raw key", async () => {
+    const { loadLocale } = await import("../i18n");
+    const hi = await loadLocale("hi") as Record<string, string>;
+    const original = hi.loginAsInspector;
+    delete hi.loginAsInspector;
+    try {
+      localStorage.setItem("packcomply-language", "hi");
+      server(response({}));
+      renderApp();
+      expect((await screen.findByRole("heading", { level: 1 })).textContent).toBe(en.loginAsInspector);
+    } finally { hi.loginAsInspector = original; }
   });
 });

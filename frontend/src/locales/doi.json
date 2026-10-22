@@ -509,5 +509,12 @@
   "ruleBarLabel": "{rule}: {violations} उल्लंघन, {review} जांचने आह्‌ले",
   "officialRecord": "सरकारी निरीक्षण रिकॉर्ड",
   "recInspectorMeta": "निरीक्षक: {name}",
-  "newBadTypeMaker": "सिर्फ PNG, JPEG ते PDF फाइलां जांचियां जाई सकदियां न।", "newPdfChosen": "PDF आर्टवर्क (पैह्‌ला पन्ना जांचेआ जाग)", "recAuditPdf": "आर्टवर्क PDF गी तस्वीर च बदलेआ गेआ (पन्ना 1)", "notFoundTitle": "पन्ना नेईं मिलेआ", "notFoundBody": "एह् पता PackComply दे कुसै बी पन्ने तक नेईं लेई जंदा। लिंक जांचो, जां अपने होम पन्ने पर मुड़ो।", "notFoundHome": "{page} पर जाओ", "shortcutsTitle": "कीबोर्ड शॉर्टकट", "shortcutsIntro": "कदें बी ? दबाओ। कुसै फील्ड च टाइप करदे बेले शॉर्टकट बंद रौंदे न।", "shortcutThen": "फिरी", "aboutCompareTitle": "विकास बनाम अनदिक्खे", "aboutCompareHint": "ताजे विकास रन ते ताजे अनदिक्खे रन दे मुक्ख अंक नाले-नाल (विकास · अनदिक्खे)। अनदिक्खे अंक गै ईमानदार न: उनें फोटो उप्पर निकासी गी कदें बी नेईं सुधारेआ गेआ।"
+  "newBadTypeMaker": "सिर्फ PNG, JPEG ते PDF फाइलां जांचियां जाई सकदियां न।", "newPdfChosen": "PDF आर्टवर्क (पैह्‌ला पन्ना जांचेआ जाग)", "recAuditPdf": "आर्टवर्क PDF गी तस्वीर च बदलेआ गेआ (पन्ना 1)", "notFoundTitle": "पन्ना नेईं मिलेआ", "notFoundBody": "एह् पता PackComply दे कुसै बी पन्ने तक नेईं लेई जंदा। लिंक जांचो, जां अपने होम पन्ने पर मुड़ो।", "notFoundHome": "{page} पर जाओ", "shortcutsTitle": "कीबोर्ड शॉर्टकट", "shortcutsIntro": "कदें बी ? दबाओ। कुसै फील्ड च टाइप करदे बेले शॉर्टकट बंद रौंदे न।", "shortcutThen": "फिरी", "aboutCompareTitle": "विकास बनाम अनदिक्खे", "aboutCompareHint": "ताजे विकास रन ते ताजे अनदिक्खे रन दे मुक्ख अंक नाले-नाल (विकास · अनदिक्खे)। अनदिक्खे अंक गै ईमानदार न: उनें फोटो उप्पर निकासी गी कदें बी नेईं सुधारेआ गेआ।",
+  "loginRoleTabs": "खाते दा किस्म",
+  "loginAsInspector": "निरीक्षक दे तौर पर साइन इन करो",
+  "loginAsManufacturer": "निर्माता दे तौर पर साइन इन करो",
+  "loginInspectorHint": "पैक लेबल जाचो ते निरीक्षण दर्ज करो।",
+  "loginManufacturerHint": "छपाई थमां पैह्लें अपने लेबल जाचो।",
+  "loginWrongInspector": "एह् निरीक्षक खाता ऐ। कृपया निरीक्षक टैब दा इस्तेमाल करो।",
+  "loginWrongManufacturer": "एह् निर्माता खाता ऐ। कृपया निर्माता टैब दा इस्तेमाल करो।"
 }

@@ -61,6 +61,14 @@ const requiredAuthKeys = [
   "passwordUpdated",
   "signedOutEverywhere",
   "invalidResetCode",
+  // Role tabs on the sign-in card
+  "loginRoleTabs",
+  "loginAsInspector",
+  "loginAsManufacturer",
+  "loginInspectorHint",
+  "loginManufacturerHint",
+  "loginWrongInspector",
+  "loginWrongManufacturer",
 ];
 
 const localeFiles = new Set(

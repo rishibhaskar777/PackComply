@@ -177,6 +177,9 @@
 .signin-title:focus { outline: none; }
 .signin-title:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; border-radius: var(--radius-sm); }
 .signin-subtitle { color: var(--muted-foreground); font-size: var(--text-base); }
+.signin-tabs { margin-bottom: var(--space-5); }
+.signin-tabs .tabs__tab { height: 40px; }
+.signin-tabs .tabs__tab.is-active { color: var(--primary-strong); font-weight: 600; }
 .signin-form { display: grid; gap: var(--space-4); }
 .signin-tile {
   display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: var(--space-4);
@@ -278,6 +281,7 @@
   .signin-topbar .btn--icon, .signin-topbar .select__control, .icon-input__toggle.btn--icon { width: 44px; height: 44px; }
   .signin-topbar .select__control { width: 100%; }
   .signin-link, .signin-back, .signin-link--center, .signin-check { min-height: 44px; }
+  .signin-tabs .tabs__tab { height: 44px; }
   .otp__boxes { gap: 6px; }
 }
 
