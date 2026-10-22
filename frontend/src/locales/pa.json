@@ -509,5 +509,12 @@
   "ruleBarLabel": "{rule}: {violations} ਉਲੰਘਣਾਵਾਂ, {review} ਪੁਸ਼ਟੀ ਵਾਲੀਆਂ",
   "officialRecord": "ਅਧਿਕਾਰਤ ਜਾਂਚ ਰਿਕਾਰਡ",
   "recInspectorMeta": "ਨਿਰੀਖਕ: {name}",
-  "newBadTypeMaker": "ਸਿਰਫ਼ PNG, JPEG ਅਤੇ PDF ਫਾਈਲਾਂ ਦੀ ਜਾਂਚ ਹੋ ਸਕਦੀ ਹੈ।", "newPdfChosen": "PDF ਆਰਟਵਰਕ (ਪਹਿਲਾ ਪੰਨਾ ਜਾਂਚਿਆ ਜਾਵੇਗਾ)", "recAuditPdf": "ਆਰਟਵਰਕ PDF ਨੂੰ ਤਸਵੀਰ ਵਿੱਚ ਬਦਲਿਆ ਗਿਆ (ਪੰਨਾ 1)", "notFoundTitle": "ਪੰਨਾ ਨਹੀਂ ਮਿਲਿਆ", "notFoundBody": "ਇਹ ਪਤਾ PackComply ਦੇ ਕਿਸੇ ਪੰਨੇ ਵੱਲ ਨਹੀਂ ਲੈ ਜਾਂਦਾ। ਲਿੰਕ ਜਾਂਚੋ, ਜਾਂ ਆਪਣੇ ਹੋਮ ਪੰਨੇ 'ਤੇ ਵਾਪਸ ਜਾਓ।", "notFoundHome": "{page} 'ਤੇ ਜਾਓ", "shortcutsTitle": "ਕੀਬੋਰਡ ਸ਼ਾਰਟਕੱਟ", "shortcutsIntro": "ਕਦੇ ਵੀ ? ਦਬਾਓ। ਕਿਸੇ ਖੇਤਰ ਵਿੱਚ ਟਾਈਪ ਕਰਨ ਵੇਲੇ ਸ਼ਾਰਟਕੱਟ ਬੰਦ ਰਹਿੰਦੇ ਹਨ।", "shortcutThen": "ਫਿਰ", "aboutCompareTitle": "ਵਿਕਾਸ ਬਨਾਮ ਅਣਦੇਖਿਆ", "aboutCompareHint": "ਤਾਜ਼ਾ ਵਿਕਾਸ ਰਨ ਅਤੇ ਤਾਜ਼ਾ ਅਣਦੇਖੇ ਰਨ ਦੇ ਮੁੱਖ ਸਕੋਰ ਨਾਲ-ਨਾਲ (ਵਿਕਾਸ · ਅਣਦੇਖਿਆ)। ਅਣਦੇਖਿਆ ਸਕੋਰ ਹੀ ਇਮਾਨਦਾਰ ਹੈ: ਉਨ੍ਹਾਂ ਫੋਟੋਆਂ 'ਤੇ ਜਾਣਕਾਰੀ ਕੱਢਣ ਨੂੰ ਕਦੇ ਠੀਕ ਨਹੀਂ ਕੀਤਾ ਗਿਆ।"
+  "newBadTypeMaker": "ਸਿਰਫ਼ PNG, JPEG ਅਤੇ PDF ਫਾਈਲਾਂ ਦੀ ਜਾਂਚ ਹੋ ਸਕਦੀ ਹੈ।", "newPdfChosen": "PDF ਆਰਟਵਰਕ (ਪਹਿਲਾ ਪੰਨਾ ਜਾਂਚਿਆ ਜਾਵੇਗਾ)", "recAuditPdf": "ਆਰਟਵਰਕ PDF ਨੂੰ ਤਸਵੀਰ ਵਿੱਚ ਬਦਲਿਆ ਗਿਆ (ਪੰਨਾ 1)", "notFoundTitle": "ਪੰਨਾ ਨਹੀਂ ਮਿਲਿਆ", "notFoundBody": "ਇਹ ਪਤਾ PackComply ਦੇ ਕਿਸੇ ਪੰਨੇ ਵੱਲ ਨਹੀਂ ਲੈ ਜਾਂਦਾ। ਲਿੰਕ ਜਾਂਚੋ, ਜਾਂ ਆਪਣੇ ਹੋਮ ਪੰਨੇ 'ਤੇ ਵਾਪਸ ਜਾਓ।", "notFoundHome": "{page} 'ਤੇ ਜਾਓ", "shortcutsTitle": "ਕੀਬੋਰਡ ਸ਼ਾਰਟਕੱਟ", "shortcutsIntro": "ਕਦੇ ਵੀ ? ਦਬਾਓ। ਕਿਸੇ ਖੇਤਰ ਵਿੱਚ ਟਾਈਪ ਕਰਨ ਵੇਲੇ ਸ਼ਾਰਟਕੱਟ ਬੰਦ ਰਹਿੰਦੇ ਹਨ।", "shortcutThen": "ਫਿਰ", "aboutCompareTitle": "ਵਿਕਾਸ ਬਨਾਮ ਅਣਦੇਖਿਆ", "aboutCompareHint": "ਤਾਜ਼ਾ ਵਿਕਾਸ ਰਨ ਅਤੇ ਤਾਜ਼ਾ ਅਣਦੇਖੇ ਰਨ ਦੇ ਮੁੱਖ ਸਕੋਰ ਨਾਲ-ਨਾਲ (ਵਿਕਾਸ · ਅਣਦੇਖਿਆ)। ਅਣਦੇਖਿਆ ਸਕੋਰ ਹੀ ਇਮਾਨਦਾਰ ਹੈ: ਉਨ੍ਹਾਂ ਫੋਟੋਆਂ 'ਤੇ ਜਾਣਕਾਰੀ ਕੱਢਣ ਨੂੰ ਕਦੇ ਠੀਕ ਨਹੀਂ ਕੀਤਾ ਗਿਆ।",
+  "loginRoleTabs": "ਖਾਤੇ ਦੀ ਕਿਸਮ",
+  "loginAsInspector": "ਨਿਰੀਖਕ ਵਜੋਂ ਸਾਈਨ ਇਨ ਕਰੋ",
+  "loginAsManufacturer": "ਨਿਰਮਾਤਾ ਵਜੋਂ ਸਾਈਨ ਇਨ ਕਰੋ",
+  "loginInspectorHint": "ਪੈਕ ਲੇਬਲ ਜਾਂਚੋ ਅਤੇ ਨਿਰੀਖਣ ਦਰਜ ਕਰੋ।",
+  "loginManufacturerHint": "ਛਪਾਈ ਤੋਂ ਪਹਿਲਾਂ ਆਪਣੇ ਲੇਬਲ ਜਾਂਚੋ।",
+  "loginWrongInspector": "ਇਹ ਨਿਰੀਖਕ ਖਾਤਾ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਨਿਰੀਖਕ ਟੈਬ ਵਰਤੋ।",
+  "loginWrongManufacturer": "ਇਹ ਨਿਰਮਾਤਾ ਖਾਤਾ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਨਿਰਮਾਤਾ ਟੈਬ ਵਰਤੋ।"
 }

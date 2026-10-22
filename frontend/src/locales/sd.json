@@ -509,5 +509,12 @@
   "ruleBarLabel": "{rule}: {violations} ڀڃڪڙيون، {review} جانچڻ لاءِ",
   "officialRecord": "سرڪاري معائني جو رڪارڊ",
   "recInspectorMeta": "معائنيڪار: {name}",
-  "newBadTypeMaker": "رڳو PNG، JPEG ۽ PDF فائلون جانچي سگھجن ٿيون.", "newPdfChosen": "PDF آرٽ ورڪ (پهريون صفحو جانچيو ويندو)", "recAuditPdf": "آرٽ ورڪ PDF کي تصوير ۾ بدلايو ويو (صفحو 1)", "notFoundTitle": "صفحو نه مليو", "notFoundBody": "هي پتو PackComply جي ڪنھن صفحي ڏانھن نٿو وٺي وڃي. لنڪ چيڪ ڪريو، يا پنھنجي هوم صفحي ڏانھن موٽو.", "notFoundHome": "{page} ڏانھن وڃو", "shortcutsTitle": "ڪيبورڊ شارٽ ڪٽ", "shortcutsIntro": "ڪڏھن به ? دٻايو. ڪنھن فيلڊ ۾ ٽائيپ ڪندي شارٽ ڪٽ بند رھن ٿا.", "shortcutThen": "پوءِ", "aboutCompareTitle": "ڊولپمينٽ بمقابله اڻ ڏٺو", "aboutCompareHint": "تازي ڊولپمينٽ رن ۽ تازي اڻ ڏٺي رن جا بنيادي اسڪور ڀرپاسي (ڊولپمينٽ · اڻ ڏٺو). اڻ ڏٺو اسڪور ئي ايماندار آهي: انھن تصويرن تي ڄاڻ ڪڍڻ کي ڪڏھن به ترتيب نه ڏنو ويو."
+  "newBadTypeMaker": "رڳو PNG، JPEG ۽ PDF فائلون جانچي سگھجن ٿيون.", "newPdfChosen": "PDF آرٽ ورڪ (پهريون صفحو جانچيو ويندو)", "recAuditPdf": "آرٽ ورڪ PDF کي تصوير ۾ بدلايو ويو (صفحو 1)", "notFoundTitle": "صفحو نه مليو", "notFoundBody": "هي پتو PackComply جي ڪنھن صفحي ڏانھن نٿو وٺي وڃي. لنڪ چيڪ ڪريو، يا پنھنجي هوم صفحي ڏانھن موٽو.", "notFoundHome": "{page} ڏانھن وڃو", "shortcutsTitle": "ڪيبورڊ شارٽ ڪٽ", "shortcutsIntro": "ڪڏھن به ? دٻايو. ڪنھن فيلڊ ۾ ٽائيپ ڪندي شارٽ ڪٽ بند رھن ٿا.", "shortcutThen": "پوءِ", "aboutCompareTitle": "ڊولپمينٽ بمقابله اڻ ڏٺو", "aboutCompareHint": "تازي ڊولپمينٽ رن ۽ تازي اڻ ڏٺي رن جا بنيادي اسڪور ڀرپاسي (ڊولپمينٽ · اڻ ڏٺو). اڻ ڏٺو اسڪور ئي ايماندار آهي: انھن تصويرن تي ڄاڻ ڪڍڻ کي ڪڏھن به ترتيب نه ڏنو ويو.",
+  "loginRoleTabs": "کاتي جو قسم",
+  "loginAsInspector": "معائنو ڪندڙ طور سائن ان ڪريو",
+  "loginAsManufacturer": "ٺاهيندڙ طور سائن ان ڪريو",
+  "loginInspectorHint": "پيڪ ليبل جاچيو ۽ معائنا درج ڪريو.",
+  "loginManufacturerHint": "ڇپائڻ کان اڳ پنهنجا ليبل جاچيو.",
+  "loginWrongInspector": "هي معائنو ڪندڙ کاتو آهي. مهرباني ڪري معائنو ڪندڙ ٽيب استعمال ڪريو.",
+  "loginWrongManufacturer": "هي ٺاهيندڙ کاتو آهي. مهرباني ڪري ٺاهيندڙ ٽيب استعمال ڪريو."
 }

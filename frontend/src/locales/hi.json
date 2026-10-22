@@ -460,5 +460,12 @@
   "ruleBarLabel": "{rule}: {violations} उल्लंघन, {review} जाँच योग्य",
   "officialRecord": "आधिकारिक निरीक्षण अभिलेख",
   "recInspectorMeta": "निरीक्षक: {name}",
-  "newBadTypeMaker": "केवल PNG, JPEG और PDF फ़ाइलों की जाँच हो सकती है।", "newPdfChosen": "PDF आर्टवर्क (पहले पृष्ठ की जाँच होगी)", "recAuditPdf": "आर्टवर्क PDF को चित्र में बदला गया (पृष्ठ 1)", "notFoundTitle": "पृष्ठ नहीं मिला", "notFoundBody": "यह पता PackComply के किसी पृष्ठ तक नहीं ले जाता। लिंक जाँचें, या अपने होम पृष्ठ पर लौट जाएँ।", "notFoundHome": "{page} पर जाएँ", "shortcutsTitle": "कीबोर्ड शॉर्टकट", "shortcutsIntro": "कभी भी ? दबाएँ। किसी फ़ील्ड में टाइप करते समय शॉर्टकट बंद रहते हैं।", "shortcutThen": "फिर", "aboutCompareTitle": "विकास बनाम अनदेखा", "aboutCompareHint": "नवीनतम विकास रन और नवीनतम अनदेखे रन के मुख्य स्कोर साथ-साथ (विकास · अनदेखा)। अनदेखा स्कोर ही ईमानदार है: उन फ़ोटो पर एक्सट्रैक्टर को कभी ट्यून नहीं किया गया।"
+  "newBadTypeMaker": "केवल PNG, JPEG और PDF फ़ाइलों की जाँच हो सकती है।", "newPdfChosen": "PDF आर्टवर्क (पहले पृष्ठ की जाँच होगी)", "recAuditPdf": "आर्टवर्क PDF को चित्र में बदला गया (पृष्ठ 1)", "notFoundTitle": "पृष्ठ नहीं मिला", "notFoundBody": "यह पता PackComply के किसी पृष्ठ तक नहीं ले जाता। लिंक जाँचें, या अपने होम पृष्ठ पर लौट जाएँ।", "notFoundHome": "{page} पर जाएँ", "shortcutsTitle": "कीबोर्ड शॉर्टकट", "shortcutsIntro": "कभी भी ? दबाएँ। किसी फ़ील्ड में टाइप करते समय शॉर्टकट बंद रहते हैं।", "shortcutThen": "फिर", "aboutCompareTitle": "विकास बनाम अनदेखा", "aboutCompareHint": "नवीनतम विकास रन और नवीनतम अनदेखे रन के मुख्य स्कोर साथ-साथ (विकास · अनदेखा)। अनदेखा स्कोर ही ईमानदार है: उन फ़ोटो पर एक्सट्रैक्टर को कभी ट्यून नहीं किया गया।",
+  "loginRoleTabs": "खाते का प्रकार",
+  "loginAsInspector": "निरीक्षक के रूप में साइन इन करें",
+  "loginAsManufacturer": "निर्माता के रूप में साइन इन करें",
+  "loginInspectorHint": "पैक लेबल जाँचें और निरीक्षण दर्ज करें।",
+  "loginManufacturerHint": "छपाई से पहले अपने लेबल जाँचें।",
+  "loginWrongInspector": "यह निरीक्षक खाता है। कृपया निरीक्षक टैब का उपयोग करें।",
+  "loginWrongManufacturer": "यह निर्माता खाता है। कृपया निर्माता टैब का उपयोग करें।"
 }

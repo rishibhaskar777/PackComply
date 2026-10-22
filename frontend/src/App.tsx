@@ -7,7 +7,7 @@ import { PageSkeleton } from "./components/PageSkeleton";
 import { ToastProvider, useToast } from "./components/ui";
 import { useI18n } from "./i18n";
 import { DURATION, EASE, useReducedMotion } from "./lib/motion";
-import { usePortalAttribute } from "./lib/portal";
+import { Portal, portalOf, usePortalAttribute } from "./lib/portal";
 import { useSpotlight } from "./lib/spotlight";
 import { AuthPage, Registration } from "./pages/AuthPage";
 import { ThemeProvider } from "./theme/theme";
@@ -84,15 +84,25 @@ function AppContent() {
   }
   useEffect(() => { loadUser(); }, []);
 
-  async function login(username: string, password: string, remember: boolean) {
+  /**
+   * The selected tab is only a hint and is never sent: the server decides the role from the account. If the account turns out to
+   * belong to the other portal, the session is ended again and that portal is returned so the sign-in page can point to its tab.
+   */
+  async function login(username: string, password: string, remember: boolean, portal: Portal): Promise<Portal | null> {
     setAuthBusy(true); setAuthError("");
     try {
-      await api("/auth/login", "login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password, remember }) });
+      const account = await (await api("/auth/login", "login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password, remember }) })).json().catch(() => null) as User | null;
+      const actual = account?.role ? portalOf(account.role) : portal;
+      if (actual !== portal) {
+        await api("/auth/logout", "logout", { method: "POST" }).catch(() => undefined);
+        return actual;
+      }
       await loadUser();
     } catch (e) {
       const status = (e as ApiError).status;
       setAuthError(status === 401 || status === 422 ? t("invalidCredentials") : status === 429 ? t("tooManyAttempts") : isUnavailable(e) ? t("serverUnavailable") : t("authenticationError"));
     } finally { setAuthBusy(false); }
+    return null;
   }
   async function register(data: Registration) {
     setAuthBusy(true); setAuthError("");

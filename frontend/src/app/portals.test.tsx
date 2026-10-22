@@ -109,13 +109,15 @@ describe("the two portals", () => {
     expect(fetchMock.mock.calls.some(call => String(call[0]).includes("/products") || String(call[0]).includes("/fixes"))).toBe(false);
   });
 
-  it("signing out clears the portal theme", async () => {
+  it("signing out replaces the signed-in portal theme with the sign-in tab's", async () => {
     mockApi({ "GET /auth/me": response({ username: "demo_maker", role: "MANUFACTURER" }), "GET /products": response(productsEmpty), "GET /fixes": response({ total_items: 0, groups: [] }), "POST /auth/logout": response({}, true, 204) });
     renderApp();
     await nav();
     expect(document.documentElement.dataset.portal).toBe("manufacturer");
     fireEvent.click(screen.getByRole("button", { name: new RegExp(en.accountMenu) }));
     fireEvent.click(await screen.findByRole("button", { name: en.logout }));
-    await waitFor(() => expect(document.documentElement.dataset.portal).toBeUndefined());
+    // The sign-in page opens on the Inspector tab (nothing remembered), so the maker teal is gone.
+    await waitFor(() => expect(document.documentElement.dataset.portal).toBe("inspector"));
+    expect(screen.getByRole("heading", { level: 1, name: en.loginAsInspector })).toBeTruthy();
   });
 });

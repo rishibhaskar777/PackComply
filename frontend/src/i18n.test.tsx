@@ -89,7 +89,7 @@ describe("inspection workflow UI", () => {
   it("registers explicitly as a manufacturer and explains why", async () => {
     const fetchMock = mockApi({ "GET /auth/me": [unauthenticated, response({ username: "new-user" })], "POST /auth/register": response({ username: "new-user" }) }); renderApp();
     fireEvent.click(await screen.findByRole("button", { name: en.createManufacturerAccount })); expect(screen.getByText(en.manufacturerRegistrationNote)).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: en.backToSignIn })); expect(screen.getByRole("heading", { level: 1, name: en.welcomeBack })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: en.backToSignIn })); expect(screen.getByRole("heading", { level: 1, name: en.loginAsInspector })).toBeTruthy();
     await fillRegistration();
     await appReady();
     const registerCall = fetchMock.mock.calls.find(call => String(call[0]).endsWith("/auth/register"))!;

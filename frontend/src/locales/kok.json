@@ -509,5 +509,12 @@
   "ruleBarLabel": "{rule}: {violations} उल्लंघनां, {review} पडताळपाक",
   "officialRecord": "अधिकृत तपासणी नोंद",
   "recInspectorMeta": "तपासणीदार: {name}",
-  "newBadTypeMaker": "फकत PNG, JPEG आनी PDF फायली तपासूं येतात.", "newPdfChosen": "PDF आर्टवर्क (पयलें पान तपासतले)", "recAuditPdf": "आर्टवर्क PDF प्रतिमेंत बदललो (पान 1)", "notFoundTitle": "पान मेळ्ळें ना", "notFoundBody": "हो पत्तो PackComply च्या खंयच्याच पानाक व्हरिना. दुवो तपासात, वा तुमच्या मुखेल पानाक परत वचात.", "notFoundHome": "{page} कडेन वचात", "shortcutsTitle": "कीबोर्ड शॉर्टकट", "shortcutsIntro": "केन्नाय ? दाबात. फील्डांत टाईप करतना शॉर्टकट बंद आसतात.", "shortcutThen": "मागीर", "aboutCompareTitle": "विकास आनी ना पळयिल्लें", "aboutCompareHint": "निमाण्या विकास रनाचे आनी निमाण्या ना पळयिल्ल्या रनाचे मुखेल गूण एकामेकां कुशीक (विकास · ना पळयिल्लें). ना पळयिल्ले गूणूच खरे: त्या फोटोंचेर म्हायती काडपी घटक केन्नाच सुदारूंक ना."
+  "newBadTypeMaker": "फकत PNG, JPEG आनी PDF फायली तपासूं येतात.", "newPdfChosen": "PDF आर्टवर्क (पयलें पान तपासतले)", "recAuditPdf": "आर्टवर्क PDF प्रतिमेंत बदललो (पान 1)", "notFoundTitle": "पान मेळ्ळें ना", "notFoundBody": "हो पत्तो PackComply च्या खंयच्याच पानाक व्हरिना. दुवो तपासात, वा तुमच्या मुखेल पानाक परत वचात.", "notFoundHome": "{page} कडेन वचात", "shortcutsTitle": "कीबोर्ड शॉर्टकट", "shortcutsIntro": "केन्नाय ? दाबात. फील्डांत टाईप करतना शॉर्टकट बंद आसतात.", "shortcutThen": "मागीर", "aboutCompareTitle": "विकास आनी ना पळयिल्लें", "aboutCompareHint": "निमाण्या विकास रनाचे आनी निमाण्या ना पळयिल्ल्या रनाचे मुखेल गूण एकामेकां कुशीक (विकास · ना पळयिल्लें). ना पळयिल्ले गूणूच खरे: त्या फोटोंचेर म्हायती काडपी घटक केन्नाच सुदारूंक ना.",
+  "loginRoleTabs": "खात्याचो प्रकार",
+  "loginAsInspector": "निरीक्षक म्हणून साइन इन करचें",
+  "loginAsManufacturer": "उत्पादक म्हणून साइन इन करचें",
+  "loginInspectorHint": "पॅक लेबल तपासात आनी निरीक्षण नोंदयात।",
+  "loginManufacturerHint": "छापणी आदीं तुमचे लेबल तपासात।",
+  "loginWrongInspector": "हें निरीक्षक खातें. कृपया निरीक्षक टॅब वापरात।",
+  "loginWrongManufacturer": "हें उत्पादक खातें. कृपया उत्पादक टॅब वापरात।"
 }

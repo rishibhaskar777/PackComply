@@ -509,5 +509,12 @@
   "ruleBarLabel": "{rule}: {violations} उल्लंघन, {review} जाँचबाक",
   "officialRecord": "आधिकारिक निरीक्षण अभिलेख",
   "recInspectorMeta": "निरीक्षक: {name}",
-  "newBadTypeMaker": "मात्र PNG, JPEG आ PDF फाइलक जाँच भ सकैत अछि।", "newPdfChosen": "PDF आर्टवर्क (पहिल पृष्ठक जाँच होएत)", "recAuditPdf": "आर्टवर्क PDF केँ छविमे बदलल गेल (पृष्ठ 1)", "notFoundTitle": "पृष्ठ नहि भेटल", "notFoundBody": "ई पता PackComply क कोनो पृष्ठ धरि नहि लऽ जाइत अछि। लिंक जाँचू, वा अपन होम पृष्ठ पर घुरू।", "notFoundHome": "{page} पर जाउ", "shortcutsTitle": "कीबोर्ड शॉर्टकट", "shortcutsIntro": "कखनो ? दबाउ। कोनो फील्डमे टाइप करैत काल शॉर्टकट बंद रहैत अछि।", "shortcutThen": "तखन", "aboutCompareTitle": "विकास बनाम अनदेखल", "aboutCompareHint": "नवीनतम विकास रन आ नवीनतम अनदेखल रनक मुख्य अंक एक संग (विकास · अनदेखल)। अनदेखल अंक ईमानदार अछि: ओहि फोटो पर निकासीकेँ कहियो नहि सुधारल गेल।"
+  "newBadTypeMaker": "मात्र PNG, JPEG आ PDF फाइलक जाँच भ सकैत अछि।", "newPdfChosen": "PDF आर्टवर्क (पहिल पृष्ठक जाँच होएत)", "recAuditPdf": "आर्टवर्क PDF केँ छविमे बदलल गेल (पृष्ठ 1)", "notFoundTitle": "पृष्ठ नहि भेटल", "notFoundBody": "ई पता PackComply क कोनो पृष्ठ धरि नहि लऽ जाइत अछि। लिंक जाँचू, वा अपन होम पृष्ठ पर घुरू।", "notFoundHome": "{page} पर जाउ", "shortcutsTitle": "कीबोर्ड शॉर्टकट", "shortcutsIntro": "कखनो ? दबाउ। कोनो फील्डमे टाइप करैत काल शॉर्टकट बंद रहैत अछि।", "shortcutThen": "तखन", "aboutCompareTitle": "विकास बनाम अनदेखल", "aboutCompareHint": "नवीनतम विकास रन आ नवीनतम अनदेखल रनक मुख्य अंक एक संग (विकास · अनदेखल)। अनदेखल अंक ईमानदार अछि: ओहि फोटो पर निकासीकेँ कहियो नहि सुधारल गेल।",
+  "loginRoleTabs": "खाताक प्रकार",
+  "loginAsInspector": "निरीक्षकक रूप मे साइन इन करू",
+  "loginAsManufacturer": "निर्माताक रूप मे साइन इन करू",
+  "loginInspectorHint": "पैक लेबल जाँचू आ निरीक्षण दर्ज करू।",
+  "loginManufacturerHint": "छपाइ सँ पहिने अपन लेबल जाँचू।",
+  "loginWrongInspector": "ई निरीक्षक खाता अछि। कृपया निरीक्षक टैबक उपयोग करू।",
+  "loginWrongManufacturer": "ई निर्माता खाता अछि। कृपया निर्माता टैबक उपयोग करू।"
 }
